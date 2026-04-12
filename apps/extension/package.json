@@ -1,0 +1,39 @@
+{
+  "name": "@flowforge/extension",
+  "version": "0.1.2",
+  "description": "Browser extension for AI-powered web application onboarding",
+  "private": true,
+  "main": "dist/chrome/action/popup/index.html",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "clean": "rm -rf dist/",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "npm run clean && npm run typecheck && vite build",
+    "install:chrome": "node scripts/install-chrome.js",
+    "dev": "vite build --watch"
+  },
+  "keywords": [
+    "ai",
+    "browser",
+    "navigation",
+    "onboarding",
+    "rag",
+    "agents",
+    "user-flows",
+    "user-experience"
+  ],
+  "dependencies": {
+    "@flowforge/shared": "*"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.4.0",
+    "@preact/preset-vite": "^2.10.5",
+    "@types/chrome": "^0.1.38",
+    "preact": "^10.29.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.8"
+  }
+}

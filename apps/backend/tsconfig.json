@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "moduleDetection": "force",
+    "strict": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "erasableSyntaxOnly": true,
+    "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
+    "noImplicitOverride": true,
+    "useDefineForClassFields": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "#self/config": ["./src/config.ts"],
+      "#self/types": ["./src/types/index.ts"],
+      "#self/agent": ["./src/agent/index.ts"],
+      "#self/indexer": ["./src/indexer/index.ts"],
+      "#self/analytics": ["./src/analytics/index.ts"],
+      "#self/server": ["./src/server/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

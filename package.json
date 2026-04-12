@@ -1,0 +1,21 @@
+{
+  "name": "flowforge",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "npm run clean --workspaces",
+    "setup": "npm run setup --workspace @flowforge/backend",
+    "build": "npm run build --workspace @flowforge/shared && npm run build --workspace @flowforge/backend && npm run build --workspace @flowforge/extension",
+    "start": "npm run setup && npm run build && npm run install:chrome --workspace @flowforge/extension && npm run start --workspace @flowforge/backend",
+    "format": "prettier . --write --cache",
+    "format:check": "prettier . --check"
+  },
+  "author": "Antony Belov <gcerberus.ab@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}

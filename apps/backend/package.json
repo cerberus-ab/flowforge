@@ -1,0 +1,58 @@
+{
+  "name": "@flowforge/backend",
+  "version": "0.1.2",
+  "description": "Backend server for FlowForge browser extension",
+  "private": true,
+  "main": "dist/server.js",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "imports": {
+    "#self/config": "./dist/config.js",
+    "#self/types": "./dist/types/index.js",
+    "#self/agent": "./dist/agent/index.js",
+    "#self/indexer": "./dist/indexer/index.js",
+    "#self/analytics": "./dist/analytics/index.js",
+    "#self/server": "./dist/server/index.js"
+  },
+  "scripts": {
+    "clean:dist": "rm -rf dist/",
+    "clean:data": "rm -rf data/",
+    "clean": "npm run clean:dist && npm run clean:data",
+    "setup": "node scripts/quick-setup.js",
+    "build": "npm run clean:dist && tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "keywords": [
+    "ai",
+    "browser",
+    "navigation",
+    "onboarding",
+    "rag",
+    "agents",
+    "user-flows",
+    "user-experience"
+  ],
+  "dependencies": {
+    "@flowforge/shared": "*",
+    "@lancedb/lancedb": "^0.27.1",
+    "@langchain/core": "^1.1.35",
+    "@langchain/ollama": "^1.2.6",
+    "@langchain/openai": "^1.4.0",
+    "@langchain/textsplitters": "^1.0.1",
+    "boxen": "^8.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "langchain": "^1.2.36",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2"
+  }
+}

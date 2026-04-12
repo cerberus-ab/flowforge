@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+tmp
+.env*
+*.log
+*.min.js
+*.bundle.js

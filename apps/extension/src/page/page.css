@@ -1,0 +1,196 @@
+@import '../assets/styles/tokens.css';
+@import '../assets/styles/main.css';
+@import '../assets/styles/components.css';
+
+.flowforge-main--page {
+}
+
+/* Highlight Overlay */
+.flowforge-highlights-container {
+}
+.flowforge-highlight {
+    position: absolute;
+    z-index: 999999;
+    pointer-events: none;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flowforge-highlight--visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.flowforge-highlight--hiding {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+}
+.flowforge-highlight__ring,
+.flowforge-highlight__glow {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--flowforge-pad-sm);
+}
+.flowforge-highlight__ring {
+    border: 2px solid var(--flowforge-color-primary);
+    background: rgba(var(--flowforge-rgb-primary), 0.1);
+    box-shadow:
+            0 0 0 4px rgba(var(--flowforge-rgb-primary), 0.16),
+            0 6px 18px rgba(var(--flowforge-rgb-text), 0.12);
+    animation: flowforge-highlight-pulse 1.6s ease-in-out infinite;
+}
+.flowforge-highlight__glow {
+    inset: -2px;
+    border-radius: var(--flowforge-pad-md);
+    background: var(--flowforge-color-primary);
+    opacity: 0.06;
+    filter: blur(var(--flowforge-pad-sm));
+}
+.flowforge-highlight__label {
+    position: absolute;
+    left: 0;
+    max-width: 360px;
+    min-width: 160px;
+    min-height: 28px;
+    padding: var(--flowforge-pad-sm) 28px var(--flowforge-pad-sm) var(--flowforge-pad-lg);
+    border: 1px solid var(--flowforge-color-border);
+    border-left: 4px solid var(--flowforge-color-primary);
+    border-radius: var(--flowforge-pad-sm);
+    background: var(--flowforge-color-surface);
+    color: var(--flowforge-color-text);
+    font: var(--flowforge-text-sm);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-text), 0.4);
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: var(--flowforge-pad-xs);
+    pointer-events: auto;
+}
+.flowforge-highlight__label-text,
+.flowforge-highlight__label-action {
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--flowforge-color-text);
+    font: var(--flowforge-text-sm);
+}
+.flowforge-highlight__label-text > span,
+.flowforge-highlight__label-action > span {
+    text-transform: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+}
+.flowforge-highlight__label-star {
+    position: absolute;
+    display: block;
+    top: 6px;
+    right: var(--flowforge-pad-sm);
+    font-size: 14px;
+    color: var(--flowforge-color-primary);
+    text-transform: none;
+    letter-spacing: normal;
+    text-shadow:
+            0 0 4px rgba(var(--flowforge-rgb-primary), 0.45),
+            0 0 10px rgba(var(--flowforge-rgb-primary), 0.22);
+    animation: flowforge-highlight-star-twinkle 1.8s ease-in-out infinite;
+}
+.flowforge-highlight__label--top {
+    top: -36px;
+}
+.flowforge-highlight__label--bottom {
+    top: calc(100% + 8px);
+}
+
+@keyframes flowforge-highlight-star-twinkle {
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(0.85);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes flowforge-highlight-pulse {
+    0%,
+    100% {
+        box-shadow:
+                0 0 0 4px rgba(var(--flowforge-rgb-primary), 0.14),
+                0 6px 18px rgba(var(--flowforge-rgb-text), 0.12);
+    }
+    50% {
+        box-shadow:
+                0 0 0 6px rgba(var(--flowforge-rgb-primary), 0.2),
+                0 8px 22px rgba(var(--flowforge-rgb-text), 0.14);
+    }
+}
+
+/* Wizard */
+.flowforge-wizard {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--flowforge-color-surface);
+    border: 1px solid var(--flowforge-color-border);
+    border-top: 4px solid var(--flowforge-color-primary);
+    border-radius: var(--flowforge-pad-sm);
+    padding: var(--flowforge-pad-lg);
+    box-shadow:
+            0 0 0 4px rgba(var(--flowforge-rgb-primary), 0.14),
+            0 6px 18px rgba(var(--flowforge-rgb-text), 0.12);
+    color: var(--flowforge-color-text);
+    z-index: 1000000;
+    font: var(--flowforge-text-md);
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--flowforge-pad-lg);
+    pointer-events: auto;
+}
+.flowforge-wizard__drag-handle {
+    cursor: grab;
+    user-select: none;
+}
+.flowforge-wizard--dragging .flowforge-wizard__drag-handle {
+    cursor: grabbing;
+}
+.flowforge-wizard__title {
+    margin: 0;
+    font: var(--flowforge-text-h2);
+    color: var(--flowforge-color-text);
+}
+.flowforge-wizard__text {
+    margin: 0;
+    font: var(--flowforge-text-md);
+    color: var(--flowforge-color-text);
+    padding-bottom: var(--flowforge-pad-lg);
+    border-bottom: 1px solid var(--flowforge-color-border);
+    white-space: pre-wrap;
+}
+/* Wizard Controls */
+.flowforge-wizard-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--flowforge-pad-sm);
+}
+.flowforge-wizard-controls__title {
+    margin: 0;
+    font: var(--flowforge-text-h3);
+    color: var(--flowforge-color-text);
+}
+.flowforge-wizard-controls-list {
+    display: grid;
+    gap: var(--flowforge-pad-sm);
+}
+.flowforge-wizard-controls-list--start {
+    grid-template-columns: 2fr 1fr;
+}
+.flowforge-wizard-controls-list--steps {
+    grid-template-columns: repeat(3, 1fr);
+}
