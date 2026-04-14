@@ -1,5 +1,5 @@
-import { PageData } from './pageData.ts';
-import { AgentResult } from './agentResult.ts';
+import type { PageData } from './pageData.ts';
+import type { AgentResult, UsageMetadata } from './agentResult.ts';
 
 // POST: /query
 
@@ -14,6 +14,13 @@ export interface QueryRequest {
     userContext?: UserContext;
 }
 
+export interface QueryResponseMetadata {
+    model: string;
+    usage: UsageMetadata;
+    execTimeMs: number;
+}
+
 export interface QueryResponse {
     result: AgentResult;
+    metadata: QueryResponseMetadata;
 }

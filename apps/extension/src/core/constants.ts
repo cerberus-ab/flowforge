@@ -1,12 +1,12 @@
 export const constants = {
     // general
     DATA_ID_ATTRIBUTE: 'data-flowforge-id',
-    HISTORY_STORAGE_NAMESPACE: 'flowforge-history',
+    LOCAL_STORAGE_NAMESPACE: 'flowforge',
     // api
     API_QUERY_TIMEOUT_MS: 60000,
     // popup
     EXAMPLES_MAX_ITEMS: 5,
-    EXAMPLES_MAX_QUESTION_LENGTH: 40,
+    EXAMPLES_MAX_QUESTION_LENGTH: 50,
     // extractor
     CONTENT_ELEMENTS_LIMIT: 250,
     INTERACTIVE_ELEMENTS_LIMIT: 150,

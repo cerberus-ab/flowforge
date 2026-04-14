@@ -16,7 +16,7 @@ export class ToolsRegistry {
             }),
             new ToolGetPageSummary({
                 elementsHeadingsLimit: 5,
-                elementsButtonsLimit: 10,
+                elementsInteractionsLimit: 10,
             }),
             new ToolFindWorkflow({
                 retrieveDocumentsLimit: 20,

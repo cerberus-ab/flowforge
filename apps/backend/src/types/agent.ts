@@ -1,4 +1,4 @@
-import type { AgentResult } from '@flowforge/shared';
+import type { AgentResult, UsageMetadata } from '@flowforge/shared';
 
 export interface ToolCallInfo {
     order: number;
@@ -7,14 +7,15 @@ export interface ToolCallInfo {
 }
 
 export interface AgentExecResult {
+    model: string;
     humanMessageContent: string;
     lastAiMessageContent: string;
     toolCallsList: ToolCallInfo[];
+    usageMetadata: UsageMetadata;
 }
 
 export interface AgentResponse {
-    success: boolean;
     result: AgentResult;
+    execResult: AgentExecResult;
     execTimeMs: number;
-    execResult: AgentExecResult | null;
 }

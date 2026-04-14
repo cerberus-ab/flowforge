@@ -43,7 +43,6 @@ export abstract class AbstractDocumentExtractor implements DocumentExtractor {
     }
 
     async extract(pageData: PageData): Promise<IndexableDocument[]> {
-        console.log(`[Indexer] Extract via ${this.name} for ${pageData.basics.url}`);
         try {
             return await this.extractFn(pageData);
         } catch (error) {

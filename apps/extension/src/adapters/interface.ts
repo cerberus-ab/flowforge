@@ -1,6 +1,6 @@
 import type { Message, MessageResponse } from '#self/types';
 
-export interface StorageService {
+export interface LocalStorage {
     get<T>(key: string): Promise<T | null>;
     set<T>(key: string, value: T): Promise<void>;
     clear(): Promise<void>;

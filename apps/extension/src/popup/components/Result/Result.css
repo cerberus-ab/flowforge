@@ -1,0 +1,63 @@
+/* Elements */
+.flowforge-elements {
+    display: flex;
+    flex-direction: column;
+    gap: var(--flowforge-pad-sm);
+}
+.flowforge-elements__title {
+    margin: 0;
+    font: var(--flowforge-text-h3);
+    color: var(--flowforge-color-text);
+}
+.flowforge-elements-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--flowforge-pad-sm);
+}
+.flowforge-element-item {
+    display: block;
+    text-align: left;
+    padding: var(--flowforge-pad-sm) var(--flowforge-pad-lg);
+    border-radius: var(--flowforge-pad-sm);
+    background: var(--flowforge-color-bg);
+    border: 1px solid var(--flowforge-color-border);
+    color: var(--flowforge-color-text-muted);
+    font: var(--flowforge-text-sm);
+}
+.flowforge-element-item > span {
+    font: inherit;
+    color: inherit;
+    font-weight: 600;
+}
+.flowforge-element-item--chip {
+    cursor: pointer;
+    transition: var(--flowforge-transition-default);
+}
+.flowforge-element-item--chip:hover {
+    border-color: var(--flowforge-color-primary-hover);
+}
+.flowforge-elements-list--steps {
+    gap: 0;
+}
+.flowforge-elements-list--steps .flowforge-element-item {
+    border-radius: 0;
+}
+.flowforge-elements-list--steps .flowforge-element-item:first-child {
+    border-top-left-radius: var(--flowforge-pad-sm);
+    border-top-right-radius: var(--flowforge-pad-sm);
+}
+.flowforge-elements-list--steps .flowforge-element-item:last-child {
+    border-bottom-left-radius: var(--flowforge-pad-sm);
+    border-bottom-right-radius: var(--flowforge-pad-sm);
+}
+.flowforge-elements-list--steps .flowforge-element-item + .flowforge-element-item {
+    border-top: none;
+}
+.flowforge-result-metadata {
+    display: flex;
+    justify-content: center;
+    font: 400 11px / 1.6 var(--flowforge-font-family);
+    color: var(--flowforge-color-text-muted);
+    opacity: 0.7;
+    flex-wrap: wrap;
+}

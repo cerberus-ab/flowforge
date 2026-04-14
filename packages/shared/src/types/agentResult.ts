@@ -22,3 +22,9 @@ export type AgentResultElementAction = z.infer<typeof AgentResultElementActionSc
 export type AgentResultElement = z.infer<typeof AgentResultElementSchema>;
 export type AgentResultMode = z.infer<typeof AgentResultModeSchema>;
 export type AgentResult = z.infer<typeof AgentResultSchema>;
+
+export interface UsageMetadata {
+    inputTokens: number;
+    outputTokens: number;
+    totalTokens: number;
+}

@@ -4,12 +4,13 @@ import type { BaseMessage } from 'langchain';
 
 import { buildSystemPrompt, buildStructuredOutputPrompt } from './prompts.ts';
 import { PageContextProvider } from '#self/indexer';
-import type { AgentExecResult, ToolCallInfo, AgentResponse } from '#self/types';
+import type { AgentExecResult, ToolCallInfo, AgentResponse, LlmProviderInfo } from '#self/types';
 import { ToolsRegistry } from './tools/ToolsRegistry.ts';
-import type { AgentResult } from '@flowforge/shared';
+import type { AgentResult, UsageMetadata } from '@flowforge/shared';
 import { AgentResultSchema } from '@flowforge/shared';
 
 interface WebNavigationAgentOptions {
+    llmProviderInfo: LlmProviderInfo;
     chatModel: BaseChatModel;
     toolCallLimit?: number;
     recursionLimit?: number;
@@ -17,6 +18,7 @@ interface WebNavigationAgentOptions {
 }
 
 export class WebNavigationAgent {
+    private readonly llmProviderInfo: LlmProviderInfo;
     private readonly chatModel: BaseChatModel;
     private readonly toolsRegistry: ToolsRegistry;
     private readonly toolCallLimit: number;
@@ -27,6 +29,7 @@ export class WebNavigationAgent {
      * Creates a new web navigation agent instance.
      *
      * @param options - Configuration options for the agent.
+     * @param options.llmProviderInfo - Information about the LLM provider.
      * @param options.chatModel - Chat model used to run the agent.
      * @param options.toolCallLimit - Maximum number of tool calls allowed per query. Defaults to `5`.
      * @param options.recursionLimit - Maximum recursion depth for agent execution. Defaults to `10`.
@@ -39,6 +42,7 @@ export class WebNavigationAgent {
             verbose: false,
             ...options,
         };
+        this.llmProviderInfo = config.llmProviderInfo;
         this.chatModel = config.chatModel;
         this.toolsRegistry = new ToolsRegistry();
         this.toolCallLimit = config.toolCallLimit;
@@ -85,7 +89,6 @@ export class WebNavigationAgent {
             }
             const agentResult = await this.structAgentResult(question, agentExecResult.lastAiMessageContent);
             return {
-                success: true,
                 result: agentResult,
                 execResult: agentExecResult,
                 execTimeMs: performance.now() - t0,
@@ -93,17 +96,7 @@ export class WebNavigationAgent {
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error';
             console.error('[Agent] Error processing query:', message);
-            return {
-                success: false,
-                result: {
-                    answer: `An error occurred: ${message}`,
-                    elements: [],
-                    mode: 'direct',
-                    topic: null,
-                },
-                execResult: null,
-                execTimeMs: performance.now() - t0,
-            };
+            throw error;
         }
     }
 
@@ -125,9 +118,7 @@ export class WebNavigationAgent {
             );
             agentResult = AgentResultSchema.parse(result);
         }
-        if (this.verbose) {
-            console.log('[Agent] The structured result:', agentResult);
-        }
+        console.log('[Agent] The structured result:', agentResult);
         // filter out hallucinated elements
         agentResult.elements = agentResult.elements.filter((el) => {
             if (!el.dataId) {
@@ -144,6 +135,11 @@ export class WebNavigationAgent {
         let humanMessageContent = '';
         let lastAiMessageContent = '';
         const toolCallsList: ToolCallInfo[] = [];
+        const usageMetadata: UsageMetadata = {
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0
+        };
 
         for (const message of invokeState.messages) {
             if (message instanceof HumanMessage && humanMessageContent.length === 0) {
@@ -156,14 +152,21 @@ export class WebNavigationAgent {
                         toolCallsList.push({ order: tc, name: call.name, args: call.args });
                     }
                 }
+                if (message.usage_metadata) {
+                    usageMetadata.inputTokens += message.usage_metadata.input_tokens ?? 0;
+                    usageMetadata.outputTokens += message.usage_metadata.output_tokens ?? 0;
+                    usageMetadata.totalTokens += message.usage_metadata.total_tokens ?? 0;
+                }
                 // from the last message
                 lastAiMessageContent = typeof message?.content === 'string' ? message.content : '';
             }
         }
         return {
+            model: this.llmProviderInfo.model,
             humanMessageContent,
             lastAiMessageContent,
             toolCallsList,
+            usageMetadata,
         };
     }
 }

@@ -1,10 +1,15 @@
+import { useCallback, useRef } from 'preact/hooks';
+import type { TransportService } from '#self/adapters/interface';
+
+import { usePopup } from './hooks/usePopup';
+import { Main } from '#self/shared/components/Main';
 import { Question } from './components/Question';
 import { Loading } from './components/Loading';
 import { Result } from './components/Result';
 import { Examples } from './components/Examples';
-import { usePopup } from './hooks/usePopup';
-import type { TransportService } from '#self/adapters/interface';
-import { useCallback, useRef } from 'preact/hooks';
+import { ButtonText } from '#self/shared/components/Button';
+import { useSettings } from '#self/shared/hooks/useSettings';
+import { Link } from '#self/shared/components/Link';
 
 interface PopupAppProps {
     transport: TransportService;
@@ -16,13 +21,16 @@ export function PopupApp({ transport }: PopupAppProps) {
         setQuestion,
         isLoading,
         result,
+        resultMetadata,
         error,
         examples,
         copyright,
+        github,
         askQuestion,
         applyExampleQuestion,
         navigateToElement,
     } = usePopup({ transport });
+    const { theme, toggleTheme } = useSettings({ transport });
 
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +48,7 @@ export function PopupApp({ transport }: PopupAppProps) {
     );
 
     return (
-        <div className="flowforge-main flowforge-main--popup">
+        <Main theme={theme}>
             <main className="flowforge-popup">
                 <header className="flowforge-popup__header">
                     <h1 className="flowforge-popup__header-title">FlowForge</h1>
@@ -58,14 +66,20 @@ export function PopupApp({ transport }: PopupAppProps) {
                     {isLoading && <Loading />}
 
                     {(result || error) && (
-                        <Result result={result} error={error} navigateToElement={navigateToElement} />
+                        <Result result={result} resultMetadata={resultMetadata} error={error} navigateToElement={navigateToElement} />
                     )}
 
                     <Examples examples={examples} applyExampleQuestion={handleApplyExampleQuestion} />
 
-                    {copyright && <footer className="flowforge-popup__footer">{copyright}</footer>}
+                    <footer className="flowforge-popup__footer">
+                        <div className="flowforge-popup__copyright">{copyright}</div>
+                        <Link href={github}>Star me</Link>
+                        <ButtonText onClick={toggleTheme}>
+                            {theme === 'light' ? 'Dark' : 'Light'} theme
+                        </ButtonText>
+                    </footer>
                 </div>
             </main>
-        </div>
+        </Main>
     );
 }

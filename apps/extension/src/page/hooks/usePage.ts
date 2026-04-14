@@ -8,7 +8,7 @@ import type { Message, StartOnboardingMessageData } from '#self/types';
 import { collectPageData } from '#self/core/collector';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import { findElement } from '#self/core/highlighter/find';
-import type { PageViewModel, HighlightState, WizardState } from './types';
+import type { PageViewModel, HighlightState, WizardState } from './usePage.types';
 import type { TransportService } from '#self/adapters/interface';
 import { constants } from '#self/constants';
 import type { AgentResultElement } from '@flowforge/shared';

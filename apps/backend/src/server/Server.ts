@@ -7,7 +7,7 @@ import type {
     AnalyticsResponse,
     ErrorResponse,
     HealthResponse,
-    LlmProvider,
+    LlmProvider, LlmProviderInfo,
     QueryRequest,
     QueryResponse,
     RetrievedDocument,
@@ -49,6 +49,7 @@ export class Server {
             maxTokens: config.agent.maxTokens,
         });
         this.agent = new WebNavigationAgent({
+            llmProviderInfo: this.llmProvider.info(),
             chatModel,
             toolCallLimit: config.agent.toolCallLimit,
             recursionLimit: config.agent.recursionLimit,
@@ -104,11 +105,15 @@ export class Server {
             this.analytics.track(domain, pageData.basics.url, {
                 question,
                 timestamp: Date.now(),
-                agentSuccess: agentResponse.success,
-                agentToolCalls: agentResponse.execResult?.toolCallsList.map((call) => call.name) || [],
+                agentToolCalls: agentResponse.execResult.toolCallsList.map((call) => call.name) || [],
             });
             res.json({
                 result: agentResponse.result,
+                metadata: {
+                    model: agentResponse.execResult.model,
+                    usage: agentResponse.execResult.usageMetadata,
+                    execTimeMs: agentResponse.execTimeMs,
+                },
             });
         } catch (error) {
             console.error('[Server] Error:', error);
@@ -169,7 +174,7 @@ export class Server {
         console.log(
             boxen(
                 [
-                    `FlowForge – Backend v${this.config.pkg.version}`,
+                    `FlowForge – Backend ${this.config.pkg.version}`,
                     ' ─── ',
                     `Server: running on port ${this.config.port}`,
                     `LLM Provider: ${LlmProviderInfo.provider}`,

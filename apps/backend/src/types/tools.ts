@@ -12,7 +12,7 @@ export interface ToolGetPageSummaryResult extends CallableToolResult {
     description: string;
     language: string;
     sampleHeadings: string;
-    sampleButtons: string;
+    sampleInteractions: string;
 }
 
 export interface ToolResultElement {

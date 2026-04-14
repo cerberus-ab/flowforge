@@ -1,36 +1,57 @@
 import type { TransportService } from '#self/adapters/interface';
 import { ApiClient } from '#self/core/services/ApiClient';
-import { HistoryService } from '#self/core/services/HistoryService';
-import type {
-    AskQuestionMessage,
-    AskQuestionMessageResponse,
-    ClearPageMessage,
-    CollectPageDataMessage,
-    CollectPageDataMessageResponse,
-    GetPrevQuestionsMessage,
-    GetPrevQuestionsMessageResponse,
-    HighlightElementMessage,
-    Message,
-    MessageResponse,
-    NavigateToElementMessage,
-    StartOnboardingMessage,
+import { HistoryStorage } from '#self/core/services/HistoryStorage';
+import {
+    type ApplySettingsMessage,
+    type AskQuestionMessage,
+    type AskQuestionMessageResponse,
+    type ClearPageMessage,
+    type CollectPageDataMessage,
+    type CollectPageDataMessageResponse,
+    type GetPrevQuestionsMessage,
+    type GetPrevQuestionsMessageResponse,
+    type GetSettingsMessage,
+    type GetSettingsMessageResponse,
+    type HighlightElementMessage,
+    isGetSettingsMessage,
+    isUpdateSettingsMessage,
+    type Message,
+    type MessageResponse,
+    type NavigateToElementMessage,
+    type StartOnboardingMessage,
+    type UpdateSettingsMessage,
+    type UpdateSettingsMessageResponse,
 } from '#self/types';
 import { isAskQuestionMessage, isGetPrevQuestionsMessage, isNavigateToElementMessage } from '#self/types';
 import type { QueryRequest } from '@flowforge/shared';
+import type { SettingsStorage } from '#self/core/services/SettignsStorage';
 
 export class BackgroundWorker {
     private readonly transport: TransportService;
     private readonly apiClient: ApiClient;
-    private readonly historyService: HistoryService;
+    private readonly historyStorage: HistoryStorage;
+    private readonly settingsStorage: SettingsStorage;
 
-    constructor(transport: TransportService, apiClient: ApiClient, historyService: HistoryService) {
+    constructor(
+        transport: TransportService,
+        apiClient: ApiClient,
+        historyStorage: HistoryStorage,
+        settingsStorage: SettingsStorage,
+    ) {
         this.transport = transport;
         this.apiClient = apiClient;
-        this.historyService = historyService;
+        this.historyStorage = historyStorage;
+        this.settingsStorage = settingsStorage;
     }
 
     start(): void {
         this.transport.addMessageListener((message: Message) => {
+            if (isGetSettingsMessage(message)) {
+                return this.handleGetSettings(message);
+            }
+            if (isUpdateSettingsMessage(message)) {
+                return this.handleUpdateSettings(message);
+            }
             if (isAskQuestionMessage(message)) {
                 return this.handleAskQuestion(message);
             }
@@ -42,6 +63,45 @@ export class BackgroundWorker {
             }
         });
         console.log('[FlowForge] Background worker loaded and started');
+    }
+
+    /**
+     * Retrieves extension settings from storage
+     *
+     * @param message - Incoming background message
+     * @returns A successful response containing the stored settings.
+     * @throws Rethrows any error that occurs while reading settings storage.
+     */
+    private async handleGetSettings(message: GetSettingsMessage): Promise<GetSettingsMessageResponse> {
+        try {
+            const settings = await this.settingsStorage.get();
+            return { success: true, data: settings };
+        } catch (error) {
+            console.error('[Background] Error getting extension settings:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates extension settings with a partial patch
+     *
+     * @param message - Incoming background message containing a settings patch.
+     * @returns A successful response containing the updated settings.
+     * @throws Rethrows any error that occurs while writing settings storage.
+     */
+    private async handleUpdateSettings(message: UpdateSettingsMessage): Promise<UpdateSettingsMessageResponse> {
+        try {
+            const updatedSettings = await this.settingsStorage.update(message.data.patch);
+            // Apply updated settings to the page
+            await this.transport.sendToPage<ApplySettingsMessage>(message.senderId, {
+                type: 'APPLY_SETTINGS',
+                data: { settings: updatedSettings },
+            });
+            return { success: true, data: updatedSettings };
+        } catch (error) {
+            console.error('[Background] Error updating extension settings:', error);
+            throw error;
+        }
     }
 
     /**
@@ -81,7 +141,7 @@ export class BackgroundWorker {
                 pageData,
                 domain,
                 userContext: {
-                    previousQuestions: await this.historyService.getPreviousQuestions(domain),
+                    previousQuestions: await this.historyStorage.getPreviousQuestions(domain),
                 },
             };
             console.log('[Background] Sending request to server:', requestData);
@@ -103,8 +163,8 @@ export class BackgroundWorker {
                 await this.transport.sendToPage<StartOnboardingMessage>(message.senderId, startOnboardingMsg);
             }
             // Save question to history
-            await this.historyService.saveQuestion(domain, message.data.question);
-            return { success: true, data: result };
+            await this.historyStorage.saveQuestion(domain, message.data.question);
+            return { success: true, data: responseData };
         } catch (error) {
             console.error('[Background] Error handling question:', error);
             throw error;
@@ -121,7 +181,7 @@ export class BackgroundWorker {
     private async handleGetPrevQuestions(message: GetPrevQuestionsMessage): Promise<GetPrevQuestionsMessageResponse> {
         try {
             const domain = await this.transport.getSenderHostname(message.senderId);
-            const questions = await this.historyService.getPreviousQuestions(domain);
+            const questions = await this.historyStorage.getPreviousQuestions(domain);
             return { success: true, data: { questions } };
         } catch (error) {
             console.error('[Background] Error getting previous questions:', error);

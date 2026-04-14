@@ -1,0 +1,41 @@
+/* Cards */
+.flowforge-card {
+    background: var(--flowforge-color-surface);
+    border: 1px solid var(--flowforge-color-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--flowforge-pad-lg);
+    border-radius: var(--flowforge-pad-sm);
+    padding: var(--flowforge-pad-lg);
+    box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-shadow), 0.1);
+}
+.flowforge-card__title {
+    margin: 0;
+    font: var(--flowforge-text-h2);
+    color: var(--flowforge-color-text);
+}
+.flowforge-card__text {
+    font: var(--flowforge-text-md);
+    color: var(--flowforge-color-text);
+    padding-bottom: var(--flowforge-pad-lg);
+    border-bottom: 1px solid var(--flowforge-color-border);
+    white-space: pre-wrap;
+}
+.flowforge-card__footer {
+    padding-top: var(--flowforge-pad-sm);
+}
+.flowforge-card__text:last-child,
+.flowforge-card__text:has(+ .flowforge-card__footer){
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.flowforge-card--left {
+    border-left: 4px solid var(--flowforge-color-primary);
+}
+.flowforge-card[data-state='error'] {
+    background: rgba(var(--flowforge-rgb-secondary), 0.05);
+    box-shadow: 0 0 0 4px rgba(var(--flowforge-rgb-secondary), 0.15);
+}
+.flowforge-card--left[data-state='error'] {
+    border-left-color: var(--flowforge-color-secondary);
+}

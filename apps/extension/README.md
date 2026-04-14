@@ -10,7 +10,7 @@ Chrome extension that handles UI interaction, page data extraction, and visual g
 - Send user queries and page context to backend
 - Render answers in popup UI
 - Highlight elements and guide workflows on the page
-- Handle messaging between popup, content scripts, and backend
+- Handle messaging between popup, page runtime (content scripts), and backend
 
 ## Run (standalone)
 
@@ -35,7 +35,7 @@ npm run dev
 ## Key Parts
 
 - `popup/` — user interface and interaction logic
-- `page/` — DOM extraction and element highlighting
+- `page/` — (content script) DOM extraction and element highlighting
 - `background/` — message routing and extension lifecycle
 
 ## Notes

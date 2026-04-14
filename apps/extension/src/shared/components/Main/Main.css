@@ -1,0 +1,15 @@
+@import './tokens.css';
+
+/* Main */
+.flowforge-main {
+    font: var(--flowforge-text-md);
+    color: var(--flowforge-color-text);
+}
+:where(.flowforge-main, .flowforge-main *) {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+:where(.flowforge-main [hidden]) {
+    display: none !important;
+}

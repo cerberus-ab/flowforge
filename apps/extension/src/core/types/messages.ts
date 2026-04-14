@@ -1,9 +1,11 @@
-import type { AgentResult, AgentResultElement, AgentResultMode, PageData } from '@flowforge/shared';
+import type { AgentResultElement, AgentResultMode, PageData, QueryResponse } from '@flowforge/shared';
+import type { ExtensionSettings } from '#self/core/types/settings';
 
-type MessageTypePopupToBackground = 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT';
-type MessageTypeBackgroundToPage = 'COLLECT_PAGE_DATA' | 'START_ONBOARDING' | 'HIGHLIGHT_ELEMENT' | 'CLEAR_PAGE';
+type MessageTypeToBackground = 'GET_SETTINGS';
+type MessageTypePopupToBackground = 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT' | 'UPDATE_SETTINGS';
+type MessageTypeBackgroundToPage = 'COLLECT_PAGE_DATA' | 'START_ONBOARDING' | 'HIGHLIGHT_ELEMENT' | 'CLEAR_PAGE' | 'APPLY_SETTINGS';
 
-type MessageType = MessageTypePopupToBackground | MessageTypeBackgroundToPage;
+type MessageType = MessageTypeToBackground | MessageTypePopupToBackground | MessageTypeBackgroundToPage;
 
 export type Message<T = undefined> = T extends undefined ? { type: MessageType } : { type: MessageType; data: T };
 
@@ -11,7 +13,30 @@ export type MessageResponse<T = undefined> =
     | (T extends undefined ? { success: true } : { success: true; data: T })
     | { success: false; error: string };
 
+// Popup, Page -> Background
+
+export type GetSettingsMessage = Message & {
+    type: 'GET_SETTINGS';
+}
+
+export type GetSettingsMessageResponseData = ExtensionSettings;
+
+export type GetSettingsMessageResponse = MessageResponse<GetSettingsMessageResponseData>;
+
 // Popup -> Background
+
+export type UpdateSettingsMessageData = {
+    patch: Partial<ExtensionSettings>;
+}
+
+export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
+    type: 'UPDATE_SETTINGS';
+    senderId: number;
+};
+
+export type UpdateSettingsMessageResponseData = ExtensionSettings;
+
+export type UpdateSettingsMessageResponse = MessageResponse<UpdateSettingsMessageResponseData>;
 
 export interface AskQuestionMessageData {
     question: string;
@@ -22,7 +47,7 @@ export type AskQuestionMessage = Message<AskQuestionMessageData> & {
     senderId: number;
 };
 
-export type AskQuestionMessageResponseData = AgentResult;
+export type AskQuestionMessageResponseData = QueryResponse;
 
 export type AskQuestionMessageResponse = MessageResponse<AskQuestionMessageResponseData>;
 
@@ -47,6 +72,14 @@ export type NavigateToElementMessage = Message<NavigateToElementMessageData> & {
 };
 
 // Background -> Page
+
+export interface ApplySettingsMessageData {
+    settings: ExtensionSettings;
+}
+
+export type ApplySettingsMessage = Message<ApplySettingsMessageData> & {
+    type: 'APPLY_SETTINGS';
+};
 
 export type CollectPageDataMessage = Message & {
     type: 'COLLECT_PAGE_DATA';
@@ -80,6 +113,18 @@ export type HighlightElementMessage = Message<HighlightElementMessageData> & {
 };
 
 // Type guards
+
+export function isGetSettingsMessage(message: Message): message is GetSettingsMessage {
+    return message.type === 'GET_SETTINGS';
+}
+
+export function isUpdateSettingsMessage(message: Message): message is UpdateSettingsMessage {
+    return message.type === 'UPDATE_SETTINGS';
+}
+
+export function isApplySettingsMessage(message: Message): message is ApplySettingsMessage {
+    return message.type === 'APPLY_SETTINGS';
+}
 
 export function isAskQuestionMessage(message: Message): message is AskQuestionMessage {
     return message.type === 'ASK_QUESTION';

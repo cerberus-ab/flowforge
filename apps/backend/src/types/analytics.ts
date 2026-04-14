@@ -1,8 +1,7 @@
 export interface AnalyticsEvent {
     question: string;
-    timestamp: number;
-    agentSuccess: boolean;
     agentToolCalls: string[];
+    timestamp: number;
 }
 
 // by domain, by pageUrl

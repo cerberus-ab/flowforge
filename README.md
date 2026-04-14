@@ -4,14 +4,14 @@ _Forging your experience..._
 
 FlowForge is a Web Onboarding Assistant that turns user intent into actionable UI guidance inside any web application.
 
-- Find information and UI elements
-- Ask questions in natural language
-- Learn the product with guided onboarding
+- Explore content and interface instantly
+- Ask anything about the page
+- Get step-by-step onboarding flows
 
 ## Demo
 
 <p align="left">
-  <img src="./docs/assets/demo-v0.1.2.gif" width="800" />
+  <img src="./docs/assets/demo.gif" width="1000" />
 </p>
 
 ## Overview
@@ -34,6 +34,8 @@ It works on any website out of the box and becomes product-aware when integrated
 It is an early-stage MVP built to showcase the ✦ Idea ✦ itself.
 
 It is not production-ready yet, and the core engine is still under development. Expect limitations, rough edges, and ongoing improvements as the project evolves.
+
+[Changelog](./CHANGELOG.md) – see the list of changes
 
 ## Quick Start
 

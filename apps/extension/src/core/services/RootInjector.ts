@@ -6,6 +6,14 @@ export interface InjectedRoot {
     mountPoint: HTMLElement;
 }
 
+const overlayStyle = `
+    position: fixed;
+    inset: 0;
+    isolation: isolate;
+    pointer-events: none;
+    z-index: 2147483647;
+`;
+
 export interface RootInjector {
     /**
      * Injects or resolves a root element by id.
@@ -29,15 +37,7 @@ export class DocumentRootInjector implements RootInjector {
 
         const root = document.createElement('div');
         root.id = rootId;
-        root.style.cssText = `${
-            options?.overlay
-                ? `
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 2147483647;`
-                : ''
-        }`;
+        root.style.cssText = `${options?.overlay ? overlayStyle : ''}`;
         document.body.appendChild(root);
 
         return { mountPoint: root };
@@ -80,15 +80,7 @@ export class ShadowRootInjector implements RootInjector {
         host.id = rootId;
         host.style.cssText = `
             all: initial;
-            ${
-                options?.overlay
-                    ? `
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 2147483647;`
-                    : ''
-            }`;
+            ${options?.overlay ? overlayStyle : ''}`;
         const shadowRoot = host.attachShadow({ mode: 'open' });
         const mountPoint = document.createElement('div');
         mountPoint.id = mountId;

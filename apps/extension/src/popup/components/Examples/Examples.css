@@ -1,0 +1,30 @@
+/* Examples */
+.flowforge-examples-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--flowforge-pad-xs);
+}
+.flowforge-example-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--flowforge-pad-xs) var(--flowforge-pad-sm);
+    border-radius: var(--flowforge-pad-xs);
+    background: var(--flowforge-color-surface);
+    border: 1px solid var(--flowforge-color-border);
+    color: var(--flowforge-color-text-muted);
+    font: var(--flowforge-text-sm);
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--flowforge-transition-default);
+}
+.flowforge-example-chip:hover {
+    background: var(--flowforge-color-bg);
+}
+.flowforge-example-chip--primary:hover {
+    border-color: var(--flowforge-color-primary-hover);
+    color: var(--flowforge-color-primary-hover);
+}
+.flowforge-example-chip--secondary:hover {
+    border-color: var(--flowforge-color-secondary-hover);
+    color: var(--flowforge-color-secondary-hover);
+}

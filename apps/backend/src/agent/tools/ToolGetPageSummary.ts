@@ -6,27 +6,28 @@ import type { ToolGetPageSummaryResult } from '#self/types';
 
 export class ToolGetPageSummary extends AbstractCallableTool {
     private readonly elementsHeadingsLimit: number;
-    private readonly elementsButtonsLimit: number;
+    private readonly elementsInteractionsLimit: number;
 
-    constructor(params: { elementsHeadingsLimit: number; elementsButtonsLimit: number }) {
+    constructor(params: { elementsHeadingsLimit: number; elementsInteractionsLimit: number }) {
         super('get_page_summary');
         this.elementsHeadingsLimit = params.elementsHeadingsLimit;
-        this.elementsButtonsLimit = params.elementsButtonsLimit;
+        this.elementsInteractionsLimit = params.elementsInteractionsLimit;
     }
 
     override async callFn(ctx: PageContextProvider, query: string): Promise<ToolGetPageSummaryResult> {
         // Extract top headings
         const sampleHeadings = ctx.pageData.content
             .filter((el) => ['h1', 'h2'].includes(el.tag))
-            .map((el) => el.text)
-            .slice(0, this.elementsHeadingsLimit);
+            .sort((a, b) => b.importanceScore - a.importanceScore)
+            .slice(0, this.elementsHeadingsLimit)
+            .map((el) => `${el.tag}:${el.text}`);
 
-        // Extract top buttons
-        const sampleButtons = ctx.pageData.interactive
-            .filter((el) => el.type === 'button')
+        // Extract top interactions
+        const sampleInteractions = ctx.pageData.interactive
             .filter((el) => el.labels.length > 0 || el.text)
-            .map((el) => el.labels[0]?.value ?? el.text)
-            .slice(0, this.elementsButtonsLimit);
+            .sort((a, b) => b.importanceScore - a.importanceScore)
+            .slice(0, this.elementsInteractionsLimit)
+            .map((el) => `${el.type}:${el.labels[0]?.value ?? el.text}`);
 
         return {
             title: ctx.pageData.basics.title,
@@ -34,7 +35,7 @@ export class ToolGetPageSummary extends AbstractCallableTool {
             description: ctx.pageData.basics.description,
             language: ctx.pageData.basics.language,
             sampleHeadings: sampleHeadings.join(' | '),
-            sampleButtons: sampleButtons.join(' | '),
+            sampleInteractions: sampleInteractions.join(' | '),
         };
     }
 
@@ -52,7 +53,7 @@ WHEN TO USE:
 
 WHAT IT RETURNS:
 - Basic page information (title, description, language)
-- Sample headings and buttons
+- Sample headings and interactions (buttons, links, inputs, etc.)
 
 IMPORTANT:
 - This tool gives general context, not specific answers

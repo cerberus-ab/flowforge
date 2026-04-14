@@ -1,0 +1,59 @@
+/* Tokens */
+.flowforge-main {
+    /** Colors **/
+    --flowforge-color-primary: #6d28d9;
+    --flowforge-color-primary-hover: #7c3aed;
+    --flowforge-color-secondary: #f97316;
+    --flowforge-color-secondary-hover: #fb923c;
+    --flowforge-color-bg: #f1f5f9;
+    --flowforge-color-surface: #ffffff;
+    --flowforge-color-border: #cbd5f5;
+    --flowforge-color-muted: #475569;
+    --flowforge-color-text: #0f172a;
+    --flowforge-color-text-on-dark: #e5e7eb;
+    --flowforge-color-text-muted: var(--flowforge-color-muted);
+
+    /* RGB versions */
+    --flowforge-rgb-primary: 109, 40, 217;
+    --flowforge-rgb-secondary: 249, 115, 22;
+    --flowforge-rgb-shadow: 0, 0, 0;
+
+    /** Typography **/
+    --flowforge-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    --flowforge-text-sm: 400 12px / 1.5 var(--flowforge-font-family);
+    --flowforge-text-md: 400 14px / 1.4 var(--flowforge-font-family);
+    --flowforge-text-lg: 400 16px / 1.5 var(--flowforge-font-family);
+
+    --flowforge-text-h3: 600 13px / 1.4 var(--flowforge-font-family);
+    --flowforge-text-h2: 600 14px / 1.4 var(--flowforge-font-family);
+    --flowforge-text-h1: 600 18px / 1.2 var(--flowforge-font-family);
+
+    /** Sizes **/
+    --flowforge-pad-xs: 6px;
+    --flowforge-pad-sm: 8px;
+    --flowforge-pad-md: 10px;
+    --flowforge-pad-lg: 12px;
+    --flowforge-pad-xl: 16px;
+
+    /** Animation **/
+    --flowforge-transition-default: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+.flowforge-main[data-theme="dark"] {
+    /** Colors **/
+    --flowforge-color-primary: #8b5cf6;
+    --flowforge-color-primary-hover: #a78bfa;
+    --flowforge-color-secondary: #fb923c;
+    --flowforge-color-secondary-hover: #fdba74;
+    --flowforge-color-bg: #0b1020;
+    --flowforge-color-surface: #12172a;
+    --flowforge-color-border: #2a3150;
+    --flowforge-color-muted: #94a3b8;
+    --flowforge-color-text: var(--flowforge-color-text-on-dark);
+
+    /* RGB versions */
+    --flowforge-rgb-primary: 139, 92, 246;
+    --flowforge-rgb-secondary: 251, 146, 60;
+    --flowforge-rgb-shadow: 120, 120, 120;
+}

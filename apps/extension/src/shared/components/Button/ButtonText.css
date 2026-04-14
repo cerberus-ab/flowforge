@@ -1,0 +1,21 @@
+/* Button Text */
+.flowforge-button-text {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: var(--flowforge-color-text);
+    transition: var(--flowforge-transition-default);
+}
+.flowforge-button-text:hover,
+.flowforge-button-text--primary:hover {
+    color: var(--flowforge-color-primary-hover);
+}
+.flowforge-button-text--secondary:hover {
+    color: var(--flowforge-color-secondary-hover);
+}
+.flowforge-button-text:disabled {
+    color: var(--flowforge-color-text-muted);
+    cursor: not-allowed;
+    opacity: 0.5;
+}

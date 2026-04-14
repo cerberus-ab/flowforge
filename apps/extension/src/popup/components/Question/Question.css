@@ -1,0 +1,24 @@
+/* Input textarea */
+.flowforge-input-textarea {
+    width: 100%;
+    padding: var(--flowforge-pad-lg);
+    border: 1px solid var(--flowforge-color-border);
+    border-radius: var(--flowforge-pad-sm);
+    resize: vertical;
+    font: var(--flowforge-text-md);
+    color: var(--flowforge-color-text);
+    background: rgba(var(--flowforge-rgb-secondary), 0.04);
+    transition: var(--flowforge-transition-default);
+}
+.flowforge-input-textarea::placeholder {
+    color: var(--flowforge-color-text-muted);
+}
+.flowforge-input-textarea:hover {
+    background: rgba(var(--flowforge-rgb-secondary), 0.06);
+}
+.flowforge-input-textarea:focus {
+    outline: none;
+    border-color: var(--flowforge-color-secondary);
+    background: var(--flowforge-color-surface);
+    box-shadow: 0 0 0 4px rgba(var(--flowforge-rgb-secondary), 0.16);
+}

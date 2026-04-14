@@ -7,7 +7,7 @@ import path from 'path';
 
     console.log(`╭──────────────────────────────────────────────────────╮
 │                                                      │
-│   FlowForge - Browser Extension v${pkg.version}               │
+│   FlowForge - Browser Extension ${pkg.version}                │
 │    ───                                               │
 │   How to install the extension (Chrome):             │
 │    1. Open: chrome://extensions/                     │

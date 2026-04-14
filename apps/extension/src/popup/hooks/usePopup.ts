@@ -11,9 +11,10 @@ import { config } from '#self/config';
 import { normalizeText } from '#self/core/utils/text';
 import type { PopupExampleItem } from '#self/popup/utils/data';
 import { buildExampleItems } from '#self/popup/utils/data';
-import type { PopupViewModel } from './types';
+import type { PopupViewModel } from './usePopup.types';
 import type { TransportService } from '#self/adapters/interface';
 import type { AgentResult, AgentResultElement } from '@flowforge/shared';
+import { formatQueryResponseMetadata } from '#self/popup/utils/format';
 
 interface UsePopupParams {
     transport: TransportService;
@@ -23,6 +24,7 @@ export function usePopup({ transport }: UsePopupParams): PopupViewModel {
     const [question, setQuestion] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<AgentResult | null>(null);
+    const [resultMetadata, setResultMetadata] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [examples, setExamples] = useState<PopupExampleItem[]>([]);
 
@@ -57,22 +59,21 @@ export function usePopup({ transport }: UsePopupParams): PopupViewModel {
     // Handle ask question
     const handleAskQuestion = useCallback(async () => {
         try {
+            setResult(null);
+            setResultMetadata(null);
+            setError(null);
+
             const normalized = normalizeText(question);
 
             if (!normalized) {
                 setError('Please enter a question');
-                setResult(null);
                 return;
             }
             if (normalized.length > config.maxQuestionLength) {
                 setError(`Please keep your question under ${config.maxQuestionLength} characters`);
-                setResult(null);
                 return;
             }
-
             setIsLoading(true);
-            setError(null);
-            setResult(null);
 
             const message: AskQuestionMessage = {
                 type: 'ASK_QUESTION',
@@ -92,7 +93,8 @@ export function usePopup({ transport }: UsePopupParams): PopupViewModel {
                 setError('Empty response received');
                 return;
             }
-            setResult(response.data);
+            setResult(response.data.result);
+            setResultMetadata(formatQueryResponseMetadata(response.data.metadata));
         } catch (err) {
             setIsLoading(false);
             setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -121,9 +123,11 @@ export function usePopup({ transport }: UsePopupParams): PopupViewModel {
         question,
         isLoading,
         result,
+        resultMetadata,
         error,
         examples,
         copyright: config.copyright,
+        github: config.github,
         // actions
         setQuestion,
         askQuestion: handleAskQuestion,
