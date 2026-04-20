@@ -2,7 +2,7 @@
 
 All notable changes to the project will be documented in this file.
 
-## [Unreleased]
+## [0.1.3] - 2026-04-20
 
 ### Added
 - Dark theme for the extension.
