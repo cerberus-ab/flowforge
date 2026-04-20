@@ -12,7 +12,7 @@ Chrome extension that handles UI interaction, page data extraction, and visual g
 - Highlight elements and guide workflows on the page
 - Handle messaging between popup, page runtime (content scripts), and backend
 
-## Run (standalone)
+## Run
 
 ```bash
 npm i

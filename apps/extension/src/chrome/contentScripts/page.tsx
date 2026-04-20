@@ -17,7 +17,7 @@ import { ShadowRootInjector } from '#self/core/services/RootInjector';
         init();
     }
     function init() {
-        const root = rootInjector.inject(ROOT_ID, { overlay: true });
+        const root = rootInjector.inject(document, ROOT_ID, { overlay: true });
         rootInjector.injectStyles(root, styles);
 
         render(<PageApp transport={transport} />, root.mountPoint);

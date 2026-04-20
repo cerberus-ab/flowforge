@@ -16,6 +16,7 @@
     pointer-events: auto;
 }
 .flowforge-popup__header {
+    position: relative;
     z-index: 1;
     margin: 0;
     flex-shrink: 0;
@@ -28,9 +29,23 @@
     color: var(--flowforge-color-text-on-dark);
     box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-shadow), 0.4);
     background:
-            url('img/header-bg-small.webp') center / cover no-repeat,
+            url('img/header-bg-sm.webp') right bottom no-repeat,
             linear-gradient(135deg, var(--flowforge-color-primary) 0%, var(--flowforge-color-primary-hover) 100%);
-    position: relative;
+}
+.flowforge-popup__header--parallax {
+    background-position: center center, 0 0;
+    animation: flowforge-header-parallax 60s ease-in-out infinite alternate;
+}
+@keyframes flowforge-header-parallax {
+    0% {
+        background-position: calc(50% - 95px) calc(50% - 15px), 0 0;
+    }
+    50% {
+        background-position: 50% calc(50% + 15px), 0 0;
+    }
+    100% {
+        background-position: calc(50% + 95px) calc(50% - 15px), 0 0;
+    }
 }
 .flowforge-popup__header-title {
     font: var(--flowforge-text-h1);

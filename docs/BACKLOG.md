@@ -1,7 +1,5 @@
 ## General
 
-- Support Anthropic, Ollama Cloud providers
-- Try open source models: gpt-oss:120b, nemotron-3-super
 - Enhance logging (with pino, LangSmith, opentelemetry)
 - Enhance error handling and API validation
 - Test coverage (unit/integration, vitest, playwright, promptfoo)
@@ -9,21 +7,29 @@
 
 ## Backend
 
+### Models
+
+- Support Anthropic, Ollama Cloud providers
+- Research WebLLM in browser: instant summary, intent classification, local reranking, etc.
+- Try open source models: gpt-oss:120b, nemotron-3-super
+
 ### RAG
 
-- Enhance Embeddings semantic: templates instead of '. '
+- Enhance embeddings semantic: intent action, UX, parents graph, etc.
+- Enhance reranking based on contextual relevance
 - Add cache (node-cache/Redis) before index and search calls
 - Enhance Vector Storage, re-fresh and metadata control
+- Consider using PostgreSQL pgvector instead of LanceDB
 - Add knowledge about web standards (ARIA)
-- Research embeddings-based splitting
 
 ### Reasoning
 
 - Use user context and navigation history for prompting
+- Present a page/website UI and meanings graph for reasoning
 
 ### Tools
 
-- Add UI graph presentation and tooling
+- Improve find_workflow tool by building the graph of steps
 - Add FormExtractor tool for workflows
 - Add Statistics tool: how many elements on the page, etc.
 - Fetch data from links to provide website context
@@ -44,7 +50,7 @@
 ## Extension
 
 - Support standalone mode
-- Cache for pageData transfer, with RAG cache
+- Cache for pageModel transfer, with RAG cache
 - CSS modules ?
 
 ## DX

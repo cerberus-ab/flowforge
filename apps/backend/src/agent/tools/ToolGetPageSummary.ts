@@ -1,8 +1,13 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
-import { PageContextProvider } from '#self/indexer';
-import type { ToolGetPageSummaryResult } from '#self/types';
+import {
+    formatConcatElements,
+    formatContentElementShort,
+    formatInteractiveElementShort,
+    PageContextProvider,
+} from '#self/indexer';
+import type { ToolGetPageSummaryResultData } from '#self/types';
 
 export class ToolGetPageSummary extends AbstractCallableTool {
     private readonly elementsHeadingsLimit: number;
@@ -14,28 +19,28 @@ export class ToolGetPageSummary extends AbstractCallableTool {
         this.elementsInteractionsLimit = params.elementsInteractionsLimit;
     }
 
-    override async callFn(ctx: PageContextProvider, query: string): Promise<ToolGetPageSummaryResult> {
-        // Extract top headings
-        const sampleHeadings = ctx.pageData.content
-            .filter((el) => ['h1', 'h2'].includes(el.tag))
+    override async callFn(ctx: PageContextProvider, query: string): Promise<ToolGetPageSummaryResultData> {
+        // Get top headings
+        const sampleHeadings = ctx.pageModel.content
+            .filter((el) => el.type === 'heading')
             .sort((a, b) => b.importanceScore - a.importanceScore)
             .slice(0, this.elementsHeadingsLimit)
-            .map((el) => `${el.tag}:${el.text}`);
+            .map((el) => formatContentElementShort(el));
 
-        // Extract top interactions
-        const sampleInteractions = ctx.pageData.interactive
+        // Get top interactions
+        const sampleInteractions = ctx.pageModel.interactive
             .filter((el) => el.labels.length > 0 || el.text)
             .sort((a, b) => b.importanceScore - a.importanceScore)
             .slice(0, this.elementsInteractionsLimit)
-            .map((el) => `${el.type}:${el.labels[0]?.value ?? el.text}`);
+            .map((el) => formatInteractiveElementShort(el));
 
         return {
-            title: ctx.pageData.basics.title,
-            url: ctx.pageData.basics.url,
-            description: ctx.pageData.basics.description,
-            language: ctx.pageData.basics.language,
-            sampleHeadings: sampleHeadings.join(' | '),
-            sampleInteractions: sampleInteractions.join(' | '),
+            title: ctx.pageModel.basics.title,
+            url: ctx.pageModel.basics.url,
+            description: ctx.pageModel.basics.description,
+            language: ctx.pageModel.basics.language,
+            sampleHeadings: formatConcatElements(sampleHeadings),
+            sampleInteractions: formatConcatElements(sampleInteractions),
         };
     }
 

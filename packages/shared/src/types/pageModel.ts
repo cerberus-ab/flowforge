@@ -98,14 +98,14 @@ export interface InteractiveLink {
 export type ContentElementType = 'text' | 'heading';
 export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
-export interface ElementLocator {
+export interface ElementDescriptor {
     tag: string;
     dataId: string;
     selector: string;
     bbox: BoundingBox;
 }
 
-export interface BaseElement extends ElementLocator {
+export interface BaseElement extends ElementDescriptor {
     type: ContentElementType | InteractiveElementType;
     context: ElementContext;
     importanceScore: number; // [0..1]
@@ -123,9 +123,25 @@ export interface InteractiveElement extends BaseElement {
     labels: ElementLabel[];
     state: InteractiveElementState;
     link?: InteractiveLink; // for links only
+    inViewport: boolean;
+    aboveTheFold: boolean;
 }
 
-export interface PageData {
+/**
+ * Canonical, normalized representation of a web page
+ *
+ * The model is derived from the DOM using extractors and acts as the central,
+ * normalized representation used by all downstream stages.
+ *
+ * It abstracts away DOM complexity and provides a structured view of the page, including
+ * - basic metadata (`basics`)
+ * - textual content blocks (`content`)
+ * - interactive UI elements (`interactive`)
+ *
+ * This model is independent of any specific AI/LLM or vector storage implementation
+ * and can be reused to generate different semantic representations.
+ */
+export interface PageModel {
     basics: PageBasics;
     content: ContentElement[];
     interactive: InteractiveElement[];

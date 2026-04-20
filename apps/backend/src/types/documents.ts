@@ -1,4 +1,4 @@
-import type { BaseElement, PageData } from '@flowforge/shared';
+import type { BaseElement, PageModel } from '@flowforge/shared';
 
 export type DocumentType = 'content' | 'interactive';
 
@@ -20,8 +20,12 @@ export interface RetrievedDocument extends Document {
     semanticScore: number; // [0..1]
 }
 
-export interface DocumentExtractor {
-    extract(pageData: PageData): Promise<IndexableDocument[]>;
+export interface RerankedDocument extends RetrievedDocument {
+    score: number;
+}
+
+export interface DocumentTransformer {
+    transform(pageModel: PageModel): Promise<IndexableDocument[]>;
 }
 
 export interface RetrieveOptions {
@@ -33,7 +37,7 @@ export interface DocumentRetriever {
     retrieve(query: string, params: RetrieveOptions): Promise<RetrievedDocument[]>;
 }
 
-export interface DocumentVectorStorage {
+export interface DocumentStorage {
     index(dataset: string, docs: IndexableDocument[]): Promise<void>;
     retrieve(dataset: string, query: string, params: RetrieveOptions): Promise<RetrievedDocument[]>;
     health(): Promise<boolean>;

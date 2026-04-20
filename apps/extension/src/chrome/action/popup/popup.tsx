@@ -12,7 +12,7 @@ import { DocumentRootInjector } from '#self/core/services/RootInjector';
     const rootInjector = new DocumentRootInjector();
 
     document.addEventListener('DOMContentLoaded', () => {
-        const root = rootInjector.inject(ROOT_ID);
+        const root = rootInjector.inject(document, ROOT_ID);
 
         render(<PopupApp transport={transport} />, root.mountPoint);
         console.log('[FlowForge] Popup loaded');

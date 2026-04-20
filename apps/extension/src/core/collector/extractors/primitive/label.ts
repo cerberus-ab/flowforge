@@ -1,5 +1,5 @@
 import { normalizeText } from '#self/core/utils/text';
-import { dedupeBy } from '#self/core/utils/collection';
+import { dedupeBy } from '#self/core/utils/array';
 import type { ElementLabel } from '@flowforge/shared';
 
 /**
@@ -10,15 +10,16 @@ import type { ElementLabel } from '@flowforge/shared';
  * joined with a single space.
  *
  * @param el - The DOM element whose `aria-labelledby` attribute should be resolved.
+ * @param doc - The document containing the referenced elements.
  * @returns The resolved label text, or `undefined` when the attribute is missing.
  */
-export function getElementAttrAriaLabelledBy(el: Element): string | undefined {
+export function getElementAttrAriaLabelledBy(el: Element, doc: Document): string | undefined {
     const ariaLabelledBy = el.getAttribute('aria-labelledby');
     if (!ariaLabelledBy) return undefined;
 
     return ariaLabelledBy
         .split(/\s+/)
-        .map((id) => document.getElementById(id)?.textContent)
+        .map((id) => doc.getElementById(id)?.textContent)
         .map((part) => normalizeText(part ?? ''))
         .filter(Boolean)
         .join(' ');
@@ -41,13 +42,14 @@ export function getElementAttrAriaLabelledBy(el: Element): string | undefined {
  * Labels are deduplicated case-insensitively and whitespace is normalized.
  *
  * @param el - Target DOM element.
+ * @param doc - Document containing the element.
  * @returns Array of `ElementAttrLabel` in priority order, or an empty array when no label text is found.
  */
-export function getElementLabels(el: Element): ElementLabel[] {
+export function getElementLabels(el: Element, doc: Document): ElementLabel[] {
     const elementLabels: ElementLabel[] = [];
 
     // 1. aria-labelledby
-    const ariaLabelledBy = getElementAttrAriaLabelledBy(el);
+    const ariaLabelledBy = getElementAttrAriaLabelledBy(el, doc);
     if (ariaLabelledBy) {
         elementLabels.push({ value: ariaLabelledBy, source: 'aria-labelledby' });
     }
@@ -60,7 +62,7 @@ export function getElementLabels(el: Element): ElementLabel[] {
     if (el.id) {
         const escapedId = typeof CSS !== 'undefined' && typeof CSS.escape === 'function' ? CSS.escape(el.id) : el.id;
 
-        const labelFor = document.querySelector(`label[for="${escapedId}"]`);
+        const labelFor = doc.querySelector(`label[for="${escapedId}"]`);
         if (labelFor) {
             elementLabels.push({ value: normalizeText(labelFor.textContent), source: 'label-for' });
         }

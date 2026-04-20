@@ -50,7 +50,7 @@ export function PopupApp({ transport }: PopupAppProps) {
     return (
         <Main theme={theme}>
             <main className="flowforge-popup">
-                <header className="flowforge-popup__header">
+                <header className="flowforge-popup__header flowforge-popup__header--parallax">
                     <h1 className="flowforge-popup__header-title">FlowForge</h1>
                     <p className="flowforge-popup__header-subtitle">Web Onboarding Assistant</p>
                 </header>
@@ -66,7 +66,12 @@ export function PopupApp({ transport }: PopupAppProps) {
                     {isLoading && <Loading />}
 
                     {(result || error) && (
-                        <Result result={result} resultMetadata={resultMetadata} error={error} navigateToElement={navigateToElement} />
+                        <Result
+                            result={result}
+                            resultMetadata={resultMetadata}
+                            error={error}
+                            navigateToElement={navigateToElement}
+                        />
                     )}
 
                     <Examples examples={examples} applyExampleQuestion={handleApplyExampleQuestion} />
@@ -74,9 +79,7 @@ export function PopupApp({ transport }: PopupAppProps) {
                     <footer className="flowforge-popup__footer">
                         <div className="flowforge-popup__copyright">{copyright}</div>
                         <Link href={github}>Star me</Link>
-                        <ButtonText onClick={toggleTheme}>
-                            {theme === 'light' ? 'Dark' : 'Light'} theme
-                        </ButtonText>
+                        <ButtonText onClick={toggleTheme}>{theme === 'light' ? 'Dark' : 'Light'} theme</ButtonText>
                     </footer>
                 </div>
             </main>

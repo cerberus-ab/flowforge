@@ -1,103 +1,112 @@
-Update the project documentation using the existing README and architecture files as the source material.
+Update the project documentation using the current codebase and existing docs as the source of truth.
 
 Files to update:
 
 - README.md
 - docs/ARCHITECTURE.md
+- docs/DOM-TO-RAG-PIPELINE.md
 - apps/backend/README.md
 - apps/extension/README.md
 
-Source of truth:
+---
 
-- Keep all facts aligned with the current codebase and these four docs.
-- Preserve the current positioning, scope, and terminology of FlowForge.
-- Do not invent features, components, APIs, workflows, or setup steps.
+RULES
 
-Document roles:
+- Do not invent features, APIs, or workflows
+- Keep terminology consistent across all docs
+- Align all documents with each other and the codebase
+- Avoid duplication between files
+- Be concise, clear, and structured
 
-- README.md = landing page + quick start + navigation hub
-- docs/ARCHITECTURE.md = high-level system architecture
-- apps/backend/README.md = backend component guide
-- apps/extension/README.md = extension component guide
+---
 
-Target structure and limits:
+DOCUMENT ROLES
 
-README.md
+- README.md → entry point (what it is, how to run)
+- ARCHITECTURE.md → high-level system overview
+- DOM-TO-RAG-PIPELINE.md → pipeline description
+- backend README → backend responsibilities and usage
+- extension README → extension responsibilities and usage
 
-- Slogan at the top: "Forging your experience..."
-- Sections:
-    - Demo
-    - Overview
-    - Disclaimer
-    - Quick Start (Prerequisites + Run)
-    - Usage
-    - Roadmap
-    - Documentation
-    - License
-- Target size: 80-100 lines
-- Keep it concise, product-oriented, and easy to scan
+---
 
-docs/ARCHITECTURE.md
+TARGET STRUCTURE
 
-- Sections:
-    - Overview
-    - Components
-    - Interaction Flow
-    - Key Decisions
-    - Contracts
-    - Constraints
-- Target size: 80-100 lines
-- Keep only high-level architecture, no deep implementation details
+README.md (100–120 lines)
 
-apps/backend/README.md
+- "Forging your experience..."
+- Demo
+- Overview
+- Disclaimer
+- Quick Start
+- Usage
+- Security
+- Roadmap
+- Documentation
+- License
 
-- Sections:
-    - Purpose
-    - Responsibilities
-    - Run (standalone)
-    - Configuration
-    - API (short)
-    - Key Parts
-    - Notes
-- Target size: 50-60 lines
+---
 
-apps/extension/README.md
+docs/ARCHITECTURE.md (80–100 lines)
 
-- Sections:
-    - Purpose
-    - Responsibilities
-    - Run (standalone)
-    - Load in Chrome
-    - Key Parts
-    - Notes
-- Target size: 50-60 lines
+- Overview
+- Components
+- Interaction Flow
+- Pipeline (high-level)
+- Key Decisions
+- Contracts
+- Constraints
 
-Writing rules:
+---
 
-- Be brief, clear, and consistent
-- Avoid repetition across files
-- Keep each fact in the most appropriate file only
-- Use consistent terminology across all docs
-- Prefer short paragraphs and compact bullet lists
-- Do not add roadmap/future sections unless already required
-- Do not add badges, marketing fluff, or unnecessary emojis
+docs/DOM-TO-RAG-PIPELINE.md (80–100 lines)
 
-Content boundaries:
+- Overview
+- Stages:
+  - Extraction to Structure Representation
+  - Transforming to Semantic Representation
+  - Indexing / Retrieval
+  - Reranking
+  - Resolution to Tool Results
 
-- Root README should help a user understand and run the project from the repo root
-- App READMEs should help a developer understand and work on that specific component
-- ARCHITECTURE should explain how the system fits together, not how every file works
+---
 
-Important:
+apps/backend/README.md (50–60 lines)
 
-- Preserve existing correct links between docs
-- Keep examples and commands valid
-- Keep markdown clean and readable
-- If a section exceeds the target scope, trim it instead of expanding other docs
+- Purpose
+- Responsibilities
+- Run
+- Configuration
+- API (short)
+- Key Parts
+- Notes
 
-Task:
+---
 
-1. Review the four documentation files
-2. Rewrite them to match the structure and size limits above
-3. Keep terminology and facts aligned across all four files
-4. Output the updated content for all four files
+apps/extension/README.md (50–60 lines)
+
+- Purpose
+- Responsibilities
+- Run
+- Load in Chrome
+- Key Parts
+- Notes
+
+---
+
+IMPORTANT
+
+- Keep links valid
+- Keep commands correct
+- Keep markdown clean
+- If content exceeds scope → trim, don’t expand other docs
+
+---
+
+TASK
+
+1. Review all files
+2. Rewrite to match structure and size limits
+3. Align terminology across all docs
+4. Remove duplication
+5. Output updated content for all files

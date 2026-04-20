@@ -2,7 +2,7 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
 import { PageContextProvider } from '#self/indexer';
-import type { ToolFindWorkflowResult } from '#self/types';
+import type { ToolFindWorkflowResultData } from '#self/types';
 import { rerankRetrievedDocuments } from '../rank/reranker.ts';
 import { scoreForAction } from '../rank/scoring.ts';
 
@@ -16,19 +16,16 @@ export class ToolFindWorkflow extends AbstractCallableTool {
         this.returnDocumentsLimit = params.returnDocumentsLimit;
     }
 
-    override async callFn(ctx: PageContextProvider, query: string): Promise<ToolFindWorkflowResult> {
+    override async callFn(ctx: PageContextProvider, query: string): Promise<ToolFindWorkflowResultData> {
         // Retrieve relevant interactive elements
         const results = await ctx.retrieve(query, {
             k: this.retrieveDocumentsLimit,
             documentType: 'interactive',
         });
-        const rerankedResults = rerankRetrievedDocuments(results, scoreForAction, this.returnDocumentsLimit);
-        const steps = rerankedResults.map((r) => ({
-            semanticDescription: r.document.content,
-            elementPath: r.document.metadata.element.context.path.join(' > '),
-            elementSectionName: r.document.metadata.element.context.sectionName ?? '',
-            elementDataId: r.document.metadata.element.dataId,
-            elementSelector: r.document.metadata.element.selector,
+        const reranked = rerankRetrievedDocuments(results, scoreForAction, this.returnDocumentsLimit);
+        const steps = reranked.map((rd) => ({
+            semanticDescription: rd.content,
+            ...this.getToolResultElement(rd.metadata.element),
         }));
         return { steps };
     }

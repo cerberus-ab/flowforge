@@ -1,17 +1,17 @@
 import {
     isClearPageMessage,
-    isCollectPageDataMessage,
+    isCollectPageModelMessage,
     isHighlightElementMessage,
     isStartOnboardingMessage,
 } from '#self/types';
 import type { Message, StartOnboardingMessageData } from '#self/types';
-import { collectPageData } from '#self/core/collector';
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import { findElement } from '#self/core/highlighter/find';
+import { findElement } from '#self/core/locator/locate';
 import type { PageViewModel, HighlightState, WizardState } from './usePage.types';
 import type { TransportService } from '#self/adapters/interface';
 import { constants } from '#self/constants';
 import type { AgentResultElement } from '@flowforge/shared';
+import { PageModelCollector } from '#self/core/collector/PageModelCollector';
 
 interface UsePageParams {
     transport: TransportService;
@@ -29,7 +29,7 @@ export function usePage({ transport }: UsePageParams): PageViewModel {
 
     // Highlight an element
     const highlightElement = useCallback((element: AgentResultElement) => {
-        const el = findElement(element.dataId, element.selector);
+        const el = findElement(document, element.dataId, element.selector);
 
         if (el) {
             setHighlights([
@@ -77,7 +77,7 @@ export function usePage({ transport }: UsePageParams): PageViewModel {
             // Show highlight for current step
             if (stepIndex > 0 && stepIndex <= prevWizard.steps.length) {
                 const stepData = prevWizard.steps[stepIndex - 1]!;
-                const el = findElement(stepData.dataId, stepData.selector);
+                const el = findElement(document, stepData.dataId, stepData.selector);
 
                 if (el) {
                     setHighlights([
@@ -110,9 +110,9 @@ export function usePage({ transport }: UsePageParams): PageViewModel {
     // Listen to messages from background
     useEffect(() => {
         return transport.addMessageListener((message: Message) => {
-            if (isCollectPageDataMessage(message)) {
-                const pageData = collectPageData();
-                return { success: true, data: pageData };
+            if (isCollectPageModelMessage(message)) {
+                const pageModel = PageModelCollector.collectFor(window, document);
+                return { success: true, data: pageModel };
             }
             if (isClearPageMessage(message)) {
                 clearPage();

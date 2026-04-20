@@ -2,7 +2,7 @@ import path from 'node:path';
 import * as lancedb from '@lancedb/lancedb';
 import type {
     DocumentMetadata,
-    DocumentVectorStorage,
+    DocumentStorage,
     EmbeddingProvider,
     IndexableDocument,
     RetrievedDocument,
@@ -11,7 +11,7 @@ import type {
 
 const DEFAULT_DB_PATH = './data/lancedb';
 
-export class LanceVectorStorage implements DocumentVectorStorage {
+export class LanceVectorStorage implements DocumentStorage {
     private readonly dbPath: string;
     private readonly embeddingProvider: EmbeddingProvider;
 

@@ -1,10 +1,7 @@
 import type {
     ContainerElementRole,
-    ContentElementType,
-    ElementContext,
-    ElementLabel,
-    InteractiveElementRole,
-    InteractiveElementState,
+    ContentElement,
+    InteractiveElement,
 } from '@flowforge/shared';
 
 /**
@@ -36,21 +33,29 @@ function readContextPath(path: ContainerElementRole[]) {
 /**
  * Computes a relevance importance score for a content element based on its type, text length, and container context
  *
- * Score range: [-5, 6]
+ * Score range: [-6, 8]
  *
  * Typical interpretation:
- *  - 4–6 → high importance
- *  - 2–3 → moderate importance
- *  - ≤1 → low importance (can often be filtered out)
+ *   - 5–8 → high importance
+ *   - 2–4 → moderate importance
+ *   - ≤1 → low importance (can often be filtered out)
  *
  * @returns Normalized importance score [0..1]
  */
-export function scoreContentElement(text: string, type: ContentElementType, context: ElementContext): number {
+export function scoreContentElement(element: ContentElement): number {
+    const { type, text, context } = element;
+
     let score = 0;
     // headings are more important than regular text
     if (type === 'heading') score += 2;
+
     // optimal text length
-    if (type === 'text' && text.length > 50 && text.length < 300) score += 2;
+    // minimum length for meaningful content
+    if (text.length > 60) score += 1;
+    // optimal paragraph size (most informative)
+    if (text.length > 100 && text.length < 300) score += 1;
+    // too long → likely noisy or overly verbose
+    if (text.length > 600) score -= 1;
 
     const { inMain, inDialog, inFooter, inNav } = readContextPath(context.path);
     // the main content is the primary source of meaningful information
@@ -65,7 +70,7 @@ export function scoreContentElement(text: string, type: ContentElementType, cont
     // section name → indicates structured content (belongs to a meaningful section)
     if (context.sectionName) score += 1;
 
-    return normalizeImportanceScore(score, -5, 6);
+    return normalizeImportanceScore(score, -6, 8);
 }
 
 /**
@@ -74,7 +79,7 @@ export function scoreContentElement(text: string, type: ContentElementType, cont
  * The score estimates how likely the element is to be a meaningful user action target,
  * based on its role, visibility, textual clarity, and UI context.
  *
- * Score range: [-5, 10]
+ * Score range: [-7, 10]
  *
  * Typical interpretation:
  * - 7–10 → strong action targets
@@ -83,13 +88,9 @@ export function scoreContentElement(text: string, type: ContentElementType, cont
  *
  * @returns Normalized importance score [0..1]
  */
-export function scoreInteractiveElement(
-    role: InteractiveElementRole,
-    labels: ElementLabel[],
-    text: string | undefined,
-    state: InteractiveElementState,
-    context: ElementContext,
-): number {
+export function scoreInteractiveElement(element: InteractiveElement): number {
+    const { role, labels, text, state, context, bbox } = element;
+
     let score = 0;
 
     // labels and text → an element is understandable to the user
@@ -106,7 +107,9 @@ export function scoreInteractiveElement(
     if (role === 'link') score += 1;
 
     // hidden/disabled → not usable by the user
-    if (state.hidden || state.disabled) return -5;
+    if (state.hidden || state.disabled) score -= 5;
+    // size → very small targets are often weak action targets
+    if (bbox.width * bbox.height < 24 * 24) score -= 1;
 
     const { inMain, inDialog, inFooter, inNav } = readContextPath(context.path);
     // main interaction area
@@ -121,5 +124,5 @@ export function scoreInteractiveElement(
     // section name → indicates structured content (belongs to a meaningful section)
     if (context.sectionName) score += 1;
 
-    return normalizeImportanceScore(score, -5, 10);
+    return normalizeImportanceScore(score, -7, 10);
 }

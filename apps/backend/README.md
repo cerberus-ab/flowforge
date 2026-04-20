@@ -12,7 +12,7 @@ AI agent backend that processes user queries, understands page context, and gene
 - Manage vector storage and embeddings (LanceDB)
 - Expose HTTP API for extension
 
-## Run (standalone)
+## Run
 
 ```bash
 npm i
@@ -55,7 +55,7 @@ See [.env.example](.env.example) for all options.
 
 ## Notes
 
-- One-page context only (no cross-page memory)
+- Single-page context only (no cross-page memory)
 - In-memory analytics (resets on restart)
 - Requires running LLM provider (Ollama or OpenAI API key)
 - See [Architecture](../../docs/ARCHITECTURE.md) for system design

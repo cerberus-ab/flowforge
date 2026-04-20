@@ -39,7 +39,7 @@ const examplePath = path.resolve(process.cwd(), '.env.example');
         const answer = await ask('Have you made sure. Continue? (y/N): ');
         const shouldContinue = answer.toLowerCase() === 'y';
         if (!shouldContinue) {
-            exitWithoutError();
+            exitWithCancel();
         }
     } else {
         console.log('\nUsing OpenAI (default)');
@@ -67,6 +67,9 @@ function ask(question) {
         input: process.stdin,
         output: process.stdout,
     });
+    rl.on('SIGINT', () => {
+        exitWithCancel();
+    });
     return new Promise((resolve) =>
         rl.question(question, (answer) => {
             rl.close();
@@ -86,13 +89,13 @@ function exitWithError(message) {
 }
 
 /**
- * Logs a message and terminates the process with exit code `0`.
+ * Logs a message and terminates the process with exit code `130`.
  * @param {string} message - Message to print before exiting.
  * @returns {never}
  */
-function exitWithoutError(message = '✖ Setup cancelled') {
+function exitWithCancel(message = '✖ Setup cancelled') {
     console.log(message);
-    process.exit(0);
+    process.exit(130);
 }
 
 /**

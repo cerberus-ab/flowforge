@@ -2,7 +2,7 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
 import { PageContextProvider } from '#self/indexer';
-import type { ToolSearchInContentResult } from '#self/types';
+import type { ToolSearchInContentResultData } from '#self/types';
 import { rerankRetrievedDocuments } from '../rank/reranker.ts';
 import { scoreForAnswer } from '../rank/scoring.ts';
 
@@ -16,19 +16,16 @@ export class ToolSearchInContent extends AbstractCallableTool {
         this.returnDocumentsLimit = params.returnDocumentsLimit;
     }
 
-    override async callFn(ctx: PageContextProvider, query: string): Promise<ToolSearchInContentResult> {
+    override async callFn(ctx: PageContextProvider, query: string): Promise<ToolSearchInContentResultData> {
         // Retrieve relevant content elements
         const results = await ctx.retrieve(query, {
             k: this.retrieveDocumentsLimit,
             documentType: 'content',
         });
-        const rerankedResults = rerankRetrievedDocuments(results, scoreForAnswer, this.returnDocumentsLimit);
-        const content = rerankedResults.map((r) => ({
-            text: r.document.content,
-            elementPath: r.document.metadata.element.context.path.join(' > '),
-            elementSectionName: r.document.metadata.element.context.sectionName ?? '',
-            elementDataId: r.document.metadata.element.dataId,
-            elementSelector: r.document.metadata.element.selector,
+        const reranked = rerankRetrievedDocuments(results, scoreForAnswer, this.returnDocumentsLimit);
+        const content = reranked.map((rd) => ({
+            text: rd.content,
+            ...this.getToolResultElement(rd.metadata.element),
         }));
         return { content };
     }

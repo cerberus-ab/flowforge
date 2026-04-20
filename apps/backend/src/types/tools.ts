@@ -4,9 +4,26 @@ export interface CallableTool {
     call(ctx: PageContextProvider, query: string): Promise<string>;
 }
 
-export type CallableToolResult = Record<string, unknown>;
+export type CallableToolSuccessResult<T> = {
+    success: true;
+} & T;
 
-export interface ToolGetPageSummaryResult extends CallableToolResult {
+export type CallableToolFailureResult = {
+    success: false;
+    error: string;
+};
+
+export type CallableToolResultData =
+    | ToolGetPageSummaryResultData
+    | ToolFindElementResultData
+    | ToolSearchInContentResultData
+    | ToolFindWorkflowResultData;
+
+export type CallableToolResult = CallableToolSuccessResult<CallableToolResultData> | CallableToolFailureResult;
+
+// Tools result data
+
+export interface ToolGetPageSummaryResultData {
     title: string;
     url: string;
     description: string;
@@ -22,23 +39,22 @@ export interface ToolResultElement {
     elementSelector: string;
 }
 
-export interface ToolFindElementFoundResult extends CallableToolResult, ToolResultElement {
-    success: true;
+export interface ToolFindElementFoundResultData extends ToolResultElement {
+    found: true;
     semanticDescription: string;
-    confidence: number;
 }
 
-export interface ToolFindElementNotFoundResult extends CallableToolResult {
-    success: false;
+export interface ToolFindElementNotFoundResultData {
+    found: false;
     message: string;
 }
 
-export type ToolFindElementResult = ToolFindElementFoundResult | ToolFindElementNotFoundResult;
+export type ToolFindElementResultData = ToolFindElementFoundResultData | ToolFindElementNotFoundResultData;
 
-export interface ToolSearchInContentResult extends CallableToolResult {
+export interface ToolSearchInContentResultData {
     content: ({ text: string } & ToolResultElement)[];
 }
 
-export interface ToolFindWorkflowResult extends CallableToolResult {
+export interface ToolFindWorkflowResultData {
     steps: ({ semanticDescription: string } & ToolResultElement)[];
 }

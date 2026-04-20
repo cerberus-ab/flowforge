@@ -1,17 +1,17 @@
 import type { DocumentRetriever, RetrievedDocument, RetrieveOptions } from '#self/types';
 import { PageIndexer } from './PageIndexer.ts';
-import type { PageData } from '@flowforge/shared';
+import type { PageModel } from '@flowforge/shared';
 
 export class PageContextProvider implements DocumentRetriever {
-    readonly pageData: PageData;
+    readonly pageModel: PageModel;
     private readonly indexer: PageIndexer;
 
-    constructor(pageData: PageData, indexer: PageIndexer) {
-        this.pageData = pageData;
+    constructor(pageModel: PageModel, indexer: PageIndexer) {
+        this.pageModel = pageModel;
         this.indexer = indexer;
     }
 
     async retrieve(query: string, params: RetrieveOptions = { k: 5 }): Promise<RetrievedDocument[]> {
-        return this.indexer.searchForPage(this.pageData, query, params);
+        return this.indexer.searchForPage(this.pageModel, query, params);
     }
 }

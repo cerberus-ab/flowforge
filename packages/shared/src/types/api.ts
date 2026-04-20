@@ -1,4 +1,4 @@
-import type { PageData } from './pageData.ts';
+import type { PageModel } from './pageModel.ts';
 import type { AgentResult, UsageMetadata } from './agentResult.ts';
 
 // POST: /query
@@ -9,7 +9,7 @@ export interface UserContext {
 
 export interface QueryRequest {
     question: string;
-    pageData: PageData;
+    pageModel: PageModel;
     domain: string;
     userContext?: UserContext;
 }

@@ -31,7 +31,7 @@ It works on any website out of the box and becomes product-aware when integrated
 
 ## Disclaimer
 
-It is an early-stage MVP built to showcase the ✦ Idea ✦ itself.
+This is an early-stage MVP built to showcase the ✦ Idea ✦ itself.
 
 It is not production-ready yet, and the core engine is still under development. Expect limitations, rough edges, and ongoing improvements as the project evolves.
 
@@ -69,6 +69,15 @@ This will:
    - "Show me the search bar"
 4. View the answer and highlighted elements directly on the page
 
+## Security
+
+- **DOM-only access** — operates strictly on the visible page DOM, without access to cookies or session storage
+- **Sensitive data filtering** — excludes inputs like passwords, payment details, and other private fields during extraction
+- **Local-first architecture** — backend and vector storage run locally by default
+- **Optional local AI** — supports fully local inference via Ollama (no external API required)
+
+Note: As an early-stage MVP, security is evolving and not yet production-ready.
+
 ## Roadmap
 
 Focus on:
@@ -81,7 +90,8 @@ Focus on:
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md) — system design and component interaction
-- [Backend](apps/backend/README.md) — AI agent and RAG pipeline
+- [DOM to RAG Pipeline](docs/DOM-TO-RAG-PIPELINE.md) – from DOM to actionable intelligence
+- [Backend](apps/backend/README.md) — backend for AI-driven UI guidance
 - [Extension](apps/extension/README.md) — browser extension and page extraction
 
 ## License

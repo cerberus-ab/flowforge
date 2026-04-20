@@ -1,4 +1,4 @@
-export * from './vector.ts';
+export * from './documents.ts';
 export * from './agent.ts';
 export * from './analytics.ts';
 export * from './llm.ts';

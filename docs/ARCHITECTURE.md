@@ -16,7 +16,7 @@ Extracts page data, handles UI, highlights elements, and manages user interactio
 
 ### Backend
 
-Processes queries, runs the AI agent, manages vector storage, and exposes HTTP API. Built with FastAPI and LangGraph.
+Processes queries, runs the AI agent, manages vector storage, and exposes HTTP API. Built with Express and LangGraph.
 
 ### Agent
 
@@ -35,7 +35,7 @@ Inference layer supporting local (Ollama) or cloud (OpenAI) models for embedding
 ### Query Flow
 
 1. User asks a question in the extension popup
-2. Extension sends `pageData + question` to backend (`POST /query`)
+2. Extension sends `pageModel + question` to backend (`POST /query`)
 3. Backend checks if page is indexed; indexes if needed
 4. Agent executes with access to tools and vector search
 5. Backend returns structured result (answer + target elements)
@@ -48,6 +48,19 @@ Inference layer supporting local (Ollama) or cloud (OpenAI) models for embedding
 3. Embeddings are generated via LLM provider
 4. Documents stored in vector database (LanceDB)
 5. Available for semantic search during query processing
+
+## Pipeline
+
+High-level overview of the DOM-to-RAG pipeline:
+
+1. **Extraction** — DOM → structured `PageModel` (content + interactive elements + context)
+2. **Transformation** — `PageModel` → semantic `IndexableDocuments` with metadata
+3. **Indexing** — Documents → embeddings → vector storage (LanceDB)
+4. **Retrieval** — Query → Top-K relevant documents via semantic search
+5. **Reranking** — Hybrid scoring (semantic + importance signals)
+6. **Resolution** — Documents → actionable tool results (selectors + descriptions)
+
+See [DOM-TO-RAG-PIPELINE.md](DOM-TO-RAG-PIPELINE.md) for detailed pipeline documentation.
 
 ## Key Decisions
 
@@ -67,14 +80,16 @@ Flexibility between privacy (Ollama) and performance (OpenAI) depending on user 
 
 ### Extension ↔ Backend
 
-HTTP API with two main endpoints:
+HTTP API with main endpoints:
 
 - `POST /query` — submit user question with page data
 - `POST /search` — semantic search over indexed content
+- `GET /analytics` — usage data and query tracking
+- `GET /health` — service status
 
 ### Agent ↔ Tools
 
-Structured tool calls with typed inputs/outputs defined via Pydantic models.
+Structured tool calls with typed inputs/outputs defined via Zod schemas.
 
 ### Indexer ↔ Storage
 

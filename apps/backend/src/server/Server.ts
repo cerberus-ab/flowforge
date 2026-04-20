@@ -7,7 +7,7 @@ import type {
     AnalyticsResponse,
     ErrorResponse,
     HealthResponse,
-    LlmProvider, LlmProviderInfo,
+    LlmProvider,
     QueryRequest,
     QueryResponse,
     RetrievedDocument,
@@ -88,21 +88,21 @@ export class Server {
         res: Response<QueryResponse | ErrorResponse>,
     ): Promise<void> {
         try {
-            const { question, pageData, domain } = req.body;
+            const { question, pageModel, domain } = req.body;
 
-            if (!question || !pageData) {
+            if (!question || !pageModel) {
                 res.status(400).json({
-                    error: 'Missing required fields: question, pageData',
+                    error: 'Missing required fields: question, pageModel',
                 });
                 return;
             }
             console.log(`[Server] Query: ${domain} / ${question}`);
 
-            await this.indexer.indexPage(pageData);
-            const pageContext = new PageContextProvider(pageData, this.indexer);
+            await this.indexer.indexPage(pageModel);
+            const pageContext = new PageContextProvider(pageModel, this.indexer);
             const agentResponse = await this.agent.processQuery(question, pageContext);
 
-            this.analytics.track(domain, pageData.basics.url, {
+            this.analytics.track(domain, pageModel.basics.url, {
                 question,
                 timestamp: Date.now(),
                 agentToolCalls: agentResponse.execResult.toolCallsList.map((call) => call.name) || [],

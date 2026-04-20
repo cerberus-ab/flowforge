@@ -1,26 +1,21 @@
-import type { RetrievedDocument } from '#self/types';
-
-export interface ScoredRetrievedDocument {
-    document: RetrievedDocument;
-    score: number;
-}
+import type { RerankedDocument, RetrievedDocument } from '#self/types';
 
 /**
- * Reranks retrieved documents by score in descending order and limits the result size
+ * Reranks retrieved documents using a scoring function and returns them in descending score order.
  *
- * @param documents The documents to score and rerank.
- * @param scoreFn A scoring function applied to each document.
- * @param limit Maximum number of items to return. Returns all items when `limit <= 0`.
- * @returns A sorted array of scored documents.
+ * @param documents - The documents to rerank.
+ * @param scoreFn - Function used to compute a numeric score for each document.
+ * @param limit - Maximum number of documents to return. Use `0` to return all.
+ * @returns The reranked documents, optionally truncated to the provided limit.
  */
 export function rerankRetrievedDocuments(
     documents: RetrievedDocument[],
     scoreFn: (document: RetrievedDocument) => number,
-    limit: number,
-): ScoredRetrievedDocument[] {
+    limit: number = 0,
+): RerankedDocument[] {
     const reranked = documents
         .map((document) => ({
-            document,
+            ...document,
             score: scoreFn(document),
         }))
         .sort((a, b) => b.score - a.score);

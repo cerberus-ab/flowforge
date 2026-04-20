@@ -1,12 +1,13 @@
 import type { IndexableDocument } from '#self/types';
-import { AbstractDocumentExtractor } from './AbstractDocumentExtractor.ts';
-import type { ContentElement, PageData } from '@flowforge/shared';
+import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
+import type { ContentElement, PageModel } from '@flowforge/shared';
 import { RecursiveCharacterTextSplitter, TextSplitter } from '@langchain/textsplitters';
+import { formatContentElement, formatContentElementShort } from '#self/indexer';
 
-const CONTENT_TEMPLATE_TEXT_PLACEHOLDER = '{{TEXT}}';
-const CONTENT_TEMPLATE_MAX_CONTEXT_RATIO = 0.2;
+export const CONTENT_TEMPLATE_TEXT_PLACEHOLDER = '{{TEXT}}';
+export const CONTENT_TEMPLATE_MAX_CONTEXT_RATIO = 0.2;
 
-export class TextContentExtractor extends AbstractDocumentExtractor {
+export class ContentElementsTransformer extends AbstractDocumentTransformer {
     private readonly chunkSize: number;
     private readonly chunkOverlapRatio: number;
 
@@ -27,10 +28,10 @@ export class TextContentExtractor extends AbstractDocumentExtractor {
         });
     }
 
-    override async extractFn(pageData: PageData): Promise<IndexableDocument[]> {
+    override async transformFn(pageModel: PageModel): Promise<IndexableDocument[]> {
         const docs: IndexableDocument[] = [];
 
-        for (const el of pageData.content) {
+        for (const el of pageModel.content) {
             const contentTemplate = this.createContentTemplate(el);
             const templatedChunkSize =
                 this.chunkSize - contentTemplate.length + CONTENT_TEMPLATE_TEXT_PLACEHOLDER.length;
@@ -51,19 +52,11 @@ export class TextContentExtractor extends AbstractDocumentExtractor {
     }
 
     private createContentTemplate(el: ContentElement): string {
-        const parts: string[] = [];
-
-        const contentType = el.type === 'heading' ? 'heading' : 'text';
-        parts.push(contentType);
-        parts.push(CONTENT_TEMPLATE_TEXT_PLACEHOLDER);
-        const contextParts = this.createBaseContextText(el);
-        parts.push(...contextParts);
-
-        const template = parts.join('. ');
+        const template = formatContentElement(el, CONTENT_TEMPLATE_TEXT_PLACEHOLDER);
         // fallback if the template contains too many context data
         const templateContextSize = template.length - CONTENT_TEMPLATE_TEXT_PLACEHOLDER.length;
         if (templateContextSize > this.chunkSize * CONTENT_TEMPLATE_MAX_CONTEXT_RATIO) {
-            return `${contentType}. ${CONTENT_TEMPLATE_TEXT_PLACEHOLDER}`;
+            return formatContentElementShort(el, CONTENT_TEMPLATE_TEXT_PLACEHOLDER);
         }
         return template;
     }

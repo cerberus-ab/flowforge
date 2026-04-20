@@ -6,8 +6,8 @@ import {
     type AskQuestionMessage,
     type AskQuestionMessageResponse,
     type ClearPageMessage,
-    type CollectPageDataMessage,
-    type CollectPageDataMessageResponse,
+    type CollectPageModelMessage,
+    type CollectPageModelMessageResponse,
     type GetPrevQuestionsMessage,
     type GetPrevQuestionsMessageResponse,
     type GetSettingsMessage,
@@ -107,13 +107,13 @@ export class BackgroundWorker {
     /**
      * Handles a user question for the given tab.
      *
-     * Clears existing highlights, collects page data from the page,
+     * Clears existing highlights, collects a page model from the page,
      * sends the query to the backend, highlights matched elements, and stores
      * the question in domain-specific history.
      *
      * @param message - Message containing the tab ID and user question.
      * @returns Promise resolving to a successful response with the query result.
-     * @throws Rethrows any error that occurs during page data collection,
+     * @throws Rethrows any error that occurs during page model collection,
      * backend querying, highlighting, or history persistence.
      */
     private async handleAskQuestion(message: AskQuestionMessage): Promise<AskQuestionMessageResponse> {
@@ -122,23 +122,23 @@ export class BackgroundWorker {
             await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
                 type: 'CLEAR_PAGE',
             });
-            // Get page data from a page context
-            const pageDataResponse = await this.transport.sendToPage<
-                CollectPageDataMessage,
-                CollectPageDataMessageResponse
-            >(message.senderId, { type: 'COLLECT_PAGE_DATA' });
-            if (!pageDataResponse.success) {
-                throw new Error('Failed to collect page data: ' + pageDataResponse.error);
+            // Get a page model from page runtime
+            const pageModelResponse = await this.transport.sendToPage<
+                CollectPageModelMessage,
+                CollectPageModelMessageResponse
+            >(message.senderId, { type: 'COLLECT_PAGE_MODEL' });
+            if (!pageModelResponse.success) {
+                throw new Error('Failed to collect page model: ' + pageModelResponse.error);
             }
-            console.log('[Background] Collected page data:', pageDataResponse);
+            console.log('[Background] Collected page model:', pageModelResponse);
 
-            const pageData = pageDataResponse.data;
+            const pageModel = pageModelResponse.data;
             const domain = await this.transport.getSenderHostname(message.senderId);
 
             // Send it to the backend server
             const requestData: QueryRequest = {
                 question: message.data.question,
-                pageData,
+                pageModel: pageModel,
                 domain,
                 userContext: {
                     previousQuestions: await this.historyStorage.getPreviousQuestions(domain),

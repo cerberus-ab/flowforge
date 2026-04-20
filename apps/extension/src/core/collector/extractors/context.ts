@@ -60,11 +60,13 @@ function getElementContextPath(
  * defined by `isGoodContextSectionName`.
  *
  * @param el - Target element whose ancestor context should be inspected.
+ * @param doc - Document containing the target element.
  * @param maxDepth - Maximum number of ancestor levels to traverse. Defaults to `CONTEXT_HOIST_DEPTH`.
  * @returns The first valid section name found, or `undefined` if none is found within the depth limit.
  */
 function getElementContextSectionName(
     el: Element,
+    doc: Document,
     maxDepth = constants.CONTEXT_SECTION_NAME_HOIST_DEPTH,
 ): string | undefined {
     let current: Element | null = el.parentElement;
@@ -72,7 +74,7 @@ function getElementContextSectionName(
 
     while (current && depth < maxDepth) {
         // 1. aria-labelledby
-        const ariaLabelledBy = getElementAttrAriaLabelledBy(current);
+        const ariaLabelledBy = getElementAttrAriaLabelledBy(current, doc);
         if (ariaLabelledBy) {
             if (isGoodContextSectionName(ariaLabelledBy)) return ariaLabelledBy;
         }
@@ -106,11 +108,12 @@ function getElementContextSectionName(
  * and nearest valid section name from ancestor elements.
  *
  * @param el - Target element to extract context for.
+ * @param doc - Document containing the target element.
  * @returns Context object containing `path` and optional `sectionName`.
  */
-export function getElementContext(el: Element): ElementContext {
+export function getElementContext(el: Element, doc: Document): ElementContext {
     return {
         path: getElementContextPath(el),
-        sectionName: getElementContextSectionName(el),
+        sectionName: getElementContextSectionName(el, doc),
     };
 }

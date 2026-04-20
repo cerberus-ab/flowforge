@@ -6,7 +6,7 @@ import { buildSystemPrompt, buildStructuredOutputPrompt } from './prompts.ts';
 import { PageContextProvider } from '#self/indexer';
 import type { AgentExecResult, ToolCallInfo, AgentResponse, LlmProviderInfo } from '#self/types';
 import { ToolsRegistry } from './tools/ToolsRegistry.ts';
-import type { AgentResult, UsageMetadata } from '@flowforge/shared';
+import  { type AgentResult, type UsageMetadata, validateDataId } from '@flowforge/shared';
 import { AgentResultSchema } from '@flowforge/shared';
 
 interface WebNavigationAgentOptions {
@@ -88,10 +88,13 @@ export class WebNavigationAgent {
                 throw new Error('Agent did not provide an answer.');
             }
             const agentResult = await this.structAgentResult(question, agentExecResult.lastAiMessageContent);
+            if (agentResult.answer.length === 0) {
+                throw new Error('Agent provides an empty answer.');
+            }
             return {
                 result: agentResult,
                 execResult: agentExecResult,
-                execTimeMs: performance.now() - t0,
+                execTimeMs: Math.round(performance.now() - t0),
             };
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error';
@@ -121,8 +124,8 @@ export class WebNavigationAgent {
         console.log('[Agent] The structured result:', agentResult);
         // filter out hallucinated elements
         agentResult.elements = agentResult.elements.filter((el) => {
-            if (!el.dataId) {
-                console.warn(`[Agent] Element with missing dataId found:`, el);
+            if (!validateDataId(el.dataId)) {
+                console.warn(`[Agent] Element with invalid dataId found:`, el);
                 return false;
             }
             return true;

@@ -1,6 +1,7 @@
 import type { DynamicStructuredTool } from '@langchain/core/tools';
-import { PageContextProvider } from '#self/indexer';
-import type { CallableTool, CallableToolResult } from '#self/types';
+import { formantElementContextPath, PageContextProvider } from '#self/indexer';
+import type { CallableTool, CallableToolResult, CallableToolResultData, ToolResultElement } from '#self/types';
+import type { BaseElement } from '@flowforge/shared';
 
 export abstract class AbstractCallableTool implements CallableTool {
     readonly name: string;
@@ -9,28 +10,42 @@ export abstract class AbstractCallableTool implements CallableTool {
         this.name = name;
     }
 
-    protected abstract callFn(contextProvider: PageContextProvider, query: string): Promise<CallableToolResult>;
+    protected abstract callFn(
+        contextProvider: PageContextProvider,
+        query: string,
+    ): Promise<CallableToolResultData>;
 
     abstract createStructuredTool(ctx: PageContextProvider): DynamicStructuredTool;
 
     async call(ctx: PageContextProvider, query: string): Promise<string> {
-        console.log(`[Tool] Call ${this.name} for ${ctx.pageData.basics.url}: ${query}`);
+        console.log(`[Tool] Call ${this.name} for ${ctx.pageModel.basics.url}: ${query}`);
         try {
-            const result = await this.callFn(ctx, query);
-            return AbstractCallableTool.serialiseResult({
+            const resultData = await this.callFn(ctx, query);
+            const result: CallableToolResult = {
                 success: true,
-                ...result,
-            });
+                ...resultData,
+            };
+            return AbstractCallableTool.serialiseResult(result);
         } catch (error) {
-            console.error(`[Tool] Error calling ${this.name} for ${ctx.pageData.basics.url}:`, error);
-            return AbstractCallableTool.serialiseResult({
+            console.error(`[Tool] Error calling ${this.name} for ${ctx.pageModel.basics.url}:`, error);
+            const result: CallableToolResult = {
                 success: false,
                 error: error instanceof Error ? error.message : 'Unknown error',
-            });
+            };
+            return AbstractCallableTool.serialiseResult(result);
         }
     }
 
-    private static serialiseResult(result: unknown): string {
+    protected getToolResultElement(element: BaseElement): ToolResultElement {
+        return {
+            elementPath: formantElementContextPath(element.context.path),
+            elementSectionName: element.context.sectionName ?? '',
+            elementDataId: element.dataId,
+            elementSelector: element.selector,
+        };
+    }
+
+    private static serialiseResult(result: CallableToolResult): string {
         return JSON.stringify(result, null, 2);
     }
 }

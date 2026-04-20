@@ -1,6 +1,6 @@
-import { constants } from '#self/constants';
-import type { ElementLocator } from '@flowforge/shared';
+import type { ElementDescriptor } from '@flowforge/shared';
 import { getElementBoundingBox } from './primitive/view';
+import { getOrCreateDataId } from '#self/core/locator/locate';
 
 /**
  * Builds a CSS selector for a DOM element.
@@ -22,8 +22,7 @@ function getElementSelector(el: Element): string {
             return `[${attr.name}="${attr.value}"]`;
         }
     }
-
-    // Build selector with tag, classes, and nth-child
+    // Builds a selector with tag, classes, and nth-child
     const tag = el.tagName.toLowerCase();
     const classes =
         el.className && typeof el.className === 'string'
@@ -80,32 +79,15 @@ function getElementXPath(el: Element): string {
 }
 
 /**
- * Returns a stable data id for the given element.
- * Reuses the existing value in `constants.DATA_ID_ATTRIBUTE` when present.
- * Otherwise, generates a UUID, stores it on the element, and returns it.
- *
- * @param el - DOM element to read/write the data id on.
- * @returns The element data id value.
- */
-function createElementDataId(el: Element): string {
-    let dataId = el.getAttribute(constants.DATA_ID_ATTRIBUTE) ?? '';
-    if (!dataId) {
-        dataId = crypto.randomUUID();
-        el.setAttribute(constants.DATA_ID_ATTRIBUTE, dataId);
-    }
-    return dataId;
-}
-
-/**
- * Builds a stable locator payload for a DOM element
+ * Builds a stable descriptor payload for a DOM element
  *
  * @param el - Source DOM element.
- * @returns Element locator metadata including tag, generated data id, CSS selector, and bounding box.
+ * @returns Element descriptor metadata including tag, generated data id, CSS selector, and bounding box.
  */
-export function extractElementLocator(el: Element): ElementLocator {
+export function extractElementDescriptor(el: Element): ElementDescriptor {
     return {
         tag: el.tagName.toLowerCase(),
-        dataId: createElementDataId(el),
+        dataId: getOrCreateDataId(el),
         selector: getElementSelector(el),
         bbox: getElementBoundingBox(el),
     };
