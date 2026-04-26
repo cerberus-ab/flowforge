@@ -5,7 +5,6 @@ import manifest from './src/chrome/manifest.config';
 
 export default defineConfig({
     root: 'src/chrome',
-
     resolve: {
         tsconfigPaths: true,
     },
@@ -15,7 +14,6 @@ export default defineConfig({
             include: [/action\/popup\/.*\.[tj]sx?$/, /contentScripts\/.*\.[tj]sx?$/],
         }),
     ],
-
     build: {
         target: 'esnext',
         sourcemap: true,

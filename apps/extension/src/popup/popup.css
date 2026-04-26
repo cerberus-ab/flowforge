@@ -7,8 +7,13 @@
 
 /* Popup */
 .flowforge-popup {
-    width: 400px;
-    height: 560px;
+    --flowforge-popup-width: 400px;
+    --flowforge-popup-height: 560px;
+    --flowforge-popup-header-height: 80px;
+}
+.flowforge-popup {
+    width: var(--flowforge-popup-width);
+    height: var(--flowforge-popup-height);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -20,7 +25,7 @@
     z-index: 1;
     margin: 0;
     flex-shrink: 0;
-    height: 80px;
+    height: var(--flowforge-popup-header-height);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -29,7 +34,7 @@
     color: var(--flowforge-color-text-on-dark);
     box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-shadow), 0.4);
     background:
-            url('img/header-bg-sm.webp') right bottom no-repeat,
+            url('../shared/img/header-bg-sm.webp') right bottom no-repeat,
             linear-gradient(135deg, var(--flowforge-color-primary) 0%, var(--flowforge-color-primary-hover) 100%);
 }
 .flowforge-popup__header--parallax {
@@ -48,7 +53,7 @@
     }
 }
 .flowforge-popup__header-title {
-    font: var(--flowforge-text-h1);
+    font: var(--flowforge-text-h2);
     position: relative;
 }
 .flowforge-popup__header-subtitle {
@@ -77,7 +82,7 @@
     justify-content: center;
     padding-top: var(--flowforge-pad-sm);
     margin-top: auto;
-    font: 400 11px / 1.6 var(--flowforge-font-family);
+    font: var(--flowforge-text-xs);
     gap: var(--flowforge-pad-md);
 }
 .flowforge-popup__copyright {

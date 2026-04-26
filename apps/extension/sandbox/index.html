@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FlowForge — Extension Sandbox</title>
+    <link rel="icon" href="/assets/icon-sandbox.png" type="image/png">
+    <style>
+        :root {
+            --sandbox-color-bg: #f1f5f9;
+            --sandbox-color-text: #0f172a;
+            --sandbox-color-text-on-dark: #e5e7eb;
+            --sandbox-color-hover: #cbd5f5;
+
+            --sandbox-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --sandbox-text-md: 400 14px / 1.4 var(--sandbox-font-family);
+            --sandbox-text-h1: 600 18px / 1.2 var(--sandbox-font-family);
+            --sandbox-text-h2: 600 14px / 1.4 var(--sandbox-font-family);
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font: var(--sandbox-text-md);
+            background: var(--sandbox-color-bg);
+            color: var(--sandbox-color-text);
+        }
+        section {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        section:first-child {
+            padding-top: 48px;
+        }
+        section:last-child {
+            padding-bottom: 80px;
+        }
+        section:not(:last-child) {
+            border-bottom: 1px solid var(--sandbox-color-hover);
+        }
+        section h1 { font: var(--sandbox-text-h1); }
+        section h2 { font: var(--sandbox-text-h2); }
+
+        section pre {
+            background: var(--sandbox-color-text);
+            color: var(--sandbox-color-text-on-dark);
+            padding: 16px;
+            border-radius: 8px;
+            overflow: auto;
+        }
+        section pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+        section :not(pre) > code {
+            background: var(--sandbox-color-hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        div[role="toolbar"] {
+            display: flex;
+            gap: 8px;
+        }
+        button {
+            padding: 4px 12px;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        button:not(:disabled):hover {
+            background-color: var(--sandbox-color-hover);
+        }
+    </style>
+</head>
+<body>
+<div>
+    <section id="controls">
+        <h1>Explore Embed</h1>
+        <h2>Manage the Runtime on the page</h2>
+        <ul>
+            <li>Click <strong>Start</strong> to launch the extension with a real backend,</li>
+            <li>Click <strong>Demo</strong> to run a simulated version with predefined questions and responses,</li>
+            <li>Click <strong>Destroy</strong> to completely remove it from the page and clean up all resources.</li>
+        </ul>
+        <div role="toolbar" data-role="cmd-bar">
+            <button type="button" data-role="cmd" data-cmd="start" data-flowforge-id="ff00000001">Start</button>
+            <button type="button" data-role="cmd" data-cmd="demo" data-flowforge-id="ff00000002">Demo</button>
+            <button type="button" data-role="cmd" data-cmd="destroy" disabled data-flowforge-id="ff00000003">Destroy</button>
+        </div>
+        <p>See <a href="./EMBED_EXTENSION.md" data-flowforge-id="ff00000004">Embed extension docs</a> for more details.</p>
+    </section>
+    <section id="readme">%SECTION_README%</section>
+    <section id="contacts">
+        <p>If anything, you may email <a href="mailto:flowforge@gmail.com" data-flowforge-id="ff00000005">flowforge@gmail.com</a></p>
+    </section>
+</div>
+<script src="/extension/%FLOWFORGE_RUNTIME_JS%"></script>
+
+<script>
+    (function main() {
+        const bar = document.querySelector('[data-role="cmd-bar"]');
+        let runtime = null;
+
+        bar.addEventListener('click', async (e) => {
+            const btn = e.target.closest('[data-cmd]');
+            if (!btn || btn.disabled) return;
+            try {
+                switch (btn.dataset.cmd) {
+                    case 'start':
+                        runtime = await window.FlowForgeRuntime.start();
+                        updateState('running');
+                        break;
+                    case 'demo':
+                        runtime = await window.FlowForgeRuntime.demo({
+                            topic: 'Sandbox',
+                            stubQA: [
+                                {
+                                    question: 'What is this page about?',
+                                    result: {
+                                        answer: 'This page appears to be an extension sandbox for FlowForge, providing a testing environment.',
+                                        elements: [],
+                                        mode: 'direct',
+                                        topic: null,
+                                    },
+                                },
+                                {
+                                    question: 'How to use the runtime?',
+                                    result: {
+                                        answer: 'You can start the runtime with a real backend, run a demo using predefined data, or destroy it to remove everything and clean up resources.',
+                                        elements: [{
+                                            text: 'Click Start to run with real backend',
+                                            dataId: 'ff00000001',
+                                            selector: '',
+                                            action: 'click'
+                                        }, {
+                                            text: 'Click Demo to run with mock data',
+                                            dataId: 'ff00000002',
+                                            selector: '',
+                                            action: 'click'
+                                        }, {
+                                            text: 'Click Destroy to remove and clean up',
+                                            dataId: 'ff00000003',
+                                            selector: '',
+                                            action: 'click'
+                                        }, {
+                                            text: 'Open Embed extension docs for more details',
+                                            dataId: 'ff00000004',
+                                            selector: '',
+                                            action: 'navigate'
+                                        }],
+                                        mode: 'steps',
+                                        topic: 'Runtime Usage',
+                                    },
+                                },
+                                {
+                                    question: 'Where is contact information?',
+                                    result: {
+                                        answer: 'The contact email is located at the bottom of the page.',
+                                        elements: [{
+                                            text: 'Open contact email',
+                                            dataId: 'ff00000005',
+                                            selector: '',
+                                            action: 'navigate'
+                                        }],
+                                        mode: 'direct',
+                                        topic: null,
+                                    }
+                                },
+                            ],
+                        });
+                        updateState('running');
+                        break;
+                    case 'destroy':
+                        runtime?.destroy();
+                        runtime = null;
+                        updateState('idle');
+                        break;
+                }
+            } catch (err) {
+                console.error('[Sandbox] Command failed:', err);
+            }
+        });
+
+        function updateState(state) {
+            bar.querySelectorAll('[data-cmd]').forEach((btn) => {
+                if (state === 'idle') {
+                    btn.disabled = btn.dataset.cmd === 'destroy';
+                } else {
+                    btn.disabled = btn.dataset.cmd !== 'destroy';
+                }
+            });
+        }
+    })();
+</script>
+</body>
+</html>

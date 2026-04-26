@@ -12,7 +12,6 @@
       "#self/config": ["./src/config.ts"],
       "#self/types": ["./src/core/types/index.ts"],
       "#self/constants": ["./src/core/constants.ts"],
-      "#self/assets/*": ["./src/assets/*"],
       "#self/*": ["./src/*"]
     },
     "noEmit": true,
@@ -29,5 +28,5 @@
     "jsxImportSource": "preact"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "sandbox", "**/*.test.ts"]
 }

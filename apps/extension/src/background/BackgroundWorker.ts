@@ -1,5 +1,5 @@
 import type { TransportService } from '#self/adapters/interface';
-import { ApiClient } from '#self/core/services/ApiClient';
+import type { ApiClient } from '#self/core/services/ApiClient';
 import { HistoryStorage } from '#self/core/services/HistoryStorage';
 import {
     type ApplySettingsMessage,
@@ -28,6 +28,7 @@ import type { SettingsStorage } from '#self/core/services/SettignsStorage';
 
 export class BackgroundWorker {
     private readonly transport: TransportService;
+    private unsubscribe?: () => void;
     private readonly apiClient: ApiClient;
     private readonly historyStorage: HistoryStorage;
     private readonly settingsStorage: SettingsStorage;
@@ -45,7 +46,7 @@ export class BackgroundWorker {
     }
 
     start(): void {
-        this.transport.addMessageListener((message: Message) => {
+        this.unsubscribe = this.transport.addMessageListener((message: Message) => {
             if (isGetSettingsMessage(message)) {
                 return this.handleGetSettings(message);
             }
@@ -63,6 +64,11 @@ export class BackgroundWorker {
             }
         });
         console.log('[FlowForge] Background worker loaded and started');
+    }
+
+    stop(): void {
+        this.unsubscribe?.();
+        console.log('[FlowForge] Background worker stopped');
     }
 
     /**

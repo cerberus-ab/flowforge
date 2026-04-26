@@ -1,4 +1,4 @@
-/* Input textarea */
+/* Question form */
 .flowforge-input-textarea {
     width: 100%;
     padding: var(--flowforge-pad-lg);
@@ -21,4 +21,7 @@
     border-color: var(--flowforge-color-secondary);
     background: var(--flowforge-color-surface);
     box-shadow: 0 0 0 4px rgba(var(--flowforge-rgb-secondary), 0.16);
+}
+.flowforge-question-form > .flowforge-button {
+    margin-top: var(--flowforge-pad-sm);
 }

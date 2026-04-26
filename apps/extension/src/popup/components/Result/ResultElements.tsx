@@ -1,20 +1,17 @@
 import type { AgentResultElement, AgentResultMode } from '@flowforge/shared';
-import type { JSX } from 'preact';
 
 interface ResultElementsProps {
-    titleTag?: keyof JSX.IntrinsicElements;
     elements: AgentResultElement[];
     mode: AgentResultMode;
     navigateToElement: (element: AgentResultElement) => void;
 }
 
-export function ResultElements({ titleTag = 'h3', elements, mode, navigateToElement }: ResultElementsProps) {
+export function ResultElements({ elements, mode, navigateToElement }: ResultElementsProps) {
     const isSteps = mode === 'steps';
-    const TitleTag = titleTag;
 
     return (
         <div className="flowforge-elements">
-            <TitleTag className="flowforge-elements__title">{isSteps ? 'Walkthrough' : 'Relevant findings'}</TitleTag>
+            <h4 className="flowforge-elements__title">{isSteps ? 'Walkthrough' : 'Relevant findings'}</h4>
             <div
                 className={
                     isSteps ? 'flowforge-elements-list flowforge-elements-list--steps' : 'flowforge-elements-list'

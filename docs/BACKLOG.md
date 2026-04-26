@@ -58,8 +58,3 @@
 - Dev/Prod mode
 - Update backend/quick-setup.js
 - Generate CHANGELOG.md
-
-## Landing
-
-- Create a landing page for the project
-- Add Demo with standalone extension

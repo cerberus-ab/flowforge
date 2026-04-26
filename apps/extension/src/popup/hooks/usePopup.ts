@@ -9,8 +9,8 @@ import type {
 } from '#self/types';
 import { config } from '#self/config';
 import { normalizeText } from '#self/core/utils/text';
-import type { PopupExampleItem } from '#self/popup/utils/data';
-import { buildExampleItems } from '#self/popup/utils/data';
+import { buildPresetExampleItems, type PopupExampleItem } from '#self/popup/utils/data';
+import { buildTryExampleItems } from '#self/popup/utils/data';
 import type { PopupViewModel } from './usePopup.types';
 import type { TransportService } from '#self/adapters/interface';
 import type { AgentResult, AgentResultElement } from '@flowforge/shared';
@@ -18,9 +18,11 @@ import { formatQueryResponseMetadata } from '#self/popup/utils/format';
 
 interface UsePopupParams {
     transport: TransportService;
+    presetQuestions?: string[];
+    initialQuestion?: string;
 }
 
-export function usePopup({ transport }: UsePopupParams): PopupViewModel {
+export function usePopup({ transport, presetQuestions, initialQuestion }: UsePopupParams): PopupViewModel {
     const [question, setQuestion] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<AgentResult | null>(null);
@@ -28,10 +30,14 @@ export function usePopup({ transport }: UsePopupParams): PopupViewModel {
     const [error, setError] = useState<string | null>(null);
     const [examples, setExamples] = useState<PopupExampleItem[]>([]);
 
-    // Initialize examples and previous questions
+    // Initialize questions examples
     useEffect(() => {
+        if (presetQuestions && presetQuestions.length > 0) {
+            setExamples(buildPresetExampleItems(presetQuestions));
+            return;
+        }
         // Set initial examples
-        setExamples(buildExampleItems(config.exampleQuestions));
+        setExamples(buildTryExampleItems(config.exampleQuestions));
 
         // Load previous questions
         const loadPreviousQuestions = async () => {
@@ -46,7 +52,7 @@ export function usePopup({ transport }: UsePopupParams): PopupViewModel {
                 >(message);
 
                 if (response.success && response.data.questions.length > 0) {
-                    setExamples(buildExampleItems(config.exampleQuestions, response.data.questions));
+                    setExamples(buildTryExampleItems(config.exampleQuestions, response.data.questions));
                 }
             } catch (err) {
                 console.warn('[FlowForge] Failed to load previous questions:', err);
@@ -54,7 +60,13 @@ export function usePopup({ transport }: UsePopupParams): PopupViewModel {
         };
 
         void loadPreviousQuestions();
-    }, [transport]);
+    }, [presetQuestions, transport]);
+
+    useEffect(() => {
+        if (initialQuestion !== undefined) {
+            setQuestion(initialQuestion);
+        }
+    }, [initialQuestion]);
 
     // Handle ask question
     const handleAskQuestion = useCallback(async () => {

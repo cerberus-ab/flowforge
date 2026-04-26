@@ -8,18 +8,21 @@ export function Examples({ examples, applyExampleQuestion }: ExamplesViewModel) 
     return (
         <Card title="Try one of these">
             <div className="flowforge-examples-list">
-                {examples.map((example, index) => (
-                    <button
-                        key={index}
-                        type="button"
-                        className={`flowforge-example-chip flowforge-example-chip--${
-                            example.type === 'default' ? 'primary' : 'secondary'
-                        }`}
-                        onClick={() => applyExampleQuestion(example.question)}
-                    >
-                        {example.question}
-                    </button>
-                ))}
+                <ul>
+                    {examples.map((example, index) => (
+                        <li key={index}>
+                            <button
+                                type="button"
+                                className={`flowforge-example-chip flowforge-example-chip--${
+                                    example.type === 'default' ? 'primary' : 'secondary'
+                                }`}
+                                onClick={() => applyExampleQuestion(example.question)}
+                            >
+                                {example.question}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </Card>
     );

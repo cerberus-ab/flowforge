@@ -3,13 +3,20 @@ import { normalizeText } from '#self/core/utils/text';
 
 export interface PopupExampleItem {
     question: string;
-    type: 'default' | 'previous';
+    type: 'default' | 'previous' | 'preset';
+}
+
+/**
+ * Build preset questions
+ */
+export function buildPresetExampleItems(presetQuestion: string[]): PopupExampleItem[] {
+    return presetQuestion.map((pq) => ({ question: normalizeText(pq), type: 'preset' as const }));
 }
 
 /**
  * Build example questions by combining default and previous questions
  */
-export function buildExampleItems(defaultQuestions: string[], previousQuestions: string[] = []): PopupExampleItem[] {
+export function buildTryExampleItems(defaultQuestions: string[], previousQuestions: string[] = []): PopupExampleItem[] {
     const exSet = new Set<string>();
     const examples: PopupExampleItem[] = [];
 

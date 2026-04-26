@@ -1,0 +1,14 @@
+/* Notice */
+.flowforge-notice {
+    padding: 2px var(--flowforge-pad-md);
+    border-radius: 0;
+    font: var(--flowforge-text-xs);
+    border: none;
+    color: var(--flowforge-color-text);
+    background: rgba(var(--flowforge-rgb-secondary), 0.5);
+    text-align: center;
+}
+.flowforge-notice__text {
+    font: inherit;
+    color: inherit;
+}

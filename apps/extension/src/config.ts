@@ -10,6 +10,8 @@ export interface ExtensionConfig {
     questionsHistoryLimit: number;
     // Example questions on the popup
     exampleQuestions: string[];
+    // Extension version
+    version: string;
     // Copyright information
     copyright: string;
     // Github repository
@@ -23,6 +25,7 @@ export const config: ExtensionConfig = {
     maxQuestionLength: 150,
     questionsHistoryLimit: 10,
     exampleQuestions: ['What is this page about?', 'How can I buy this product?', 'Where is a contact information?'],
+    version: pkg.version,
     copyright: `FlowForge ${pkg.version} ✦ 2026 Antony Belov`,
     github: 'https://github.com/cerberus-ab/flowforge',
     defaultSettings: {

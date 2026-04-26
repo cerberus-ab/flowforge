@@ -1,8 +1,17 @@
 /* Examples */
 .flowforge-examples-list {
+}
+.flowforge-examples-list ul {
+    list-style: none;
     display: flex;
     flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
     gap: var(--flowforge-pad-xs);
+}
+.flowforge-examples-list li {
+    margin: 0;
+    padding: 0;
 }
 .flowforge-example-chip {
     display: inline-flex;

@@ -1,7 +1,13 @@
-import type { QueryRequest, QueryResponse } from '@flowforge/shared';
+import type { AgentResult, QueryRequest, QueryResponse } from '@flowforge/shared';
 import { constants } from '#self/constants';
 
-export class ApiClient {
+export interface ApiClient {
+    query(request: QueryRequest): Promise<QueryResponse>;
+}
+
+// Regular Http API client
+
+export class HttpApiClient implements ApiClient {
     private readonly baseUrl: string;
 
     constructor(baseUrl: string) {
@@ -39,5 +45,47 @@ export class ApiClient {
             }
             throw error instanceof Error ? error : new Error('Unknown error');
         }
+    }
+}
+
+// Demo API client
+
+interface DemoApiClientOptions {
+    delayMs?: number;
+    stubModel?: string;
+    stubQA?: {
+        question: string;
+        result: AgentResult;
+    }[];
+}
+
+export class DemoApiClient implements ApiClient {
+    private readonly delayMs: number;
+    private readonly metadataModel: string;
+    private readonly qaMap: Map<string, AgentResult>;
+
+    constructor(options: DemoApiClientOptions = {}) {
+        this.delayMs = options.delayMs ?? 0;
+        this.metadataModel = options.stubModel ?? 'demo-model';
+        this.qaMap = new Map(options.stubQA?.map((s) => [s.question, s.result]) ?? []);
+    }
+
+    async query(request: QueryRequest): Promise<QueryResponse> {
+        await new Promise((resolve) => setTimeout(resolve, this.delayMs));
+        if (!this.qaMap.has(request.question)) {
+            throw new Error(`Could not mapped a result for question: ${request.question}`);
+        }
+        return {
+            result: this.qaMap.get(request.question)!,
+            metadata: {
+                execTimeMs: this.delayMs,
+                model: this.metadataModel,
+                usage: {
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    totalTokens: Math.floor(Math.random() * (5000 - 100 + 1)) + 100,
+                },
+            },
+        };
     }
 }

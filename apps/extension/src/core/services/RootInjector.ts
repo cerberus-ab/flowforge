@@ -6,6 +6,7 @@ export interface InjectOptions {
 
 export interface InjectedRoot {
     mountPoint: HTMLElement;
+    destroy: () => void;
 }
 
 function createRootStyle(options?: InjectOptions) {
@@ -46,7 +47,7 @@ export class DocumentRootInjector implements RootInjector {
             mountPoint.style.cssText = createRootStyle(options);
             doc.body.appendChild(mountPoint);
         }
-        return { mountPoint };
+        return { mountPoint, destroy: () => mountPoint.remove()};
     }
 }
 
@@ -96,7 +97,7 @@ export class ShadowRootInjector implements RootInjector<InjectedShadowRoot> {
             mountPoint.style.cssText = createShadowMountStyle(options);
             shadowRoot.appendChild(mountPoint);
         }
-        return { host, shadowRoot, mountPoint };
+        return { host, shadowRoot, mountPoint, destroy: () => host.remove() };
     }
 
     /**

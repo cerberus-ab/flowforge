@@ -1,8 +1,11 @@
 /* Wizard */
 .flowforge-wizard {
+    --flowforge-wizard-width: 320px;
+}
+.flowforge-wizard {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: var(--flowforge-app-offset);
+    right: var(--flowforge-app-offset);
     background: var(--flowforge-color-surface);
     border: 1px solid var(--flowforge-color-border);
     border-top: 4px solid var(--flowforge-color-primary);
@@ -14,7 +17,7 @@
     color: var(--flowforge-color-text);
     z-index: 2;
     font: var(--flowforge-text-md);
-    width: 320px;
+    width: var(--flowforge-wizard-width);
     display: flex;
     flex-direction: column;
     gap: var(--flowforge-pad-lg);
@@ -29,7 +32,7 @@
 }
 .flowforge-wizard__title {
     margin: 0;
-    font: var(--flowforge-text-h2);
+    font: var(--flowforge-text-h3);
     color: var(--flowforge-color-text);
 }
 .flowforge-wizard__text {
@@ -48,7 +51,7 @@
 }
 .flowforge-wizard-controls__title {
     margin: 0;
-    font: var(--flowforge-text-h3);
+    font: var(--flowforge-text-h4);
     color: var(--flowforge-color-text);
 }
 .flowforge-wizard-controls-list {

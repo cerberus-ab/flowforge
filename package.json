@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "npm run clean --workspaces",
     "setup": "npm run setup --workspace @flowforge/backend",
-    "build": "npm run build --workspace @flowforge/shared && npm run build --workspace @flowforge/backend && npm run build --workspace @flowforge/extension",
+    "build": "npm run build --workspace @flowforge/shared && npm run build --workspace @flowforge/backend && npm run build:chrome --workspace @flowforge/extension",
     "start": "npm run setup && npm run build && npm run install:chrome --workspace @flowforge/extension && npm run start --workspace @flowforge/backend",
     "format": "prettier . --write --cache",
     "format:check": "prettier . --check"

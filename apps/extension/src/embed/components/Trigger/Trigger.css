@@ -1,0 +1,42 @@
+/* Trigger */
+.flowforge-trigger {
+    position: fixed;
+    top: var(--flowforge-app-offset);
+    right: 0;
+
+    display: flex;
+    padding: var(--flowforge-pad-sm) calc(var(--flowforge-pad-sm) * 2) var(--flowforge-pad-sm) var(--flowforge-pad-sm);
+    border-radius: var(--flowforge-pad-sm) 0 0 var(--flowforge-pad-sm);
+    border: none;
+    cursor: pointer;
+    color: var(--flowforge-color-text-on-dark);
+    font: var(--flowforge-text-h3);
+    pointer-events: auto;
+    box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-shadow), 0.4);
+    background:
+            url('../../../shared/img/header-bg-sm.webp') right bottom no-repeat,
+            linear-gradient(135deg, var(--flowforge-color-primary) 0%, var(--flowforge-color-primary-hover) 100%);
+    background-position: center center, 0 0;
+    animation: flowforge-button-stars-parallax 60s ease-in-out infinite alternate;
+    transition: var(--flowforge-transition-default);
+}
+@keyframes flowforge-button-stars-parallax {
+    0% {
+        background-position: calc(50% - 95px) calc(50% - 15px), 0 0;
+    }
+    50% {
+        background-position: 50% calc(50% + 15px), 0 0;
+    }
+    100% {
+        background-position: calc(50% + 95px) calc(50% - 15px), 0 0;
+    }
+}
+.flowforge-trigger:hover {
+    transform: translateY(-2px);
+    animation-play-state: paused;
+}
+.flowforge-trigger--lg {
+    font: var(--flowforge-text-h2);
+    padding: var(--flowforge-pad-md) calc(var(--flowforge-pad-md) * 2) var(--flowforge-pad-md) var(--flowforge-pad-md);
+    border-radius: var(--flowforge-pad-md) 0 0 var(--flowforge-pad-md);
+}

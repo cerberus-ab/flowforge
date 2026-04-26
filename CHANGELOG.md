@@ -2,6 +2,15 @@
 
 All notable changes to the project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Early build for embed integration, used for Demo.
+- Added a sandbox for extension testing.
+
+### Changed
+- Improved semantics and A11y for extension components.
+
 ## [0.1.3] - 2026-04-20
 
 ### Added

@@ -1,0 +1,25 @@
+@import '../../shared/index.css';
+
+@import '../../page/page.css';
+@import '../components/Trigger/Trigger.css';
+@import '../../popup/popup.css';
+
+.flowforge-shell .flowforge-page {
+    z-index: 1;
+}
+.flowforge-shell .flowforge-trigger {
+    z-index: 2;
+}
+.flowforge-shell .flowforge-popup-container {
+    z-index: 3;
+}
+
+/* Popup container */
+.flowforge-popup-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    border-radius: 0;
+    border: none;
+    box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-shadow), 0.4);
+}

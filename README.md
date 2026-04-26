@@ -43,7 +43,7 @@ It is not production-ready yet, and the core engine is still under development. 
 
 - Node.js 22+
 - Chrome / Chromium browser
-- [Ollama](https://ollama.com/) (Optional, for local LLM)
+- [Ollama](https://ollama.com/) (optional, for local LLM)
 
 ### Run
 
@@ -91,7 +91,7 @@ Focus on:
 
 - [Architecture](docs/ARCHITECTURE.md) — system design and component interaction
 - [DOM to RAG Pipeline](docs/DOM-TO-RAG-PIPELINE.md) – from DOM to actionable intelligence
-- [Backend](apps/backend/README.md) — backend for AI-driven UI guidance
+- [Backend](apps/backend/README.md) — AI agent backend and RAG pipeline
 - [Extension](apps/extension/README.md) — browser extension and page extraction
 
 ## License

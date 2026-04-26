@@ -91,10 +91,10 @@ export function Wizard({ title, description, steps, close, changeStep }: WizardV
                 return;
             }
         };
-        window.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keydown', handleKeyDown);
 
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keydown', handleKeyDown);
         };
     }, [currentStep, close]);
 
@@ -125,18 +125,22 @@ export function Wizard({ title, description, steps, close, changeStep }: WizardV
             ref={wizardRef}
             className={`flowforge-wizard ${isDragging ? 'flowforge-wizard--dragging' : ''}`}
             aria-labelledby="flowforge-wizard-title"
+            aria-roledescription="draggable panel"
+            role="region"
             style={{
                 right: `${position.right}px`,
                 bottom: `${position.bottom}px`,
             }}
         >
             <div className="flowforge-wizard__drag-handle" onPointerDown={handlePointerDown}>
-                <p id="flowforge-wizard-title" className="flowforge-wizard__title">{title}</p>
+                <h3 id="flowforge-wizard-title" className="flowforge-wizard__title">
+                    {title}
+                </h3>
             </div>
             <p className="flowforge-wizard__text">{description}</p>
 
             <div className="flowforge-wizard-controls">
-                <p className="flowforge-wizard-controls__title">{wizardStatus}</p>
+                <h4 className="flowforge-wizard-controls__title">{wizardStatus}</h4>
 
                 <div
                     className={`flowforge-wizard-controls-list ${
@@ -148,13 +152,21 @@ export function Wizard({ title, description, steps, close, changeStep }: WizardV
                     {isStartScreen ? (
                         <>
                             <Button onClick={handleStart}>Start onboarding</Button>
-                            <Button variant="secondary" onClick={handleFinish}>Finish</Button>
+                            <Button variant="secondary" onClick={handleFinish}>
+                                Finish
+                            </Button>
                         </>
                     ) : (
                         <>
-                            <Button onClick={handlePrev} disabled={currentStep <= 1}>Previous</Button>
-                            <Button onClick={handleNext} disabled={currentStep >= steps.length}>Next</Button>
-                            <Button variant="secondary" onClick={handleFinish}>Finish</Button>
+                            <Button onClick={handlePrev} disabled={currentStep <= 1}>
+                                Previous
+                            </Button>
+                            <Button onClick={handleNext} disabled={currentStep >= steps.length}>
+                                Next
+                            </Button>
+                            <Button variant="secondary" onClick={handleFinish}>
+                                Finish
+                            </Button>
                         </>
                     )}
                 </div>
