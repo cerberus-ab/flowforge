@@ -6,6 +6,7 @@ All notable changes to the project will be documented in this file.
 
 ### Added
 - Early build for embed integration, used for Demo.
+- Landing and live Demo at [useflowforge.app](https://useflowforge.app/).
 - Added a sandbox for extension testing.
 
 ### Changed

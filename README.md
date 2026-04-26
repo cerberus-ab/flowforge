@@ -10,6 +10,8 @@ FlowForge is a Web Onboarding Assistant that turns user intent into actionable U
 
 ## Demo
 
+Try the live **Demo** at [useflowforge.app](https://useflowforge.app/)!
+
 <p align="left">
   <img src="./docs/assets/demo.gif" width="1000" />
 </p>
