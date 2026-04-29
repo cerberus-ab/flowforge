@@ -15,6 +15,7 @@
 
 ### RAG
 
+- Try to use crawl4ai for extracting and fetching data
 - Enhance embeddings semantic: intent action, UX, parents graph, etc.
 - Enhance reranking based on contextual relevance
 - Add cache (node-cache/Redis) before index and search calls
@@ -32,11 +33,12 @@
 - Improve find_workflow tool by building the graph of steps
 - Add FormExtractor tool for workflows
 - Add Statistics tool: how many elements on the page, etc.
+- Answer the question: How does the product work? What alternatives do I have? What is the next step?
 - Fetch data from links to provide website context
 
 ### Tech Improvements
 
-- Consider using Vercel AI SDK
+- Consider using Vercel AI SDK, OpenRouter
 - Use pnpm for package management instead of npm
 - Add metrics: tokens usage, latency, errors, etc.
 - Refactor the Server, consider using Fastify instead of Express
@@ -49,9 +51,8 @@
 
 ## Extension
 
-- Support standalone mode
+- Support standalone mode, properly
 - Cache for pageModel transfer, with RAG cache
-- CSS modules ?
 
 ## DX
 

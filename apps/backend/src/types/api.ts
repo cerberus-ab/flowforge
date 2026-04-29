@@ -4,6 +4,7 @@ import type { AnalyticsEvent } from './analytics.ts';
 export interface HealthResponse {
     status: 'ok';
     service: string;
+    uptime: number;
     timestamp: string;
 }
 

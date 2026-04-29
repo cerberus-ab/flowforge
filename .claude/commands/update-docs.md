@@ -37,6 +37,7 @@ README.md (100–120 lines)
 - "Forging your experience..."
 - Demo
 - Overview
+- Use Cases
 - Disclaimer
 - Quick Start
 - Usage

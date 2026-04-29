@@ -1,12 +1,29 @@
-import type { AnalyticsData, AnalyticsEvent } from '#self/types';
+import type { AgentResponse, AnalyticsData, AnalyticsEvent } from '#self/types';
 
 // TODO: provide a persistence layer
 export class Analytics {
     private readonly data: AnalyticsData = new Map<string, Map<string, AnalyticsEvent[]>>();
 
-    constructor() {}
+    /**
+     * Records a Q&A interaction for analytics.
+     *
+     * Stores the user question, summarized agent result,
+     * tool calls, and timestamp scoped by domain and page.
+     */
+    trackQA(domain: string, pageUrl: string, question: string, agentResponse: AgentResponse): void {
+        this.track(domain, pageUrl, {
+            question,
+            result: {
+                answer: agentResponse.result.answer,
+                elements: agentResponse.result.elements.length,
+                mode: agentResponse.result.mode,
+            },
+            toolCallsList: agentResponse.execResult.toolCallsList,
+            timestamp: Date.now(),
+        });
+    }
 
-    track(domain: string, pageUrl: string, event: AnalyticsEvent): void {
+    private track(domain: string, pageUrl: string, event: AnalyticsEvent): void {
         let domainData = this.data.get(domain);
         if (!domainData) {
             domainData = new Map<string, AnalyticsEvent[]>();

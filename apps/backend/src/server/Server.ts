@@ -1,37 +1,33 @@
 import express from 'express';
-import type { Express, Request, Response } from 'express';
+import type { Express } from 'express';
 import cors from 'cors';
 import boxen from 'boxen';
 
-import type {
-    AnalyticsResponse,
-    ErrorResponse,
-    HealthResponse,
-    LlmProvider,
-    QueryRequest,
-    QueryResponse,
-    RetrievedDocument,
-    SearchRequest,
-    SearchResponse,
-} from '#self/types';
-import { PageIndexer, PageContextProvider } from '#self/indexer';
+import type { LlmProvider } from '#self/types';
+import { PageIndexer } from '#self/indexer';
 import { LlmProviderFactory, WebNavigationAgent } from '#self/agent';
 import type { AppConfig } from '#self/config';
 import { Analytics } from '#self/analytics';
 
-const REQ_JSON_BODY_LIMIT = '50mb';
+import { createHealthHandler } from './routes/health.ts';
+import { createQueryHandler } from './routes/query.ts';
+import { createSearchHandler } from './routes/search.ts';
+import { createAnalyticsHandler } from './routes/analytics.ts';
+
+const settings = {
+    REQ_JSON_BODY_LIMIT: '50mb',
+} as const;
 
 export class Server {
     private readonly config: AppConfig;
-    private readonly app: Express;
     private readonly llmProvider: LlmProvider;
     private readonly indexer: PageIndexer;
     private readonly agent: WebNavigationAgent;
     private readonly analytics: Analytics;
+    private readonly app: Express;
 
     constructor(config: AppConfig) {
         this.config = config;
-        this.app = express();
 
         // Init LLM provider
         this.llmProvider = LlmProviderFactory.create(config);
@@ -58,105 +54,38 @@ export class Server {
         // Init Analytics service
         this.analytics = new Analytics();
 
+        this.app = express();
         this.setupMiddleware();
         this.setupRoutes();
-        this.setupGracefulShutdown();
     }
 
     private setupMiddleware(): void {
         this.app.use(cors());
-        this.app.use(express.json({ limit: REQ_JSON_BODY_LIMIT }));
+        this.app.use(express.json({ limit: settings.REQ_JSON_BODY_LIMIT }));
     }
 
     private setupRoutes(): void {
-        this.app.get('/health', this.handleHealth.bind(this));
-        this.app.post('/query', this.handleQuery.bind(this));
-        this.app.post('/search', this.handleSearch.bind(this));
-        this.app.get('/analytics', this.handleAnalytics.bind(this));
-    }
-
-    private handleHealth(_req: Request, res: Response<HealthResponse>): void {
-        res.json({
-            status: 'ok',
-            service: 'FlowForge Backend',
-            timestamp: new Date().toISOString(),
-        });
-    }
-
-    private async handleQuery(
-        req: Request<{}, QueryResponse | ErrorResponse, QueryRequest>,
-        res: Response<QueryResponse | ErrorResponse>,
-    ): Promise<void> {
-        try {
-            const { question, pageModel, domain } = req.body;
-
-            if (!question || !pageModel) {
-                res.status(400).json({
-                    error: 'Missing required fields: question, pageModel',
-                });
-                return;
-            }
-            console.log(`[Server] Query: ${domain} / ${question}`);
-
-            await this.indexer.indexPage(pageModel);
-            const pageContext = new PageContextProvider(pageModel, this.indexer);
-            const agentResponse = await this.agent.processQuery(question, pageContext);
-
-            this.analytics.track(domain, pageModel.basics.url, {
-                question,
-                timestamp: Date.now(),
-                agentToolCalls: agentResponse.execResult.toolCallsList.map((call) => call.name) || [],
-            });
-            res.json({
-                result: agentResponse.result,
-                metadata: {
-                    model: agentResponse.execResult.model,
-                    usage: agentResponse.execResult.usageMetadata,
-                    execTimeMs: agentResponse.execTimeMs,
-                },
-            });
-        } catch (error) {
-            console.error('[Server] Error:', error);
-            res.status(500).json({
-                error: 'Internal server error',
-                message: error instanceof Error ? error.message : 'Unknown error',
-            });
-        }
-    }
-
-    private async handleSearch(
-        req: Request<{}, SearchResponse<RetrievedDocument>, SearchRequest>,
-        res: Response<SearchResponse<RetrievedDocument> | ErrorResponse>,
-    ): Promise<void> {
-        try {
-            const { pageUrl, query, k = 5 } = req.body;
-
-            if (!pageUrl || !query) {
-                res.status(400).json({
-                    error: 'Missing required fields: pageUrl, query',
-                });
-                return;
-            }
-            console.log(`[Server] Search: ${pageUrl} / ${query}`);
-
-            const results = await this.indexer.searchForUrl(pageUrl, query, { k });
-            res.json({ results });
-        } catch (error) {
-            console.error('[Server] Error:', error);
-            res.status(500).json({
-                error: 'Search failed',
-                message: error instanceof Error ? error.message : 'Unknown error',
-            });
-        }
-    }
-
-    private async handleAnalytics(_req: Request, res: Response<AnalyticsResponse>): Promise<void> {
-        res.json({
-            data: Object.fromEntries(
-                Array.from(this.analytics.getAll()).map(([domain, pages]) => [domain, Object.fromEntries(pages)]),
-            ),
-            timestamp: new Date().toISOString(),
-        });
+        this.app.get('/health', createHealthHandler());
+        this.app.post(
+            '/query',
+            createQueryHandler({
+                indexer: this.indexer,
+                agent: this.agent,
+                analytics: this.analytics,
+            }),
+        );
+        this.app.post(
+            '/search',
+            createSearchHandler({
+                indexer: this.indexer,
+            }),
+        );
+        this.app.get(
+            '/analytics',
+            createAnalyticsHandler({
+                analytics: this.analytics,
+            }),
+        );
     }
 
     private setupGracefulShutdown(): void {
@@ -200,5 +129,6 @@ export class Server {
         this.app.listen(this.config.port, () => {
             this.printStartupBanner();
         });
+        this.setupGracefulShutdown();
     }
 }

@@ -1,6 +1,16 @@
+import type { ToolCallInfo } from './agent.ts';
+import type { AgentResultMode } from '@flowforge/shared/';
+
+export interface TrackResult {
+    answer: string;
+    elements: number;
+    mode: AgentResultMode;
+}
+
 export interface AnalyticsEvent {
     question: string;
-    agentToolCalls: string[];
+    result: TrackResult;
+    toolCallsList: ToolCallInfo[];
     timestamp: number;
 }
 

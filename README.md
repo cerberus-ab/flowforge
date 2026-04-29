@@ -2,7 +2,7 @@
 
 _Forging your experience..._
 
-FlowForge is a Web Onboarding Assistant that turns user intent into actionable UI guidance inside any web application.
+FlowForge is a Web Onboarding Assistant that turns user intent into actionable UI guidance inside web applications.
 
 - Explore content and interface instantly
 - Ask anything about the page
@@ -10,17 +10,13 @@ FlowForge is a Web Onboarding Assistant that turns user intent into actionable U
 
 ## Demo
 
-Try the live **Demo** at [useflowforge.app](https://useflowforge.app/)!
-
-<p align="left">
-  <img src="./docs/assets/demo.gif" width="1000" />
-</p>
+Try the live **Demo** at [useflowforge.app](https://useflowforge.app/) ✦
 
 ## Overview
 
 **Why?** Modern web apps are powerful – but hard to navigate.
 
-FlowForge lets users ask questions in natural language and get immediate, contextual guidance directly in the UI.
+The assistant lets you ask questions in natural language and get immediate, contextual guidance directly in the UI.
 
 It can:
 - highlight relevant elements
@@ -31,13 +27,24 @@ It works on any website out of the box and becomes product-aware when integrated
 
 **Under the hood:** browser extension + AI agent (ReAct) + RAG pipeline.
 
+## Use Cases
+- Ask a question and get a clear explanation of what the page is about.
+- Locate links, buttons, or contacts without manual search.
+- Follow step-by-step actions directly in the interface.
+- Highlight and summarize important parts of long pages.
+- Understand unfamiliar interfaces without onboarding.
+
+<p align="left">
+  <img src="./docs/assets/use-cases.gif" width="960" />
+</p>
+
 ## Disclaimer
 
-This is an early-stage MVP built to showcase the ✦ Idea ✦ itself.
+This is an early-stage experimental project showcasing the ✦ Idea ✦ itself.
 
-It is not production-ready yet, and the core engine is still under development. Expect limitations, rough edges, and ongoing improvements as the project evolves.
+It is not production-ready, and the core engine is still evolving. Expect limitations, rough edges, and ongoing improvements.
 
-[Changelog](./CHANGELOG.md) – see the list of changes
+[Changelog](./CHANGELOG.md) – see the list of changes.
 
 ## Quick Start
 
@@ -61,10 +68,14 @@ This will:
 - Guide you to install the extension in Chrome
 - Start the backend at http://localhost:3477
 
+<p align="left">
+  <img src="./docs/assets/install.gif" width="480" />
+</p>
+
 ## Usage
 
 1. Open any website
-2. Click the FlowForge extension icon
+2. Click the assistant extension icon
 3. Ask a question, e.g.:
    - "Where is the login button?"
    - "How do I checkout?"
@@ -82,10 +93,10 @@ Note: As an early-stage MVP, security is evolving and not yet production-ready.
 
 ## Roadmap
 
-Focus on:
-1. Enhance the Core: extractors, embeddings, reasoning, tools
-2. Provide a standalone Extension build
-3. Landing with Demo
+Focus areas:
+1. Improve the core engine: extractors, embeddings, reasoning, and tools
+2. Extend context from single pages to full websites
+3. Build a proper standalone extension distribution
 
 [Backlog](docs/BACKLOG.md) — the full list of features and improvements
 
@@ -98,4 +109,6 @@ Focus on:
 
 ## License
 
-MIT © Antony Belov
+MIT License © 2026 Antony Belov
+
+See [LICENSE](./LICENSE.md) for details.

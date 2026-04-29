@@ -21,7 +21,7 @@ export class WebNavigationAgent {
     private readonly llmProviderInfo: LlmProviderInfo;
     private readonly chatModel: BaseChatModel;
     private readonly toolsRegistry: ToolsRegistry;
-    private readonly toolCallLimit: number;
+    private readonly systemPrompt: string;
     private readonly recursionLimit: number;
     private readonly verbose: boolean;
 
@@ -45,7 +45,9 @@ export class WebNavigationAgent {
         this.llmProviderInfo = config.llmProviderInfo;
         this.chatModel = config.chatModel;
         this.toolsRegistry = new ToolsRegistry();
-        this.toolCallLimit = config.toolCallLimit;
+        this.systemPrompt = buildSystemPrompt({
+            toolCallLimit: config.toolCallLimit,
+        });
         this.recursionLimit = config.recursionLimit;
         this.verbose = config.verbose;
     }
@@ -68,9 +70,7 @@ export class WebNavigationAgent {
             tools: this.toolsRegistry.createStructuredTools(pageContext),
             // TODO: provide draft response format
             //responseFormat: AgentResultSchema,
-            systemPrompt: buildSystemPrompt({
-                toolCallLimit: this.toolCallLimit,
-            }),
+            systemPrompt: this.systemPrompt,
         });
         try {
             const agentInvokeState = await agent.invoke(
