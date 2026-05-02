@@ -36,6 +36,13 @@ export type ContainerElementRole =
     | 'main content'
     | 'footer'
     | 'sidebar'
+    | 'search'
+    | 'article'
+    | 'section'
+    | 'region'
+    | 'figure'
+    | 'feed'
+    | 'note'
     | 'tab panel'
     | 'toolbar'
     | 'table'
@@ -68,11 +75,15 @@ export type InteractiveElementRole =
     | 'link'
     | 'checkbox'
     | 'radio'
+    | 'switch'
     | 'slider'
     | 'textbox'
     | 'searchbox'
     | 'combobox'
     | 'listbox'
+    | 'option'
+    | 'tab'
+    | 'menuitem'
     | 'dialog';
 
 export interface InteractiveElementState {
@@ -95,6 +106,7 @@ export interface InteractiveLink {
 
 // Element Types
 
+export type ElementKind = 'content' | 'interactive';
 export type ContentElementType = 'text' | 'heading';
 export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
@@ -106,17 +118,20 @@ export interface ElementDescriptor {
 }
 
 export interface BaseElement extends ElementDescriptor {
+    kind: ElementKind;
     type: ContentElementType | InteractiveElementType;
     context: ElementContext;
     importanceScore: number; // [0..1]
 }
 
 export interface ContentElement extends BaseElement {
+    kind: 'content';
     type: ContentElementType;
     text: string;
 }
 
 export interface InteractiveElement extends BaseElement {
+    kind: 'interactive';
     type: InteractiveElementType;
     role: InteractiveElementRole;
     text?: string;

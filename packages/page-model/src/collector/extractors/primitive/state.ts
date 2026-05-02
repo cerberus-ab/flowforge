@@ -1,5 +1,6 @@
-import type { InteractiveElementState } from '@flowforge/shared';
-import { getElementBooleanAttribute } from '#self/core/collector/extractors/primitive/attr';
+import type { InteractiveElementState } from '#self/types';
+import { getElementBooleanAttribute } from './attr.ts';
+
 
 /**
  * Extracts the state of an interactive element by reading native HTML properties and ARIA attributes.

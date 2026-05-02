@@ -6,8 +6,7 @@ import { buildSystemPrompt, buildStructuredOutputPrompt } from './prompts.ts';
 import { PageContextProvider } from '#self/indexer';
 import type { AgentExecResult, ToolCallInfo, AgentResponse, LlmProviderInfo } from '#self/types';
 import { ToolsRegistry } from './tools/ToolsRegistry.ts';
-import  { type AgentResult, type UsageMetadata, validateDataId } from '@flowforge/shared';
-import { AgentResultSchema } from '@flowforge/shared';
+import { type AgentResult, type UsageMetadata, validateDataId, AgentResultSchema } from '@flowforge/contract';
 
 interface WebNavigationAgentOptions {
     llmProviderInfo: LlmProviderInfo;

@@ -2,12 +2,14 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
 import {
-    formatConcatElements,
-    formatContentElementShort,
-    formatInteractiveElementShort,
     PageContextProvider,
 } from '#self/indexer';
 import type { ToolGetPageSummaryResultData } from '#self/types';
+import {
+    formatConcatElements,
+    formatContentElementShort,
+    formatInteractiveElementShort,
+} from '@flowforge/page-model';
 
 export class ToolGetPageSummary extends AbstractCallableTool {
     private readonly elementsHeadingsLimit: number;

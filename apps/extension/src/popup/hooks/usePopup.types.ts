@@ -1,5 +1,5 @@
 import type { PopupExampleItem } from '#self/popup/utils/data';
-import type { AgentResult, AgentResultElement } from '@flowforge/shared';
+import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 
 export interface QuestionState {
     question: string;
@@ -7,7 +7,7 @@ export interface QuestionState {
 
 export interface QuestionActions {
     setQuestion: (value: string) => void;
-    askQuestion: () => void;
+    askQuestion: () => Promise<void>;
 }
 
 export type QuestionViewModel = QuestionState & QuestionActions;

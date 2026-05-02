@@ -1,5 +1,5 @@
 import { constants } from '#self/constants';
-import { generateDataId } from '@flowforge/shared';
+import { generateDataId } from '@flowforge/contract';
 
 /**
  * Returns a stable element data id for the given DOM element

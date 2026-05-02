@@ -1,13 +1,19 @@
-import { normalizeText } from '#self/core/utils/text';
-import { getElementAttrAriaLabelledBy } from './primitive/label';
-import type { ContainerElementRole, ElementContext } from '@flowforge/shared';
-import { getContainerRole } from './primitive/role';
-import { constants } from '#self/constants';
+import { getElementAttrAriaLabelledBy } from './primitive/label.ts';
+import { getContainerRole } from './primitive/role.ts';
+import type { ContainerElementRole, ElementContext } from '#self/types';
+import { normalizeText } from '#self/utils';
+
+// constants
+const CONTEXT_SECTION_NAME_MIN_LENGTH = 5;
+const CONTEXT_SECTION_NAME_MAX_LENGTH = 30;
+const CONTEXT_SECTION_NAME_HOIST_DEPTH = 5;
+const CONTEXT_PATH_HOIST_DEPTH = 6;
+const CONTEXT_PATH_ITEMS_LIMIT = 4;
 
 function isGoodContextSectionName(text: string): boolean {
     return (
-        text.length >= constants.CONTEXT_SECTION_NAME_MIN_LENGTH &&
-        text.length <= constants.CONTEXT_SECTION_NAME_MAX_LENGTH
+        text.length >= CONTEXT_SECTION_NAME_MIN_LENGTH &&
+        text.length <= CONTEXT_SECTION_NAME_MAX_LENGTH
     );
 }
 
@@ -25,8 +31,8 @@ function isGoodContextSectionName(text: string): boolean {
  */
 function getElementContextPath(
     el: Element,
-    maxDepth = constants.CONTEXT_PATH_HOIST_DEPTH,
-    maxItems = constants.CONTEXT_PATH_ITEMS_LIMIT,
+    maxDepth = CONTEXT_PATH_HOIST_DEPTH,
+    maxItems = CONTEXT_PATH_ITEMS_LIMIT,
 ): ContainerElementRole[] {
     const path: ContainerElementRole[] = [];
     let current: Element | null = el.parentElement;
@@ -67,7 +73,7 @@ function getElementContextPath(
 function getElementContextSectionName(
     el: Element,
     doc: Document,
-    maxDepth = constants.CONTEXT_SECTION_NAME_HOIST_DEPTH,
+    maxDepth = CONTEXT_SECTION_NAME_HOIST_DEPTH,
 ): string | undefined {
     let current: Element | null = el.parentElement;
     let depth = 0;

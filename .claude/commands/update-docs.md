@@ -1,10 +1,24 @@
-Update the project documentation using the current codebase and existing docs as the source of truth.
+You are updating project documentation based strictly on the current codebase and existing docs.
 
-Files to update:
+Your goal is to rewrite and align documentation — not to invent or expand it.
+
+---
+
+SOURCE OF TRUTH
+
+- Codebase (primary)
+- Existing documentation (secondary)
+
+If something is unclear or missing — omit it. Do NOT assume.
+
+---
+
+FILES TO UPDATE
 
 - README.md
 - docs/ARCHITECTURE.md
 - docs/DOM-TO-RAG-PIPELINE.md
+- packages/page-model/README.md
 - apps/backend/README.md
 - apps/extension/README.md
 
@@ -25,6 +39,7 @@ DOCUMENT ROLES
 - README.md → entry point (what it is, how to run)
 - ARCHITECTURE.md → high-level system overview
 - DOM-TO-RAG-PIPELINE.md → pipeline description
+- page-model README → canonical DOM representation (PageModel)
 - backend README → backend responsibilities and usage
 - extension README → extension responsibilities and usage
 
@@ -69,6 +84,19 @@ docs/DOM-TO-RAG-PIPELINE.md (80–100 lines)
   - Indexing / Retrieval
   - Reranking
   - Resolution to Tool Results
+
+---
+
+packages/page-model/README.md (60–80 lines)
+
+- Overview
+- Structure
+- Content elements
+- Interactive elements
+- Context
+- Importance
+- Format
+- Usage
 
 ---
 

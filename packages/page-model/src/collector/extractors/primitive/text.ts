@@ -1,4 +1,4 @@
-import { normalizeText } from '#self/core/utils/text';
+import { normalizeText } from '#self/utils';
 
 /**
  * Extracts normalized user-visible text from an element.

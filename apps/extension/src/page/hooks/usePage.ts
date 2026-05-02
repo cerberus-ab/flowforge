@@ -6,18 +6,18 @@ import {
 } from '#self/types';
 import type { Message, StartOnboardingMessageData } from '#self/types';
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import { findElement } from '#self/core/locator/locate';
+import { findElement, getOrCreateDataId } from '#self/core/locator/locate';
 import type { PageViewModel, HighlightState, WizardState } from './usePage.types';
 import type { TransportService } from '#self/adapters/interface';
 import { constants } from '#self/constants';
-import type { AgentResultElement } from '@flowforge/shared';
-import { PageModelCollector } from '#self/core/collector/PageModelCollector';
+import type { AgentResultElement } from '@flowforge/contract';
+import { PageModelCollector } from '@flowforge/page-model';
 
-interface UsePageParams {
+export interface UsePageOptions {
     transport: TransportService;
 }
 
-export function usePage({ transport }: UsePageParams): PageViewModel {
+export function usePage({ transport }: UsePageOptions): PageViewModel {
     const [highlights, setHighlights] = useState<HighlightState[]>([]);
     const [wizard, setWizard] = useState<WizardState | null>(null);
 
@@ -111,7 +111,11 @@ export function usePage({ transport }: UsePageParams): PageViewModel {
     useEffect(() => {
         return transport.addMessageListener((message: Message) => {
             if (isCollectPageModelMessage(message)) {
-                const pageModel = PageModelCollector.collectFor(window, document);
+                const pageModel = PageModelCollector.collectFor(window, document, {
+                    contentElementsLimit: constants.CONTENT_ELEMENTS_LIMIT,
+                    interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
+                    getElementDataId: getOrCreateDataId,
+                });
                 return { success: true, data: pageModel };
             }
             if (isClearPageMessage(message)) {

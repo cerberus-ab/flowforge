@@ -1,4 +1,4 @@
-import type { AgentResultElement, AgentResultMode } from '@flowforge/shared';
+import type { AgentResultElement, AgentResultMode } from '@flowforge/contract';
 
 interface ResultElementsProps {
     elements: AgentResultElement[];

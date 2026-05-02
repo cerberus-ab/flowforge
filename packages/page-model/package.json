@@ -1,5 +1,5 @@
 {
-  "name": "@flowforge/shared",
+  "name": "@flowforge/page-model",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,13 +11,14 @@
   },
   "scripts": {
     "clean": "rm -rf dist/",
-    "build": "npm run clean && tsc -p tsconfig.json",
+    "build": "npm run clean && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch"
   },
   "dependencies": {
-    "zod": "^4.3.6"
+    "css-selector-generator": "^3.9.2"
   },
   "devDependencies": {
+    "tsc-alias": "^1.8.17",
     "typescript": "^6.0.2"
   }
 }

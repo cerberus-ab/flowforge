@@ -1,4 +1,4 @@
-import type { QueryResponseMetadata } from '@flowforge/shared';
+import type { QueryResponseMetadata } from '@flowforge/contract';
 
 // Format duration in seconds
 function formatDuration(ms: number): string {

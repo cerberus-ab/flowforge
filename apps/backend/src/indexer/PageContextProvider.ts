@@ -1,6 +1,6 @@
 import type { DocumentRetriever, RetrievedDocument, RetrieveOptions } from '#self/types';
 import { PageIndexer } from './PageIndexer.ts';
-import type { PageModel } from '@flowforge/shared';
+import type { PageModel } from '@flowforge/page-model';
 
 export class PageContextProvider implements DocumentRetriever {
     readonly pageModel: PageModel;

@@ -1,4 +1,4 @@
-import type { AgentResultElement } from '@flowforge/shared';
+import type { AgentResultElement } from '@flowforge/contract';
 
 export interface HighlightState {
     id: string;

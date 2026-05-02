@@ -1,4 +1,4 @@
-import type { PageModel } from './pageModel.ts';
+import type { PageModel } from '@flowforge/page-model';
 import type { AgentResult, UsageMetadata } from './agentResult.ts';
 
 // POST: /query

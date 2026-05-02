@@ -13,7 +13,7 @@ import { BackgroundWorker } from '#self/background/BackgroundWorker';
 import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '#self/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
 import { EmbedLocalStorage } from '#self/adapters/embed/EmbedLocalStorage';
-import type { AgentResult } from '@flowforge/shared';
+import type { AgentResult } from '@flowforge/contract';
 import { embedConstants } from '#self/embed/constants';
 import type { TriggerSize } from '#self/embed/components/Trigger/Trigger';
 

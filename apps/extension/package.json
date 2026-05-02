@@ -31,7 +31,8 @@
     "user-experience"
   ],
   "dependencies": {
-    "@flowforge/shared": "*"
+    "@flowforge/page-model": "*",
+    "@flowforge/contract": "*"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",

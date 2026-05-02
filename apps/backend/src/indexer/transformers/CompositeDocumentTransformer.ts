@@ -2,7 +2,7 @@ import type { IndexableDocument, DocumentTransformer } from '#self/types';
 import { ContentElementsTransformer } from './ContentElementsTransformer.ts';
 import { InteractiveElementsTransformer } from './InteractiveElementsTransformer.ts';
 import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
-import type { PageModel } from '@flowforge/shared';
+import type { PageModel } from '@flowforge/page-model';
 
 export class CompositeDocumentTransformer implements DocumentTransformer {
     private readonly transformers: AbstractDocumentTransformer[];

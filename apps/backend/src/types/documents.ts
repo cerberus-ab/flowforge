@@ -1,6 +1,6 @@
-import type { BaseElement, PageModel } from '@flowforge/shared';
+import type { BaseElement, ElementKind, PageModel } from '@flowforge/page-model';
 
-export type DocumentType = 'content' | 'interactive';
+export type DocumentType = ElementKind;
 
 export interface DocumentMetadata {
     type: DocumentType;

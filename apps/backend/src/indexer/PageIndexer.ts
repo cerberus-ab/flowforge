@@ -8,7 +8,7 @@ import type {
 } from '#self/types';
 import { VectorStorageFactory } from './vector/VectorStorageFactory.ts';
 import { CompositeDocumentTransformer } from './transformers/CompositeDocumentTransformer.ts';
-import type { PageModel } from '@flowforge/shared';
+import type { PageModel } from '@flowforge/page-model';
 
 interface PageIndexerOptions {
     embeddingProvider: EmbeddingProvider;

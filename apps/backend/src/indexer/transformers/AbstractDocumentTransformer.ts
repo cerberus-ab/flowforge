@@ -1,6 +1,6 @@
 import type { IndexableDocument, DocumentTransformer, DocumentMetadata, DocumentType } from '#self/types';
 import { randomUUID } from 'crypto';
-import type { BaseElement, PageModel } from '@flowforge/shared';
+import type { BaseElement, PageModel } from '@flowforge/page-model';
 
 export abstract class AbstractDocumentTransformer implements DocumentTransformer {
     readonly name: string;
@@ -15,18 +15,14 @@ export abstract class AbstractDocumentTransformer implements DocumentTransformer
         return randomUUID();
     }
 
-    private createMetadata(type: DocumentType, el: BaseElement): DocumentMetadata {
-        return {
-            type,
-            element: el,
-        };
-    }
-
-    protected createDocument(content: string, type: DocumentType, el: BaseElement): IndexableDocument {
+    protected createDocument(content: string, el: BaseElement): IndexableDocument {
         return {
             id: this.createDocumentId(),
             content,
-            metadata: this.createMetadata(type, el),
+            metadata: {
+                type: el.kind,
+                element: el,
+            },
         };
     }
 

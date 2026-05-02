@@ -1,8 +1,12 @@
 import type { IndexableDocument } from '#self/types';
 import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
-import type { ContentElement, PageModel } from '@flowforge/shared';
+import {
+    type ContentElement,
+    type PageModel,
+    formatContentElement,
+    formatContentElementShort,
+} from '@flowforge/page-model';
 import { RecursiveCharacterTextSplitter, TextSplitter } from '@langchain/textsplitters';
-import { formatContentElement, formatContentElementShort } from '#self/indexer';
 
 export const CONTENT_TEMPLATE_TEXT_PLACEHOLDER = '{{TEXT}}';
 export const CONTENT_TEMPLATE_MAX_CONTEXT_RATIO = 0.2;
@@ -38,14 +42,14 @@ export class ContentElementsTransformer extends AbstractDocumentTransformer {
 
             if (el.text.length <= templatedChunkSize) {
                 const templatedText = contentTemplate.replace(CONTENT_TEMPLATE_TEXT_PLACEHOLDER, el.text);
-                docs.push(this.createDocument(templatedText, 'content', el));
+                docs.push(this.createDocument(templatedText, el));
                 continue;
             }
             const splitter = this.createTextSplitter(templatedChunkSize);
             const chunks = await splitter.splitText(el.text);
             for (const chunk of chunks) {
                 const templatedChunk = contentTemplate.replace(CONTENT_TEMPLATE_TEXT_PLACEHOLDER, chunk);
-                docs.push(this.createDocument(templatedChunk, 'content', el));
+                docs.push(this.createDocument(templatedChunk, el));
             }
         }
         return docs;

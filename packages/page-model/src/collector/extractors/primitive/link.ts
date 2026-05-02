@@ -1,4 +1,4 @@
-import type { InteractiveLink, InteractiveLinkType } from '@flowforge/shared';
+import type { InteractiveLink, InteractiveLinkType } from '#self/types';
 
 function getElementLinkType(href: string): InteractiveLinkType {
     if (!href || href.trim() === '') return 'unknown';

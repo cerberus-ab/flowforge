@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import type { QueryRequest, QueryResponse } from '@flowforge/shared/';
+import type { QueryRequest, QueryResponse } from '@flowforge/contract';
 import type { ErrorResponse } from '#self/types';
 import { PageContextProvider, PageIndexer } from '#self/indexer';
 import { WebNavigationAgent } from '#self/agent';

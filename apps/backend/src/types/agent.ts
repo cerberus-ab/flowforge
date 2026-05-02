@@ -1,4 +1,4 @@
-import type { AgentResult, UsageMetadata } from '@flowforge/shared';
+import type { AgentResult, UsageMetadata } from '@flowforge/contract';
 
 export interface ToolCallInfo {
     order: number;

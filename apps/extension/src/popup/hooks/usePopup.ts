@@ -13,16 +13,16 @@ import { buildPresetExampleItems, type PopupExampleItem } from '#self/popup/util
 import { buildTryExampleItems } from '#self/popup/utils/data';
 import type { PopupViewModel } from './usePopup.types';
 import type { TransportService } from '#self/adapters/interface';
-import type { AgentResult, AgentResultElement } from '@flowforge/shared';
+import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 import { formatQueryResponseMetadata } from '#self/popup/utils/format';
 
-interface UsePopupParams {
+export interface UsePopupOptions {
     transport: TransportService;
     presetQuestions?: string[];
     initialQuestion?: string;
 }
 
-export function usePopup({ transport, presetQuestions, initialQuestion }: UsePopupParams): PopupViewModel {
+export function usePopup({ transport, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
     const [question, setQuestion] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<AgentResult | null>(null);

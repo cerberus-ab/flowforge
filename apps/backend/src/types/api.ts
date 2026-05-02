@@ -10,7 +10,7 @@ export interface HealthResponse {
 
 // POST: /query
 
-export type { UserContext, QueryRequest, QueryResponse } from '@flowforge/shared';
+export type { UserContext, QueryRequest, QueryResponse } from '@flowforge/contract';
 
 // POST: /search
 export interface SearchRequest {

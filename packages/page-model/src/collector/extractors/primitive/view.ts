@@ -1,4 +1,4 @@
-import type { BoundingBox, Viewport } from '@flowforge/shared';
+import type { BoundingBox, Viewport } from '#self/types';
 
 /**
  * Check if element is visible

@@ -1,4 +1,4 @@
-import type { AgentResultElement, AgentResultMode, PageModel, QueryResponse } from '@flowforge/shared';
+import type { AgentResultElement, AgentResultMode, PageModel, QueryResponse } from '@flowforge/contract';
 import type { ExtensionSettings } from '#self/core/types/settings';
 
 type MessageTypeToBackground = 'GET_SETTINGS';

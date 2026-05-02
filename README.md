@@ -16,7 +16,7 @@ Try the live **Demo** at [useflowforge.app](https://useflowforge.app/) ✦
 
 **Why?** Modern web apps are powerful – but hard to navigate.
 
-The assistant lets you ask questions in natural language and get immediate, contextual guidance directly in the UI.
+The Assistant lets you ask questions in natural language and get immediate, contextual guidance directly in the UI.
 
 It can:
 - highlight relevant elements
@@ -75,7 +75,7 @@ This will:
 ## Usage
 
 1. Open any website
-2. Click the assistant extension icon
+2. Click the Assistant extension icon
 3. Ask a question, e.g.:
    - "Where is the login button?"
    - "How do I checkout?"
@@ -104,11 +104,12 @@ Focus areas:
 
 - [Architecture](docs/ARCHITECTURE.md) — system design and component interaction
 - [DOM to RAG Pipeline](docs/DOM-TO-RAG-PIPELINE.md) – from DOM to actionable intelligence
+- [PageModel](packages/page-model/README.md) — DOM representation for UI understanding
 - [Backend](apps/backend/README.md) — AI agent backend and RAG pipeline
 - [Extension](apps/extension/README.md) — browser extension and page extraction
 
 ## License
 
-MIT License © 2026 Antony Belov
+MIT License ✦ 2026 Antony Belov
 
 See [LICENSE](./LICENSE.md) for details.

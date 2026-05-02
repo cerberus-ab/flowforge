@@ -1,19 +1,31 @@
-import { constants } from '#self/constants';
-import type { ContentElement, InteractiveElement, PageBasics, PageModel } from '@flowforge/shared';
+import type { BaseElement, ContentElement, InteractiveElement, PageBasics, PageModel } from '#self/types';
 
-import { getElementLabels } from './extractors/primitive/label';
-import { getInteractiveRole, roleToInteractiveElementType } from './extractors/primitive/role';
-import { isAboveTheFold, isElementVisible, isInViewport } from './extractors/primitive/view';
-import { getInteractiveElementState } from './extractors/primitive/state';
-import { getElementText } from './extractors/primitive/text';
-import { getElementLink } from './extractors/primitive/link';
-import { getElementContext } from './extractors/context';
-import { extractElementDescriptor } from './extractors/descriptor';
-import { isSensitiveElement } from './extractors/primitive/sensitive';
-import { scoreContentElement, scoreInteractiveElement } from './extractors/scoring';
+import { getElementLabels } from './extractors/primitive/label.ts';
+import { getInteractiveRole, roleToInteractiveElementType } from './extractors/primitive/role.ts';
+import { isAboveTheFold, isElementVisible, isInViewport } from './extractors/primitive/view.ts';
+import { getInteractiveElementState } from './extractors/primitive/state.ts';
+import { getElementText } from './extractors/primitive/text.ts';
+import { getElementLink } from './extractors/primitive/link.ts';
+import { getElementContext } from './extractors/context.ts';
+import { extractElementDescriptor } from './extractors/descriptor.ts';
+import { isSensitiveElement } from './extractors/primitive/sensitive.ts';
+import { scoreContentElement, scoreInteractiveElement } from './importance/scoring.ts';
+
+// constants
+const CONTENT_MIN_TEXT_LENGTH = 5;
+
+export interface CollectorOptions {
+    contentElementsLimit?: number;
+    interactiveElementsLimit?: number;
+    getElementDataId: (el: Element) => string;
+}
 
 /**
  * Collects a normalized PageModel from the DOM
+ *
+ * TODO: implement a cache, but with dataId ref consistency
+ * TODO: provide a plugins API to extend the collector
+ * TODO: provide metrics on the model collection
  *
  * Extracts page metadata, content, and interactive elements, and assigns
  * stable `dataId` identifiers to elements for downstream usage.
@@ -21,12 +33,17 @@ import { scoreContentElement, scoreInteractiveElement } from './extractors/scori
 export class PageModelCollector {
     private readonly window: Window;
     private readonly document: Document;
+    private readonly options: Required<CollectorOptions>;
 
-    // TODO: configurable options instead of constants inside
-    // TODO: move to packages/ as a separated package
-    constructor(window: Window, document: Document) {
+    constructor(window: Window, document: Document, options: CollectorOptions) {
         this.window = window;
         this.document = document;
+
+        this.options = {
+            contentElementsLimit: 250,
+            interactiveElementsLimit: 150,
+            ...options,
+        };
     }
 
     collect(): PageModel {
@@ -41,8 +58,8 @@ export class PageModelCollector {
     }
 
     // shortcut for common usage
-    static collectFor(window: Window, document: Document) {
-        return new PageModelCollector(window, document).collect();
+    static collectFor(window: Window, document: Document, options: CollectorOptions): PageModel {
+        return new PageModelCollector(window, document, options).collect();
     }
 
     /**
@@ -79,17 +96,18 @@ export class PageModelCollector {
         const allElements: ContentElement[] = [];
         const contentSelectors = 'h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption';
 
-        this.document.querySelectorAll(contentSelectors).forEach((el) => {
+        this.selectElements(contentSelectors).forEach((el) => {
             // skip hidden text blocks
             if (!isElementVisible(el, this.window)) return;
             // skip too small text blocks
             const text = getElementText(el);
-            if (!text || text.length < constants.CONTENT_MIN_TEXT_LENGTH) return;
+            if (!text || text.length < CONTENT_MIN_TEXT_LENGTH) return;
 
-            const desc = extractElementDescriptor(el);
+            const desc = extractElementDescriptor(el, this.options.getElementDataId);
             const element: ContentElement = {
                 ...desc,
                 context: getElementContext(el, this.document),
+                kind: 'content',
                 type: /^h[1-4]$/i.test(el.tagName) ? 'heading' : 'text',
                 text,
                 importanceScore: 0, // set up later
@@ -97,14 +115,7 @@ export class PageModelCollector {
             element.importanceScore = scoreContentElement(element);
             allElements.push(element);
         });
-        if (allElements.length > constants.CONTENT_ELEMENTS_LIMIT) {
-            console.log(
-                `[FlowForge] Content elements limit exceeded (${allElements.length} > ${constants.CONTENT_ELEMENTS_LIMIT}). Applying top-N filtering after scoring.`,
-            );
-        }
-        return allElements
-            .sort((a, b) => b.importanceScore - a.importanceScore)
-            .slice(0, constants.CONTENT_ELEMENTS_LIMIT);
+        return this.topElements(allElements, this.options.contentElementsLimit);
     }
 
     /**
@@ -124,7 +135,7 @@ export class PageModelCollector {
             'button, a[href], input, textarea, select, summary' +
             ', [role="button"], [role="link"], [role="checkbox"], [role="radio"], [role="textbox"], [role="combobox"], [role="slider"]';
 
-        this.document.querySelectorAll(interactiveSelector).forEach((el) => {
+        this.selectElements(interactiveSelector).forEach((el) => {
             // skip hidden elements
             if (!isElementVisible(el, this.window)) return;
             // skip sensitive elements
@@ -136,10 +147,11 @@ export class PageModelCollector {
             const type = roleToInteractiveElementType(role);
             if (!type) return;
 
-            const desc = extractElementDescriptor(el);
+            const desc = extractElementDescriptor(el, this.options.getElementDataId);
             const element: InteractiveElement = {
                 ...desc,
                 context: getElementContext(el, this.document),
+                kind: 'interactive',
                 type,
                 role,
                 text: getElementText(el),
@@ -153,13 +165,37 @@ export class PageModelCollector {
             element.importanceScore = scoreInteractiveElement(element);
             allElements.push(element);
         });
-        if (allElements.length > constants.INTERACTIVE_ELEMENTS_LIMIT) {
+        return this.topElements(allElements, this.options.interactiveElementsLimit);
+    }
+
+    /**
+     * TODO: consider to use TreeWalker and iterator instead
+     *
+     * @param selector
+     * @returns List of elements
+     */
+    private selectElements(selector: string): Element[] {
+        return Array.from(this.document.querySelectorAll(selector));
+    }
+
+    /**
+     * Sorts and returns only top-N elements by importanceScore
+     *
+     * @param elements The list of collected elements
+     * @param limit Must be provided
+     * @returns Limited list of elements
+     */
+    private topElements<T extends BaseElement>(elements: T[], limit: number): T[] {
+        const sorted = [...elements].sort((a, b) => b.importanceScore - a.importanceScore);
+
+        if (limit === 0) {
+            return sorted;
+        }
+        if (elements.length > limit) {
             console.log(
-                `[FlowForge] Interactive elements limit exceeded (${allElements.length} > ${constants.INTERACTIVE_ELEMENTS_LIMIT}). Applying top-N filtering after scoring.`,
+                `[FlowForge] ${elements[0]!.kind} elements limit exceeded (${elements.length} > ${limit}). Applying top-N filtering after scoring.`,
             );
         }
-        return allElements
-            .sort((a, b) => b.importanceScore - a.importanceScore)
-            .slice(0, constants.INTERACTIVE_ELEMENTS_LIMIT);
+        return sorted.slice(0, limit);
     }
 }

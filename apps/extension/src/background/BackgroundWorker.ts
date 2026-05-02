@@ -23,7 +23,7 @@ import {
     type UpdateSettingsMessageResponse,
 } from '#self/types';
 import { isAskQuestionMessage, isGetPrevQuestionsMessage, isNavigateToElementMessage } from '#self/types';
-import type { QueryRequest } from '@flowforge/shared';
+import type { QueryRequest } from '@flowforge/contract';
 import type { SettingsStorage } from '#self/core/services/SettignsStorage';
 
 export class BackgroundWorker {

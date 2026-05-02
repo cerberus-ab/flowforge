@@ -1,5 +1,5 @@
 import type { ToolCallInfo } from './agent.ts';
-import type { AgentResultMode } from '@flowforge/shared/';
+import type { AgentResultMode } from '@flowforge/contract';
 
 export interface TrackResult {
     answer: string;

@@ -1,4 +1,4 @@
-import type { AgentResult, QueryRequest, QueryResponse } from '@flowforge/shared';
+import type { AgentResult, QueryRequest, QueryResponse } from '@flowforge/contract';
 import { constants } from '#self/constants';
 
 export interface ApiClient {
