@@ -1,5 +1,5 @@
-import { parseElementBooleanAttribute } from '#self/core/utils/dom';
 import type { InteractiveElementState } from '@flowforge/shared';
+import { getElementBooleanAttribute } from '#self/core/collector/extractors/primitive/attr';
 
 /**
  * Extracts the state of an interactive element by reading native HTML properties and ARIA attributes.
@@ -36,28 +36,28 @@ export function getInteractiveElementState(el: Element): InteractiveElementState
 
     // ARIA states
 
-    const ariaDisabled = parseElementBooleanAttribute(el, 'aria-disabled');
+    const ariaDisabled = getElementBooleanAttribute(el, 'aria-disabled');
     if (typeof ariaDisabled !== 'undefined') state.disabled = ariaDisabled;
 
-    const ariaChecked = parseElementBooleanAttribute(el, 'aria-checked');
+    const ariaChecked = getElementBooleanAttribute(el, 'aria-checked');
     if (ariaChecked !== undefined) state.checked = ariaChecked;
 
-    const ariaExpanded = parseElementBooleanAttribute(el, 'aria-expanded');
+    const ariaExpanded = getElementBooleanAttribute(el, 'aria-expanded');
     if (ariaExpanded !== undefined) state.expanded = ariaExpanded;
 
-    const ariaPressed = parseElementBooleanAttribute(el, 'aria-pressed');
+    const ariaPressed = getElementBooleanAttribute(el, 'aria-pressed');
     if (ariaPressed !== undefined) state.pressed = ariaPressed;
 
-    const ariaSelected = parseElementBooleanAttribute(el, 'aria-selected');
+    const ariaSelected = getElementBooleanAttribute(el, 'aria-selected');
     if (ariaSelected !== undefined) state.selected = ariaSelected;
 
-    const ariaHidden = parseElementBooleanAttribute(el, 'aria-hidden');
+    const ariaHidden = getElementBooleanAttribute(el, 'aria-hidden');
     if (ariaHidden !== undefined) state.hidden = ariaHidden;
 
-    const ariaRequired = parseElementBooleanAttribute(el, 'aria-required');
+    const ariaRequired = getElementBooleanAttribute(el, 'aria-required');
     if (ariaRequired !== undefined) state.required = ariaRequired;
 
-    const ariaReadonly = parseElementBooleanAttribute(el, 'aria-readonly');
+    const ariaReadonly = getElementBooleanAttribute(el, 'aria-readonly');
     if (ariaReadonly !== undefined) state.readonly = ariaReadonly;
 
     return state;

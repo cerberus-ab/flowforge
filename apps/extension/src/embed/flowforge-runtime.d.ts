@@ -1,6 +1,6 @@
 declare global {
     interface Window {
-        FlowForgeRuntime: FlowForgeRuntime;
+        loadFlowForge: () => Promise<FlowForgeRuntime>;
     }
 }
 

@@ -100,12 +100,11 @@
         <p>If anything, you may email <a href="mailto:flowforge@gmail.com" data-flowforge-id="ff00000005">flowforge@gmail.com</a></p>
     </section>
 </div>
-<script src="/extension/%FLOWFORGE_RUNTIME_JS%"></script>
-
-<script>
+<script type="module">
     (function main() {
         const bar = document.querySelector('[data-role="cmd-bar"]');
-        let runtime = null;
+        const loadRuntime = () => window.loadFlowForge();
+        let runtimeInst = null;
 
         bar.addEventListener('click', async (e) => {
             const btn = e.target.closest('[data-cmd]');
@@ -113,11 +112,11 @@
             try {
                 switch (btn.dataset.cmd) {
                     case 'start':
-                        runtime = await window.FlowForgeRuntime.start();
+                        runtimeInst = await (await loadRuntime()).start();
                         updateState('running');
                         break;
                     case 'demo':
-                        runtime = await window.FlowForgeRuntime.demo({
+                        runtimeInst = await (await loadRuntime()).demo({
                             topic: 'Sandbox',
                             stubQA: [
                                 {
@@ -177,8 +176,8 @@
                         updateState('running');
                         break;
                     case 'destroy':
-                        runtime?.destroy();
-                        runtime = null;
+                        runtimeInst?.destroy();
+                        runtimeInst = null;
                         updateState('idle');
                         break;
                 }
@@ -198,5 +197,6 @@
         }
     })();
 </script>
+<script type="module" src="/extension/%FLOWFORGE_RUNTIME_JS%"></script>
 </body>
 </html>

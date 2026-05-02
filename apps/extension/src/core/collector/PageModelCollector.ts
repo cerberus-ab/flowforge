@@ -23,6 +23,7 @@ export class PageModelCollector {
     private readonly document: Document;
 
     // TODO: configurable options instead of constants inside
+    // TODO: move to packages/ as a separated package
     constructor(window: Window, document: Document) {
         this.window = window;
         this.document = document;

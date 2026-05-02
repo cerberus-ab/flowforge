@@ -12,16 +12,16 @@ export default defineConfig({
         sourcemap: true,
         outDir: '../../dist/embed',
         emptyOutDir: true,
-        lib: {
-            entry: 'index.ts',
-            name: 'FlowForgeRuntime',
-            formats: ['iife'],
-        },
+        manifest: true,
+        assetsInlineLimit: Number.MAX_SAFE_INTEGER,
         rollupOptions: {
+            input: {
+                loader: 'index.ts',
+            },
             output: {
-                entryFileNames: 'flowforge-runtime.[hash].js',
+                entryFileNames: 'flowforge-loader.[hash].js',
+                chunkFileNames: 'flowforge-runtime.[hash].js',
             },
         },
-        manifest: true
     },
 });
