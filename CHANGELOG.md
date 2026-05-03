@@ -2,7 +2,7 @@
 
 All notable changes to the project will be documented in this file.
 
-## [Unreleased]
+## [0.1.4] - 2026-05-03
 
 ### Added
 - Early build for embed integration, used for Demo.
@@ -11,7 +11,7 @@ All notable changes to the project will be documented in this file.
 
 ### Changed
 - Improved semantics and A11y for extension components.
-- Moved PageModel to a separated package.
+- Moved PageModel to a separated package; supported more ARIA roles.
 
 ## [0.1.3] - 2026-04-20
 

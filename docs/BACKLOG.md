@@ -53,6 +53,7 @@
 
 - Support standalone mode, properly
 - Cache for pageModel transfer, with RAG cache
+- Enhance dataId and selector usage for El locator
 
 ## DX
 
