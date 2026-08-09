@@ -31,12 +31,13 @@
     "user-experience"
   ],
   "dependencies": {
-    "@flowforge/page-model": "*",
-    "@flowforge/contract": "*"
+    "@flowforge/contract": "*",
+    "@flowforge/page-model": "*"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",
     "@preact/preset-vite": "^2.10.5",
+    "@tsconfig/vite-react": "^8.1.1",
     "@types/chrome": "^0.1.38",
     "concurrently": "^9.2.1",
     "express": "^5.2.1",

@@ -1,4 +1,4 @@
-import type { BaseElement, ContentElement, InteractiveElement, PageBasics, PageModel } from '#self/types';
+import type { BaseElement, ContentElement, InteractiveElement, PageBasics, PageModel } from '../types/index.ts';
 
 import { getElementLabels } from './extractors/primitive/label.ts';
 import { getInteractiveRole, roleToInteractiveElementType } from './extractors/primitive/role.ts';

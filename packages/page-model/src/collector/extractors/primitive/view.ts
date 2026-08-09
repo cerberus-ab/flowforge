@@ -1,4 +1,4 @@
-import type { BoundingBox, Viewport } from '#self/types';
+import type { BoundingBox, Viewport } from '../../../types/index.ts';
 
 /**
  * Check if element is visible

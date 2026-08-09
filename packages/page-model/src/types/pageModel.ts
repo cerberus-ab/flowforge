@@ -134,10 +134,10 @@ export interface InteractiveElement extends BaseElement {
     kind: 'interactive';
     type: InteractiveElementType;
     role: InteractiveElementRole;
-    text?: string;
+    text: string | undefined;
     labels: ElementLabel[];
     state: InteractiveElementState;
-    link?: InteractiveLink; // for links only
+    link: InteractiveLink | undefined; // for links only
     inViewport: boolean;
     aboveTheFold: boolean;
 }

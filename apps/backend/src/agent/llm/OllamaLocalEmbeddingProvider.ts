@@ -1,4 +1,10 @@
 import type { EmbeddingProvider } from '#self/types';
+import { z } from 'zod';
+
+export const OllamaApiEmbedSchema = z.object({
+    model: z.string(),
+    embeddings: z.array(z.array(z.number())),
+});
 
 export class OllamaLocalEmbeddingProvider implements EmbeddingProvider {
     private readonly baseUrl: string;
@@ -34,8 +40,9 @@ export class OllamaLocalEmbeddingProvider implements EmbeddingProvider {
                 keep_alive: '5m',
             }),
         });
-        const json = await res.json();
+        const body = await res.json();
+        const data = OllamaApiEmbedSchema.parse(body);
 
-        return json.embeddings;
+        return data.embeddings;
     }
 }

@@ -1,4 +1,4 @@
-import type { ContainerElementRole, InteractiveElementRole, InteractiveElementType } from '#self/types';
+import type { ContainerElementRole, InteractiveElementRole, InteractiveElementType } from '../../../types/index.ts';
 
 // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles
 

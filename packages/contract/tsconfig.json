@@ -1,23 +1,22 @@
 {
+  "extends": ["@tsconfig/node22/tsconfig.json"],
   "compilerOptions": {
-    "target": "esnext",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "moduleDetection": "force",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "rewriteRelativeImportExtensions": true,
+    "lib": ["DOM", "ES2022"],
+
+    "isolatedModules": true,
     "noImplicitOverride": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "noUncheckedIndexedAccess": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "isolatedModules": true,
+
     "rootDir": "./src",
     "outDir": "./dist"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "exclude": ["**/*.test.ts"]
 }

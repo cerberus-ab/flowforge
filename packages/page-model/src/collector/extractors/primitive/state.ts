@@ -1,4 +1,4 @@
-import type { InteractiveElementState } from '#self/types';
+import type { InteractiveElementState } from '../../../types/index.ts';
 import { getElementBooleanAttribute } from './attr.ts';
 
 

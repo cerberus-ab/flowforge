@@ -11,14 +11,15 @@
   },
   "scripts": {
     "clean": "rm -rf dist/",
-    "build": "npm run clean && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "npm run clean && tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch"
   },
   "dependencies": {
     "css-selector-generator": "^3.9.2"
   },
   "devDependencies": {
-    "tsc-alias": "^1.8.17",
+    "@tsconfig/node22": "^22.0.5",
     "typescript": "^6.0.2"
   }
 }

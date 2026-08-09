@@ -1,33 +1,22 @@
 {
+  "extends": ["@tsconfig/node22/tsconfig.json"],
   "compilerOptions": {
-    "target": "esnext",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["chrome"],
-    "paths": {
-      "#self/types": ["./src/types/index.ts"],
-      "#self/utils": ["./src/utils/index.ts"]
-    },
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
+
     "isolatedModules": true,
+    "noImplicitOverride": true,
     "verbatimModuleSyntax": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
-    "moduleDetection": "force",
+
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+
     "rootDir": "./src",
     "outDir": "./dist"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "exclude": ["**/*.test.ts"]
 }

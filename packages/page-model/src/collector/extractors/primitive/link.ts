@@ -1,4 +1,4 @@
-import type { InteractiveLink, InteractiveLinkType } from '#self/types';
+import type { InteractiveLink, InteractiveLinkType } from '../../../types/index.ts';
 
 function getElementLinkType(href: string): InteractiveLinkType {
     if (!href || href.trim() === '') return 'unknown';

@@ -1,7 +1,7 @@
 import { getElementAttrAriaLabelledBy } from './primitive/label.ts';
 import { getContainerRole } from './primitive/role.ts';
-import type { ContainerElementRole, ElementContext } from '#self/types';
-import { normalizeText } from '#self/utils';
+import type { ContainerElementRole, ElementContext } from '../../types/index.ts';
+import { normalizeText } from '../../utils/index.ts';
 
 // constants
 const CONTEXT_SECTION_NAME_MIN_LENGTH = 5;

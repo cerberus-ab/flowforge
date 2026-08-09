@@ -1,4 +1,4 @@
-import type { ContentElement } from '#self/types';
+import type { ContentElement } from '../../types/index.ts';
 import { getMaxImportanceScore, getMinImportanceScore, normalizeImportanceScore, readContextPath } from './utils.ts';
 
 /**

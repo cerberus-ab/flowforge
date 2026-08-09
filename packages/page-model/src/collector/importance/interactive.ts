@@ -1,4 +1,4 @@
-import type { InteractiveElement } from '#self/types';
+import type { InteractiveElement } from '../../types/index.ts';
 import { getMaxImportanceScore, getMinImportanceScore, normalizeImportanceScore, readContextPath } from './utils.ts';
 
 /**

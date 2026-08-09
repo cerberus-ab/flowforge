@@ -1,4 +1,4 @@
-import type { ContainerElementRole } from '#self/types';
+import type { ContainerElementRole } from '../../types/index.ts';
 
 /**
  * Returns the minimum possible score by weights

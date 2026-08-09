@@ -1,5 +1,5 @@
 import { getElementBoundingBox } from './primitive/view.ts';
-import type { ElementDescriptor } from '#self/types';
+import type { ElementDescriptor } from '../../types/index.ts';
 import getCssSelector from 'css-selector-generator';
 
 /**

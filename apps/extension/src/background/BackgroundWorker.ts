@@ -10,7 +10,6 @@ import {
     type CollectPageModelMessageResponse,
     type GetPrevQuestionsMessage,
     type GetPrevQuestionsMessageResponse,
-    type GetSettingsMessage,
     type GetSettingsMessageResponse,
     type HighlightElementMessage,
     isGetSettingsMessage,
@@ -48,7 +47,7 @@ export class BackgroundWorker {
     start(): void {
         this.unsubscribe = this.transport.addMessageListener((message: Message) => {
             if (isGetSettingsMessage(message)) {
-                return this.handleGetSettings(message);
+                return this.handleGetSettings();
             }
             if (isUpdateSettingsMessage(message)) {
                 return this.handleUpdateSettings(message);
@@ -74,11 +73,10 @@ export class BackgroundWorker {
     /**
      * Retrieves extension settings from storage
      *
-     * @param message - Incoming background message
      * @returns A successful response containing the stored settings.
      * @throws Rethrows any error that occurs while reading settings storage.
      */
-    private async handleGetSettings(message: GetSettingsMessage): Promise<GetSettingsMessageResponse> {
+    private async handleGetSettings(): Promise<GetSettingsMessageResponse> {
         try {
             const settings = await this.settingsStorage.get();
             return { success: true, data: settings };
