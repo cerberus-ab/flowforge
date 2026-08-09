@@ -51,7 +51,7 @@ export class PageModelCollector {
 
         return {
             basics,
-            content: this.collectPageModelContent(basics),
+            content: this.collectPageModelContent(),
             interactive: this.collectPageModelInteractive(basics),
             timestamp: Date.now(),
         };
@@ -89,10 +89,9 @@ export class PageModelCollector {
      * Scans common content tags and returns normalized entries that include
      * locator metadata, content type, and extracted text.
      *
-     * @param basics - Page basics data extracted from the document.
      * @returns {ContentElement[]} A list of extracted content elements.
      */
-    private collectPageModelContent(basics: PageBasics): ContentElement[] {
+    private collectPageModelContent(): ContentElement[] {
         const allElements: ContentElement[] = [];
         const contentSelectors = 'h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption';
 

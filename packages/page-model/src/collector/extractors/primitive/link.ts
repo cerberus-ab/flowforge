@@ -30,7 +30,7 @@ function getElementLinkType(href: string): InteractiveLinkType {
  * or `undefined` if no href is found.
  */
 export function getElementLink(el: Element): InteractiveLink | undefined {
-    let href = el instanceof HTMLAnchorElement ? el.href : el.getAttribute('href');
+    const href = el instanceof HTMLAnchorElement ? el.href : el.getAttribute('href');
     if (!href) return undefined;
 
     return {

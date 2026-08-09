@@ -107,7 +107,7 @@ export class WebNavigationAgent {
         try {
             const parsed = JSON.parse(aiMessageContent);
             agentResult = AgentResultSchema.parse(parsed);
-        } catch (error) {
+        } catch {
             if (this.verbose) {
                 console.log(`[Agent] The execution result is not valid JSON, invoking structured prompt...`);
             }

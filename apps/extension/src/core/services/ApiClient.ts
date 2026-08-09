@@ -38,10 +38,10 @@ export class HttpApiClient implements ApiClient {
             clearTimeout(timeoutId);
 
             if (error instanceof DOMException && error.name === 'AbortError') {
-                throw new Error('Request timeout. Please try again.');
+                throw new Error('Request timeout. Please try again.', { cause: error });
             }
             if (error instanceof TypeError) {
-                throw new Error('Network error. Make sure the backend server is running.');
+                throw new Error('Network error. Make sure the backend server is running.', { cause: error });
             }
             throw error instanceof Error ? error : new Error('Unknown error');
         }

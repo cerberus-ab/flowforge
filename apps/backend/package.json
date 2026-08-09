@@ -24,6 +24,8 @@
     "setup": "node scripts/quick-setup.js",
     "build": "npm run clean:dist && tsc -p tsconfig.json",
     "start": "node dist/server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "dev": "tsc -p tsconfig.json --watch"
   },
   "keywords": [
@@ -52,10 +54,14 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tsconfig/node22": "^22.0.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
-    "typescript": "^6.0.2"
+    "eslint": "^10.8.1",
+    "globals": "^17.9.0",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.66.0"
   }
 }

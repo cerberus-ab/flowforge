@@ -1,4 +1,4 @@
-import type { IndexableDocument, DocumentTransformer, DocumentMetadata, DocumentType } from '#self/types';
+import type { IndexableDocument, DocumentTransformer } from '#self/types';
 import { randomUUID } from 'crypto';
 import type { BaseElement, PageModel } from '@flowforge/page-model';
 

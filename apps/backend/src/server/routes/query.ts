@@ -13,7 +13,7 @@ interface QueryHandlerDeps {
 
 export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDeps) {
     return async function handleQuery(
-        req: Request<{}, QueryResponse | ErrorResponse, QueryRequest>,
+        req: Request<Record<string, never>, QueryResponse | ErrorResponse, QueryRequest>,
         res: Response<QueryResponse | ErrorResponse>,
     ): Promise<void> {
         try {

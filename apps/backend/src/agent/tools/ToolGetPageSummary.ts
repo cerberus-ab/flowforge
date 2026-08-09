@@ -21,7 +21,7 @@ export class ToolGetPageSummary extends AbstractCallableTool {
         this.elementsInteractionsLimit = params.elementsInteractionsLimit;
     }
 
-    override async callFn(ctx: PageContextProvider, query: string): Promise<ToolGetPageSummaryResultData> {
+    override async callFn(ctx: PageContextProvider): Promise<ToolGetPageSummaryResultData> {
         // Get top headings
         const sampleHeadings = ctx.pageModel.content
             .filter((el) => el.type === 'heading')

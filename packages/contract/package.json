@@ -13,6 +13,8 @@
     "clean": "rm -rf dist/",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "npm run clean && tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "dev": "tsc -p tsconfig.json --watch"
   },
   "dependencies": {
@@ -20,7 +22,11 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tsconfig/node22": "^22.0.5",
-    "typescript": "^6.0.2"
+    "eslint": "^10.8.1",
+    "globals": "^17.9.0",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.66.0"
   }
 }

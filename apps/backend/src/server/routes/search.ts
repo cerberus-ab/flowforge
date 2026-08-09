@@ -8,7 +8,7 @@ interface SearchHandlerDeps {
 
 export function createSearchHandler({ indexer }: SearchHandlerDeps) {
     return async function handleSearch(
-        req: Request<{}, SearchResponse<RetrievedDocument>, SearchRequest>,
+        req: Request<Record<string, never>, SearchResponse<RetrievedDocument>, SearchRequest>,
         res: Response<SearchResponse<RetrievedDocument> | ErrorResponse>,
     ): Promise<void> {
         try {

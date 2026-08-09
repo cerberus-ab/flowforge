@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint -ws
+
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck -w @flowforge/page-model
+      - run: npm run build -w @flowforge/page-model
+      - run: npm run typecheck -w @flowforge/contract
+      - run: npm run build -w @flowforge/contract
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-build
+          path: |
+            packages/page-model/dist
+            packages/contract/dist
+
+  apps:
+    runs-on: ubuntu-latest
+    needs:
+      - checks
+      - packages
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages-build
+          path: packages
+      - run: npm run typecheck -w @flowforge/backend
+      - run: npm run typecheck -w @flowforge/extension
+      - run: npm run build -w @flowforge/backend
+      - run: npm run build -w @flowforge/extension

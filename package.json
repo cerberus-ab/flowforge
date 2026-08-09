@@ -6,11 +6,11 @@
     "packages/*"
   ],
   "scripts": {
-    "clean": "npm run clean --workspaces",
-    "setup": "npm run setup --workspace @flowforge/backend",
-    "build:packages": "npm run build --workspace @flowforge/page-model && npm run build --workspace @flowforge/contract",
-    "build": "npm run build:packages && npm run build --workspace @flowforge/backend && npm run build:chrome --workspace @flowforge/extension",
-    "start": "npm run setup && npm run build && npm run install:chrome --workspace @flowforge/extension && npm run start --workspace @flowforge/backend",
+    "clean": "npm run clean -ws",
+    "setup": "npm run setup -w @flowforge/backend",
+    "build:packages": "npm run build -w @flowforge/page-model && npm run build -w @flowforge/contract",
+    "build": "npm run build:packages && npm run build -w @flowforge/backend && npm run build:chrome -w @flowforge/extension",
+    "start": "npm run setup && npm run build && npm run install:chrome -w @flowforge/extension && npm run start -w @flowforge/backend",
     "format": "prettier . --write --cache",
     "format:check": "prettier . --check"
   },
