@@ -1,6 +1,6 @@
 import type { IndexableDocument, DocumentTransformer } from '#self/types';
 import { randomUUID } from 'crypto';
-import type { BaseElement, PageModel } from '@flowforge/page-model';
+import type { BaseElement, PageTrail } from '@flowforge/page-trail';
 
 export abstract class AbstractDocumentTransformer implements DocumentTransformer {
     readonly name: string;
@@ -9,7 +9,7 @@ export abstract class AbstractDocumentTransformer implements DocumentTransformer
         this.name = name;
     }
 
-    protected abstract transformFn(pageModel: PageModel): Promise<IndexableDocument[]>;
+    protected abstract transformFn(pageTrail: PageTrail): Promise<IndexableDocument[]>;
 
     private createDocumentId() {
         return randomUUID();
@@ -26,11 +26,11 @@ export abstract class AbstractDocumentTransformer implements DocumentTransformer
         };
     }
 
-    async transform(pageModel: PageModel): Promise<IndexableDocument[]> {
+    async transform(pageTrail: PageTrail): Promise<IndexableDocument[]> {
         try {
-            return await this.transformFn(pageModel);
+            return await this.transformFn(pageTrail);
         } catch (error) {
-            console.error(`[Indexer] Error transforming via ${this.name} for ${pageModel.basics.url}:`, error);
+            console.error(`[Indexer] Error transforming via ${this.name} for ${pageTrail.basics.url}:`, error);
             return [];
         }
     }

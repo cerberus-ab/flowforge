@@ -1,4 +1,4 @@
-import type { BaseElement, ContainerElementRole, ContentElement, InteractiveElement } from '@flowforge/page-model';
+import type { BaseElement, ContainerElementRole, ContentElement, InteractiveElement } from '@flowforge/page-trail';
 
 const formatSeparator = {
     PARTS: '. ',

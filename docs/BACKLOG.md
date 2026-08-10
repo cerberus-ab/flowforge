@@ -52,7 +52,7 @@
 ## Extension
 
 - Support standalone mode, properly
-- Cache for pageModel transfer, with RAG cache
+- Cache for pageTrail transfer, with RAG cache
 - Enhance dataId and selector usage for El locator
 
 ## DX

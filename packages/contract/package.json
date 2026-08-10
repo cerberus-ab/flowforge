@@ -18,7 +18,7 @@
     "dev": "tsc -p tsconfig.json --watch"
   },
   "dependencies": {
-    "@flowforge/page-model": "*",
+    "@flowforge/page-trail": "*",
     "zod": "^4.3.6"
   },
   "devDependencies": {

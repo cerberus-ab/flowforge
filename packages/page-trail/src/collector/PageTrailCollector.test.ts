@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markHidden, markVisible, resetDocument, setViewport } from '../test/dom';
-import { PageModelCollector } from './PageModelCollector';
+import { PageTrailCollector } from './PageTrailCollector';
 
 afterEach(() => {
     resetDocument();
     vi.restoreAllMocks();
 });
 
-describe('PageModelCollector', () => {
+describe('PageTrailCollector', () => {
     it('collects page basics', () => {
         document.documentElement.lang = 'en';
         document.head.innerHTML = `<meta name="description" content="Page description" />`;
@@ -128,7 +128,6 @@ describe('PageModelCollector', () => {
     });
 
     it('applies content and interactive limits after scoring', () => {
-        vi.spyOn(console, 'log').mockImplementation(() => {});
         document.body.innerHTML = `
             <main>
                 <h1 id="heading">Important heading</h1>
@@ -153,11 +152,11 @@ describe('PageModelCollector', () => {
         expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'button' }));
     });
 
-    it('collectFor returns a collected page model', () => {
+    it('collectFor returns a collected page trail', () => {
         document.body.innerHTML = `<button id="save">Save</button>`;
         markVisible('#save');
 
-        const model = PageModelCollector.collectFor(window, document, {
+        const model = PageTrailCollector.collectFor(window, document, {
             getElementDataId: (el) => el.id,
         });
 
@@ -166,8 +165,8 @@ describe('PageModelCollector', () => {
     });
 });
 
-function collect(options: Partial<ConstructorParameters<typeof PageModelCollector>[2]> = {}) {
-    return new PageModelCollector(window, document, {
+function collect(options: Partial<ConstructorParameters<typeof PageTrailCollector>[2]> = {}) {
+    return new PageTrailCollector(window, document, {
         getElementDataId: (el) => el.id,
         ...options,
     }).collect();

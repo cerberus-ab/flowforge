@@ -16,7 +16,7 @@ This pipeline converts the DOM into a structured, searchable, and actionable rep
 
 ### 1. Extraction to Structure Representation
 
-The DOM is parsed and normalized into a structured `PageModel`.
+The DOM is parsed and normalized into a structured `PageTrail`.
 
 This stage captures both the raw structure and contextual meaning of the UI.
 

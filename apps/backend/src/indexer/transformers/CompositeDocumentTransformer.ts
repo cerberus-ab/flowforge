@@ -2,7 +2,7 @@ import type { IndexableDocument, DocumentTransformer } from '#self/types';
 import { ContentElementsTransformer } from './ContentElementsTransformer.ts';
 import { InteractiveElementsTransformer } from './InteractiveElementsTransformer.ts';
 import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
-import type { PageModel } from '@flowforge/page-model';
+import type { PageTrail } from '@flowforge/page-trail';
 
 export class CompositeDocumentTransformer implements DocumentTransformer {
     private readonly transformers: AbstractDocumentTransformer[];
@@ -20,13 +20,13 @@ export class CompositeDocumentTransformer implements DocumentTransformer {
         return this.transformers.map((t) => t.name);
     }
 
-    async transform(pageModel: PageModel): Promise<IndexableDocument[]> {
+    async transform(pageTrail: PageTrail): Promise<IndexableDocument[]> {
         const docs: IndexableDocument[] = [];
         for (const t of this.transformers) {
-            const transformed = await t.transform(pageModel);
+            const transformed = await t.transform(pageTrail);
             if (this.verbose) {
                 console.log(
-                    `[Indexer] Transformed ${transformed.length} documents via ${t.name} for ${pageModel.basics.url}`,
+                    `[Indexer] Transformed ${transformed.length} documents via ${t.name} for ${pageTrail.basics.url}`,
                     transformed.map((doc) => doc.content),
                 );
             }

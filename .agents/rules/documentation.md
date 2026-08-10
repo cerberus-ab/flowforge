@@ -21,7 +21,7 @@ If something is unclear or missing, omit it.
 - `README.md`
 - `docs/ARCHITECTURE.md`
 - `docs/DOM-TO-RAG-PIPELINE.md`
-- `packages/page-model/README.md`
+- `packages/page-trail/README.md`
 - `apps/backend/README.md`
 - `apps/extension/README.md`
 
@@ -42,7 +42,7 @@ If something is unclear or missing, omit it.
 - `README.md` — entry point: what it is and how to run it.
 - `docs/ARCHITECTURE.md` — high-level system overview.
 - `docs/DOM-TO-RAG-PIPELINE.md` — DOM-to-RAG pipeline description.
-- `packages/page-model/README.md` — canonical DOM representation (`PageModel`).
+- `packages/page-trail/README.md` — canonical DOM representation (`PageTrail`).
 - `apps/backend/README.md` — backend responsibilities and usage.
 - `apps/extension/README.md` — extension responsibilities and usage.
 
@@ -88,7 +88,7 @@ Target length: 80–100 lines.
   - Reranking
   - Resolution to Tool Results
 
-### `packages/page-model/README.md`
+### `packages/page-trail/README.md`
 
 Target length: 60–80 lines.
 

@@ -1,9 +1,9 @@
-import type { AgentResultElement, AgentResultMode, PageModel, QueryResponse } from '@flowforge/contract';
+import type { AgentResultElement, AgentResultMode, PageTrail, QueryResponse } from '@flowforge/contract';
 import type { ExtensionSettings } from '#self/core/types/settings';
 
 type MessageTypeToBackground = 'GET_SETTINGS';
 type MessageTypePopupToBackground = 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT' | 'UPDATE_SETTINGS';
-type MessageTypeBackgroundToPage = 'COLLECT_PAGE_MODEL' | 'START_ONBOARDING' | 'HIGHLIGHT_ELEMENT' | 'CLEAR_PAGE' | 'APPLY_SETTINGS';
+type MessageTypeBackgroundToPage = 'COLLECT_PAGE_TRAIL' | 'START_ONBOARDING' | 'HIGHLIGHT_ELEMENT' | 'CLEAR_PAGE' | 'APPLY_SETTINGS';
 
 type MessageType = MessageTypeToBackground | MessageTypePopupToBackground | MessageTypeBackgroundToPage;
 
@@ -81,13 +81,13 @@ export type ApplySettingsMessage = Message<ApplySettingsMessageData> & {
     type: 'APPLY_SETTINGS';
 };
 
-export type CollectPageModelMessage = Message & {
-    type: 'COLLECT_PAGE_MODEL';
+export type CollectPageTrailMessage = Message & {
+    type: 'COLLECT_PAGE_TRAIL';
 };
 
-export type CollectPageModelMessageResponseData = PageModel;
+export type CollectPageTrailMessageResponseData = PageTrail;
 
-export type CollectPageModelMessageResponse = MessageResponse<CollectPageModelMessageResponseData>;
+export type CollectPageTrailMessageResponse = MessageResponse<CollectPageTrailMessageResponseData>;
 
 export interface StartOnboardingMessageData {
     title: string;
@@ -134,8 +134,8 @@ export function isGetPrevQuestionsMessage(message: Message): message is GetPrevQ
     return message.type === 'GET_PREV_QUESTIONS';
 }
 
-export function isCollectPageModelMessage(message: Message): message is CollectPageModelMessage {
-    return message.type === 'COLLECT_PAGE_MODEL';
+export function isCollectPageTrailMessage(message: Message): message is CollectPageTrailMessage {
+    return message.type === 'COLLECT_PAGE_TRAIL';
 }
 
 export function isStartOnboardingMessage(message: Message): message is StartOnboardingMessage {

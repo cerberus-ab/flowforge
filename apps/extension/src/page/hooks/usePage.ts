@@ -1,6 +1,6 @@
 import {
     isClearPageMessage,
-    isCollectPageModelMessage,
+    isCollectPageTrailMessage,
     isHighlightElementMessage,
     isStartOnboardingMessage,
 } from '#self/types';
@@ -11,7 +11,7 @@ import type { PageViewModel, HighlightState, WizardState } from './usePage.types
 import type { TransportService } from '#self/adapters/interface';
 import { constants } from '#self/constants';
 import type { AgentResultElement } from '@flowforge/contract';
-import { PageModelCollector } from '@flowforge/page-model';
+import { PageTrailCollector } from '@flowforge/page-trail';
 
 export interface UsePageOptions {
     transport: TransportService;
@@ -110,13 +110,13 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
     // Listen to messages from background
     useEffect(() => {
         return transport.addMessageListener((message: Message) => {
-            if (isCollectPageModelMessage(message)) {
-                const pageModel = PageModelCollector.collectFor(window, document, {
+            if (isCollectPageTrailMessage(message)) {
+                const pageTrail = PageTrailCollector.collectFor(window, document, {
                     contentElementsLimit: constants.CONTENT_ELEMENTS_LIMIT,
                     interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
                     getElementDataId: getOrCreateDataId,
                 });
-                return { success: true, data: pageModel };
+                return { success: true, data: pageTrail };
             }
             if (isClearPageMessage(message)) {
                 clearPage();

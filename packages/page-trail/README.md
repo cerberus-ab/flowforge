@@ -1,4 +1,4 @@
-# PageModel
+# PageTrail
 
 Normalized representation of a web page extracted from the DOM.
 
@@ -7,7 +7,7 @@ Used as the core input for RAG, search, and UI guidance.
 ## Structure
 
 ```ts
-interface PageModel {
+interface PageTrail {
   basics: PageBasics;
   content: ContentElement[];
   interactive: InteractiveElement[];
@@ -79,14 +79,14 @@ Used to:
 ## Usage
 
 ```ts
-const model = PageModelCollector.collectFor(window, document, {
+const pt = PageTrailCollector.collectFor(window, document, {
     getElementDataId: (el) => getOrCreateDataId(el),
 });
 ```
 
 ## Format
 
-PageModel includes helpers to convert elements into compact semantic strings.
+PageTrail includes helpers to convert elements into compact semantic strings.
 
 Used for indexing, retrieval, and tool responses.
 

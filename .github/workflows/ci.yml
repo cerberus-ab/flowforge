@@ -32,17 +32,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # page-model
-      - run: npm run typecheck -w @flowforge/page-model
-      - run: npm run test -w @flowforge/page-model
+      # page-trail
+      - run: npm run typecheck -w @flowforge/page-trail
+      - run: npm run test -w @flowforge/page-trail
       - if: ${{ !cancelled() }}
         uses: dorny/test-reporter@v3
         with:
-          name: page-model/unit-tests
-          path: packages/page-model/reports/unit-tests/results/junit.xml
+          name: page-trail/unit-tests
+          path: packages/page-trail/reports/unit-tests/results/junit.xml
           reporter: jest-junit
           fail-on-error: false
-      - run: npm run build -w @flowforge/page-model
+      - run: npm run build -w @flowforge/page-trail
       # contract
       - run: npm run typecheck -w @flowforge/contract
       - run: npm run build -w @flowforge/contract
@@ -51,7 +51,7 @@ jobs:
         with:
           name: packages-build
           path: |
-            packages/page-model/dist
+            packages/page-trail/dist
             packages/contract/dist
 
   apps:

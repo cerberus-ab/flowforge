@@ -6,8 +6,8 @@ import {
     type AskQuestionMessage,
     type AskQuestionMessageResponse,
     type ClearPageMessage,
-    type CollectPageModelMessage,
-    type CollectPageModelMessageResponse,
+    type CollectPageTrailMessage,
+    type CollectPageTrailMessageResponse,
     type GetPrevQuestionsMessage,
     type GetPrevQuestionsMessageResponse,
     type GetSettingsMessageResponse,
@@ -111,13 +111,13 @@ export class BackgroundWorker {
     /**
      * Handles a user question for the given tab.
      *
-     * Clears existing highlights, collects a page model from the page,
+     * Clears existing highlights, collects a page trail from the page,
      * sends the query to the backend, highlights matched elements, and stores
      * the question in domain-specific history.
      *
      * @param message - Message containing the tab ID and user question.
      * @returns Promise resolving to a successful response with the query result.
-     * @throws Rethrows any error that occurs during page model collection,
+     * @throws Rethrows any error that occurs during page trail collection,
      * backend querying, highlighting, or history persistence.
      */
     private async handleAskQuestion(message: AskQuestionMessage): Promise<AskQuestionMessageResponse> {
@@ -126,23 +126,23 @@ export class BackgroundWorker {
             await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
                 type: 'CLEAR_PAGE',
             });
-            // Get a page model from page runtime
-            const pageModelResponse = await this.transport.sendToPage<
-                CollectPageModelMessage,
-                CollectPageModelMessageResponse
-            >(message.senderId, { type: 'COLLECT_PAGE_MODEL' });
-            if (!pageModelResponse.success) {
-                throw new Error('Failed to collect page model: ' + pageModelResponse.error);
+            // Get a page trail from page runtime
+            const pageTrailResponse = await this.transport.sendToPage<
+                CollectPageTrailMessage,
+                CollectPageTrailMessageResponse
+            >(message.senderId, { type: 'COLLECT_PAGE_TRAIL' });
+            if (!pageTrailResponse.success) {
+                throw new Error('Failed to collect page trail: ' + pageTrailResponse.error);
             }
-            console.log('[Background] Collected page model:', pageModelResponse);
+            console.log('[Background] Collected page trail:', pageTrailResponse);
 
-            const pageModel = pageModelResponse.data;
+            const pageTrail = pageTrailResponse.data;
             const domain = await this.transport.getSenderHostname(message.senderId);
 
             // Send it to the backend server
             const requestData: QueryRequest = {
                 question: message.data.question,
-                pageModel: pageModel,
+                pageTrail: pageTrail,
                 domain,
                 userContext: {
                     previousQuestions: await this.historyStorage.getPreviousQuestions(domain),

@@ -9,7 +9,7 @@ import {
     formatConcatElements,
     formatContentElementShort,
     formatInteractiveElementShort,
-} from '@flowforge/page-model';
+} from '@flowforge/page-trail';
 
 export class ToolGetPageSummary extends AbstractCallableTool {
     private readonly elementsHeadingsLimit: number;
@@ -23,24 +23,24 @@ export class ToolGetPageSummary extends AbstractCallableTool {
 
     override async callFn(ctx: PageContextProvider): Promise<ToolGetPageSummaryResultData> {
         // Get top headings
-        const sampleHeadings = ctx.pageModel.content
+        const sampleHeadings = ctx.pageTrail.content
             .filter((el) => el.type === 'heading')
             .sort((a, b) => b.importanceScore - a.importanceScore)
             .slice(0, this.elementsHeadingsLimit)
             .map((el) => formatContentElementShort(el));
 
         // Get top interactions
-        const sampleInteractions = ctx.pageModel.interactive
+        const sampleInteractions = ctx.pageTrail.interactive
             .filter((el) => el.labels.length > 0 || el.text)
             .sort((a, b) => b.importanceScore - a.importanceScore)
             .slice(0, this.elementsInteractionsLimit)
             .map((el) => formatInteractiveElementShort(el));
 
         return {
-            title: ctx.pageModel.basics.title,
-            url: ctx.pageModel.basics.url,
-            description: ctx.pageModel.basics.description,
-            language: ctx.pageModel.basics.language,
+            title: ctx.pageTrail.basics.title,
+            url: ctx.pageTrail.basics.url,
+            description: ctx.pageTrail.basics.description,
+            language: ctx.pageTrail.basics.language,
             sampleHeadings: formatConcatElements(sampleHeadings),
             sampleInteractions: formatConcatElements(sampleInteractions),
         };

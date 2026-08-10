@@ -17,20 +17,20 @@ export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDe
         res: Response<QueryResponse | ErrorResponse>,
     ): Promise<void> {
         try {
-            const { question, pageModel, domain } = req.body;
+            const { question, pageTrail, domain } = req.body;
 
-            if (!question || !pageModel) {
+            if (!question || !pageTrail) {
                 res.status(400).json({
-                    error: 'Missing required fields: question, pageModel',
+                    error: 'Missing required fields: question, pageTrail',
                 });
                 return;
             }
             console.log(`[Server] Query: ${domain} / ${question}`);
 
-            await indexer.indexPage(pageModel);
-            const pageContext = new PageContextProvider(pageModel, indexer);
+            await indexer.indexPage(pageTrail);
+            const pageContext = new PageContextProvider(pageTrail, indexer);
             const agentResponse = await agent.processQuery(question, pageContext);
-            analytics.trackQA(domain, pageModel.basics.url, question, agentResponse);
+            analytics.trackQA(domain, pageTrail.basics.url, question, agentResponse);
 
             res.json({
                 result: agentResponse.result,

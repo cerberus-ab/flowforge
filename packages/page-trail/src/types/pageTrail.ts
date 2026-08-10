@@ -156,7 +156,7 @@ export interface InteractiveElement extends BaseElement {
  * This model is independent of any specific AI/LLM or vector storage implementation
  * and can be reused to generate different semantic representations.
  */
-export interface PageModel {
+export interface PageTrail {
     basics: PageBasics;
     content: ContentElement[];
     interactive: InteractiveElement[];

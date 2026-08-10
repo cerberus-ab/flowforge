@@ -35,7 +35,7 @@ Inference layer supporting local (Ollama) or cloud (OpenAI) models for embedding
 ### Query Flow
 
 1. User asks a question in the extension popup
-2. Extension sends `pageModel + question` to backend (`POST /query`)
+2. Extension sends `pageTrail + question` to backend (`POST /query`)
 3. Backend checks if page is indexed; indexes if needed
 4. Agent executes with access to tools and vector search
 5. Backend returns structured result (answer + target elements)
@@ -53,8 +53,8 @@ Inference layer supporting local (Ollama) or cloud (OpenAI) models for embedding
 
 High-level overview of the DOM-to-RAG pipeline:
 
-1. **Extraction** — DOM → structured `PageModel` (content + interactive elements + context)
-2. **Transformation** — `PageModel` → semantic `IndexableDocuments` with metadata
+1. **Extraction** — DOM → structured `PageTrail` (content + interactive elements + context)
+2. **Transformation** — `PageTrail` → semantic `IndexableDocuments` with metadata
 3. **Indexing** — Documents → embeddings → vector storage (LanceDB)
 4. **Retrieval** — Query → Top-K relevant documents via semantic search
 5. **Reranking** — Hybrid scoring (semantic + importance signals)

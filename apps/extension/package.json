@@ -34,7 +34,7 @@
   ],
   "dependencies": {
     "@flowforge/contract": "*",
-    "@flowforge/page-model": "*"
+    "@flowforge/page-trail": "*"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",

@@ -1,4 +1,4 @@
-import type { BaseElement, ContentElement, InteractiveElement, PageBasics, PageModel } from '../types/index.ts';
+import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
 
 import { getElementLabels } from './extractors/primitive/label.ts';
 import { getInteractiveRole, roleToInteractiveElementType } from './extractors/primitive/role.ts';
@@ -10,6 +10,7 @@ import { getElementContext } from './extractors/context.ts';
 import { extractElementDescriptor } from './extractors/descriptor.ts';
 import { isSensitiveElement } from './extractors/primitive/sensitive.ts';
 import { scoreContentElement, scoreInteractiveElement } from './importance/scoring.ts';
+import { topElements } from './importance/topEl.ts';
 
 // constants
 const CONTENT_MIN_TEXT_LENGTH = 5;
@@ -21,7 +22,7 @@ export interface CollectorOptions {
 }
 
 /**
- * Collects a normalized PageModel from the DOM
+ * Collects a normalized PageTrail from the DOM
  *
  * TODO: implement a cache, but with dataId ref consistency
  * TODO: provide a plugins API to extend the collector
@@ -30,8 +31,20 @@ export interface CollectorOptions {
  * Extracts page metadata, content, and interactive elements, and assigns
  * stable `dataId` identifiers to elements for downstream usage.
  */
-export class PageModelCollector {
+export class PageTrailCollector {
+    // window.location.href - reads the current page URL
+    // window.innerWidth - reads viewport width
+    // window.innerHeight - reads viewport height
+    // window.scrollY - reads current vertical scroll position
+    // window.getComputedStyle(element) - checks computed CSS styles for visibility
     private readonly window: Window;
+    // document.title - reads the page title
+    // document.querySelector('meta[name="description"]') - finds the meta description element
+    // document.documentElement.lang - reads the page language from <html lang="...">
+    // document.documentElement.scrollHeight - reads the full scrollable page height
+    // document.querySelectorAll(selector) - finds content and interactive elements by CSS selector
+    // document.getElementById(id) - resolves IDs from aria-labelledby to label elements
+    // document.querySelector('label[for="..."]') - finds a <label> connected to an element by for
     private readonly document: Document;
     private readonly options: Required<CollectorOptions>;
 
@@ -46,20 +59,20 @@ export class PageModelCollector {
         };
     }
 
-    collect(): PageModel {
-        const basics = this.collectPageModelBasics();
+    collect(): PageTrail {
+        const basics = this.collectPageBasics();
 
         return {
             basics,
-            content: this.collectPageModelContent(),
-            interactive: this.collectPageModelInteractive(basics),
+            content: this.collectPageContent(),
+            interactive: this.collectPageInteractive(basics),
             timestamp: Date.now(),
         };
     }
 
     // shortcut for common usage
-    static collectFor(window: Window, document: Document, options: CollectorOptions): PageModel {
-        return new PageModelCollector(window, document, options).collect();
+    static collectFor(window: Window, document: Document, options: CollectorOptions): PageTrail {
+        return new PageTrailCollector(window, document, options).collect();
     }
 
     /**
@@ -67,7 +80,7 @@ export class PageModelCollector {
      *
      * @returns Page URL, title, description, and language.
      */
-    private collectPageModelBasics(): PageBasics {
+    private collectPageBasics(): PageBasics {
         return {
             url: this.window.location.href,
             title: this.document.title,
@@ -91,7 +104,7 @@ export class PageModelCollector {
      *
      * @returns {ContentElement[]} A list of extracted content elements.
      */
-    private collectPageModelContent(): ContentElement[] {
+    private collectPageContent(): ContentElement[] {
         const allElements: ContentElement[] = [];
         const contentSelectors = 'h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption';
 
@@ -114,7 +127,7 @@ export class PageModelCollector {
             element.importanceScore = scoreContentElement(element);
             allElements.push(element);
         });
-        return this.topElements(allElements, this.options.contentElementsLimit);
+        return topElements(allElements, this.options.contentElementsLimit).data;
     }
 
     /**
@@ -127,7 +140,7 @@ export class PageModelCollector {
      * @param basics - Page basics data extracted from the document.
      * @returns {InteractiveElement[]} A list of extracted interactive elements.
      */
-    private collectPageModelInteractive(basics: PageBasics): InteractiveElement[] {
+    private collectPageInteractive(basics: PageBasics): InteractiveElement[] {
         const allElements: InteractiveElement[] = [];
 
         const interactiveSelector =
@@ -164,7 +177,7 @@ export class PageModelCollector {
             element.importanceScore = scoreInteractiveElement(element);
             allElements.push(element);
         });
-        return this.topElements(allElements, this.options.interactiveElementsLimit);
+        return topElements(allElements, this.options.interactiveElementsLimit).data;
     }
 
     /**
@@ -177,24 +190,4 @@ export class PageModelCollector {
         return Array.from(this.document.querySelectorAll(selector));
     }
 
-    /**
-     * Sorts and returns only top-N elements by importanceScore
-     *
-     * @param elements The list of collected elements
-     * @param limit Must be provided
-     * @returns Limited list of elements
-     */
-    private topElements<T extends BaseElement>(elements: T[], limit: number): T[] {
-        const sorted = [...elements].sort((a, b) => b.importanceScore - a.importanceScore);
-
-        if (limit === 0) {
-            return sorted;
-        }
-        if (elements.length > limit) {
-            console.log(
-                `[FlowForge] ${elements[0]!.kind} elements limit exceeded (${elements.length} > ${limit}). Applying top-N filtering after scoring.`,
-            );
-        }
-        return sorted.slice(0, limit);
-    }
 }

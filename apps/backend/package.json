@@ -40,7 +40,7 @@
   ],
   "dependencies": {
     "@flowforge/contract": "*",
-    "@flowforge/page-model": "*",
+    "@flowforge/page-trail": "*",
     "@lancedb/lancedb": "^0.27.1",
     "@langchain/core": "^1.1.35",
     "@langchain/ollama": "^1.2.6",

@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "npm run clean -ws",
     "setup": "npm run setup -w @flowforge/backend",
-    "build:packages": "npm run build -w @flowforge/page-model && npm run build -w @flowforge/contract",
+    "build:packages": "npm run build -w @flowforge/page-trail && npm run build -w @flowforge/contract",
     "build": "npm run build:packages && npm run build -w @flowforge/backend && npm run build:chrome -w @flowforge/extension",
     "start": "npm run setup && npm run build && npm run install:chrome -w @flowforge/extension && npm run start -w @flowforge/backend",
     "format": "prettier . --write --cache",
