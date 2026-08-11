@@ -3,8 +3,8 @@ import { HumanMessage, AIMessage, createAgent } from 'langchain';
 import type { BaseMessage } from 'langchain';
 
 import { buildSystemPrompt, buildStructuredOutputPrompt } from './prompts.ts';
-import { PageContextProvider } from '#self/indexer';
-import type { AgentExecResult, ToolCallInfo, AgentResponse, LlmProviderInfo } from '#self/types';
+import { PageContextProvider } from '@/indexer';
+import type { AgentExecResult, ToolCallInfo, AgentResponse, LlmProviderInfo } from '@/types';
 import { ToolsRegistry } from './tools/ToolsRegistry.ts';
 import { type AgentResult, type UsageMetadata, validateDataId, AgentResultSchema } from '@flowforge/contract';
 

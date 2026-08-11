@@ -1,5 +1,5 @@
 import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
-import type { IndexableDocument } from '#self/types';
+import type { IndexableDocument } from '@/types';
 import { formatInteractiveElement, type PageTrail } from '@flowforge/page-trail';
 
 export class InteractiveElementsTransformer extends AbstractDocumentTransformer {

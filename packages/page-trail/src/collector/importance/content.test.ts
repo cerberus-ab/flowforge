@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentElement } from '../../test/fixtures';
+import { contentElement } from '../../../test/fixtures';
 import { scoreContentElement } from './content';
 
 describe('scoreContentElement', () => {

@@ -1,4 +1,4 @@
-import type { PopupExampleItem } from '#self/popup/utils/data';
+import type { PopupExampleItem } from '@/popup/utils/data';
 import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 
 export interface QuestionState {

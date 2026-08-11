@@ -7,7 +7,7 @@ import type {
     IndexableDocument,
     RetrievedDocument,
     RetrieveOptions,
-} from '#self/types';
+} from '@/types';
 
 const DEFAULT_DB_PATH = './data/lancedb';
 

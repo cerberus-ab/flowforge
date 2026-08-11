@@ -1,5 +1,5 @@
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import type { LlmProviderType } from '#self/config';
+import type { LlmProviderType } from '@/config';
 
 export interface ChatModelParams {
     temperature: number;

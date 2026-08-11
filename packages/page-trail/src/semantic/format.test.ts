@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentElement, interactiveElement } from '../test/fixtures';
+import { contentElement, interactiveElement } from '../../test/fixtures';
 import {
     formantElementContextPath,
     formatConcatElements,

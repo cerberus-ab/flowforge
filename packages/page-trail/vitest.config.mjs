@@ -13,7 +13,7 @@ export default defineConfig({
             reportsDirectory: './reports/unit-tests/coverage',
             reporter: ['text', 'html', 'lcov'],
             include: ['src/**/*.ts'],
-            exclude: ['src/**/*.test.ts', 'src/test/**', 'src/types/**', 'src/index.ts'],
+            exclude: ['src/**/*.test.ts', 'src/types/**', 'src/index.ts'],
             thresholds: {
                 statements: 80,
                 branches: 70,

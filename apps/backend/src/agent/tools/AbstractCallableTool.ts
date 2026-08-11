@@ -1,6 +1,6 @@
 import type { DynamicStructuredTool } from '@langchain/core/tools';
-import { PageContextProvider } from '#self/indexer';
-import type { CallableTool, CallableToolResult, CallableToolResultData, ToolResultElement } from '#self/types';
+import { PageContextProvider } from '@/indexer';
+import type { CallableTool, CallableToolResult, CallableToolResultData, ToolResultElement } from '@/types';
 import { formantElementContextPath, type BaseElement } from '@flowforge/page-trail';
 
 export abstract class AbstractCallableTool implements CallableTool {

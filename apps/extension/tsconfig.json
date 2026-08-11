@@ -12,10 +12,10 @@
     "noUncheckedIndexedAccess": true,
 
     "paths": {
-      "#self/config": ["./src/config.ts"],
-      "#self/types": ["./src/core/types/index.ts"],
-      "#self/constants": ["./src/core/constants.ts"],
-      "#self/*": ["./src/*"]
+      "@/config": ["./src/config.ts"],
+      "@/types": ["./src/core/types/index.ts"],
+      "@/constants": ["./src/core/constants.ts"],
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],

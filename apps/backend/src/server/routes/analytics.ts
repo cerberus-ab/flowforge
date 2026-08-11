@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import type { AnalyticsResponse } from '#self/types';
-import { Analytics } from '#self/analytics';
+import type { AnalyticsResponse } from '@/types';
+import { Analytics } from '@/analytics';
 
 interface AnalyticsHandlerDeps {
     analytics: Analytics;

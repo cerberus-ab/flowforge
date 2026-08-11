@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import { crx } from '@crxjs/vite-plugin';
-import manifest from './src/chrome/manifest.config';
+// @ts-ignore an explicit extension for Vite import
+import manifest from './src/chrome/manifest.config.ts';
 
 export default defineConfig({
     root: 'src/chrome',

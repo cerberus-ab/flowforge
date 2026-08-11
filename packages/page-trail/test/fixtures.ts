@@ -1,4 +1,4 @@
-import type { BoundingBox, ContentElement, InteractiveElement } from '../types';
+import type { BoundingBox, ContentElement, InteractiveElement } from '../src';
 
 export const testBoundingBox: BoundingBox = {
     top: 0,

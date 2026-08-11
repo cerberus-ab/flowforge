@@ -1,14 +1,14 @@
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 
-import { Main } from '#self/shared/components/Main';
-import { PopupApp, type PopupAppDemoProps } from '#self/popup/PopupApp';
+import { Main } from '@/shared/components/Main';
+import { PopupApp, type PopupAppDemoProps } from '@/popup/PopupApp';
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'preact/hooks';
-import { getEventTarget } from '#self/core/utils/dom';
+import { getEventTarget } from '@/core/utils/dom';
 import { forwardRef } from 'preact/compat';
-import { PageApp } from '#self/page/PageApp';
-import { useSettings } from '#self/shared/hooks/useSettings';
-import { Trigger } from '#self/embed/components/Trigger';
-import type { TriggerSize } from '#self/embed/components/Trigger/Trigger';
+import { PageApp } from '@/page/PageApp';
+import { useSettings } from '@/shared/hooks/useSettings';
+import { Trigger } from '@/embed/components/Trigger';
+import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
 
 export type ShellAppDemoProps = PopupAppDemoProps;
 

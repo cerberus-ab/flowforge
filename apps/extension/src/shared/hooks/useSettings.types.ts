@@ -1,4 +1,4 @@
-import type { ExtensionSettings } from '#self/types';
+import type { ExtensionSettings } from '@/types';
 
 export interface SettingsActions {
     toggleTheme: () => Promise<void>;

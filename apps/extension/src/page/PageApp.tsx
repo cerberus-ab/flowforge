@@ -1,8 +1,8 @@
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 
-import { usePage } from '#self/page/hooks/usePage';
-import { Highlight } from '#self/page/components/Highlight';
-import { Wizard } from '#self/page/components/Wizard';
+import { usePage } from '@/page/hooks/usePage';
+import { Highlight } from '@/page/components/Highlight';
+import { Wizard } from '@/page/components/Wizard';
 
 export interface PageAppProps {
     transport: TransportService;

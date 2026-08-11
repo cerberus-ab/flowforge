@@ -1,5 +1,5 @@
-import type { ExamplesViewModel } from '#self/popup/hooks/usePopup.types';
-import { Card } from '#self/shared/components/Card';
+import type { ExamplesViewModel } from '@/popup/hooks/usePopup.types';
+import { Card } from '@/shared/components/Card';
 
 export function Examples({ examples, applyExampleQuestion }: ExamplesViewModel) {
     if (examples.length === 0) {

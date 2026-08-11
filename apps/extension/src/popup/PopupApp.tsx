@@ -1,15 +1,15 @@
 import { useCallback, useRef } from 'preact/hooks';
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 
 import { usePopup } from './hooks/usePopup';
 import { Question } from './components/Question';
 import { Loading } from './components/Loading';
 import { Result } from './components/Result';
 import { Examples } from './components/Examples';
-import { ButtonText } from '#self/shared/components/Button';
-import { Link } from '#self/shared/components/Link';
-import { Notice } from '#self/shared/components/Notice';
-import type { ExtensionSettingsTheme } from '#self/types';
+import { ButtonText } from '@/shared/components/Button';
+import { Link } from '@/shared/components/Link';
+import { Notice } from '@/shared/components/Notice';
+import type { ExtensionSettingsTheme } from '@/types';
 
 export type PopupAppDemoProps = {
     enabled: true;

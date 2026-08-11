@@ -5,7 +5,7 @@ import type {
     EmbeddingProvider,
     RetrievedDocument,
     RetrieveOptions,
-} from '#self/types';
+} from '@/types';
 import { VectorStorageFactory } from './vector/VectorStorageFactory.ts';
 import { CompositeDocumentTransformer } from './transformers/CompositeDocumentTransformer.ts';
 import type { PageTrail } from '@flowforge/page-trail';

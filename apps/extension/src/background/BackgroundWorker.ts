@@ -1,6 +1,6 @@
-import type { TransportService } from '#self/adapters/interface';
-import type { ApiClient } from '#self/core/services/ApiClient';
-import { HistoryStorage } from '#self/core/services/HistoryStorage';
+import type { TransportService } from '@/adapters/interface';
+import type { ApiClient } from '@/core/services/ApiClient';
+import { HistoryStorage } from '@/core/services/HistoryStorage';
 import {
     type ApplySettingsMessage,
     type AskQuestionMessage,
@@ -20,10 +20,10 @@ import {
     type StartOnboardingMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
-} from '#self/types';
-import { isAskQuestionMessage, isGetPrevQuestionsMessage, isNavigateToElementMessage } from '#self/types';
+} from '@/types';
+import { isAskQuestionMessage, isGetPrevQuestionsMessage, isNavigateToElementMessage } from '@/types';
 import type { QueryRequest } from '@flowforge/contract';
-import type { SettingsStorage } from '#self/core/services/SettignsStorage';
+import type { SettingsStorage } from '@/core/services/SettignsStorage';
 
 export class BackgroundWorker {
     private readonly transport: TransportService;

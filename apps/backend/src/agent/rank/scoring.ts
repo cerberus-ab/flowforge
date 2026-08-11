@@ -1,4 +1,4 @@
-import type { RetrievedDocument } from '#self/types';
+import type { RetrievedDocument } from '@/types';
 
 /**
  * Computes the final score for an element lookup document

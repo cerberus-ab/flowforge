@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express';
 import type { QueryRequest, QueryResponse } from '@flowforge/contract';
-import type { ErrorResponse } from '#self/types';
-import { PageContextProvider, PageIndexer } from '#self/indexer';
-import { WebNavigationAgent } from '#self/agent';
-import { Analytics } from '#self/analytics';
+import type { ErrorResponse } from '@/types';
+import { PageContextProvider, PageIndexer } from '@/indexer';
+import { WebNavigationAgent } from '@/agent';
+import { Analytics } from '@/analytics';
 
 interface QueryHandlerDeps {
     indexer: PageIndexer;

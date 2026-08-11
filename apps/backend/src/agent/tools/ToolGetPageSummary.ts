@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
 import {
     PageContextProvider,
-} from '#self/indexer';
-import type { ToolGetPageSummaryResultData } from '#self/types';
+} from '@/indexer';
+import type { ToolGetPageSummaryResultData } from '@/types';
 import {
     formatConcatElements,
     formatContentElementShort,

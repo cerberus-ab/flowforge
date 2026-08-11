@@ -1,14 +1,14 @@
 import { render } from 'preact';
 
-import styles from '#self/page/page.css?inline';
+import styles from '@/page/page.css?inline';
 
-import { PageApp } from '#self/page/PageApp';
-import { ChromeTransportService } from '#self/adapters/chrome/ChromeTransportService';
-import { ShadowRootInjector } from '#self/core/services/RootInjector';
-import { chromeConstants } from '#self/chrome/constants';
-import { Main } from '#self/shared/components/Main';
-import { useSettings } from '#self/shared/hooks/useSettings';
-import type { TransportService } from '#self/adapters/interface';
+import { PageApp } from '@/page/PageApp';
+import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
+import { ShadowRootInjector } from '@/core/services/RootInjector';
+import { chromeConstants } from '@/chrome/constants';
+import { Main } from '@/shared/components/Main';
+import { useSettings } from '@/shared/hooks/useSettings';
+import type { TransportService } from '@/adapters/interface';
 
 function PageAppRoot({ transport }: { transport: TransportService }) {
     const { theme } = useSettings({ transport });

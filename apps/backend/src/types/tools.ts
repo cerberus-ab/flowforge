@@ -1,4 +1,4 @@
-import { PageContextProvider } from '#self/indexer';
+import { PageContextProvider } from '@/indexer';
 
 export interface CallableTool {
     call(ctx: PageContextProvider, query: string): Promise<string>;

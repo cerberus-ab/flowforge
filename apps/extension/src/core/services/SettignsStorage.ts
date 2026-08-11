@@ -1,6 +1,6 @@
-import type { LocalStorage } from '#self/adapters/interface';
-import { constants } from '#self/constants';
-import type { ExtensionSettings } from '#self/types';
+import type { LocalStorage } from '@/adapters/interface';
+import { constants } from '@/constants';
+import type { ExtensionSettings } from '@/types';
 
 const SETTINGS_STORAGE_KEY = `${constants.LOCAL_STORAGE_NAMESPACE}_settings`;
 

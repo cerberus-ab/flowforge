@@ -1,5 +1,5 @@
-import type { AppConfig } from '#self/config';
-import type { LlmProvider } from '#self/types';
+import type { AppConfig } from '@/config';
+import type { LlmProvider } from '@/types';
 import { OpenAiLlmProvider } from './OpenAiLlmProvider.ts';
 import { OllamaLocalLlmProvider } from './OllamaLocalLlmProvider.ts';
 

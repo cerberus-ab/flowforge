@@ -1,6 +1,6 @@
 import { ResultElements } from './ResultElements';
-import type { ResultViewModel } from '#self/popup/hooks/usePopup.types';
-import { Card } from '#self/shared/components/Card';
+import type { ResultViewModel } from '@/popup/hooks/usePopup.types';
+import { Card } from '@/shared/components/Card';
 
 export function Result({ result, resultMetadata, error, navigateToElement }: ResultViewModel) {
     if (error) {

@@ -1,4 +1,4 @@
-import type { EmbeddingProvider } from '#self/types';
+import type { EmbeddingProvider } from '@/types';
 import { z } from 'zod';
 
 export const OllamaApiEmbedSchema = z.object({

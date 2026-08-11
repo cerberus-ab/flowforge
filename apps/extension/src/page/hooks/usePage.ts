@@ -3,13 +3,13 @@ import {
     isCollectPageTrailMessage,
     isHighlightElementMessage,
     isStartOnboardingMessage,
-} from '#self/types';
-import type { Message, StartOnboardingMessageData } from '#self/types';
+} from '@/types';
+import type { Message, StartOnboardingMessageData } from '@/types';
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import { findElement, getOrCreateDataId } from '#self/core/locator/locate';
+import { findElement, getOrCreateDataId } from '@/core/locator/locate';
 import type { PageViewModel, HighlightState, WizardState } from './usePage.types';
-import type { TransportService } from '#self/adapters/interface';
-import { constants } from '#self/constants';
+import type { TransportService } from '@/adapters/interface';
+import { constants } from '@/constants';
 import type { AgentResultElement } from '@flowforge/contract';
 import { PageTrailCollector } from '@flowforge/page-trail';
 

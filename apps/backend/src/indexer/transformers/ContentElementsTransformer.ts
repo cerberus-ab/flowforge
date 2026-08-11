@@ -1,4 +1,4 @@
-import type { IndexableDocument } from '#self/types';
+import type { IndexableDocument } from '@/types';
 import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
 import {
     type ContentElement,

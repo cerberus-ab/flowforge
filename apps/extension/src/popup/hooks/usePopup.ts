@@ -6,15 +6,15 @@ import type {
     GetPrevQuestionsMessageResponse,
     MessageResponse,
     NavigateToElementMessage,
-} from '#self/types';
-import { config } from '#self/config';
-import { normalizeText } from '#self/core/utils/text';
-import { buildPresetExampleItems, type PopupExampleItem } from '#self/popup/utils/data';
-import { buildTryExampleItems } from '#self/popup/utils/data';
+} from '@/types';
+import { config } from '@/config';
+import { normalizeText } from '@/core/utils/text';
+import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/data';
+import { buildTryExampleItems } from '@/popup/utils/data';
 import type { PopupViewModel } from './usePopup.types';
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 import type { AgentResult, AgentResultElement } from '@flowforge/contract';
-import { formatQueryResponseMetadata } from '#self/popup/utils/format';
+import { formatQueryResponseMetadata } from '@/popup/utils/format';
 
 export interface UsePopupOptions {
     transport: TransportService;

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { markHidden, markVisible, resetDocument, setViewport } from '../test/dom';
+import { markHidden, markVisible, resetDocument, setViewport } from '../../test/domUtils';
 import { PageTrailCollector } from './PageTrailCollector';
 
 afterEach(() => {

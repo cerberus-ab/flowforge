@@ -1,4 +1,4 @@
-import type { RerankedDocument, RetrievedDocument } from '#self/types';
+import type { RerankedDocument, RetrievedDocument } from '@/types';
 
 /**
  * Reranks retrieved documents using a scoring function and returns them in descending score order.

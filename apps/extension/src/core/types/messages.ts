@@ -1,5 +1,5 @@
 import type { AgentResultElement, AgentResultMode, PageTrail, QueryResponse } from '@flowforge/contract';
-import type { ExtensionSettings } from '#self/core/types/settings';
+import type { ExtensionSettings } from '@/core/types/settings';
 
 type MessageTypeToBackground = 'GET_SETTINGS';
 type MessageTypePopupToBackground = 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT' | 'UPDATE_SETTINGS';

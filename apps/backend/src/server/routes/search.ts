@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import type { ErrorResponse, RetrievedDocument, SearchRequest, SearchResponse } from '#self/types';
-import { PageIndexer } from '#self/indexer';
+import type { ErrorResponse, RetrievedDocument, SearchRequest, SearchResponse } from '@/types';
+import { PageIndexer } from '@/indexer';
 
 interface SearchHandlerDeps {
     indexer: PageIndexer;

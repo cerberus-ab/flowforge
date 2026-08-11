@@ -1,4 +1,4 @@
-import type { DocumentRetriever, RetrievedDocument, RetrieveOptions } from '#self/types';
+import type { DocumentRetriever, RetrievedDocument, RetrieveOptions } from '@/types';
 import { PageIndexer } from './PageIndexer.ts';
 import type { PageTrail } from '@flowforge/page-trail';
 

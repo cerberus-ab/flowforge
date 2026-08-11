@@ -1,7 +1,7 @@
-import type { QuestionViewModel } from '#self/popup/hooks/usePopup.types';
+import type { QuestionViewModel } from '@/popup/hooks/usePopup.types';
 import type { TargetedInputEvent, TargetedSubmitEvent } from 'preact';
-import { Button } from '#self/shared/components/Button';
-import { Card } from '#self/shared/components/Card';
+import { Button } from '@/shared/components/Button';
+import { Card } from '@/shared/components/Card';
 import { useEffect, useRef } from 'preact/hooks';
 
 interface QuestionProps extends QuestionViewModel {

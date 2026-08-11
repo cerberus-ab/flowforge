@@ -1,8 +1,8 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
-import { PageContextProvider } from '#self/indexer';
-import type { ToolSearchInContentResultData } from '#self/types';
+import { PageContextProvider } from '@/indexer';
+import type { ToolSearchInContentResultData } from '@/types';
 import { rerankRetrievedDocuments } from '../rank/reranker.ts';
 import { scoreForAnswer } from '../rank/scoring.ts';
 

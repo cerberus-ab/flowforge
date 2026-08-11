@@ -1,5 +1,5 @@
 import type { AgentResult, QueryRequest, QueryResponse } from '@flowforge/contract';
-import { constants } from '#self/constants';
+import { constants } from '@/constants';
 
 export interface ApiClient {
     query(request: QueryRequest): Promise<QueryResponse>;

@@ -1,4 +1,4 @@
-import type { Message, MessageResponse } from '#self/types';
+import type { Message, MessageResponse } from '@/types';
 import type { TransportService } from '../interface';
 
 export class EmbedTransportService implements TransportService {

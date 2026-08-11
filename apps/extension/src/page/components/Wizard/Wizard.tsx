@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { WizardViewModel } from '#self/page/hooks/usePage.types';
-import { getEventTarget } from '#self/core/utils/dom';
-import { Button } from '#self/shared/components/Button';
+import type { WizardViewModel } from '@/page/hooks/usePage.types';
+import { getEventTarget } from '@/core/utils/dom';
+import { Button } from '@/shared/components/Button';
 
 interface DragState {
     startX: number;

@@ -1,21 +1,21 @@
-import { EmbedTransportService } from '#self/adapters/embed/EmbedTransportService';
-import { type InjectedRoot, ShadowRootInjector } from '#self/core/services/RootInjector';
+import { EmbedTransportService } from '@/adapters/embed/EmbedTransportService';
+import { type InjectedRoot, ShadowRootInjector } from '@/core/services/RootInjector';
 import { render } from 'preact';
 
 import shellStyles from './shell/shell.css?inline';
 
-import type { TransportService } from '#self/adapters/interface';
-import { type ApiClient, DemoApiClient, HttpApiClient } from '#self/core/services/ApiClient';
-import { config } from '#self/config';
-import { HistoryStorage } from '#self/core/services/HistoryStorage';
-import { SettingsStorage } from '#self/core/services/SettignsStorage';
-import { BackgroundWorker } from '#self/background/BackgroundWorker';
-import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '#self/embed/shell/ShellApp';
+import type { TransportService } from '@/adapters/interface';
+import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
+import { config } from '@/config';
+import { HistoryStorage } from '@/core/services/HistoryStorage';
+import { SettingsStorage } from '@/core/services/SettignsStorage';
+import { BackgroundWorker } from '@/background/BackgroundWorker';
+import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
-import { EmbedLocalStorage } from '#self/adapters/embed/EmbedLocalStorage';
+import { EmbedLocalStorage } from '@/adapters/embed/EmbedLocalStorage';
 import type { AgentResult } from '@flowforge/contract';
-import { embedConstants } from '#self/embed/constants';
-import type { TriggerSize } from '#self/embed/components/Trigger/Trigger';
+import { embedConstants } from '@/embed/constants';
+import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;

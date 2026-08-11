@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { testDomRect } from '../../test/fixtures';
+import { testDomRect } from '../../../test/fixtures';
 import { extractElementDescriptor } from './descriptor';
 
 afterEach(() => {
