@@ -1,0 +1,39 @@
+/* Star Twinkle */
+.flowforge-stared-twinkle {
+    position: relative;
+}
+.flowforge-stared-twinkle:after {
+    content: '✦';
+    position: absolute;
+    display: block;
+    top: 6px;
+    right: var(--flowforge-pad-sm);
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: normal;
+    animation: flowforge-star-twinkle 1.8s ease-in-out infinite;
+}
+.flowforge-stared-twinkle:after,
+.flowforge-stared-twinkle--primary:after {
+    color: var(--flowforge-color-primary);
+    text-shadow:
+            0 0 4px rgba(var(--flowforge-rgb-primary), 0.45),
+            0 0 10px rgba(var(--flowforge-rgb-primary), 0.22);
+}
+.flowforge-stared-twinkle--secondary:after {
+    color: var(--flowforge-color-secondary);
+    text-shadow:
+            0 0 4px rgba(var(--flowforge-rgb-secondary), 0.45),
+            0 0 10px rgba(var(--flowforge-rgb-secondary), 0.22);
+}
+@keyframes flowforge-star-twinkle {
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(0.85);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}

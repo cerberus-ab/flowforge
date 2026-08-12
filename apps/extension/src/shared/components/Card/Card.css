@@ -1,5 +1,6 @@
 /* Cards */
 .flowforge-card {
+    position: relative;
     background: var(--flowforge-color-surface);
     border: 1px solid var(--flowforge-color-border);
     display: flex;
@@ -29,13 +30,17 @@
     padding-bottom: 0;
     border-bottom: none;
 }
-.flowforge-card--left {
+.flowforge-card.flowforge-card--left,
+.flowforge-card--primary.flowforge-card--left {
     border-left: 4px solid var(--flowforge-color-primary);
 }
+.flowforge-card--secondary.flowforge-card--left {
+    border-left: 4px solid var(--flowforge-color-secondary);
+}
 .flowforge-card[data-state='error'] {
-    background: rgba(var(--flowforge-rgb-secondary), 0.05);
-    box-shadow: 0 0 0 4px rgba(var(--flowforge-rgb-secondary), 0.15);
+    background: rgba(var(--flowforge-rgb-danger), 0.05);
+    box-shadow: 0 0 0 4px rgba(var(--flowforge-rgb-danger), 0.15);
 }
 .flowforge-card--left[data-state='error'] {
-    border-left-color: var(--flowforge-color-secondary);
+    border-left-color: var(--flowforge-color-danger);
 }

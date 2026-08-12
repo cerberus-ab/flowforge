@@ -4,7 +4,7 @@ import { Card } from '@/shared/components/Card';
 
 export function Result({ result, resultMetadata, error, navigateToElement }: ResultViewModel) {
     if (error) {
-        return <Card title="Misunderstood" text={error} direction="left" error></Card>;
+        return <Card title="Couldn't" text={error} direction="left" error></Card>;
     }
     if (result) {
         return (

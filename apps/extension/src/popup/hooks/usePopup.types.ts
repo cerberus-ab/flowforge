@@ -34,12 +34,18 @@ export interface ResultActions {
 
 export type ResultViewModel = ResultState & ResultActions;
 
+export type DeveloperActions = {
+    openPageInspector: () => void;
+}
+
+export type DeveloperViewModel = DeveloperActions;
+
 export interface PopupState extends QuestionState, ExamplesState, ResultState {
     isLoading: boolean;
     copyright: string;
     github: string;
 }
 
-export type PopupActions = QuestionActions & ExamplesActions & ResultActions;
+export type PopupActions = QuestionActions & ExamplesActions & ResultActions & DeveloperActions;
 
 export type PopupViewModel = PopupState & PopupActions;

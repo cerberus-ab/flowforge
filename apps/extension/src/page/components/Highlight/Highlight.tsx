@@ -129,6 +129,7 @@ export function Highlight({ el, element, stepIndex, duration, remove }: Highligh
                         'flowforge-highlight__label',
                         labelLayout?.placement === 'top' ? 'flowforge-highlight__label--top' : null,
                         labelLayout?.placement === 'bottom' ? 'flowforge-highlight__label--bottom' : null,
+                        'flowforge-stared-twinkle',
                     ]
                         .filter(Boolean)
                         .join(' ')}
@@ -148,9 +149,6 @@ export function Highlight({ el, element, stepIndex, duration, remove }: Highligh
                             {element.action}
                         </div>
                     )}
-                    <div className="flowforge-highlight__label-star" aria-hidden="true">
-                        ✦
-                    </div>
                 </div>
             )}
         </div>

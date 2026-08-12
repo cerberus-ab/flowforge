@@ -145,5 +145,6 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         askQuestion: handleAskQuestion,
         applyExampleQuestion: handleSelectExample,
         navigateToElement: handleNavigateToElement,
+        openPageInspector: () => alert('Not supported yet'),
     };
 }

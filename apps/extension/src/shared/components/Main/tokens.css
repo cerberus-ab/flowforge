@@ -6,6 +6,7 @@
     --flowforge-color-primary-hover: #7c3aed;
     --flowforge-color-secondary: #f97316;
     --flowforge-color-secondary-hover: #fb923c;
+    --flowforge-color-danger: #dc2626;
     --flowforge-color-bg: #f1f5f9;
     --flowforge-color-surface: #ffffff;
     --flowforge-color-border: #cbd5f5;
@@ -18,6 +19,7 @@
     --flowforge-rgb-text: 15, 23, 42;
     --flowforge-rgb-primary: 109, 40, 217;
     --flowforge-rgb-secondary: 249, 115, 22;
+    --flowforge-rgb-danger: 220, 38, 38;
     --flowforge-rgb-shadow: 0, 0, 0;
 }
 
@@ -27,6 +29,7 @@
     --flowforge-color-primary-hover: #a78bfa;
     --flowforge-color-secondary: #fb923c;
     --flowforge-color-secondary-hover: #fdba74;
+    --flowforge-color-danger: #f87171;
     --flowforge-color-bg: #0b1020;
     --flowforge-color-surface: #12172a;
     --flowforge-color-border: #2a3150;
@@ -39,6 +42,7 @@
     --flowforge-rgb-text: 229, 231, 235;
     --flowforge-rgb-primary: 139, 92, 246;
     --flowforge-rgb-secondary: 251, 146, 60;
+    --flowforge-rgb-danger: 248, 113, 113;
     --flowforge-rgb-shadow: 120, 120, 120;
 }
 

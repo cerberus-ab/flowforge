@@ -6,6 +6,7 @@ import { Question } from './components/Question';
 import { Loading } from './components/Loading';
 import { Result } from './components/Result';
 import { Examples } from './components/Examples';
+import { Developer } from '@/popup/components/Developer';
 import { ButtonText } from '@/shared/components/Button';
 import { Link } from '@/shared/components/Link';
 import { Notice } from '@/shared/components/Notice';
@@ -42,6 +43,7 @@ export function PopupApp({ variant, transport, demoProps, theme, toggleTheme, in
         askQuestion,
         applyExampleQuestion,
         navigateToElement,
+        openPageInspector,
     } = usePopup({
         transport,
         presetQuestions: demoProps?.enabled ? demoProps.setup.stubQuestions : undefined,
@@ -116,6 +118,8 @@ export function PopupApp({ variant, transport, demoProps, theme, toggleTheme, in
                 )}
 
                 <Examples examples={examples} applyExampleQuestion={handleApplyExampleQuestion} />
+
+                <Developer openPageInspector={openPageInspector}></Developer>
 
                 <footer className="flowforge-popup__footer">
                     <div className="flowforge-popup__copyright">{copyright}</div>

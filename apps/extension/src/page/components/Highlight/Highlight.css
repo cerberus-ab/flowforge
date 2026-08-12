@@ -77,37 +77,11 @@
     font: inherit;
     font-weight: 600;
 }
-.flowforge-highlight__label-star {
-    position: absolute;
-    display: block;
-    top: 6px;
-    right: var(--flowforge-pad-sm);
-    font-size: 14px;
-    color: var(--flowforge-color-primary);
-    text-transform: none;
-    letter-spacing: normal;
-    text-shadow:
-            0 0 4px rgba(var(--flowforge-rgb-primary), 0.45),
-            0 0 10px rgba(var(--flowforge-rgb-primary), 0.22);
-    animation: flowforge-highlight-star-twinkle 1.8s ease-in-out infinite;
-}
 .flowforge-highlight__label--top {
     top: -36px;
 }
 .flowforge-highlight__label--bottom {
     top: calc(100% + 8px);
-}
-
-@keyframes flowforge-highlight-star-twinkle {
-    0%,
-    100% {
-        opacity: 0.6;
-        transform: scale(0.85);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.2);
-    }
 }
 
 @keyframes flowforge-highlight-pulse {

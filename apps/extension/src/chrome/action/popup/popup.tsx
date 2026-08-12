@@ -15,7 +15,12 @@ function PopupAppRoot({ transport }: { transport: TransportService }) {
 
     return (
         <Main theme={theme}>
-            <PopupApp variant="page" transport={transport} theme={theme} toggleTheme={toggleTheme} />
+            <PopupApp
+                variant="page"
+                transport={transport}
+                theme={theme}
+                toggleTheme={toggleTheme}
+            />
         </Main>
     );
 }
