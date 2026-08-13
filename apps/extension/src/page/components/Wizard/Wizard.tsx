@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { WizardViewModel } from '@/page/hooks/usePage.types';
+import type { WizardViewModel } from '@/page/hooks/usePage';
 import { getEventTarget } from '@/core/utils/dom';
 import { Button } from '@/shared/components/Button';
 

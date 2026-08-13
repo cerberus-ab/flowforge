@@ -1,9 +1,24 @@
 import type { AgentResultElement, AgentResultMode, PageTrail, QueryResponse } from '@flowforge/contract';
 import type { ExtensionSettings } from '@/core/types/settings';
 
-type MessageTypeToBackground = 'GET_SETTINGS';
-type MessageTypePopupToBackground = 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT' | 'UPDATE_SETTINGS';
-type MessageTypeBackgroundToPage = 'COLLECT_PAGE_TRAIL' | 'START_ONBOARDING' | 'HIGHLIGHT_ELEMENT' | 'CLEAR_PAGE' | 'APPLY_SETTINGS';
+type MessageTypeToBackground =
+    'GET_SETTINGS';
+
+type MessageTypePopupToBackground =
+    'POPUP_INITIALISE' |
+    'ASK_QUESTION' |
+    'GET_PREV_QUESTIONS' |
+    'NAVIGATE_TO_ELEMENT' |
+    'UPDATE_SETTINGS' |
+    'OPEN_PAGE_INSPECTOR';
+
+type MessageTypeBackgroundToPage =
+    'COLLECT_PAGE_TRAIL' |
+    'START_ONBOARDING' |
+    'HIGHLIGHT_ELEMENT' |
+    'CLEAR_PAGE' |
+    'APPLY_SETTINGS' |
+    'OPEN_INSPECTOR';
 
 type MessageType = MessageTypeToBackground | MessageTypePopupToBackground | MessageTypeBackgroundToPage;
 
@@ -24,6 +39,11 @@ export type GetSettingsMessageResponseData = ExtensionSettings;
 export type GetSettingsMessageResponse = MessageResponse<GetSettingsMessageResponseData>;
 
 // Popup -> Background
+
+export type PopupInitializeMessage = Message & {
+    type: 'POPUP_INITIALISE';
+    senderId: number;
+};
 
 export type UpdateSettingsMessageData = {
     patch: Partial<ExtensionSettings>;
@@ -71,6 +91,11 @@ export type NavigateToElementMessage = Message<NavigateToElementMessageData> & {
     senderId: number;
 };
 
+export type OpenPageInspectorMessage = Message & {
+    type: 'OPEN_PAGE_INSPECTOR';
+    senderId: number;
+};
+
 // Background -> Page
 
 export interface ApplySettingsMessageData {
@@ -112,7 +137,15 @@ export type HighlightElementMessage = Message<HighlightElementMessageData> & {
     type: 'HIGHLIGHT_ELEMENT';
 };
 
+export type OpenInspectorMessage = Message & {
+    type: 'OPEN_INSPECTOR';
+};
+
 // Type guards
+
+export function isPopupInitializeMessage(message: Message): message is PopupInitializeMessage {
+    return message.type === 'POPUP_INITIALISE';
+}
 
 export function isGetSettingsMessage(message: Message): message is GetSettingsMessage {
     return message.type === 'GET_SETTINGS';
@@ -144,6 +177,14 @@ export function isStartOnboardingMessage(message: Message): message is StartOnbo
 
 export function isClearPageMessage(message: Message): message is ClearPageMessage {
     return message.type === 'CLEAR_PAGE';
+}
+
+export function isOpenInspectorMessage(message: Message): message is OpenInspectorMessage {
+    return message.type === 'OPEN_INSPECTOR';
+}
+
+export function isOpenPageInspectorMessage(message: Message): message is OpenPageInspectorMessage {
+    return message.type === 'OPEN_PAGE_INSPECTOR';
 }
 
 export function isNavigateToElementMessage(message: Message): message is NavigateToElementMessage {

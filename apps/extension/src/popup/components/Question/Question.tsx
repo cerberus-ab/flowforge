@@ -1,16 +1,25 @@
-import type { QuestionViewModel } from '@/popup/hooks/usePopup.types';
 import type { TargetedInputEvent, TargetedSubmitEvent } from 'preact';
 import { Button } from '@/shared/components/Button';
 import { Card } from '@/shared/components/Card';
 import { useEffect, useRef } from 'preact/hooks';
 
-interface QuestionProps extends QuestionViewModel {
+interface QuestionProps {
+    question: string;
+    onQuestionChange: (value: string) => void;
+    onAskQuestion: () => Promise<void>;
     placeholder: string;
     selectOnly: boolean;
     disabled: boolean;
 }
 
-export function Question({ question, setQuestion, askQuestion, placeholder, selectOnly, disabled }: QuestionProps) {
+export function Question({
+    question,
+    onQuestionChange,
+    onAskQuestion,
+    placeholder,
+    selectOnly,
+    disabled,
+}: QuestionProps) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -18,17 +27,17 @@ export function Question({ question, setQuestion, askQuestion, placeholder, sele
     }, []);
 
     const handleOnInput = (e: TargetedInputEvent<HTMLTextAreaElement>) => {
-        setQuestion((e.currentTarget as HTMLTextAreaElement).value);
+        onQuestionChange((e.currentTarget as HTMLTextAreaElement).value);
     };
     const handleOnKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            askQuestion();
+            void onAskQuestion();
         }
     };
     const handleOnSubmit = (e: TargetedSubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        askQuestion();
+        void onAskQuestion();
     };
     return (
         <Card title="Ask a question about this page">

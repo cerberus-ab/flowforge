@@ -13,10 +13,15 @@ import {
     type GetSettingsMessageResponse,
     type HighlightElementMessage,
     isGetSettingsMessage,
+    isOpenPageInspectorMessage,
+    isPopupInitializeMessage,
     isUpdateSettingsMessage,
     type Message,
     type MessageResponse,
     type NavigateToElementMessage,
+    type OpenInspectorMessage,
+    type OpenPageInspectorMessage,
+    type PopupInitializeMessage,
     type StartOnboardingMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
@@ -46,6 +51,9 @@ export class BackgroundWorker {
 
     start(): void {
         this.unsubscribe = this.transport.addMessageListener((message: Message) => {
+            if (isPopupInitializeMessage(message)) {
+                return this.handlePopupInitialize(message);
+            }
             if (isGetSettingsMessage(message)) {
                 return this.handleGetSettings();
             }
@@ -61,6 +69,9 @@ export class BackgroundWorker {
             if (isNavigateToElementMessage(message)) {
                 return this.handleNavigateToElement(message);
             }
+            if (isOpenPageInspectorMessage(message)) {
+                return this.handleOpenPageInspector(message);
+            }
         });
         console.log('[FlowForge] Background worker loaded and started');
     }
@@ -68,6 +79,24 @@ export class BackgroundWorker {
     stop(): void {
         this.unsubscribe?.();
         console.log('[FlowForge] Background worker stopped');
+    }
+
+    /**
+     * Handles the initial popup lifecycle message.
+     *
+     * @param message - Popup initialization message containing the target sender ID.
+     * @throws Rethrows transport errors after logging them.
+     */
+    private async handlePopupInitialize(message: PopupInitializeMessage): Promise<MessageResponse> {
+        try {
+            await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
+                type: 'CLEAR_PAGE',
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('[Background] Error popup initializing:', error);
+            throw error;
+        }
     }
 
     /**
@@ -122,7 +151,7 @@ export class BackgroundWorker {
      */
     private async handleAskQuestion(message: AskQuestionMessage): Promise<AskQuestionMessageResponse> {
         try {
-            // Clear existing highlights
+            // Clear page
             await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
                 type: 'CLEAR_PAGE',
             });
@@ -203,7 +232,7 @@ export class BackgroundWorker {
      */
     private async handleNavigateToElement(message: NavigateToElementMessage): Promise<MessageResponse> {
         try {
-            // Clear existing highlights
+            // Clear page
             await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
                 type: 'CLEAR_PAGE',
             });
@@ -215,6 +244,29 @@ export class BackgroundWorker {
             return { success: true };
         } catch (error) {
             console.error('[Background] Error navigating to element:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Clears the page state and opens the inspector.
+     *
+     * @param message - Message with the sender page ID.
+     * @returns Success response when the inspector request is sent.
+     */
+    private async handleOpenPageInspector(message: OpenPageInspectorMessage): Promise<MessageResponse> {
+        try {
+            // Clear page
+            await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
+                type: 'CLEAR_PAGE',
+            });
+            // Open inspector
+            await this.transport.sendToPage<OpenInspectorMessage>(message.senderId, {
+                type: 'OPEN_INSPECTOR',
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('[Background] Error opening page inspector:', error);
             throw error;
         }
     }

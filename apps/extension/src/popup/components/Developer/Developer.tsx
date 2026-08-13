@@ -1,8 +1,11 @@
 import { Card } from '@/shared/components/Card';
 import { ButtonText } from '@/shared/components/Button';
-import type { DeveloperViewModel } from '@/popup/hooks/usePopup.types';
 
-export function Developer({ openPageInspector }: DeveloperViewModel) {
+interface DeveloperProps {
+    onOpenPageInspector: () => void;
+}
+
+export function Developer({ onOpenPageInspector }: DeveloperProps) {
     return (
         <Card title="Understanding" variant="secondary" twinkle>
             <div className="flowforge-developer-list">
@@ -11,7 +14,7 @@ export function Developer({ openPageInspector }: DeveloperViewModel) {
                         <ButtonText
                             variant="secondary"
                             tooltip="See what FlowForge understands about this page"
-                            onClick={openPageInspector}
+                            onClick={onOpenPageInspector}
                         >
                             Inspect page context
                         </ButtonText>

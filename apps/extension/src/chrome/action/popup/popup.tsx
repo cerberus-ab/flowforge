@@ -19,7 +19,8 @@ function PopupAppRoot({ transport }: { transport: TransportService }) {
                 variant="page"
                 transport={transport}
                 theme={theme}
-                toggleTheme={toggleTheme}
+                onToggleTheme={toggleTheme}
+                onClose={() => window.close()}
             />
         </Main>
     );
@@ -33,7 +34,7 @@ function PopupAppRoot({ transport }: { transport: TransportService }) {
         const root = rootInjector.inject(document, chromeConstants.POPUP_ROOT_ID);
         render(<PopupAppRoot transport={transport} />, root.mountPoint);
         console.log('[FlowForge] Popup loaded');
-    }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', doMount);

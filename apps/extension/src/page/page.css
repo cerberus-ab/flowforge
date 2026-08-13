@@ -2,8 +2,10 @@
 
 @import './components/Highlight/Highlight.css';
 @import './components/Wizard/Wizard.css';
+@import './components/Inspector/Inspector.css';
 
 /* Page */
 .flowforge-page {
-
+    position: fixed;
+    pointer-events: none;
 }

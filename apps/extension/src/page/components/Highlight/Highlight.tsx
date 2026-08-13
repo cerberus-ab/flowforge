@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { calcLabelLayout, calcElementPosition, isNewPosition, isNewLabelLayout } from '@/page/utils/position';
-import type { HighlightViewModel } from '@/page/hooks/usePage.types';
+import type { HighlightViewModel } from '@/page/hooks/usePage';
 import { constants } from '@/constants';
 
 export function Highlight({ el, element, stepIndex, duration, remove }: HighlightViewModel) {

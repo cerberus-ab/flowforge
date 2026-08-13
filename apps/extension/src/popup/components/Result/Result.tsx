@@ -1,8 +1,15 @@
 import { ResultElements } from './ResultElements';
-import type { ResultViewModel } from '@/popup/hooks/usePopup.types';
 import { Card } from '@/shared/components/Card';
+import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 
-export function Result({ result, resultMetadata, error, navigateToElement }: ResultViewModel) {
+interface ResultProps {
+    result: AgentResult | null;
+    resultMetadata: string | null;
+    error: string | null;
+    onNavigateToElement: (element: AgentResultElement) => void;
+}
+
+export function Result({ result, resultMetadata, error, onNavigateToElement }: ResultProps) {
     if (error) {
         return <Card title="Couldn't" text={error} direction="left" error></Card>;
     }
@@ -13,7 +20,7 @@ export function Result({ result, resultMetadata, error, navigateToElement }: Res
                     <ResultElements
                         elements={result.elements}
                         mode={result.mode}
-                        navigateToElement={navigateToElement}
+                        onNavigateToElement={onNavigateToElement}
                     />
                 )}
                 {resultMetadata && (

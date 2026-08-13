@@ -10,10 +10,13 @@ import {
     type UpdateSettingsMessageResponse,
 } from '@/types';
 import { config } from '@/config';
-import type { SettingsViewModel } from './useSettings.types';
 
 interface UseSettingsParams {
     transport: TransportService;
+}
+
+export interface SettingsViewModel extends ExtensionSettings {
+    toggleTheme: () => Promise<void>;
 }
 
 export function useSettings({ transport }: UseSettingsParams): SettingsViewModel {

@@ -6,12 +6,13 @@ import type {
     GetPrevQuestionsMessageResponse,
     MessageResponse,
     NavigateToElementMessage,
+    OpenPageInspectorMessage,
+    PopupInitializeMessage,
 } from '@/types';
 import { config } from '@/config';
 import { normalizeText } from '@/core/utils/text';
 import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/data';
 import { buildTryExampleItems } from '@/popup/utils/data';
-import type { PopupViewModel } from './usePopup.types';
 import type { TransportService } from '@/adapters/interface';
 import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 import { formatQueryResponseMetadata } from '@/popup/utils/format';
@@ -22,6 +23,22 @@ export interface UsePopupOptions {
     initialQuestion?: string;
 }
 
+export interface PopupViewModel {
+    question: string;
+    setQuestion: (value: string) => void;
+    isLoading: boolean;
+    result: AgentResult | null;
+    resultMetadata: string | null;
+    error: string | null;
+    examples: PopupExampleItem[];
+    copyright: string;
+    github: string;
+    askQuestion: () => Promise<void>;
+    applyExampleQuestion: (question: string) => void;
+    navigateToElement: (element: AgentResultElement) => void;
+    openPageInspector: () => void;
+}
+
 export function usePopup({ transport, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
     const [question, setQuestion] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +46,17 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
     const [resultMetadata, setResultMetadata] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [examples, setExamples] = useState<PopupExampleItem[]>([]);
+
+    // Initialize event
+    useEffect(() => {
+        void (async () => {
+            const message: PopupInitializeMessage = {
+                type: 'POPUP_INITIALISE',
+                senderId: await transport.getActiveSenderId(),
+            };
+            await transport.sendToBackground<PopupInitializeMessage, MessageResponse>(message);
+        })();
+    }, [transport]);
 
     // Initialize questions examples
     useEffect(() => {
@@ -62,6 +90,7 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         void loadPreviousQuestions();
     }, [presetQuestions, transport]);
 
+    // Initialize initial question if presented
     useEffect(() => {
         if (initialQuestion !== undefined) {
             setQuestion(initialQuestion);
@@ -131,6 +160,17 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         [transport],
     );
 
+    // Handle open inspector
+    const handleOpenPageInspector = useCallback(async () => {
+            const message: OpenPageInspectorMessage = {
+                type: 'OPEN_PAGE_INSPECTOR',
+                senderId: await transport.getActiveSenderId(),
+            };
+            await transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
+        },
+        [transport],
+    );
+
     return {
         question,
         isLoading,
@@ -145,6 +185,6 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         askQuestion: handleAskQuestion,
         applyExampleQuestion: handleSelectExample,
         navigateToElement: handleNavigateToElement,
-        openPageInspector: () => alert('Not supported yet'),
+        openPageInspector: handleOpenPageInspector,
     };
 }

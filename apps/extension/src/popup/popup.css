@@ -20,6 +20,7 @@
     flex-direction: column;
     background: var(--flowforge-color-bg);
     pointer-events: auto;
+    position: static;
 }
 .flowforge-popup__header {
     position: relative;

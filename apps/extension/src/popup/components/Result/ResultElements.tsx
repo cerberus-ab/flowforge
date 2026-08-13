@@ -3,10 +3,10 @@ import type { AgentResultElement, AgentResultMode } from '@flowforge/contract';
 interface ResultElementsProps {
     elements: AgentResultElement[];
     mode: AgentResultMode;
-    navigateToElement: (element: AgentResultElement) => void;
+    onNavigateToElement: (element: AgentResultElement) => void;
 }
 
-export function ResultElements({ elements, mode, navigateToElement }: ResultElementsProps) {
+export function ResultElements({ elements, mode, onNavigateToElement }: ResultElementsProps) {
     const isSteps = mode === 'steps';
 
     return (
@@ -23,7 +23,7 @@ export function ResultElements({ elements, mode, navigateToElement }: ResultElem
                             key={i}
                             type="button"
                             className="flowforge-element-item flowforge-element-item--chip"
-                            onClick={() => navigateToElement(element)}
+                            onClick={() => onNavigateToElement(element)}
                         >
                             {element.text}
                         </button>

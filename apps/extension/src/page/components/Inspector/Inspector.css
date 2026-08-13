@@ -1,0 +1,31 @@
+/* Inspector */
+.flowforge-inspector {
+    --flowforge-inspector-max-width: 1080px;
+}
+.flowforge-inspector-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--flowforge-app-offset);
+    background: rgba(var(--flowforge-rgb-shadow), 0.4);
+    pointer-events: auto;
+    z-index: 3;
+}
+.flowforge-inspector {
+    width: min(100%, var(--flowforge-inspector-max-width));
+    height: calc(100vh - var(--flowforge-app-offset) * 2);
+    overflow: auto;
+    box-sizing: border-box;
+    background: var(--flowforge-color-surface);
+    border: 1px solid var(--flowforge-color-border);
+    border-top: 4px solid var(--flowforge-color-primary);
+    border-radius: var(--flowforge-pad-sm);
+    padding: var(--flowforge-pad-lg);
+    box-shadow:
+            0 0 0 4px rgba(var(--flowforge-rgb-primary), 0.14),
+            0 6px 18px rgba(var(--flowforge-rgb-shadow), 0.12);
+    color: var(--flowforge-color-text);
+    font: var(--flowforge-text-md);
+}
