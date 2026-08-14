@@ -82,21 +82,21 @@ export class BackgroundWorker {
     }
 
     /**
-     * Handles the initial popup lifecycle message.
+     * Clears page UI state when the popup opens.
+     *
+     * This intentionally does not await the page response. Opening the popup must
+     * not depend on content script availability or page runtime health.
      *
      * @param message - Popup initialization message containing the target sender ID.
-     * @throws Rethrows transport errors after logging them.
      */
-    private async handlePopupInitialize(message: PopupInitializeMessage): Promise<MessageResponse> {
-        try {
-            await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
+    private handlePopupInitialize(message: PopupInitializeMessage): MessageResponse {
+        void this.transport
+            .sendToPage<ClearPageMessage>(message.senderId, {
                 type: 'CLEAR_PAGE',
-            });
-            return { success: true };
-        } catch (error) {
-            console.error('[Background] Error popup initializing:', error);
-            throw error;
-        }
+            })
+            .catch(() => undefined);
+
+        return { success: true };
     }
 
     /**

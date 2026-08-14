@@ -81,13 +81,6 @@
     background: rgba(var(--flowforge-rgb-primary), 0.5);
     border-radius: 999px;
 }
-.flowforge-inspector__json {
-    margin: 0;
-    max-width: 100%;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    font: var(--flowforge-text-sm);
-}
 
 /* Footer */
 .flowforge-inspector__footer {

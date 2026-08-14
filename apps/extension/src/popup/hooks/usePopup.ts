@@ -47,14 +47,18 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
     const [error, setError] = useState<string | null>(null);
     const [examples, setExamples] = useState<PopupExampleItem[]>([]);
 
-    // Initialize event
+    // Clear page UI state when popup opens.
     useEffect(() => {
         void (async () => {
-            const message: PopupInitializeMessage = {
-                type: 'POPUP_INITIALISE',
-                senderId: await transport.getActiveSenderId(),
-            };
-            await transport.sendToBackground<PopupInitializeMessage, MessageResponse>(message);
+            try {
+                const message: PopupInitializeMessage = {
+                    type: 'POPUP_INITIALISE',
+                    senderId: await transport.getActiveSenderId(),
+                };
+                await transport.sendToBackground<PopupInitializeMessage, MessageResponse>(message);
+            } catch {
+                // Popup startup should not fail if the active tab cannot receive page messages.
+            }
         })();
     }, [transport]);
 

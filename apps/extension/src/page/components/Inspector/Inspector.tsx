@@ -3,13 +3,13 @@ import { useEffect, useState } from 'preact/hooks';
 import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
+import { JsonViewer } from '@/shared/components/JsonViewer';
 import { Tabs } from '@/shared/components/Tabs';
 
 const inspectorTabs = [
     { id: 'basics', label: 'Basics' },
     { id: 'content', label: 'Content' },
     { id: 'interactive', label: 'Interactive' },
-    { id: 'timestamp', label: 'Timestamp' },
 ] as const;
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];
@@ -80,7 +80,7 @@ export function Inspector({ pageTrail, close } : InspectorViewModel) {
                     role="tabpanel"
                     aria-label={`${activeTabLabel} tab panel`}
                 >
-                    <pre className="flowforge-inspector__json">{JSON.stringify(pageTrail[activeTab], null, 2)}</pre>
+                    <JsonViewer value={pageTrail[activeTab]} />
                 </div>
                 <div className="flowforge-inspector__footer">
                     TODO: add page-trail stats
