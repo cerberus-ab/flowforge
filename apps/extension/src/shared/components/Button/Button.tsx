@@ -2,7 +2,7 @@ import type { ComponentProps } from 'preact';
 
 interface ButtonProps extends ComponentProps<'button'> {
     variant?: 'primary' | 'secondary';
-    size?: 'medium' | 'large';
+    size?: 'small' | 'medium' | 'large';
     wide?: boolean;
 }
 
@@ -10,6 +10,7 @@ export function Button({ variant = 'primary', size = 'medium', wide = false, ...
     const classes = [
         'flowforge-button',
         `flowforge-button--${variant}`,
+        size === 'small' && 'flowforge-button--sm',
         size === 'large' && 'flowforge-button--lg',
         wide && 'flowforge-button--wide',
     ]

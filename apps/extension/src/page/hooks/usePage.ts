@@ -68,20 +68,20 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
     const [wizard, setWizard] = useState<WizardState | null>(null);
     const [inspector, setInspector] = useState<InspectorState | null>(null);
 
-    const closeWizard = () => {
+    const closeWizard = useCallback(() => {
         setHighlights([]);
         setWizard(null);
-    };
+    }, []);
 
-    const closeInspector = () => {
+    const closeInspector = useCallback(() => {
         setInspector(null);
-    };
+    }, []);
 
     // Close wizard (with all highlights) and inspector
     const clearPage = useCallback(() => {
         closeWizard();
         closeInspector();
-    }, []);
+    }, [closeWizard, closeInspector]);
 
     // Highlight an element
     const highlightElement = useCallback((element: AgentResultElement) => {
