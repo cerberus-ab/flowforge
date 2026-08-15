@@ -2,11 +2,22 @@ type JsonObject = Record<string, unknown>;
 
 interface JsonViewerProps {
     value: unknown;
+    getNodeSummary?: (value: unknown) => string | undefined;
+    rootArrayExpandedItems?: number;
+    sortKeys?: boolean;
+}
+
+interface JsonPrimitiveProps {
+    value: unknown;
 }
 
 interface JsonViewerNodeProps {
     name?: string;
     value: unknown;
+    getNodeSummary?: (value: unknown) => string | undefined;
+    rootArrayExpandedItems?: number;
+    sortKeys?: boolean;
+    initialOpen?: boolean;
     depth?: number;
 }
 
@@ -28,24 +39,43 @@ function getValueType(value: unknown) {
     return typeof value;
 }
 
-function getCollectionMeta(value: unknown) {
+function getCollectionSummary(value: unknown, getNodeSummary?: (value: unknown) => string | undefined) {
     if (Array.isArray(value)) {
+        const summary = getNodeSummary?.(value);
+
+        if (summary) {
+            return summary;
+        }
         return `${value.length} ${value.length === 1 ? 'item' : 'items'}`;
     }
     if (isJsonObject(value)) {
         const count = Object.keys(value).length;
+        const summary = getNodeSummary?.(value);
+
+        if (summary) {
+            return summary;
+        }
         return `${count} ${count === 1 ? 'key' : 'keys'}`;
     }
     return '';
 }
 
-function getCollapsedPreview(value: unknown) {
+function getShapePreview(value: unknown) {
     if (Array.isArray(value)) return value.length === 0 ? '[]' : '[…]';
     if (isJsonObject(value)) return Object.keys(value).length === 0 ? '{}' : '{…}';
     return formatPrimitive(value);
 }
 
-function JsonPrimitive({ value }: JsonViewerProps) {
+function getObjectEntries(value: JsonObject, sortKeys?: boolean) {
+    const entries = Object.entries(value);
+
+    if (!sortKeys) {
+        return entries;
+    }
+    return entries.toSorted(([firstKey], [secondKey]) => firstKey.localeCompare(secondKey));
+}
+
+function JsonPrimitive({ value }: JsonPrimitiveProps) {
     const type = getValueType(value);
 
     return (
@@ -55,7 +85,15 @@ function JsonPrimitive({ value }: JsonViewerProps) {
     );
 }
 
-function JsonViewerNode({ name, value, depth = 0 }: JsonViewerNodeProps) {
+function JsonViewerNode({
+    name,
+    value,
+    getNodeSummary,
+    rootArrayExpandedItems,
+    sortKeys,
+    initialOpen,
+    depth = 0,
+}: JsonViewerNodeProps) {
     const isArray = Array.isArray(value);
     const isObject = isJsonObject(value);
     const isCollection = isArray || isObject;
@@ -70,25 +108,46 @@ function JsonViewerNode({ name, value, depth = 0 }: JsonViewerNodeProps) {
         );
     }
 
-    const entries = isArray ? value.map((item, index) => [String(index), item] as const) : Object.entries(value);
+    const entries = isArray
+        ? value.map((item, index) => [String(index), item] as const)
+        : getObjectEntries(value, sortKeys);
     const collectionType = isArray ? 'array' : 'object';
     const isEmpty = entries.length === 0;
+    const isOpen = initialOpen ?? depth < 2;
 
     return (
-        <details className="flowforge-json-viewer__node" open={depth < 2}>
+        <details className="flowforge-json-viewer__node" open={isOpen}>
             <summary className="flowforge-json-viewer__summary">
                 {hasName ? <span className="flowforge-json-viewer__key">{JSON.stringify(name)}: </span> : null}
                 <span className={`flowforge-json-viewer__bracket flowforge-json-viewer__bracket--${collectionType}`}>
                     {isArray ? '[' : '{'}
                 </span>
-                <span className="flowforge-json-viewer__preview">{getCollapsedPreview(value)}</span>
-                <span className="flowforge-json-viewer__meta">{getCollectionMeta(value)}</span>
+                <span className="flowforge-json-viewer__shape">{getShapePreview(value)}</span>
+                <span className="flowforge-json-viewer__summary-text">
+                    {getCollectionSummary(value, getNodeSummary)}
+                </span>
             </summary>
             {isEmpty ? null : (
                 <div className="flowforge-json-viewer__children">
-                    {entries.map(([entryName, entryValue]) => (
-                        <JsonViewerNode key={entryName} name={entryName} value={entryValue} depth={depth + 1} />
-                    ))}
+                    {entries.map(([entryName, entryValue], entryIndex) => {
+                        const childInitialOpen =
+                            depth === 0 && isArray && rootArrayExpandedItems !== undefined
+                                ? entryIndex < rootArrayExpandedItems
+                                : undefined;
+
+                        return (
+                            <JsonViewerNode
+                                key={entryName}
+                                name={entryName}
+                                value={entryValue}
+                                getNodeSummary={getNodeSummary}
+                                rootArrayExpandedItems={rootArrayExpandedItems}
+                                sortKeys={sortKeys}
+                                initialOpen={childInitialOpen}
+                                depth={depth + 1}
+                            />
+                        );
+                    })}
                 </div>
             )}
             <div className="flowforge-json-viewer__row flowforge-json-viewer__closing">
@@ -100,10 +159,15 @@ function JsonViewerNode({ name, value, depth = 0 }: JsonViewerNodeProps) {
     );
 }
 
-export function JsonViewer({ value }: JsonViewerProps) {
+export function JsonViewer({ value, getNodeSummary, rootArrayExpandedItems, sortKeys }: JsonViewerProps) {
     return (
         <div className="flowforge-json-viewer">
-            <JsonViewerNode value={value} />
+            <JsonViewerNode
+                value={value}
+                getNodeSummary={getNodeSummary}
+                rootArrayExpandedItems={rootArrayExpandedItems}
+                sortKeys={sortKeys}
+            />
         </div>
     );
 }

@@ -58,6 +58,7 @@
 ### Page Inspector
 
 - Loading state
+- Lazy rendering in JsonViewer
 
 ## DX
 

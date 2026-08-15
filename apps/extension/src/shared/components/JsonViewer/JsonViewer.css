@@ -44,18 +44,28 @@
     color: var(--flowforge-color-text);
     overflow-wrap: anywhere;
 }
+.flowforge-json-viewer__summary > .flowforge-json-viewer__key,
+.flowforge-json-viewer__summary > .flowforge-json-viewer__bracket,
+.flowforge-json-viewer__summary > .flowforge-json-viewer__shape {
+    flex: 0 0 auto;
+}
 .flowforge-json-viewer__bracket {
     color: var(--flowforge-color-text-muted);
 }
-.flowforge-json-viewer__preview {
+.flowforge-json-viewer__shape {
     display: none;
     color: var(--flowforge-color-text-muted);
 }
-.flowforge-json-viewer__node:not([open]) > .flowforge-json-viewer__summary .flowforge-json-viewer__preview {
+.flowforge-json-viewer__node:not([open]) > .flowforge-json-viewer__summary .flowforge-json-viewer__shape {
     display: inline;
 }
-.flowforge-json-viewer__meta {
+.flowforge-json-viewer__summary-text {
     color: var(--flowforge-color-text-muted);
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .flowforge-json-viewer__primitive {
     overflow-wrap: anywhere;

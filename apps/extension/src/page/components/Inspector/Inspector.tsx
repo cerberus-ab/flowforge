@@ -6,6 +6,7 @@ import { Button } from '@/shared/components/Button';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 import { Tabs } from '@/shared/components/Tabs';
 import { PageMetadata } from '@/page/components/Inspector/components/Metadata';
+import { formatContentElement, formatInteractiveElement } from '@flowforge/page-trail';
 
 const inspectorTabs = [
     { id: 'basics', label: 'Basics' },
@@ -15,7 +16,21 @@ const inspectorTabs = [
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];
 
-export function Inspector({ pageTrail, close } : InspectorViewModel) {
+function getSemanticDescription(value: unknown): string | undefined {
+    if (
+        typeof value === 'object' &&
+        value !== null &&
+        'importanceScore' in value &&
+        'semanticDescription' in value &&
+        typeof value.importanceScore === 'number' &&
+        typeof value.semanticDescription === 'string'
+    ) {
+        return `${value.importanceScore.toFixed(2)} · ${value.semanticDescription}`;
+    }
+    return undefined;
+}
+
+export function Inspector({ pageTrail, close }: InspectorViewModel) {
     const [activeTab, setActiveTab] = useState<InspectorTabId>('basics');
     const activeTabLabel = inspectorTabs.find((tab) => tab.id === activeTab)?.label ?? activeTab;
 
@@ -81,7 +96,29 @@ export function Inspector({ pageTrail, close } : InspectorViewModel) {
                     role="tabpanel"
                     aria-label={`${activeTabLabel} tab panel`}
                 >
-                    <JsonViewer value={pageTrail[activeTab]} />
+                    {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
+                    {activeTab === 'content' && (
+                        <JsonViewer
+                            getNodeSummary={getSemanticDescription}
+                            rootArrayExpandedItems={1}
+                            sortKeys
+                            value={pageTrail.content.map((contentElement) => ({
+                                ...contentElement,
+                                semanticDescription: formatContentElement(contentElement),
+                            }))}
+                        />
+                    )}
+                    {activeTab === 'interactive' && (
+                        <JsonViewer
+                            getNodeSummary={getSemanticDescription}
+                            rootArrayExpandedItems={1}
+                            sortKeys
+                            value={pageTrail.interactive.map((interactiveElement) => ({
+                                ...interactiveElement,
+                                semanticDescription: formatInteractiveElement(interactiveElement),
+                            }))}
+                        />
+                    )}
                 </div>
                 <div className="flowforge-inspector__footer">
                     <PageMetadata metadata={pageTrail.metadata} />

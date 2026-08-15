@@ -2,9 +2,9 @@ import type {
     BoundingBox,
     ElementContext,
     ElementLabel,
-    InteractiveElement,
     InteractiveElementRole,
-    InteractiveElementState, InteractiveElementType,
+    InteractiveElementState,
+    InteractiveElementType,
 } from '../../types/index.ts';
 import { getMaxImportanceScore, getMinImportanceScore, normalizeImportanceScore, readContextPath } from './utils.ts';
 
