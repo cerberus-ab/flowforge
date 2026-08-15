@@ -1,9 +1,11 @@
-@import './tokens.css';
-
 /* Main */
 .flowforge-main {
     font: var(--flowforge-text-md);
     color: var(--flowforge-color-text);
+    text-align: initial;
+    text-transform: none;
+    letter-spacing: normal;
+    visibility: visible;
 }
 :where(.flowforge-main, .flowforge-main *) {
     margin: 0;

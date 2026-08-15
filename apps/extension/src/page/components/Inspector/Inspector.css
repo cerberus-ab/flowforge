@@ -88,5 +88,8 @@
     padding: var(--flowforge-pad-lg);
     background-color: var(--flowforge-color-bg);
     border-top: 1px solid var(--flowforge-color-border);
-    font: var(--flowforge-text-sm);
+}
+.flowforge-inspector-page-metadata {
+    font: var(--flowforge-text-monospace-xs);
+    color: var(--flowforge-color-muted);
 }

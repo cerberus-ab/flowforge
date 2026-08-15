@@ -1,8 +1,6 @@
 /* Json Viewer */
 .flowforge-json-viewer {
-    font: var(--flowforge-text-sm);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    line-height: 1.55;
+    font: var(--flowforge-text-monospace-sm);
 }
 .flowforge-json-viewer__node {
     margin: 0;

@@ -1,3 +1,6 @@
+@import './styles/tokens.css';
+@import './styles/modifiers.css';
+
 @import './components/Main/Main.css';
 @import './components/Link/Link.css';
 @import './components/Button/Button.css';

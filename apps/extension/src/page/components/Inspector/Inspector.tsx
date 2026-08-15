@@ -5,12 +5,12 @@ import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 import { Tabs } from '@/shared/components/Tabs';
+import { PageMetadata } from '@/page/components/Inspector/components/Metadata';
 
 const inspectorTabs = [
     { id: 'basics', label: 'Basics' },
     { id: 'content', label: 'Content' },
     { id: 'interactive', label: 'Interactive' },
-    { id: 'metadata', label: 'Metadata' },
 ] as const;
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];
@@ -84,7 +84,7 @@ export function Inspector({ pageTrail, close } : InspectorViewModel) {
                     <JsonViewer value={pageTrail[activeTab]} />
                 </div>
                 <div className="flowforge-inspector__footer">
-                    TODO: add page-trail stats
+                    <PageMetadata metadata={pageTrail.metadata} />
                 </div>
             </div>
         </div>
