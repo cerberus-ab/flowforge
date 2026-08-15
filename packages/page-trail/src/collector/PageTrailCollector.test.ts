@@ -30,7 +30,8 @@ describe('PageTrailCollector', () => {
                 scrollHeight: 2000,
             },
         });
-        expect(model.timestamp).toBeTypeOf('number');
+        expect(model.metadata.collectedAt).toBeTypeOf('number');
+        expect(model.metadata.durationMs).toBeTypeOf('number');
     });
 
     it('collects visible content elements', () => {
@@ -55,6 +56,7 @@ describe('PageTrailCollector', () => {
                     tag: 'h1',
                     text: 'Welcome',
                     dataId: 'title',
+                    cssSelector: '#title',
                 }),
                 expect.objectContaining({
                     kind: 'content',
@@ -62,6 +64,7 @@ describe('PageTrailCollector', () => {
                     tag: 'p',
                     text: 'Useful paragraph text',
                     dataId: 'intro',
+                    cssSelector: '#intro',
                 }),
             ]),
         );
@@ -89,6 +92,7 @@ describe('PageTrailCollector', () => {
                     type: 'button',
                     role: 'button',
                     dataId: 'save',
+                    cssSelector: '#save',
                     labels: [{ source: 'aria-label', value: 'Save changes' }],
                 }),
                 expect.objectContaining({
@@ -96,6 +100,7 @@ describe('PageTrailCollector', () => {
                     type: 'link',
                     role: 'link',
                     dataId: 'docs',
+                    cssSelector: '#docs',
                     link: {
                         type: 'internal',
                         href: 'http://localhost:3000/docs',
@@ -106,6 +111,7 @@ describe('PageTrailCollector', () => {
                     type: 'input',
                     role: 'textbox',
                     dataId: 'email',
+                    cssSelector: '#email',
                     labels: [{ source: 'placeholder', value: 'Email' }],
                 }),
             ]),
@@ -152,6 +158,17 @@ describe('PageTrailCollector', () => {
         expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'button' }));
     });
 
+    it('keeps cssSelector undefined when css selector resolver is not configured', () => {
+        document.body.innerHTML = `<button id="save">Save</button>`;
+        markVisible('#save');
+
+        const model = PageTrailCollector.collectFor(window, document, {
+            getElementDataId: (el) => el.id,
+        });
+
+        expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'save', cssSelector: undefined }));
+    });
+
     it('collectFor returns a collected page trail', () => {
         document.body.innerHTML = `<button id="save">Save</button>`;
         markVisible('#save');
@@ -168,6 +185,7 @@ describe('PageTrailCollector', () => {
 function collect(options: Partial<ConstructorParameters<typeof PageTrailCollector>[2]> = {}) {
     return new PageTrailCollector(window, document, {
         getElementDataId: (el) => el.id,
+        getElementCssSelector: (el) => `#${el.id}`,
         ...options,
     }).collect();
 }

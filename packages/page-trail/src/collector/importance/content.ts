@@ -1,4 +1,4 @@
-import type { ContentElement } from '../../types/index.ts';
+import type { ContentElement, ContentElementType, ElementContext } from '../../types/index.ts';
 import { getMaxImportanceScore, getMinImportanceScore, normalizeImportanceScore, readContextPath } from './utils.ts';
 
 /**
@@ -32,14 +32,20 @@ const contentScoringWeights = {
 const MIN_CONTENT_SCORE = getMinImportanceScore(contentScoringWeights);
 const MAX_CONTENT_SCORE = getMaxImportanceScore(contentScoringWeights);
 
+export interface ContentElementScoringData {
+    type: ContentElementType;
+    text: string;
+    context: ElementContext;
+}
+
 /**
  * Computes a relevance importance score for a content element based on its type, text length, and container context
  *
  * @returns Normalized importance score [0..1]
  */
-export function scoreContentElement(element: ContentElement): number {
+export function scoreContentElement(scoringData: ContentElementScoringData): number {
     let score = 0;
-    const { type, text, context } = element;
+    const { type, text, context } = scoringData;
 
     // by type
     if (type === 'heading') score += contentScoringWeights.HEADING;

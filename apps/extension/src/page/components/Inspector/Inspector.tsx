@@ -10,6 +10,7 @@ const inspectorTabs = [
     { id: 'basics', label: 'Basics' },
     { id: 'content', label: 'Content' },
     { id: 'interactive', label: 'Interactive' },
+    { id: 'metadata', label: 'Metadata' },
 ] as const;
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];

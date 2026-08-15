@@ -41,7 +41,7 @@ export abstract class AbstractCallableTool implements CallableTool {
             elementPath: formantElementContextPath(element.context.path),
             elementSectionName: element.context.sectionName ?? '',
             elementDataId: element.dataId,
-            elementSelector: element.selector,
+            elementCssSelector: element.cssSelector ?? '',
         };
     }
 

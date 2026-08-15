@@ -9,7 +9,7 @@ describe('topElements', () => {
         const high = contentElement({ dataId: 'high', importanceScore: 0.9 });
         const medium = contentElement({ dataId: 'medium', importanceScore: 0.5 });
 
-        const result = topElements([low, high, medium], 0);
+        const result = topElements([low, high, medium], 0, (el) => el);
 
         expect(result.data.map((el) => el.dataId)).toEqual(['high', 'medium', 'low']);
     });
@@ -22,6 +22,7 @@ describe('topElements', () => {
                 contentElement({ dataId: 'third', importanceScore: 0.2 }),
             ],
             2,
+            (el) => el,
         );
 
         expect(result.data.map((el) => el.dataId)).toEqual(['second', 'first']);
@@ -36,10 +37,27 @@ describe('topElements', () => {
                 contentElement({ dataId: 'second', importanceScore: 0.9 }),
             ],
             2,
+            (el) => el,
         );
 
         expect(result.data.map((el) => el.dataId)).toEqual(['second', 'first']);
         expect(result.total).toBe(2);
         expect(result.limitReached).toBe(false);
+    });
+
+    it('transforms selected elements after sorting and limiting', () => {
+        const result = topElements(
+            [
+                contentElement({ dataId: 'first', importanceScore: 0.7 }),
+                contentElement({ dataId: 'second', importanceScore: 0.9 }),
+                contentElement({ dataId: 'third', importanceScore: 0.2 }),
+            ],
+            2,
+            (el) => el.dataId,
+        );
+
+        expect(result.data).toEqual(['second', 'first']);
+        expect(result.total).toBe(3);
+        expect(result.limitReached).toBe(true);
     });
 });

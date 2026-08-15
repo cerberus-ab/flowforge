@@ -18,6 +18,7 @@ export default defineConfig({
     build: {
         target: 'esnext',
         sourcemap: true,
+        modulePreload: false,
         outDir: '../../dist/chrome',
         emptyOutDir: true,
     },

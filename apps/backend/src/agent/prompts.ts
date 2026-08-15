@@ -32,7 +32,7 @@ Return only valid JSON:
   "elements": [
     {
       "dataId": "string",
-      "selector": "string",
+      "cssSelector": "string",
       "text": "string",
       "action": "click|input|navigate|select|highlight"
     }
@@ -62,7 +62,7 @@ ELEMENTS GENERAL RULES:
 - If the answer refers to a specific page element or text fragment, include that element in "elements"
 - If a tool returns a relevant element used for the answer, include it in "elements"
 - Return an empty "elements" array only when no valid relevant element is available from tool results
-- Use dataId and selector exactly as returned by tools
+- Map tool elementDataId to dataId and tool elementCssSelector to cssSelector exactly
 - Do not modify or invent them
 
 WORKFLOW ELEMENTS RULES:
@@ -72,7 +72,7 @@ WORKFLOW ELEMENTS RULES:
 - Prefer broader coverage over minimal sufficiency
 - Exclude only clearly irrelevant, duplicate, or contradictory items
 - Map each selected step into one item in "elements"
-- Preserve dataId and selector exactly as returned
+- Map each step elementDataId to dataId and elementCssSelector to cssSelector exactly
 - Rewrite only the user-facing "text" and choose the appropriate "action"
 
 CONTENT ELEMENTS RULES:
@@ -142,7 +142,7 @@ Extract valid JSON from the agent answer.
 TARGET SCHEMA:
 {
   "answer": string,
-  "elements": [{"dataId": string, "selector": string, "text": string, "action": "click|navigate|input|select|highlight"}],
+  "elements": [{"dataId": string, "cssSelector": string, "text": string, "action": "click|navigate|input|select|highlight"}],
   "mode": "direct|steps",
   "topic": string | null
 }
@@ -152,10 +152,10 @@ RULES:
 - If valid JSON is present, extract it exactly
 - Do not reconstruct missing fields from prose
 - Do not create elements from answer text
-- Include elements only if full data (dataId and selector) is provided
+- Include elements only if full data (dataId and cssSelector) is provided
 - Omit elements with missing fields
 - Do not invent values or use placeholders (e.g. "unknown")
-- Do not generate selectors or ids from text
+- Do not generate CSS selectors or ids from text
 - Keep empty arrays as empty arrays
 
 Question: ${params.question}

@@ -110,17 +110,17 @@ export type ElementKind = 'content' | 'interactive';
 export type ContentElementType = 'text' | 'heading';
 export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
-export interface ElementDescriptor {
-    tag: string;
+export interface ElementIdentifier {
     dataId: string;
-    selector: string;
-    bbox: BoundingBox;
+    cssSelector: string | undefined; // fallback
 }
 
-export interface BaseElement extends ElementDescriptor {
+export interface BaseElement extends ElementIdentifier {
+    tag: string;
     kind: ElementKind;
     type: ContentElementType | InteractiveElementType;
     context: ElementContext;
+    bbox: BoundingBox;
     importanceScore: number; // [0..1]
 }
 
@@ -142,23 +142,37 @@ export interface InteractiveElement extends BaseElement {
     aboveTheFold: boolean;
 }
 
+export interface CollectionMetadata {
+    contentElements: number;
+    contentElementsTotal: number;
+    contentElementsLimitReached: boolean;
+    interactiveElements: number;
+    interactiveElementsTotal: number;
+    interactiveElementsLimitReached: boolean;
+    collectedAt: number; // timestamp
+    durationMs: number;
+}
+
 /**
- * Canonical, normalized representation of a web page
+ * Canonical, normalized snapshot of a web page.
  *
- * The model is derived from the DOM using extractors and acts as the central,
- * normalized representation used by all downstream stages.
+ * `PageTrail` is derived from the DOM by extractors and acts as the central
+ * structure consumed by downstream semantic formatting, indexing, retrieval,
+ * and UI guidance stages.
  *
- * It abstracts away DOM complexity and provides a structured view of the page, including
- * - basic metadata (`basics`)
+ * It abstracts away raw DOM complexity and provides a structured view of:
+ * - page metadata and viewport data (`basics`)
  * - textual content blocks (`content`)
  * - interactive UI elements (`interactive`)
+ * - collection counts, limits, timing, and timestamp (`metadata`)
  *
- * This model is independent of any specific AI/LLM or vector storage implementation
- * and can be reused to generate different semantic representations.
+ * The model is independent of any specific AI, LLM, embedding, or vector
+ * storage implementation and can be reused to generate different semantic
+ * representations.
  */
 export interface PageTrail {
     basics: PageBasics;
     content: ContentElement[];
     interactive: InteractiveElement[];
-    timestamp: number;
+    metadata: CollectionMetadata;
 }

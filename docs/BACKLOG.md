@@ -55,6 +55,10 @@
 - Cache for pageTrail transfer, with RAG cache
 - Enhance dataId and selector usage for El locator
 
+### Page Inspector
+
+- Loading state
+
 ## DX
 
 - Dev/Prod mode

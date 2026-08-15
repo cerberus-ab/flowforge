@@ -36,7 +36,7 @@ export interface ToolResultElement {
     elementPath: string;
     elementSectionName: string;
     elementDataId: string;
-    elementSelector: string;
+    elementCssSelector: string;
 }
 
 export interface ToolFindElementFoundResultData extends ToolResultElement {

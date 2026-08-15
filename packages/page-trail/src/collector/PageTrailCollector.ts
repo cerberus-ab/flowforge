@@ -1,16 +1,17 @@
-import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
+import type { ContentElement, ElementIdentifier, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
 
 import { getElementLabels } from './extractors/primitive/label.ts';
 import { getInteractiveRole, roleToInteractiveElementType } from './extractors/primitive/role.ts';
-import { isAboveTheFold, isElementVisible, isInViewport } from './extractors/primitive/view.ts';
+import { getElementBoundingBox, isAboveTheFold, isElementVisible, isInViewport } from './extractors/primitive/view.ts';
 import { getInteractiveElementState } from './extractors/primitive/state.ts';
 import { getElementText } from './extractors/primitive/text.ts';
 import { getElementLink } from './extractors/primitive/link.ts';
 import { getElementContext } from './extractors/context.ts';
-import { extractElementDescriptor } from './extractors/descriptor.ts';
 import { isSensitiveElement } from './extractors/primitive/sensitive.ts';
 import { scoreContentElement, scoreInteractiveElement } from './importance/scoring.ts';
-import { topElements } from './importance/topEl.ts';
+import { type TopElements, topElements } from './importance/topEl.ts';
+import type { InteractiveElementScoringData } from './importance/interactive.ts';
+import type { ContentElementScoringData } from './importance/content.ts';
 
 // constants
 const CONTENT_MIN_TEXT_LENGTH = 5;
@@ -19,14 +20,19 @@ export interface CollectorOptions {
     contentElementsLimit?: number;
     interactiveElementsLimit?: number;
     getElementDataId: (el: Element) => string;
+    // For example: css-selector-generator
+    getElementCssSelector?: (el: Element) => string;
 }
+
+type ResolvedCollectorOptions =
+    Required<Pick<CollectorOptions, 'contentElementsLimit' | 'interactiveElementsLimit'>> &
+    Pick<CollectorOptions, 'getElementDataId' | 'getElementCssSelector'>;
 
 /**
  * Collects a normalized PageTrail from the DOM
  *
  * TODO: implement a cache, but with dataId ref consistency
  * TODO: provide a plugins API to extend the collector
- * TODO: provide metrics on the model collection
  *
  * Extracts page metadata, content, and interactive elements, and assigns
  * stable `dataId` identifiers to elements for downstream usage.
@@ -46,7 +52,7 @@ export class PageTrailCollector {
     // document.getElementById(id) - resolves IDs from aria-labelledby to label elements
     // document.querySelector('label[for="..."]') - finds a <label> connected to an element by for
     private readonly document: Document;
-    private readonly options: Required<CollectorOptions>;
+    private readonly options: ResolvedCollectorOptions;
 
     constructor(window: Window, document: Document, options: CollectorOptions) {
         this.window = window;
@@ -60,13 +66,28 @@ export class PageTrailCollector {
     }
 
     collect(): PageTrail {
+        const t0 = performance.now();
+
         const basics = this.collectPageBasics();
+        const topContentElements = this.collectPageContent();
+        const topInteractiveElements = this.collectPageInteractive(basics);
 
         return {
             basics,
-            content: this.collectPageContent(),
-            interactive: this.collectPageInteractive(basics),
-            timestamp: Date.now(),
+            content: topContentElements.data,
+            interactive: topInteractiveElements.data,
+
+            metadata: {
+                contentElements: topContentElements.data.length,
+                contentElementsTotal: topContentElements.total,
+                contentElementsLimitReached: topContentElements.limitReached,
+                interactiveElements: topInteractiveElements.data.length,
+                interactiveElementsTotal: topInteractiveElements.total,
+                interactiveElementsLimitReached: topInteractiveElements.limitReached,
+                // timings
+                collectedAt: Date.now(),
+                durationMs: Math.round(performance.now() - t0),
+            },
         };
     }
 
@@ -102,10 +123,11 @@ export class PageTrailCollector {
      * Scans common content tags and returns normalized entries that include
      * locator metadata, content type, and extracted text.
      *
-     * @returns {ContentElement[]} A list of extracted content elements.
+     * @returns {TopElements<ContentElement>} A container of extracted content elements.
      */
-    private collectPageContent(): ContentElement[] {
-        const allElements: ContentElement[] = [];
+    private collectPageContent(): TopElements<ContentElement> {
+        const candidates: { el: Element; scoringData: ContentElementScoringData; importanceScore: number }[] = [];
+
         const contentSelectors = 'h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption';
 
         this.selectElements(contentSelectors).forEach((el) => {
@@ -115,19 +137,32 @@ export class PageTrailCollector {
             const text = getElementText(el);
             if (!text || text.length < CONTENT_MIN_TEXT_LENGTH) return;
 
-            const desc = extractElementDescriptor(el, this.options.getElementDataId);
-            const element: ContentElement = {
-                ...desc,
-                context: getElementContext(el, this.document),
-                kind: 'content',
-                type: /^h[1-4]$/i.test(el.tagName) ? 'heading' : 'text',
+            // compute only necessary data for scoring the candidates
+            const scoringData: ContentElementScoringData = {
                 text,
-                importanceScore: 0, // set up later
+                type: /^h[1-4]$/i.test(el.tagName) ? 'heading' : 'text',
+                context: getElementContext(el, this.document),
             };
-            element.importanceScore = scoreContentElement(element);
-            allElements.push(element);
+            candidates.push({
+                el,
+                scoringData: scoringData,
+                importanceScore: scoreContentElement(scoringData),
+            });
         });
-        return topElements(allElements, this.options.contentElementsLimit).data;
+
+        return topElements(
+            candidates,
+            this.options.contentElementsLimit,
+            // continue to compute only for selected elements
+            ({ el, scoringData, importanceScore }) => ({
+                ...scoringData,
+                ...this.getElementIdentifier(el),
+                tag: el.tagName.toLowerCase(),
+                kind: 'content',
+                bbox: getElementBoundingBox(el),
+                importanceScore,
+            }),
+        );
     }
 
     /**
@@ -138,10 +173,10 @@ export class PageTrailCollector {
      * locator info, role, type, text, labels, state, and link target.
      *
      * @param basics - Page basics data extracted from the document.
-     * @returns {InteractiveElement[]} A list of extracted interactive elements.
+     * @returns {TopElements<InteractiveElement>} A container of extracted interactive elements.
      */
-    private collectPageInteractive(basics: PageBasics): InteractiveElement[] {
-        const allElements: InteractiveElement[] = [];
+    private collectPageInteractive(basics: PageBasics): TopElements<InteractiveElement> {
+        const candidates: { el: Element; scoringData: InteractiveElementScoringData; importanceScore: number }[] = [];
 
         const interactiveSelector =
             'button, a[href], input, textarea, select, summary' +
@@ -159,35 +194,63 @@ export class PageTrailCollector {
             const type = roleToInteractiveElementType(role);
             if (!type) return;
 
-            const desc = extractElementDescriptor(el, this.options.getElementDataId);
-            const element: InteractiveElement = {
-                ...desc,
-                context: getElementContext(el, this.document),
-                kind: 'interactive',
-                type,
+            // compute only necessary data for scoring the candidates
+            const scoringData: InteractiveElementScoringData = {
                 role,
-                text: getElementText(el),
+                type,
                 labels: getElementLabels(el, this.document),
+                text: getElementText(el),
                 state: getInteractiveElementState(el),
-                link: getElementLink(el),
-                inViewport: isInViewport(desc.bbox, basics.viewport),
-                aboveTheFold: isAboveTheFold(desc.bbox, basics.viewport),
-                importanceScore: 0, // set up later
+                context: getElementContext(el, this.document),
+                bbox: getElementBoundingBox(el),
             };
-            element.importanceScore = scoreInteractiveElement(element);
-            allElements.push(element);
+            candidates.push({
+                el,
+                scoringData: scoringData,
+                importanceScore: scoreInteractiveElement(scoringData),
+            });
         });
-        return topElements(allElements, this.options.interactiveElementsLimit).data;
+
+        return topElements(
+            candidates,
+            this.options.interactiveElementsLimit,
+            // continue to compute only for selected elements
+            ({ el, scoringData, importanceScore }) => ({
+                ...scoringData,
+                ...this.getElementIdentifier(el),
+                tag: el.tagName.toLowerCase(),
+                kind: 'interactive',
+                link: getElementLink(el),
+                inViewport: isInViewport(scoringData.bbox, basics.viewport),
+                aboveTheFold: isAboveTheFold(scoringData.bbox, basics.viewport),
+                importanceScore,
+            }),
+        );
     }
 
     /**
-     * TODO: consider to use TreeWalker and iterator instead
+     * Selects all elements matching the given CSS selector.
      *
-     * @param selector
-     * @returns List of elements
+     * @param selector CSS selector used to query elements.
+     * @returns List of matching elements.
      */
     private selectElements(selector: string): Element[] {
         return Array.from(this.document.querySelectorAll(selector));
     }
 
+    /**
+     * Returns an identifier for a DOM element for later lookup or matching.
+     *
+     * The identifier includes the required `dataId` and, when available,
+     * an additional CSS selector as a fallback.
+     *
+     * @param el DOM element to identify.
+     * @returns Element identifier data.
+     */
+    private getElementIdentifier(el: Element): ElementIdentifier {
+        return {
+            dataId: this.options.getElementDataId(el),
+            cssSelector: this.options.getElementCssSelector?.(el),
+        };
+    }
 }

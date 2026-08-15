@@ -51,7 +51,7 @@ WHAT IT RETURNS:
 - Best matching element (if any)
 - Description of the element
 - Location context (section, path)
-- Selector and dataId
+- CSS selector and dataId
 
 IMPORTANT:
 - Returns only the best match, which may be imperfect

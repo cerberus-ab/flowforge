@@ -85,7 +85,7 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
 
     // Highlight an element
     const highlightElement = useCallback((element: AgentResultElement) => {
-        const el = findElement(document, element.dataId, element.selector);
+        const el = findElement(document, element.dataId, element.cssSelector);
 
         if (el) {
             setHighlights([
@@ -138,7 +138,7 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
             // Show highlight for current step
             if (stepIndex > 0 && stepIndex <= prevWizard.steps.length) {
                 const stepData = prevWizard.steps[stepIndex - 1]!;
-                const el = findElement(document, stepData.dataId, stepData.selector);
+                const el = findElement(document, stepData.dataId, stepData.cssSelector);
 
                 if (el) {
                     setHighlights([

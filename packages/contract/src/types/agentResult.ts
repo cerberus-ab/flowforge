@@ -5,7 +5,7 @@ export const AgentResultElementActionSchema = z.enum(['click', 'navigate', 'inpu
 export const AgentResultElementSchema = z.object({
     text: z.string(),
     dataId: z.string(),
-    selector: z.string(),
+    cssSelector: z.string(),
     action: AgentResultElementActionSchema,
 });
 

@@ -1,4 +1,11 @@
-import type { InteractiveElement } from '../../types/index.ts';
+import type {
+    BoundingBox,
+    ElementContext,
+    ElementLabel,
+    InteractiveElement,
+    InteractiveElementRole,
+    InteractiveElementState, InteractiveElementType,
+} from '../../types/index.ts';
 import { getMaxImportanceScore, getMinImportanceScore, normalizeImportanceScore, readContextPath } from './utils.ts';
 
 /**
@@ -36,6 +43,16 @@ const interactiveScoringWeights = {
 const MIN_INTERACTIVE_SCORE = getMinImportanceScore(interactiveScoringWeights);
 const MAX_INTERACTIVE_SCORE = getMaxImportanceScore(interactiveScoringWeights);
 
+export interface InteractiveElementScoringData {
+    role: InteractiveElementRole;
+    type: InteractiveElementType;
+    labels: ElementLabel[];
+    text: string | undefined;
+    state: InteractiveElementState;
+    context: ElementContext;
+    bbox: BoundingBox;
+}
+
 /**
  * Computes a lightweight importance score for an interactive element
  *
@@ -44,9 +61,9 @@ const MAX_INTERACTIVE_SCORE = getMaxImportanceScore(interactiveScoringWeights);
  *
  * @returns Normalized importance score [0..1]
  */
-export function scoreInteractiveElement(element: InteractiveElement): number {
+export function scoreInteractiveElement(scoringData: InteractiveElementScoringData): number {
     let score = 0;
-    const { role, labels, text, state, context, bbox } = element;
+    const { role, labels, text, state, context, bbox } = scoringData;
 
     if (labels.length > 0 || text) score += interactiveScoringWeights.HAS_LABEL;
 
@@ -55,10 +72,13 @@ export function scoreInteractiveElement(element: InteractiveElement): number {
         score += interactiveScoringWeights.ROLE_BASE;
     }
     if (role === 'combobox' || role === 'listbox') {
-        score += (interactiveScoringWeights.ROLE_BASE + interactiveScoringWeights.ROLE_USER_FLOW);
+        score += interactiveScoringWeights.ROLE_BASE + interactiveScoringWeights.ROLE_USER_FLOW;
     }
     if (role === 'button' || role === 'textbox' || role === 'searchbox') {
-        score += (interactiveScoringWeights.ROLE_BASE + interactiveScoringWeights.ROLE_USER_FLOW + interactiveScoringWeights.ROLE_CRITICAL);
+        score +=
+            interactiveScoringWeights.ROLE_BASE +
+            interactiveScoringWeights.ROLE_USER_FLOW +
+            interactiveScoringWeights.ROLE_CRITICAL;
     }
     // by view
     if (state.hidden || state.disabled) score += interactiveScoringWeights.NOT_USABLE;

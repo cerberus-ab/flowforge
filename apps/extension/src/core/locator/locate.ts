@@ -24,22 +24,22 @@ export function getOrCreateDataId(el: Element): string {
  *
  * @param doc - The document to search within.
  * @param dataId - The value of the data id attribute to look up.
- * @param fallbackSelector - Optional CSS selector to use if the data id lookup fails.
+ * @param cssSelector - Optional CSS selector to use if the data id lookup fails.
  * @returns The matching element, or `null` if not found.
  */
-export function findElement(doc: Document, dataId: string, fallbackSelector?: string): Element | null {
+export function findElement(doc: Document, dataId: string, cssSelector?: string): Element | null {
     let el: Element | null = null;
     try {
         if (dataId) {
             el = doc.querySelector(`[${constants.DATA_ID_ATTRIBUTE}="${dataId}"]`);
         }
-        if (!el && fallbackSelector) {
-            el = doc.querySelector(fallbackSelector);
+        if (!el && cssSelector) {
+            el = doc.querySelector(cssSelector);
         }
         return el;
     } finally {
         if (!el) {
-            console.warn('[FlowForge] Element not found:', { dataId, fallbackSelector });
+            console.warn('[FlowForge] Element not found:', { dataId, fallbackSelector: cssSelector });
         }
     }
 }

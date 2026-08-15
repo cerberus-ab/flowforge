@@ -46,7 +46,7 @@ WHEN TO USE:
 
 WHAT IT RETURNS:
 - A list of relevant interactive elements (candidates)
-- Each includes description, location, selector, and dataId
+- Each includes description, location, CSS selector, and dataId
 
 IMPORTANT:
 - Results are candidates, not ordered steps
