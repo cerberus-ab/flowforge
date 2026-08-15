@@ -8,7 +8,7 @@ import type { TransportService } from '@/adapters/interface';
 import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
 import { config } from '@/config';
 import { HistoryStorage } from '@/core/services/HistoryStorage';
-import { SettingsStorage } from '@/core/services/SettignsStorage';
+import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { BackgroundWorker } from '@/background/BackgroundWorker';
 import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';

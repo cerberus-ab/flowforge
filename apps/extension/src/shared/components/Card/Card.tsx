@@ -11,7 +11,15 @@ interface CardProps {
     children?: ComponentChildren;
 }
 
-export function Card({ title, text, variant = 'primary', direction = 'none', twinkle = false, error = false, children }: CardProps) {
+export function Card({
+    title,
+    text,
+    variant = 'primary',
+    direction = 'none',
+    twinkle = false,
+    error = false,
+    children,
+}: CardProps) {
     const className = [
         'flowforge-card',
         `flowforge-card--${variant}`,
@@ -21,7 +29,8 @@ export function Card({ title, text, variant = 'primary', direction = 'none', twi
     ]
         .filter(Boolean)
         .join(' ');
-    const titleId = `flowforge-card-title-${useId()}`;
+    const id = useId();
+    const titleId = title ? `flowforge-card-title-${id}` : undefined;
 
     return (
         <section
@@ -30,9 +39,11 @@ export function Card({ title, text, variant = 'primary', direction = 'none', twi
             aria-labelledby={titleId}
             role={error ? 'alert' : undefined}
         >
-            <h3 id={titleId} className="flowforge-card__title">
-                {title}
-            </h3>
+            {title && (
+                <h3 id={titleId} className="flowforge-card__title">
+                    {title}
+                </h3>
+            )}
             {text && <p className="flowforge-card__text">{text}</p>}
             {children}
         </section>

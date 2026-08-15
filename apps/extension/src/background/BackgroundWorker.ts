@@ -28,7 +28,7 @@ import {
 } from '@/types';
 import { isAskQuestionMessage, isGetPrevQuestionsMessage, isNavigateToElementMessage } from '@/types';
 import type { QueryRequest } from '@flowforge/contract';
-import type { SettingsStorage } from '@/core/services/SettignsStorage';
+import type { SettingsStorage } from '@/core/services/SettingsStorage';
 
 export class BackgroundWorker {
     private readonly transport: TransportService;

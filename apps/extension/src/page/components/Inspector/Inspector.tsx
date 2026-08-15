@@ -1,5 +1,5 @@
 import type { TargetedPointerEvent } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useId, useState } from 'preact/hooks';
 import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
@@ -34,7 +34,9 @@ function getSemanticDescription(value: unknown): string | undefined {
 
 export function Inspector({ pageTrail, close }: InspectorViewModel) {
     const [activeTab, setActiveTab] = useState<InspectorTabId>('basics');
-    const activeTabLabel = inspectorTabs.find((tab) => tab.id === activeTab)?.label ?? activeTab;
+    const tabsIdPrefix = `flowforge-inspector-tabs-${useId()}`;
+    const getTabId = (id: string) => `${tabsIdPrefix}-tab-${id}`;
+    const getPanelId = (id: string) => `${tabsIdPrefix}-panel-${id}`;
 
     // Close on esc
     useEffect(() => {
@@ -66,7 +68,7 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
             <div
                 className="flowforge-inspector"
                 role="dialog"
-                aria-modal="true"
+                aria-modal="false"
                 aria-labelledby="flowforge-inspector-title"
                 aria-describedby="flowforge-inspector-subtitle"
             >
@@ -90,13 +92,16 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                         tabs={inspectorTabs}
                         activeId={activeTab}
                         onChange={(id) => setActiveTab(id as InspectorTabId)}
+                        getTabId={getTabId}
+                        getPanelId={getPanelId}
                         autoFocus
                     />
                 </div>
                 <div
+                    id={getPanelId(activeTab)}
                     className="flowforge-inspector__content"
                     role="tabpanel"
-                    aria-label={`${activeTabLabel} tab panel`}
+                    aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
                     {activeTab === 'content' && (

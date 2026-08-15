@@ -53,7 +53,7 @@
 
 - Support standalone mode, properly
 - Cache for pageTrail transfer, with RAG cache
-- Enhance dataId and selector usage for El locator
+- Enhance dataId and CSS selector usage for Element locator
 
 ### Page inspector
 
