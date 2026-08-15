@@ -4,14 +4,16 @@ import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
 import { JsonViewer } from '@/shared/components/JsonViewer';
+import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
 import { Tabs } from '@/shared/components/Tabs';
 import { PageMetadata } from '@/page/components/Inspector/components/Metadata';
-import { formatContentElement, formatInteractiveElement } from '@flowforge/page-trail';
+import { formatContentElement, formatInteractiveElement, generateSemanticMarkdown } from '@flowforge/page-trail';
 
 const inspectorTabs = [
     { id: 'basics', label: 'Basics' },
     { id: 'content', label: 'Content' },
     { id: 'interactive', label: 'Interactive' },
+    { id: 'semanticView', label: 'Semantic view' },
 ] as const;
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];
@@ -71,7 +73,7 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                 <div className="flowforge-inspector__header">
                     <div className="flowforge-inspector__header-main">
                         <h3 id="flowforge-inspector-title" className="flowforge-inspector__header-title">
-                            Inspect Page Context
+                            Inspect page context
                         </h3>
                         <p id="flowforge-inspector-subtitle" className="flowforge-inspector__header-subtitle">
                             See what FlowForge understands about this page
@@ -119,6 +121,7 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                             }))}
                         />
                     )}
+                    {activeTab === 'semanticView' && <MarkdownViewer value={generateSemanticMarkdown(pageTrail)} />}
                 </div>
                 <div className="flowforge-inspector__footer">
                     <PageMetadata metadata={pageTrail.metadata} />

@@ -12,6 +12,7 @@ import { scoreContentElement, scoreInteractiveElement } from './importance/scori
 import { type TopElements, topElements } from './importance/topEl.ts';
 import type { InteractiveElementScoringData } from './importance/interactive.ts';
 import type { ContentElementScoringData } from './importance/content.ts';
+import { normalizeText } from '../utils/index.ts';
 
 // constants
 const CONTENT_MIN_TEXT_LENGTH = 5;
@@ -104,10 +105,11 @@ export class PageTrailCollector {
     private collectPageBasics(): PageBasics {
         return {
             url: this.window.location.href,
-            title: this.document.title,
-            description:
+            title: normalizeText(this.document.title),
+            description: normalizeText(
                 (this.document.querySelector('meta[name="description"]') as HTMLMetaElement | null)?.content ?? '',
-            language: this.document.documentElement.lang ?? 'en',
+            ),
+            language: normalizeText(this.document.documentElement.lang) ?? 'en',
             viewport: {
                 width: this.window.innerWidth,
                 height: this.window.innerHeight,

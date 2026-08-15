@@ -1,4 +1,9 @@
-import type { BaseElement, ContainerElementRole, ContentElement, InteractiveElement } from '@flowforge/page-trail';
+import type {
+    BaseElement,
+    ContainerElementRole,
+    ContentElement,
+    InteractiveElement,
+} from '../types/index.ts';
 
 const formatSeparator = {
     PARTS: '. ',
@@ -11,6 +16,10 @@ type FormatSeparator = (typeof formatSeparator)[keyof typeof formatSeparator];
 
 function formatConcat(contents: string[], separator: FormatSeparator): string {
     return contents.join(separator);
+}
+
+export function formatConcatElements(formatted: string[]): string {
+    return formatConcat(formatted, formatSeparator.ELEMENTS);
 }
 
 // [in section "Pricing", inside "main content"]
@@ -134,10 +143,6 @@ export function formatInteractiveElementShort(el: InteractiveElement) {
     return anchor ? formatConcat([el.role, anchor], formatSeparator.PARTS) : el.role;
 }
 
-export function formatConcatElements(formatted: string[]): string {
-    return formatConcat(formatted, formatSeparator.ELEMENTS);
-}
-
 export function formantElementContextPath(path: ContainerElementRole[]): string {
     return formatConcat(path, formatSeparator.PATH);
 }
@@ -209,4 +214,75 @@ export function formatInteractiveElement(el: InteractiveElement): string {
     parts.push(...contextParts);
 
     return formatConcat(parts, formatSeparator.PARTS);
+}
+
+/**
+ * Formats a small heading sample from content elements.
+ *
+ * Only heading elements are included. They are ordered by descending
+ * `importanceScore`, limited by `headingsLimit`, formatted with
+ * `formatContentElementShort`, and joined with ` | `.
+ *
+ * @param contentElements - Content elements collected from the page
+ * @param headingsLimit - Maximum number of headings to include
+ * @returns Compact heading sample for previews or page-level summaries
+ *
+ * @example
+ * // → "h1. Pricing | h2. Enterprise"
+ * formatSampleHeadings([
+ *   { type: 'heading', tag: 'h2', text: 'Enterprise', importanceScore: 0.7 },
+ *   { type: 'text', tag: 'p', text: 'Choose a plan', importanceScore: 0.9 },
+ *   { type: 'heading', tag: 'h1', text: 'Pricing', importanceScore: 1 },
+ * ], 2)
+ *
+ * @example
+ * // → ""
+ * formatSampleHeadings([{ type: 'text', tag: 'p', text: 'No headings here', importanceScore: 1 }])
+ */
+export function formatSampleHeadings(contentElements: ContentElement[], headingsLimit = 5): string {
+    return formatConcatElements(contentElements
+        .filter((el) => el.type === 'heading')
+        .sort((a, b) => b.importanceScore - a.importanceScore)
+        .slice(0, headingsLimit)
+        .map((el) => formatContentElementShort(el)),
+    );
+}
+
+/**
+ * Formats a small interaction sample from interactive elements.
+ *
+ * Only elements with at least one label or text value are included. They are
+ * ordered by descending `importanceScore`, limited by `interactionsLimit`,
+ * formatted with `formatInteractiveElementShort`, and joined with ` | `.
+ *
+ * @param interactiveElements - Interactive elements collected from the page
+ * @param interactionsLimit - Maximum number of interactions to include
+ * @returns Compact interaction sample for previews or page-level summaries
+ *
+ * @example
+ * // → "link. Docs | button. Start"
+ * formatSampleInteractions([
+ *   { role: 'button', text: 'Start', labels: [], importanceScore: 0.7 },
+ *   { role: 'link', text: 'Docs', labels: [], importanceScore: 1 },
+ *   { role: 'button', text: undefined, labels: [], importanceScore: 0.9 },
+ * ], 2)
+ *
+ * @example
+ * // → "button. Submit"
+ * formatSampleInteractions([
+ *   {
+ *     role: 'button',
+ *     text: 'Submit form',
+ *     labels: [{ source: 'aria-label', value: 'Submit' }],
+ *     importanceScore: 1,
+ *   },
+ * ])
+ */
+export function formatSampleInteractions(interactiveElements: InteractiveElement[], interactionsLimit = 10): string {
+    return formatConcatElements(interactiveElements
+        .filter((el) => el.labels.length > 0 || el.text)
+        .sort((a, b) => b.importanceScore - a.importanceScore)
+        .slice(0, interactionsLimit)
+        .map((el) => formatInteractiveElementShort(el)),
+    );
 }

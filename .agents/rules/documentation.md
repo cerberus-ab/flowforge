@@ -55,9 +55,9 @@ Target length: 100–120 lines.
 - "Forging your experience..."
 - Demo
 - Overview
-- Use Cases
+- Use cases
 - Disclaimer
-- Quick Start
+- Quick start
 - Usage
 - Security
 - Roadmap
@@ -70,9 +70,9 @@ Target length: 80–100 lines.
 
 - Overview
 - Components
-- Interaction Flow
+- Interaction flow
 - Pipeline (high-level)
-- Key Decisions
+- Key decisions
 - Contracts
 - Constraints
 
@@ -82,11 +82,11 @@ Target length: 80–100 lines.
 
 - Overview
 - Stages:
-  - Extraction to Structure Representation
-  - Transforming to Semantic Representation
-  - Indexing / Retrieval
+  - Extraction to structure representation
+  - Transforming to semantic representation
+  - Indexing / retrieval
   - Reranking
-  - Resolution to Tool Results
+  - Resolution to tool results
 
 ### `packages/page-trail/README.md`
 
@@ -110,7 +110,7 @@ Target length: 50–60 lines.
 - Run
 - Configuration
 - API (short)
-- Key Parts
+- Key parts
 - Notes
 
 ### `apps/extension/README.md`
@@ -121,5 +121,5 @@ Target length: 50–60 lines.
 - Responsibilities
 - Run
 - Load in Chrome
-- Key Parts
+- Key parts
 - Notes

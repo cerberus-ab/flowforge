@@ -27,7 +27,7 @@ It works on any website out of the box and becomes product-aware when integrated
 
 **Under the hood:** browser extension + AI agent (ReAct) + RAG pipeline.
 
-## Use Cases
+## Use cases
 - Ask a question and get a clear explanation of what the page is about.
 - Locate links, buttons, or contacts without manual search.
 - Follow step-by-step actions directly in the interface.
@@ -46,7 +46,7 @@ It is not production-ready, and the core engine is still evolving. Expect limita
 
 [Changelog](./CHANGELOG.md) – see the list of changes.
 
-## Quick Start
+## Quick start
 
 ### Prerequisites
 
@@ -103,7 +103,7 @@ Focus areas:
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md) — system design and component interaction
-- [DOM to RAG Pipeline](docs/DOM-TO-RAG-PIPELINE.md) – from DOM to actionable intelligence
+- [DOM to RAG pipeline](docs/DOM-TO-RAG-PIPELINE.md) – from DOM to actionable intelligence
 - [PageTrail](packages/page-trail/README.md) — DOM representation for UI understanding
 - [Backend](apps/backend/README.md) — AI agent backend and RAG pipeline
 - [Extension](apps/extension/README.md) — browser extension and page extraction

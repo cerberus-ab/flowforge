@@ -1,4 +1,4 @@
-# DOM-to-RAG Pipeline
+# DOM-to-RAG pipeline
 
 ## Overview
 
@@ -8,13 +8,13 @@ Modern web applications expose rich information through the DOM, but it is not d
 
 This pipeline converts the DOM into a structured, searchable, and actionable representation.
 
-![Pipeline Schema](assets/dom-rag-pipeline.webp)
+![Pipeline schema](assets/dom-rag-pipeline.webp)
 
 ---
 
 ## Stages
 
-### 1. Extraction to Structure Representation
+### 1. Extraction to structure representation
 
 The DOM is parsed and normalized into a structured `PageTrail`.
 
@@ -36,7 +36,7 @@ Each element is also assigned an importance score.
 
 This layer defines *what exists on the page and how it is structured*.
 
-### 2. Transforming to Semantic Representation
+### 2. Transforming to semantic representation
 
 Transforms structured page data into AI-friendly, human-readable `IndexableDocuments` enriched with metadata for retrieval.
 
@@ -48,19 +48,19 @@ Includes:
     - Element references (selector, dataId)
     - Importance signals
 - Separation into:
-    - Content Documents (informational text)
-    - Interactive Documents (actionable UI elements)
+    - Content documents (informational text)
+    - Interactive documents (actionable UI elements)
 
 This layer defines *what the page means and how it can be interpreted and retrieved by AI*.
 
-### 3. Indexing / Retrieval
+### 3. Indexing / retrieval
 
 Documents are embedded, stored in a vector database, and retrieved at query time based on semantic similarity.
 
 Includes:
 - Embedding documents into vector representations
 - Storing them for efficient similarity search
-- Retrieving Top-K relevant documents for a given query
+- Retrieving top-k relevant documents for a given query
 
 This layer enables fast and context-aware access to relevant UI information.
 
@@ -79,7 +79,7 @@ Where:
 
 This step prioritizes elements that are not only semantically relevant, but also meaningful and actionable for the user.
 
-### 5. Resolution to Tool Results
+### 5. Resolution to tool results
 
 Transforms ranked documents into final, actionable outputs that Agent can directly use.
 

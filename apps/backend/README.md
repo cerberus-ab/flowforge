@@ -47,7 +47,7 @@ See [.env.example](.env.example) for all options.
 - `GET /analytics` — usage data and query tracking
 - `GET /health` — service status
 
-## Key Parts
+## Key parts
 
 - `agent/` — ReAct agent implementation and tool definitions
 - `indexer/` — RAG pipeline, embeddings, and vector search

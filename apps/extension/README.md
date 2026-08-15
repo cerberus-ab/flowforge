@@ -25,12 +25,12 @@ Development mode with auto-rebuild:
 npm run dev
 ```
 
-## Build Options
+## Build options
 
 The extension has two build modes:
 
-- **Chrome Extension** (`build:chrome`) — Full browser extension for Chrome
-- **Embed Integration** (`build:embed`) — Standalone runtime for embedding on any website
+- **Chrome extension** (`build:chrome`) — full browser extension for Chrome
+- **Embed integration** (`build:embed`) — standalone runtime for embedding on any website
 
 Both builds are created by default with `npm run build`, or can be built individually.
 
@@ -41,7 +41,7 @@ Both builds are created by default with `npm run build`, or can be built individ
 3. Click **Load unpacked**
 4. Select `apps/extension/dist/chrome`
 
-## Sandbox (Testing Environment)
+## Sandbox (testing environment)
 
 Test the embed integration locally:
 
@@ -54,7 +54,7 @@ Opens test environment at `http://localhost:3007` with:
 - Demo mode with predefined Q&A (no backend required)
 - Full backend integration mode (requires backend on http://localhost:3477)
 
-## Key Parts
+## Key parts
 
 - `popup/` — user interface and interaction logic
 - `page/` — DOM extraction and element highlighting

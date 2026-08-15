@@ -36,7 +36,7 @@
 - Answer the question: How does the product work? What alternatives do I have? What is the next step?
 - Fetch data from links to provide website context
 
-### Tech Improvements
+### Tech improvements
 
 - Consider using Vercel AI SDK, OpenRouter
 - Use pnpm for package management instead of npm
@@ -55,7 +55,7 @@
 - Cache for pageTrail transfer, with RAG cache
 - Enhance dataId and selector usage for El locator
 
-### Page Inspector
+### Page inspector
 
 - Loading state
 - Lazy rendering in JsonViewer

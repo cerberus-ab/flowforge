@@ -34,6 +34,22 @@ describe('PageTrailCollector', () => {
         expect(model.metadata.durationMs).toBeTypeOf('number');
     });
 
+    it('normalizes page basics text', () => {
+        document.documentElement.lang = ' en ';
+        document.head.innerHTML = `<meta name="description" content=" Page   description " />`;
+        document.title = ' Test   page ';
+
+        const model = collect();
+
+        expect(model.basics).toEqual(
+            expect.objectContaining({
+                title: 'Test page',
+                description: 'Page description',
+                language: 'en',
+            }),
+        );
+    });
+
     it('collects visible content elements', () => {
         document.body.innerHTML = `
             <main>

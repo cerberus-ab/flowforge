@@ -1,0 +1,13 @@
+/* Markdown Viewer */
+.flowforge-markdown-viewer {
+    margin: 0;
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font: var(--flowforge-text-monospace-sm);
+    color: var(--flowforge-color-text);
+}
+.flowforge-markdown-viewer__code {
+    font: inherit;
+    color: inherit;
+}

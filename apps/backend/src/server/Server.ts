@@ -103,10 +103,10 @@ export class Server {
         console.log(
             boxen(
                 [
-                    `FlowForge – Backend ${this.config.pkg.version}`,
+                    `FlowForge – backend ${this.config.pkg.version}`,
                     ' ─── ',
                     `Server: running on port ${this.config.port}`,
-                    `LLM Provider: ${LlmProviderInfo.provider}`,
+                    `LLM provider: ${LlmProviderInfo.provider}`,
                     `- Model: ${LlmProviderInfo.model}`,
                     `- Embedding: ${LlmProviderInfo.embedding}`,
                     LlmProviderInfo.details ? `- Details: ${LlmProviderInfo.details}` : '',

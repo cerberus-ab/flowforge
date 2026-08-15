@@ -6,7 +6,7 @@ FlowForge is a client–server system that connects user intent to UI-level acti
 
 It consists of a Chrome extension (UI + page understanding) and a backend (AI agent + RAG pipeline) working together to provide contextual, actionable guidance.
 
-![Architecture Overview](assets/architecture-overview.webp)
+![Architecture overview](assets/architecture-overview.webp)
 
 ## Components
 
@@ -22,17 +22,17 @@ Processes queries, runs the AI agent, manages vector storage, and exposes HTTP A
 
 Interprets user intent and orchestrates tool usage using the ReAct pattern. Powered by LangGraph with structured tool calls.
 
-### RAG Pipeline
+### RAG pipeline
 
 Indexes page content into vector database (LanceDB) and retrieves relevant context for queries using semantic search.
 
-### LLM Provider
+### LLM provider
 
 Inference layer supporting local (Ollama) or cloud (OpenAI) models for embeddings and generation.
 
-## Interaction Flow
+## Interaction flow
 
-### Query Flow
+### Query flow
 
 1. User asks a question in the extension popup
 2. Extension sends `pageTrail + question` to backend (`POST /query`)
@@ -41,7 +41,7 @@ Inference layer supporting local (Ollama) or cloud (OpenAI) models for embedding
 5. Backend returns structured result (answer + target elements)
 6. Extension highlights elements and displays response in popup
 
-### Indexing Flow
+### Indexing flow
 
 1. Extension extracts page structure (content, interactive elements, navigation)
 2. Backend splits data into documents with metadata
@@ -62,7 +62,7 @@ High-level overview of the DOM-to-RAG pipeline:
 
 See [DOM-TO-RAG-PIPELINE.md](DOM-TO-RAG-PIPELINE.md) for detailed pipeline documentation.
 
-## Key Decisions
+## Key decisions
 
 **ReAct agent (LangGraph)**
 Provides reliable tool-based reasoning with full control over execution flow and observability.
@@ -73,12 +73,12 @@ Enables accurate, contextual answers by retrieving relevant page content instead
 **LanceDB**
 Embedded vector storage with no external dependencies. Runs locally alongside the backend.
 
-**Local + Cloud LLM**
+**Local + cloud LLM**
 Flexibility between privacy (Ollama) and performance (OpenAI) depending on user needs.
 
 ## Contracts
 
-### Extension ↔ Backend
+### Extension ↔ backend
 
 HTTP API with main endpoints:
 
@@ -87,11 +87,11 @@ HTTP API with main endpoints:
 - `GET /analytics` — usage data and query tracking
 - `GET /health` — service status
 
-### Agent ↔ Tools
+### Agent ↔ tools
 
 Structured tool calls with typed inputs/outputs defined via Zod schemas.
 
-### Indexer ↔ Storage
+### Indexer ↔ storage
 
 Embeddings + metadata stored per page. Each document includes source URL, type (content/element), and original text.
 
