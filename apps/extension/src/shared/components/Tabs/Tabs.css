@@ -18,6 +18,7 @@
 .flowforge-tabs__tab-label {
     display: inline-flex;
     align-items: center;
+    gap: var(--flowforge-pad-xs);
     padding: var(--flowforge-pad-xs) var(--flowforge-pad-sm);
     border-radius: var(--flowforge-pad-xs);
     color: var(--flowforge-color-text-muted);

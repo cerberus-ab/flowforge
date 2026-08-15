@@ -1,5 +1,6 @@
 import type { TargetedPointerEvent } from 'preact';
 import { useEffect, useId, useState } from 'preact/hooks';
+import { BadgeInfo, BookOpenText, FileText, MousePointerClick } from 'lucide-preact';
 import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
@@ -10,10 +11,10 @@ import { PageMetadata } from '@/page/components/Inspector/components/Metadata';
 import { formatContentElement, formatInteractiveElement, generateSemanticMarkdown } from '@flowforge/page-trail';
 
 const inspectorTabs = [
-    { id: 'basics', label: 'Basics' },
-    { id: 'content', label: 'Content' },
-    { id: 'interactive', label: 'Interactive' },
-    { id: 'semanticView', label: 'Semantic view' },
+    { id: 'basics', label: 'Basics', icon: BadgeInfo },
+    { id: 'content', label: 'Content', icon: BookOpenText },
+    { id: 'interactive', label: 'Interactive', icon: MousePointerClick },
+    { id: 'semanticView', label: 'Semantic view', icon: FileText },
 ] as const;
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];

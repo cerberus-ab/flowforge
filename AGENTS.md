@@ -17,7 +17,9 @@ Claude compatibility shim that imports `AGENTS.md`; if they ever conflict,
 Shared agent guidance lives in `.agents/`.
 
 - `.agents/rules/architecture.md`
+- `.agents/rules/code-style.md`
 - `.agents/rules/documentation.md`
+- `.agents/skills/code-review/SKILL.md`
 - `.agents/skills/update-docs/SKILL.md`
 
 Use relevant rules and skills before making changes.

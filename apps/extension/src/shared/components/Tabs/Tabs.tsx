@@ -1,9 +1,12 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useId, useRef } from 'preact/hooks';
+import type { LucideIcon } from 'lucide-preact';
+import { Icon } from '@/shared/components/Icon';
 
 export interface TabItem {
     id: string;
     label: ComponentChildren;
+    icon?: LucideIcon;
     disabled?: boolean;
 }
 
@@ -83,7 +86,10 @@ export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, ge
                         disabled={tab.disabled}
                         onClick={() => onChange(tab.id)}
                     >
-                        <span className="flowforge-tabs__tab-label">{tab.label}</span>
+                        <span className="flowforge-tabs__tab-label">
+                            {tab.icon && <Icon icon={tab.icon} size="medium" />}
+                            {tab.label}
+                        </span>
                     </button>
                 );
             })}

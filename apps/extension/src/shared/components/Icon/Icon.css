@@ -1,0 +1,17 @@
+/* Icon */
+.flowforge-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    color: currentColor;
+    width: var(--flowforge-icon-size-md);
+    height: var(--flowforge-icon-size-md);
+    vertical-align: middle;
+}
+.flowforge-icon--sm {
+    width: var(--flowforge-icon-size-sm);
+    height: var(--flowforge-icon-size-sm);
+}
+.flowforge-icon--lg {
+    width: var(--flowforge-icon-size-lg);
+    height: var(--flowforge-icon-size-lg);
+}

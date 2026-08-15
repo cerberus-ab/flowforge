@@ -32,7 +32,7 @@ export function getElementBoundingBox(el: Element): BoundingBox {
  * Check if an element is in the viewport by bounding box
  */
 export function isInViewport(bbox: BoundingBox, viewport: Viewport): boolean {
-    return bbox.bottom > viewport.scrollY && bbox.top < viewport.scrollY + viewport.height;
+    return bbox.bottom > 0 && bbox.top < viewport.height;
 }
 
 /**

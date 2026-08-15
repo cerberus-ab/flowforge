@@ -57,10 +57,13 @@ describe('viewport helpers', () => {
 
     it('detects whether a box intersects the viewport', () => {
         expect(
-            isInViewport({ top: 120, bottom: 200, left: 0, right: 10, width: 10, height: 80 }, viewport),
+            isInViewport({ top: 0, bottom: 80, left: 0, right: 10, width: 10, height: 80 }, viewport),
         ).toBeTruthy();
         expect(
             isInViewport({ top: 800, bottom: 900, left: 0, right: 10, width: 10, height: 100 }, viewport),
+        ).toBeFalsy();
+        expect(
+            isInViewport({ top: -100, bottom: 0, left: 0, right: 10, width: 10, height: 100 }, viewport),
         ).toBeFalsy();
     });
 

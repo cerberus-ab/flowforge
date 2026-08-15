@@ -34,7 +34,8 @@
   ],
   "dependencies": {
     "@flowforge/contract": "*",
-    "@flowforge/page-trail": "*"
+    "@flowforge/page-trail": "*",
+    "lucide-preact": "^1.31.0"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",
