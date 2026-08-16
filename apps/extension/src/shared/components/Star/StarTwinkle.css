@@ -26,6 +26,15 @@
     0 0 4px rgba(var(--flowforge-rgb-secondary), 0.45),
     0 0 10px rgba(var(--flowforge-rgb-secondary), 0.22);
 }
+.flowforge-stared-twinkle--inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.flowforge-stared-twinkle--inline:after {
+  position: static;
+  display: inline-block;
+}
 @keyframes flowforge-star-twinkle {
   0%,
   100% {

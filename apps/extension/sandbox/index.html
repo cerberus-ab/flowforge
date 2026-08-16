@@ -127,6 +127,10 @@
             (function main() {
                 const bar = document.querySelector('[data-role="cmd-bar"]');
                 const loadRuntime = () => window.loadFlowForge();
+                const initialSettings = {
+                    theme: 'dark',
+                };
+
                 let runtimeInst = null;
 
                 bar.addEventListener('click', async (e) => {
@@ -135,13 +139,18 @@
                     try {
                         switch (btn.dataset.cmd) {
                             case 'start':
-                                runtimeInst = await (await loadRuntime()).start();
+                                runtimeInst = await (
+                                    await loadRuntime()
+                                ).start({
+                                    settings: initialSettings,
+                                });
                                 updateState('running');
                                 break;
                             case 'demo':
                                 runtimeInst = await (
                                     await loadRuntime()
                                 ).demo({
+                                    settings: initialSettings,
                                     topic: 'Sandbox',
                                     stubQA: [
                                         {
@@ -214,7 +223,11 @@
                                 break;
                             case 'inspector':
                                 if (!runtimeInst) {
-                                    runtimeInst = await (await loadRuntime()).start();
+                                    runtimeInst = await (
+                                        await loadRuntime()
+                                    ).start({
+                                        settings: initialSettings,
+                                    });
                                     updateState('running');
                                 }
                                 await runtimeInst.openPageInspector();

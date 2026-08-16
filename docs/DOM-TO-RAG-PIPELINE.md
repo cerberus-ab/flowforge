@@ -4,6 +4,9 @@
 
 FlowForge converts raw DOM into structured, searchable, UI-aware context for Retrieval-Augmented Generation (RAG).
 
+For more information about the canonical DOM snapshot format, see
+[`packages/page-trail/README.md`](../packages/page-trail/README.md).
+
 ![Pipeline schema](assets/dom-rag-pipeline.webp)
 
 ---

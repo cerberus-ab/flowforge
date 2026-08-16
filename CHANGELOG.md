@@ -10,6 +10,7 @@ All notable changes to the project will be documented in this file.
 - PageTrail snapshot `metadata` with collection counts, limits, timestamps, and duration.
 - CI workflow for linting, type checks, builds, and PageTrail unit tests.
 - Project context for agents, including shared rules, skills, and navigation guidance.
+- Added initial `settings` and `openPageInspector` support for embed delivery via Runtime API.
 
 ### Changed
 

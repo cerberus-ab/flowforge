@@ -80,6 +80,7 @@ Target length: 80–100 lines.
 
 Target length: 80–100 lines.
 
+- Link to `packages/page-trail/README.md` for more information about the canonical DOM snapshot format.
 - Overview
 - Stages:
     - Extraction to structure representation

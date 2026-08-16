@@ -44,6 +44,12 @@ Sandbox opens `http://localhost:3007` with demo mode and backend mode.
 - `Runtime.demo()` — uses predefined demo Q&A responses
 - `openPopup()`, `closePopup()`, `openPageInspector()`, `destroy()` on runtime instances
 
+Initial settings can be passed to `Runtime.start()` or `Runtime.demo()`:
+
+```ts
+await FlowForge.start({ settings: { theme: 'dark' } });
+```
+
 ## Key parts
 
 - `popup/` — user interface and interaction logic

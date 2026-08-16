@@ -16,10 +16,11 @@ import { EmbedLocalStorage } from '@/adapters/embed/EmbedLocalStorage';
 import type { AgentResult } from '@flowforge/contract';
 import { embedConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
-import type { MessageResponse, OpenPageInspectorMessage } from '@/types';
+import type { ExtensionSettings, MessageResponse, OpenPageInspectorMessage } from '@/types';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;
+    settings?: Partial<ExtensionSettings>;
 }
 
 interface RuntimeDemoOptions extends RuntimeStartOptions {
@@ -68,7 +69,7 @@ export class Runtime implements RuntimeApi {
     static async start(options: RuntimeStartOptions = {}): Promise<Runtime> {
         const runtime = new Runtime();
         const apiClient = new HttpApiClient(config.serverUrl);
-        runtime.startBackground(apiClient);
+        runtime.startBackground(apiClient, options.settings);
         await runtime.mountShell({
             triggerSize: options.triggerSize,
         });
@@ -93,7 +94,7 @@ export class Runtime implements RuntimeApi {
             stubModel: options.stubModel,
             stubQA: options.stubQA,
         });
-        runtime.startBackground(apiClient);
+        runtime.startBackground(apiClient, options.settings);
         await runtime.mountShell({
             triggerSize: options.triggerSize,
             demoProps: {
@@ -131,10 +132,10 @@ export class Runtime implements RuntimeApi {
         console.log('[FlowForge] Runtime successfully destroyed');
     }
 
-    private startBackground(apiClient: ApiClient): void {
+    private startBackground(apiClient: ApiClient, initialSettings: Partial<ExtensionSettings> = {}): void {
         const localStorage = new EmbedLocalStorage();
         const historyStorage = new HistoryStorage(localStorage, config.questionsHistoryLimit);
-        const settingsStorage = new SettingsStorage(localStorage, config.defaultSettings);
+        const settingsStorage = new SettingsStorage(localStorage, config.defaultSettings, initialSettings);
 
         this.backgroundWorker = new BackgroundWorker(this.transport, apiClient, historyStorage, settingsStorage);
         this.backgroundWorker.start();
