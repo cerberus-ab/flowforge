@@ -16,6 +16,7 @@ import { EmbedLocalStorage } from '@/adapters/embed/EmbedLocalStorage';
 import type { AgentResult } from '@flowforge/contract';
 import { embedConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
+import type { MessageResponse, OpenPageInspectorMessage } from '@/types';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;
@@ -38,6 +39,7 @@ interface MountShellOptions {
 interface RuntimeApi {
     openPopup(question?: string): void;
     closePopup(): void;
+    openPageInspector(): Promise<void>;
     destroy(): void;
 }
 
@@ -113,6 +115,14 @@ export class Runtime implements RuntimeApi {
 
     closePopup() {
         this.shellRef.current?.close();
+    }
+
+    async openPageInspector(): Promise<void> {
+        const message: OpenPageInspectorMessage = {
+            type: 'OPEN_PAGE_INSPECTOR',
+            senderId: await this.transport.getActiveSenderId(),
+        };
+        await this.transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
     }
 
     destroy() {

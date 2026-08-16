@@ -20,6 +20,7 @@ export interface FlowForgeRuntime {
 export interface FlowForgeInstance {
     openPopup(question?: string): void;
     closePopup(): void;
+    openPageInspector(): Promise<void>;
     destroy(): void;
 }
 

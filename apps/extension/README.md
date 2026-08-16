@@ -42,7 +42,7 @@ Sandbox opens `http://localhost:3007` with demo mode and backend mode.
 
 - `Runtime.start()` — uses the local backend
 - `Runtime.demo()` — uses predefined demo Q&A responses
-- `openPopup()`, `closePopup()`, `destroy()` on runtime instances
+- `openPopup()`, `closePopup()`, `openPageInspector()`, `destroy()` on runtime instances
 
 ## Key parts
 

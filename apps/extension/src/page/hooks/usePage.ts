@@ -6,7 +6,7 @@ import {
     isStartOnboardingMessage,
 } from '@/types';
 import type { Message, StartOnboardingMessageData } from '@/types';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useLayoutEffect, useState } from 'preact/hooks';
 import { findElement, getOrCreateDataId } from '@/core/locator/locate';
 import type { TransportService } from '@/adapters/interface';
 import { constants } from '@/constants';
@@ -164,7 +164,7 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
     }, []);
 
     // Listen to messages from background
-    useEffect(() => {
+    useLayoutEffect(() => {
         return transport.addMessageListener((message: Message) => {
             if (isCollectPageTrailMessage(message)) {
                 const pageTrail = collectPageTrail();

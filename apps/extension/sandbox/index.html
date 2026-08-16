@@ -93,7 +93,11 @@
                         Click <strong>Demo</strong> to run a simulated version with predefined questions and responses,
                     </li>
                     <li>
-                        Click <strong>Destroy</strong> to completely remove it from the page and clean up all resources.
+                        Click <strong>Destroy</strong> to completely remove it from the page and clean up all resources,
+                    </li>
+                    <li>
+                        Click <strong>Inspector</strong> to open page inspector directly to see how the extension
+                        understands the page context.
                     </li>
                 </ul>
                 <div role="toolbar" data-role="cmd-bar">
@@ -102,9 +106,12 @@
                     <button type="button" data-role="cmd" data-cmd="destroy" disabled data-flowforge-id="ff00000003">
                         Destroy
                     </button>
+                    <button type="button" data-role="cmd" data-cmd="inspector" data-flowforge-id="ff00000004">
+                        Inspector
+                    </button>
                 </div>
                 <p>
-                    See <a href="./EMBED_EXTENSION.md" data-flowforge-id="ff00000004">Embed extension docs</a> for more
+                    See <a href="./EMBED_EXTENSION.md" data-flowforge-id="ff00000011">Embed extension docs</a> for more
                     details.
                 </p>
             </section>
@@ -112,7 +119,7 @@
             <section id="contacts">
                 <p>
                     If anything, you may email
-                    <a href="mailto:flowforge@gmail.com" data-flowforge-id="ff00000005">flowforge@gmail.com</a>
+                    <a href="mailto:flowforge@gmail.com" data-flowforge-id="ff00000012">flowforge@gmail.com</a>
                 </p>
             </section>
         </div>
@@ -171,7 +178,7 @@
                                                     },
                                                     {
                                                         text: 'Open Embed extension docs for more details',
-                                                        dataId: 'ff00000004',
+                                                        dataId: 'ff00000011',
                                                         selector: '',
                                                         action: 'navigate',
                                                     },
@@ -187,7 +194,7 @@
                                                 elements: [
                                                     {
                                                         text: 'Open contact email',
-                                                        dataId: 'ff00000005',
+                                                        dataId: 'ff00000012',
                                                         selector: '',
                                                         action: 'navigate',
                                                     },
@@ -205,6 +212,13 @@
                                 runtimeInst = null;
                                 updateState('idle');
                                 break;
+                            case 'inspector':
+                                if (!runtimeInst) {
+                                    runtimeInst = await (await loadRuntime()).start();
+                                    updateState('running');
+                                }
+                                await runtimeInst.openPageInspector();
+                                break;
                         }
                     } catch (err) {
                         console.error('[Sandbox] Command failed:', err);
@@ -216,7 +230,7 @@
                         if (state === 'idle') {
                             btn.disabled = btn.dataset.cmd === 'destroy';
                         } else {
-                            btn.disabled = btn.dataset.cmd !== 'destroy';
+                            btn.disabled = !['destroy', 'inspector'].includes(btn.dataset.cmd);
                         }
                     });
                 }
