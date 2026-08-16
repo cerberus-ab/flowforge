@@ -8,6 +8,7 @@ export const constants = {
     EXAMPLES_MAX_ITEMS: 5,
     EXAMPLES_MAX_QUESTION_LENGTH: 50,
     // extractors
+    CONTAINER_ELEMENTS_LIMIT: 50,
     CONTENT_ELEMENTS_LIMIT: 250,
     INTERACTIVE_ELEMENTS_LIMIT: 150,
     // highlighter

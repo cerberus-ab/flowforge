@@ -1,5 +1,5 @@
-import { getElementAttrAriaLabelledBy } from './primitive/label.ts';
-import { getContainerRole } from './primitive/role.ts';
+import { getElementAttrAriaLabelledBy } from '../extractors/primitive/label.ts';
+import { getContainerRole } from '../extractors/primitive/role.ts';
 import type { ContainerElementRole, ElementContext } from '../../types/index.ts';
 import { normalizeText } from '../../utils/index.ts';
 
@@ -63,21 +63,16 @@ function getElementContextPath(
  * defined by `isGoodContextSectionName`.
  *
  * @param el - Target element whose ancestor context should be inspected.
- * @param doc - Document containing the target element.
  * @param maxDepth - Maximum number of ancestor levels to traverse. Defaults to `CONTEXT_HOIST_DEPTH`.
  * @returns The first valid section name found, or `undefined` if none is found within the depth limit.
  */
-function getElementContextSectionName(
-    el: Element,
-    doc: Document,
-    maxDepth = CONTEXT_SECTION_NAME_HOIST_DEPTH,
-): string | undefined {
+function getElementContextSectionName(el: Element, maxDepth = CONTEXT_SECTION_NAME_HOIST_DEPTH): string | undefined {
     let current: Element | null = el.parentElement;
     let depth = 0;
 
     while (current && depth < maxDepth) {
         // 1. aria-labelledby
-        const ariaLabelledBy = getElementAttrAriaLabelledBy(current, doc);
+        const ariaLabelledBy = getElementAttrAriaLabelledBy(current);
         if (ariaLabelledBy) {
             if (isGoodContextSectionName(ariaLabelledBy)) return ariaLabelledBy;
         }
@@ -111,12 +106,11 @@ function getElementContextSectionName(
  * and nearest valid section name from ancestor elements.
  *
  * @param el - Target element to extract context for.
- * @param doc - Document containing the target element.
  * @returns Context object containing `path` and optional `sectionName`.
  */
-export function getElementContext(el: Element, doc: Document): ElementContext {
+export function getElementContext(el: Element): ElementContext {
     return {
         path: getElementContextPath(el),
-        sectionName: getElementContextSectionName(el, doc),
+        sectionName: getElementContextSectionName(el),
     };
 }

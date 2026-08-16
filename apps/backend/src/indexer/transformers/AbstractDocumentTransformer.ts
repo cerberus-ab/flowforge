@@ -1,6 +1,6 @@
 import type { IndexableDocument, DocumentTransformer } from '@/types';
 import { randomUUID } from 'crypto';
-import type { BaseElement, PageTrail } from '@flowforge/page-trail';
+import type { TargetElement, PageTrail } from '@flowforge/page-trail';
 
 export abstract class AbstractDocumentTransformer implements DocumentTransformer {
     readonly name: string;
@@ -15,7 +15,7 @@ export abstract class AbstractDocumentTransformer implements DocumentTransformer
         return randomUUID();
     }
 
-    protected createDocument(content: string, el: BaseElement): IndexableDocument {
+    protected createDocument(content: string, el: TargetElement): IndexableDocument {
         return {
             id: this.createDocumentId(),
             content,

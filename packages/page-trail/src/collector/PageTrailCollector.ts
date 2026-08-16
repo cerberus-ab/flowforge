@@ -1,83 +1,76 @@
-import type { ContentElement, ElementIdentifier, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
+import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
 
-import { getElementLabels } from './extractors/primitive/label.ts';
-import { getInteractiveRole, roleToInteractiveElementType } from './extractors/primitive/role.ts';
-import { getElementBoundingBox, isAboveTheFold, isElementVisible, isInViewport } from './extractors/primitive/view.ts';
-import { getInteractiveElementState } from './extractors/primitive/state.ts';
-import { getElementText } from './extractors/primitive/text.ts';
-import { getElementLink } from './extractors/primitive/link.ts';
-import { getElementContext } from './extractors/context.ts';
-import { isSensitiveElement } from './extractors/primitive/sensitive.ts';
-import { scoreContentElement, scoreInteractiveElement } from './importance/scoring.ts';
-import { type TopElements, topElements } from './importance/topEl.ts';
-import type { InteractiveElementScoringData } from './importance/interactive.ts';
-import type { ContentElementScoringData } from './importance/content.ts';
-import { normalizeText } from '../utils/index.ts';
-
-// constants
-const CONTENT_MIN_TEXT_LENGTH = 5;
+import { type TopElements } from './importance/topEl.ts';
+import { ContainerTree } from './extractors/ContainerTree.ts';
+import { ElementRegistry } from './ElementRegistry.ts';
+import { extractContentElements } from './extractors/content.ts';
+import { extractPageBasics } from './extractors/basics.ts';
+import { extractInteractiveElements } from './extractors/interactive.ts';
 
 export interface CollectorOptions {
+    /** Maximum number of content elements to keep after importance scoring. */
     contentElementsLimit?: number;
+    /** Maximum number of interactive elements to keep after importance scoring. */
     interactiveElementsLimit?: number;
+    /** Returns the stable identifier used to link extracted records back to DOM elements. */
     getElementDataId: (el: Element) => string;
-    // For example: css-selector-generator
-    getElementCssSelector?: (el: Element) => string;
 }
 
 type ResolvedCollectorOptions = Required<Pick<CollectorOptions, 'contentElementsLimit' | 'interactiveElementsLimit'>> &
-    Pick<CollectorOptions, 'getElementDataId' | 'getElementCssSelector'>;
+    Pick<CollectorOptions, 'getElementDataId'>;
 
 /**
- * Collects a normalized PageTrail from the DOM
+ * Orchestrates PageTrail extraction for a document.
  *
  * TODO: implement a cache, but with dataId ref consistency
  * TODO: provide a plugins API to extend the collector
  *
- * Extracts page metadata, content, and interactive elements, and assigns
- * stable `dataId` identifiers to elements for downstream usage.
+ * The collector owns shared extraction state, delegates DOM scanning to
+ * specialized extractors, and combines their results into a normalized
+ * `PageTrail` with collection metadata.
  */
 export class PageTrailCollector {
-    // window.location.href - reads the current page URL
-    // window.innerWidth - reads viewport width
-    // window.innerHeight - reads viewport height
-    // window.scrollY - reads current vertical scroll position
-    // window.getComputedStyle(element) - checks computed CSS styles for visibility
     private readonly window: Window;
-    // document.title - reads the page title
-    // document.querySelector('meta[name="description"]') - finds the meta description element
-    // document.documentElement.lang - reads the page language from <html lang="...">
-    // document.documentElement.scrollHeight - reads the full scrollable page height
-    // document.querySelectorAll(selector) - finds content and interactive elements by CSS selector
-    // document.getElementById(id) - resolves IDs from aria-labelledby to label elements
-    // document.querySelector('label[for="..."]') - finds a <label> connected to an element by for
     private readonly document: Document;
     private readonly options: ResolvedCollectorOptions;
+    private readonly elementRegistry: ElementRegistry;
 
-    constructor(window: Window, document: Document, options: CollectorOptions) {
-        this.window = window;
-        this.document = document;
+    constructor(win: Window, doc: Document, options: CollectorOptions) {
+        this.window = win;
+        this.document = doc;
 
         this.options = {
             contentElementsLimit: 250,
             interactiveElementsLimit: 150,
             ...options,
         };
+        this.elementRegistry = new ElementRegistry(this.options.getElementDataId);
     }
 
     collect(): PageTrail {
         const t0 = performance.now();
 
         const basics = this.collectPageBasics();
-        const topContentElements = this.collectPageContent();
-        const topInteractiveElements = this.collectPageInteractive(basics);
+        const t1_basics = performance.now();
+
+        const containerTree = this.collectContainerTree();
+        const t2_container = performance.now();
+
+        const topContentElements = this.collectContentElements();
+        const t3_content = performance.now();
+
+        const topInteractiveElements = this.collectInteractiveElements(basics);
+        const t4_interactive = performance.now();
 
         return {
             basics,
+            container: containerTree.nodes,
             content: topContentElements.data,
             interactive: topInteractiveElements.data,
 
             metadata: {
+                containerElements: containerTree.elements.length,
+                containerMaxDepth: containerTree.getMathDepth(),
                 contentElements: topContentElements.data.length,
                 contentElementsTotal: topContentElements.total,
                 contentElementsLimitReached: topContentElements.limitReached,
@@ -86,172 +79,41 @@ export class PageTrailCollector {
                 interactiveElementsLimitReached: topInteractiveElements.limitReached,
                 // timings
                 collectedAt: Date.now(),
-                durationMs: Math.round(performance.now() - t0),
+                performance: {
+                    basicsMs: Math.round(t1_basics - t0),
+                    containerMs: Math.round(t2_container - t1_basics),
+                    contentMs: Math.round(t3_content - t2_container),
+                    interactiveMs: Math.round(t4_interactive - t3_content),
+                    totalMs: Math.round(t4_interactive - t0),
+                },
             },
         };
     }
 
-    // shortcut for common usage
-    static collectFor(window: Window, document: Document, options: CollectorOptions): PageTrail {
-        return new PageTrailCollector(window, document, options).collect();
+    /**
+     * Collects a `PageTrail` for the provided window/document pair.
+     */
+    static collectFor(win: Window, doc: Document, options: CollectorOptions): PageTrail {
+        return new PageTrailCollector(win, doc, options).collect();
     }
 
-    /**
-     * Collect basic page metadata from the current document
-     *
-     * @returns Page URL, title, description, and language.
-     */
     private collectPageBasics(): PageBasics {
-        return {
-            url: this.window.location.href,
-            title: normalizeText(this.document.title),
-            description: normalizeText(
-                (this.document.querySelector('meta[name="description"]') as HTMLMetaElement | null)?.content ?? '',
-            ),
-            language: normalizeText(this.document.documentElement.lang) ?? 'en',
-            viewport: {
-                width: this.window.innerWidth,
-                height: this.window.innerHeight,
-                scrollY: this.window.scrollY,
-                scrollHeight: this.document.documentElement.scrollHeight,
-            },
-        };
+        return extractPageBasics(this.window, this.document);
     }
 
-    /**
-     * Collect visible text content elements from the page
-     *
-     * Scans common content tags and returns normalized entries that include
-     * locator metadata, content type, and extracted text.
-     *
-     * @returns {TopElements<ContentElement>} A container of extracted content elements.
-     */
-    private collectPageContent(): TopElements<ContentElement> {
-        const candidates: { el: Element; scoringData: ContentElementScoringData; importanceScore: number }[] = [];
+    private collectContainerTree(): ContainerTree {
+        return ContainerTree.extractFor(this.window, this.document, this.elementRegistry);
+    }
 
-        const contentSelectors = 'h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption';
-
-        this.selectElements(contentSelectors).forEach((el) => {
-            // skip hidden text blocks
-            if (!isElementVisible(el, this.window)) return;
-            // skip too small text blocks
-            const text = getElementText(el);
-            if (!text || text.length < CONTENT_MIN_TEXT_LENGTH) return;
-
-            // compute only necessary data for scoring the candidates
-            const scoringData: ContentElementScoringData = {
-                text,
-                type: /^h[1-4]$/i.test(el.tagName) ? 'heading' : 'text',
-                context: getElementContext(el, this.document),
-            };
-            candidates.push({
-                el,
-                scoringData: scoringData,
-                importanceScore: scoreContentElement(scoringData),
-            });
+    private collectContentElements(): TopElements<ContentElement> {
+        return extractContentElements(this.window, this.document.body, this.elementRegistry, {
+            elementsLimit: this.options.contentElementsLimit,
         });
-
-        return topElements(
-            candidates,
-            this.options.contentElementsLimit,
-            // continue to compute only for selected elements
-            ({ el, scoringData, importanceScore }) => ({
-                ...scoringData,
-                ...this.getElementIdentifier(el),
-                tag: el.tagName.toLowerCase(),
-                kind: 'content',
-                bbox: getElementBoundingBox(el),
-                importanceScore,
-            }),
-        );
     }
 
-    /**
-     * Collect interactive elements from the page
-     *
-     * Scans common native and ARIA-based interactive elements, filters out
-     * hidden or unsupported nodes, and returns structured metadata including
-     * locator info, role, type, text, labels, state, and link target.
-     *
-     * @param basics - Page basics data extracted from the document.
-     * @returns {TopElements<InteractiveElement>} A container of extracted interactive elements.
-     */
-    private collectPageInteractive(basics: PageBasics): TopElements<InteractiveElement> {
-        const candidates: { el: Element; scoringData: InteractiveElementScoringData; importanceScore: number }[] = [];
-
-        const interactiveSelector =
-            'button, a[href], input, textarea, select, summary' +
-            ', [role="button"], [role="link"], [role="checkbox"], [role="radio"], [role="textbox"], [role="combobox"], [role="slider"]';
-
-        this.selectElements(interactiveSelector).forEach((el) => {
-            // skip hidden elements
-            if (!isElementVisible(el, this.window)) return;
-            // skip sensitive elements
-            if (isSensitiveElement(el)) return;
-            // skip elements with no resolved role (by ARIA or implicitly)
-            const role = getInteractiveRole(el);
-            if (!role) return;
-            // skip elements with no resolved type
-            const type = roleToInteractiveElementType(role);
-            if (!type) return;
-
-            // compute only necessary data for scoring the candidates
-            const scoringData: InteractiveElementScoringData = {
-                role,
-                type,
-                labels: getElementLabels(el, this.document),
-                text: getElementText(el),
-                state: getInteractiveElementState(el),
-                context: getElementContext(el, this.document),
-                bbox: getElementBoundingBox(el),
-            };
-            candidates.push({
-                el,
-                scoringData: scoringData,
-                importanceScore: scoreInteractiveElement(scoringData),
-            });
+    private collectInteractiveElements(basics: PageBasics): TopElements<InteractiveElement> {
+        return extractInteractiveElements(this.window, this.document.body, this.elementRegistry, basics, {
+            elementsLimit: this.options.interactiveElementsLimit,
         });
-
-        return topElements(
-            candidates,
-            this.options.interactiveElementsLimit,
-            // continue to compute only for selected elements
-            ({ el, scoringData, importanceScore }) => ({
-                ...scoringData,
-                ...this.getElementIdentifier(el),
-                tag: el.tagName.toLowerCase(),
-                kind: 'interactive',
-                link: getElementLink(el),
-                inViewport: isInViewport(scoringData.bbox, basics.viewport),
-                aboveTheFold: isAboveTheFold(scoringData.bbox, basics.viewport),
-                importanceScore,
-            }),
-        );
-    }
-
-    /**
-     * Selects all elements matching the given CSS selector.
-     *
-     * @param selector CSS selector used to query elements.
-     * @returns List of matching elements.
-     */
-    private selectElements(selector: string): Element[] {
-        return Array.from(this.document.querySelectorAll(selector));
-    }
-
-    /**
-     * Returns an identifier for a DOM element for later lookup or matching.
-     *
-     * The identifier includes the required `dataId` and, when available,
-     * an additional CSS selector as a fallback.
-     *
-     * @param el DOM element to identify.
-     * @returns Element identifier data.
-     */
-    private getElementIdentifier(el: Element): ElementIdentifier {
-        return {
-            dataId: this.options.getElementDataId(el),
-            cssSelector: this.options.getElementCssSelector?.(el),
-        };
     }
 }

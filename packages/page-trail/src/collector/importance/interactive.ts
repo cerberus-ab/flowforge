@@ -1,7 +1,7 @@
 import type {
     BoundingBox,
     ElementContext,
-    ElementLabel,
+    InteractiveElementLabel,
     InteractiveElementRole,
     InteractiveElementState,
     InteractiveElementType,
@@ -46,7 +46,7 @@ const MAX_INTERACTIVE_SCORE = getMaxImportanceScore(interactiveScoringWeights);
 export interface InteractiveElementScoringData {
     role: InteractiveElementRole;
     type: InteractiveElementType;
-    labels: ElementLabel[];
+    labels: InteractiveElementLabel[];
     text: string | undefined;
     state: InteractiveElementState;
     context: ElementContext;

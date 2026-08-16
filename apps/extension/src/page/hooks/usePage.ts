@@ -15,6 +15,7 @@ import { PageTrailCollector } from '@flowforge/page-trail';
 
 function collectPageTrail(): PageTrail {
     return PageTrailCollector.collectFor(window, document, {
+        containerElementsLimit: constants.CONTAINER_ELEMENTS_LIMIT,
         contentElementsLimit: constants.CONTENT_ELEMENTS_LIMIT,
         interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
         getElementDataId: getOrCreateDataId,

@@ -1,10 +1,10 @@
-import type { BaseElement, ElementKind, PageTrail } from '@flowforge/page-trail';
+import type { ElementKind, TargetElement, PageTrail } from '@flowforge/page-trail';
 
 export type DocumentType = ElementKind;
 
 export interface DocumentMetadata {
     type: DocumentType;
-    element: BaseElement;
+    element: TargetElement;
 }
 
 export interface Document {

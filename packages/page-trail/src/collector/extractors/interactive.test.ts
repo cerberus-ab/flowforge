@@ -1,0 +1,103 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { markHidden, markVisible, resetDocument, setViewport } from '../../../test/domUtils';
+import { ElementRegistry } from '../ElementRegistry';
+import { extractPageBasics } from './basics';
+import { extractInteractiveElements } from './interactive';
+
+afterEach(() => {
+    resetDocument();
+    vi.restoreAllMocks();
+});
+
+describe('extractInteractiveElements', () => {
+    it('extracts visible non-sensitive interactive elements', () => {
+        document.body.innerHTML = `
+            <main>
+                <button id="save" aria-label="Save changes">💾</button>
+                <a id="docs" href="/docs">Docs</a>
+                <input id="email" placeholder="Email" />
+                <button id="hidden">Hidden action</button>
+                <input id="password" type="password" />
+            </main>
+        `;
+        markVisible('#save');
+        markVisible('#docs');
+        markVisible('#email');
+        markHidden('#hidden');
+        markVisible('#password');
+        setViewport({ width: 1024, height: 768, scrollY: 0, scrollHeight: 2000 });
+
+        const topElements = extractInteractiveElements(
+            window,
+            document.body,
+            createRegistry(),
+            extractPageBasics(window, document),
+            { elementsLimit: 0 },
+        );
+
+        expect(topElements.data).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    kind: 'interactive',
+                    type: 'button',
+                    role: 'button',
+                    dataId: 'save',
+                    cssSelector: undefined,
+                    labels: [{ source: 'aria-label', value: 'Save changes' }],
+                    inViewport: true,
+                    aboveTheFold: true,
+                }),
+                expect.objectContaining({
+                    kind: 'interactive',
+                    type: 'link',
+                    role: 'link',
+                    dataId: 'docs',
+                    cssSelector: undefined,
+                    link: {
+                        type: 'internal',
+                        href: 'http://localhost:3000/docs',
+                    },
+                }),
+                expect.objectContaining({
+                    kind: 'interactive',
+                    type: 'input',
+                    role: 'textbox',
+                    dataId: 'email',
+                    cssSelector: undefined,
+                    labels: [{ source: 'placeholder', value: 'Email' }],
+                }),
+            ]),
+        );
+        expect(topElements.data.map((el) => el.dataId)).not.toContain('hidden');
+        expect(topElements.data.map((el) => el.dataId)).not.toContain('password');
+    });
+
+    it('applies the element limit after importance scoring', () => {
+        document.body.innerHTML = `
+            <main>
+                <button id="button">Submit</button>
+                <a id="link" href="/docs">Docs</a>
+            </main>
+        `;
+        markVisible('#button');
+        markVisible('#link');
+
+        const topElements = extractInteractiveElements(
+            window,
+            document.body,
+            createRegistry(),
+            extractPageBasics(window, document),
+            { elementsLimit: 1 },
+        );
+
+        expect(topElements.data).toHaveLength(1);
+        expect(topElements.data[0]).toEqual(expect.objectContaining({ dataId: 'button' }));
+        expect(topElements.total).toBe(2);
+        expect(topElements.limitReached).toBe(true);
+    });
+});
+
+function createRegistry() {
+    return new ElementRegistry((el) => el.id);
+}

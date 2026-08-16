@@ -1,4 +1,4 @@
-import type { BaseElement, ContainerElementRole, ContentElement, InteractiveElement } from '../types/index.ts';
+import type { ContainerElementRole, ContentElement, InteractiveElement, TargetElement } from '../types/index.ts';
 
 const formatSeparator = {
     PARTS: '. ',
@@ -18,7 +18,7 @@ export function formatConcatElements(formatted: string[]): string {
 }
 
 // [in section "Pricing", inside "main content"]
-function formatElementContext(el: BaseElement): string[] {
+function formatElementContext(el: TargetElement): string[] {
     const parts: string[] = [];
 
     if (el.context.sectionName) {

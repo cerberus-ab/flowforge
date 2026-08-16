@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getElementAttrAriaLabelledBy, getElementLabels } from './label';
+import { getContainerElementLabels, getElementAttrAriaLabelledBy, getInteractiveElementLabels } from './label';
 
 describe('getElementAttrAriaLabelledBy', () => {
     it('resolves referenced label text', () => {
@@ -12,15 +12,57 @@ describe('getElementAttrAriaLabelledBy', () => {
 
         const button = document.querySelector('button')!;
 
-        expect(getElementAttrAriaLabelledBy(button, document)).toBe('First second label');
+        expect(getElementAttrAriaLabelledBy(button)).toBe('First second label');
     });
 
     it('returns undefined when the attribute is missing', () => {
-        expect(getElementAttrAriaLabelledBy(document.createElement('button'), document)).toBeUndefined();
+        expect(getElementAttrAriaLabelledBy(document.createElement('button'))).toBeUndefined();
     });
 });
 
-describe('getElementLabels', () => {
+describe('getContainerLabels', () => {
+    it('returns labels in priority order', () => {
+        document.body.innerHTML = `
+            <span id="label">Visible label</span>
+            <section
+                aria-labelledby="label"
+                aria-label="Container label"
+                title="Container title"
+            >
+                <legend>Legend label</legend>
+                <h2>Heading label</h2>
+            </section>
+        `;
+
+        const section = document.querySelector('section')!;
+
+        expect(getContainerElementLabels(section)).toEqual([
+            { value: 'Visible label', source: 'aria-labelledby' },
+            { value: 'Container label', source: 'aria-label' },
+            { value: 'Legend label', source: 'legend' },
+            { value: 'Heading label', source: 'heading' },
+            { value: 'Container title', source: 'title' },
+        ]);
+    });
+
+    it('deduplicates values case-insensitively', () => {
+        document.body.innerHTML = `
+            <section aria-label="container label">
+                <h2>Container label</h2>
+            </section>
+        `;
+
+        expect(getContainerElementLabels(document.querySelector('section')!)).toEqual([
+            { value: 'container label', source: 'aria-label' },
+        ]);
+    });
+
+    it('returns an empty array when no labels are found', () => {
+        expect(getContainerElementLabels(document.createElement('section'))).toEqual([]);
+    });
+});
+
+describe('getInteractiveElementLabels', () => {
     it('returns labels in priority order', () => {
         document.body.innerHTML = `
             <span id="label">Visible label</span>
@@ -37,7 +79,7 @@ describe('getElementLabels', () => {
 
         const input = document.querySelector('input')!;
 
-        expect(getElementLabels(input, document)).toEqual([
+        expect(getInteractiveElementLabels(input)).toEqual([
             { value: 'Visible label', source: 'aria-labelledby' },
             { value: 'Email', source: 'aria-label' },
             { value: 'Email field', source: 'label-for' },
@@ -56,10 +98,10 @@ describe('getElementLabels', () => {
 
         const button = document.querySelector('button')!;
 
-        expect(getElementLabels(button, document)).toEqual([{ value: 'save', source: 'aria-label' }]);
+        expect(getInteractiveElementLabels(button)).toEqual([{ value: 'save', source: 'aria-label' }]);
     });
 
     it('returns an empty array when no labels are found', () => {
-        expect(getElementLabels(document.createElement('div'), document)).toEqual([]);
+        expect(getInteractiveElementLabels(document.createElement('div'))).toEqual([]);
     });
 });

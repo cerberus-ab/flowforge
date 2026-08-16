@@ -35,7 +35,7 @@ export function PageMetadata({ metadata }: PageMetadataProps) {
             ) : (
                 <>{metadata.interactiveElements}</>
             )}{' '}
-            interactive elements · {metadata.durationMs}ms
+            interactive elements · {metadata.performance.totalMs}ms
         </div>
     );
 }

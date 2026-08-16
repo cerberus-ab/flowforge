@@ -1,6 +1,6 @@
 import type { TargetedPointerEvent } from 'preact';
 import { useEffect, useId, useState } from 'preact/hooks';
-import { BadgeInfo, BookOpenText, FileText, MousePointerClick } from 'lucide-preact';
+import { BadgeInfo, BookOpenText, ChartNoAxesColumn, FileText, ListTree, MousePointerClick } from 'lucide-preact';
 import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
@@ -12,9 +12,11 @@ import { formatContentElement, formatInteractiveElement, generateSemanticMarkdow
 
 const inspectorTabs = [
     { id: 'basics', label: 'Basics', icon: BadgeInfo },
+    { id: 'container', label: 'Container', icon: ListTree },
     { id: 'content', label: 'Content', icon: BookOpenText },
     { id: 'interactive', label: 'Interactive', icon: MousePointerClick },
     { id: 'semanticView', label: 'Semantic view', icon: FileText },
+    { id: 'metadata', label: 'Metadata', icon: ChartNoAxesColumn },
 ] as const;
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];
@@ -105,6 +107,7 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                     aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
+                    {activeTab === 'container' && <JsonViewer rootArrayExpandedItems={1} value={pageTrail.container} />}
                     {activeTab === 'content' && (
                         <JsonViewer
                             getNodeSummary={getSemanticDescription}
@@ -128,6 +131,7 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                         />
                     )}
                     {activeTab === 'semanticView' && <MarkdownViewer value={generateSemanticMarkdown(pageTrail)} />}
+                    {activeTab === 'metadata' && <JsonViewer value={pageTrail.metadata} sortKeys />}
                 </div>
                 <div className="flowforge-inspector__footer">
                     <PageMetadata metadata={pageTrail.metadata} />
