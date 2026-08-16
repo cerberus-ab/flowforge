@@ -1,34 +1,46 @@
 import { useCallback, useRef } from 'preact/hooks';
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 
 import { usePopup } from './hooks/usePopup';
 import { Question } from './components/Question';
 import { Loading } from './components/Loading';
 import { Result } from './components/Result';
 import { Examples } from './components/Examples';
-import { ButtonText } from '#self/shared/components/Button';
-import { Link } from '#self/shared/components/Link';
-import { Notice } from '#self/shared/components/Notice';
-import type { ExtensionSettingsTheme } from '#self/types';
+import { Developer } from '@/popup/components/Developer';
+import { ButtonText } from '@/shared/components/Button';
+import { Link } from '@/shared/components/Link';
+import { Notice } from '@/shared/components/Notice';
+import type { ExtensionSettingsTheme } from '@/types';
 
-export type PopupAppDemoProps = {
-    enabled: true;
-    setup: {
-        topic?: string;
-        stubQuestions?: string[];
-    };
-} | { enabled: false };
+export type PopupAppDemoProps =
+    | {
+          enabled: true;
+          setup: {
+              topic?: string;
+              stubQuestions?: string[];
+          };
+      }
+    | { enabled: false };
 
 export interface PopupAppProps {
     variant: 'page' | 'dialog';
     transport: TransportService;
     demoProps?: PopupAppDemoProps;
     theme: ExtensionSettingsTheme;
-    toggleTheme: () => Promise<void>;
+    onToggleTheme: () => Promise<void>;
     initialQuestion?: string;
+    onClose?: () => void;
 }
 
-export function PopupApp({ variant, transport, demoProps, theme, toggleTheme, initialQuestion }: PopupAppProps) {
+export function PopupApp({
+    variant,
+    transport,
+    demoProps,
+    theme,
+    onToggleTheme,
+    initialQuestion,
+    onClose,
+}: PopupAppProps) {
     const {
         question,
         setQuestion,
@@ -42,6 +54,7 @@ export function PopupApp({ variant, transport, demoProps, theme, toggleTheme, in
         askQuestion,
         applyExampleQuestion,
         navigateToElement,
+        openPageInspector,
     } = usePopup({
         transport,
         presetQuestions: demoProps?.enabled ? demoProps.setup.stubQuestions : undefined,
@@ -62,6 +75,12 @@ export function PopupApp({ variant, transport, demoProps, theme, toggleTheme, in
         },
         [applyExampleQuestion],
     );
+
+    // Handle open page inspector and close popup
+    const handleOpenPageInspector = useCallback(() => {
+        openPageInspector();
+        onClose?.();
+    }, [openPageInspector, onClose]);
 
     const isDialog = variant === 'dialog';
     const Root = isDialog ? 'section' : 'div';
@@ -93,8 +112,8 @@ export function PopupApp({ variant, transport, demoProps, theme, toggleTheme, in
                 )}
                 <Question
                     question={question}
-                    setQuestion={setQuestion}
-                    askQuestion={askQuestion}
+                    onQuestionChange={setQuestion}
+                    onAskQuestion={askQuestion}
                     placeholder={
                         demoProps?.enabled
                             ? 'I can forge the page... but only using preset options in Demo'
@@ -111,16 +130,18 @@ export function PopupApp({ variant, transport, demoProps, theme, toggleTheme, in
                         result={result}
                         resultMetadata={resultMetadata}
                         error={error}
-                        navigateToElement={navigateToElement}
+                        onNavigateToElement={navigateToElement}
                     />
                 )}
 
-                <Examples examples={examples} applyExampleQuestion={handleApplyExampleQuestion} />
+                <Examples examples={examples} onExampleQuestionSelect={handleApplyExampleQuestion} />
+
+                <Developer onOpenPageInspector={handleOpenPageInspector}></Developer>
 
                 <footer className="flowforge-popup__footer">
                     <div className="flowforge-popup__copyright">{copyright}</div>
                     <Link href={github}>Star me</Link>
-                    <ButtonText onClick={toggleTheme}>{theme === 'light' ? 'Dark' : 'Light'} theme</ButtonText>
+                    <ButtonText onClick={onToggleTheme}>{theme === 'light' ? 'Dark' : 'Light'} theme</ButtonText>
                 </footer>
             </div>
         </Root>

@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express';
 import type { QueryRequest, QueryResponse } from '@flowforge/contract';
-import type { ErrorResponse } from '#self/types';
-import { PageContextProvider, PageIndexer } from '#self/indexer';
-import { WebNavigationAgent } from '#self/agent';
-import { Analytics } from '#self/analytics';
+import type { ErrorResponse } from '@/types';
+import { PageContextProvider, PageIndexer } from '@/indexer';
+import { WebNavigationAgent } from '@/agent';
+import { Analytics } from '@/analytics';
 
 interface QueryHandlerDeps {
     indexer: PageIndexer;
@@ -13,24 +13,24 @@ interface QueryHandlerDeps {
 
 export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDeps) {
     return async function handleQuery(
-        req: Request<{}, QueryResponse | ErrorResponse, QueryRequest>,
+        req: Request<Record<string, never>, QueryResponse | ErrorResponse, QueryRequest>,
         res: Response<QueryResponse | ErrorResponse>,
     ): Promise<void> {
         try {
-            const { question, pageModel, domain } = req.body;
+            const { question, pageTrail, domain } = req.body;
 
-            if (!question || !pageModel) {
+            if (!question || !pageTrail) {
                 res.status(400).json({
-                    error: 'Missing required fields: question, pageModel',
+                    error: 'Missing required fields: question, pageTrail',
                 });
                 return;
             }
             console.log(`[Server] Query: ${domain} / ${question}`);
 
-            await indexer.indexPage(pageModel);
-            const pageContext = new PageContextProvider(pageModel, indexer);
+            await indexer.indexPage(pageTrail);
+            const pageContext = new PageContextProvider(pageTrail, indexer);
             const agentResponse = await agent.processQuery(question, pageContext);
-            analytics.trackQA(domain, pageModel.basics.url, question, agentResponse);
+            analytics.trackQA(domain, pageTrail.basics.url, question, agentResponse);
 
             res.json({
                 result: agentResponse.result,

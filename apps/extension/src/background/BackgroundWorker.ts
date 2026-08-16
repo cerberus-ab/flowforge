@@ -1,30 +1,34 @@
-import type { TransportService } from '#self/adapters/interface';
-import type { ApiClient } from '#self/core/services/ApiClient';
-import { HistoryStorage } from '#self/core/services/HistoryStorage';
+import type { TransportService } from '@/adapters/interface';
+import type { ApiClient } from '@/core/services/ApiClient';
+import { HistoryStorage } from '@/core/services/HistoryStorage';
 import {
     type ApplySettingsMessage,
     type AskQuestionMessage,
     type AskQuestionMessageResponse,
     type ClearPageMessage,
-    type CollectPageModelMessage,
-    type CollectPageModelMessageResponse,
+    type CollectPageTrailMessage,
+    type CollectPageTrailMessageResponse,
     type GetPrevQuestionsMessage,
     type GetPrevQuestionsMessageResponse,
-    type GetSettingsMessage,
     type GetSettingsMessageResponse,
     type HighlightElementMessage,
     isGetSettingsMessage,
+    isOpenPageInspectorMessage,
+    isPopupInitializeMessage,
     isUpdateSettingsMessage,
     type Message,
     type MessageResponse,
     type NavigateToElementMessage,
+    type OpenInspectorMessage,
+    type OpenPageInspectorMessage,
+    type PopupInitializeMessage,
     type StartOnboardingMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
-} from '#self/types';
-import { isAskQuestionMessage, isGetPrevQuestionsMessage, isNavigateToElementMessage } from '#self/types';
+} from '@/types';
+import { isAskQuestionMessage, isGetPrevQuestionsMessage, isNavigateToElementMessage } from '@/types';
 import type { QueryRequest } from '@flowforge/contract';
-import type { SettingsStorage } from '#self/core/services/SettignsStorage';
+import type { SettingsStorage } from '@/core/services/SettingsStorage';
 
 export class BackgroundWorker {
     private readonly transport: TransportService;
@@ -47,8 +51,11 @@ export class BackgroundWorker {
 
     start(): void {
         this.unsubscribe = this.transport.addMessageListener((message: Message) => {
+            if (isPopupInitializeMessage(message)) {
+                return this.handlePopupInitialize(message);
+            }
             if (isGetSettingsMessage(message)) {
-                return this.handleGetSettings(message);
+                return this.handleGetSettings();
             }
             if (isUpdateSettingsMessage(message)) {
                 return this.handleUpdateSettings(message);
@@ -62,6 +69,9 @@ export class BackgroundWorker {
             if (isNavigateToElementMessage(message)) {
                 return this.handleNavigateToElement(message);
             }
+            if (isOpenPageInspectorMessage(message)) {
+                return this.handleOpenPageInspector(message);
+            }
         });
         console.log('[FlowForge] Background worker loaded and started');
     }
@@ -72,13 +82,30 @@ export class BackgroundWorker {
     }
 
     /**
+     * Clears page UI state when the popup opens.
+     *
+     * This intentionally does not await the page response. Opening the popup must
+     * not depend on content script availability or page runtime health.
+     *
+     * @param message - Popup initialization message containing the target sender ID.
+     */
+    private handlePopupInitialize(message: PopupInitializeMessage): MessageResponse {
+        void this.transport
+            .sendToPage<ClearPageMessage>(message.senderId, {
+                type: 'CLEAR_PAGE',
+            })
+            .catch(() => undefined);
+
+        return { success: true };
+    }
+
+    /**
      * Retrieves extension settings from storage
      *
-     * @param message - Incoming background message
      * @returns A successful response containing the stored settings.
      * @throws Rethrows any error that occurs while reading settings storage.
      */
-    private async handleGetSettings(message: GetSettingsMessage): Promise<GetSettingsMessageResponse> {
+    private async handleGetSettings(): Promise<GetSettingsMessageResponse> {
         try {
             const settings = await this.settingsStorage.get();
             return { success: true, data: settings };
@@ -113,38 +140,38 @@ export class BackgroundWorker {
     /**
      * Handles a user question for the given tab.
      *
-     * Clears existing highlights, collects a page model from the page,
+     * Clears existing highlights, collects a page trail from the page,
      * sends the query to the backend, highlights matched elements, and stores
      * the question in domain-specific history.
      *
      * @param message - Message containing the tab ID and user question.
      * @returns Promise resolving to a successful response with the query result.
-     * @throws Rethrows any error that occurs during page model collection,
+     * @throws Rethrows any error that occurs during page trail collection,
      * backend querying, highlighting, or history persistence.
      */
     private async handleAskQuestion(message: AskQuestionMessage): Promise<AskQuestionMessageResponse> {
         try {
-            // Clear existing highlights
+            // Clear page
             await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
                 type: 'CLEAR_PAGE',
             });
-            // Get a page model from page runtime
-            const pageModelResponse = await this.transport.sendToPage<
-                CollectPageModelMessage,
-                CollectPageModelMessageResponse
-            >(message.senderId, { type: 'COLLECT_PAGE_MODEL' });
-            if (!pageModelResponse.success) {
-                throw new Error('Failed to collect page model: ' + pageModelResponse.error);
+            // Get a page trail from page runtime
+            const pageTrailResponse = await this.transport.sendToPage<
+                CollectPageTrailMessage,
+                CollectPageTrailMessageResponse
+            >(message.senderId, { type: 'COLLECT_PAGE_TRAIL' });
+            if (!pageTrailResponse.success) {
+                throw new Error('Failed to collect page trail: ' + pageTrailResponse.error);
             }
-            console.log('[Background] Collected page model:', pageModelResponse);
+            console.log('[Background] Collected page trail:', pageTrailResponse);
 
-            const pageModel = pageModelResponse.data;
+            const pageTrail = pageTrailResponse.data;
             const domain = await this.transport.getSenderHostname(message.senderId);
 
             // Send it to the backend server
             const requestData: QueryRequest = {
                 question: message.data.question,
-                pageModel: pageModel,
+                pageTrail: pageTrail,
                 domain,
                 userContext: {
                     previousQuestions: await this.historyStorage.getPreviousQuestions(domain),
@@ -205,7 +232,7 @@ export class BackgroundWorker {
      */
     private async handleNavigateToElement(message: NavigateToElementMessage): Promise<MessageResponse> {
         try {
-            // Clear existing highlights
+            // Clear page
             await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
                 type: 'CLEAR_PAGE',
             });
@@ -217,6 +244,29 @@ export class BackgroundWorker {
             return { success: true };
         } catch (error) {
             console.error('[Background] Error navigating to element:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Clears the page state and opens the inspector.
+     *
+     * @param message - Message with the sender page ID.
+     * @returns Success response when the inspector request is sent.
+     */
+    private async handleOpenPageInspector(message: OpenPageInspectorMessage): Promise<MessageResponse> {
+        try {
+            // Clear page
+            await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
+                type: 'CLEAR_PAGE',
+            });
+            // Open inspector
+            await this.transport.sendToPage<OpenInspectorMessage>(message.senderId, {
+                type: 'OPEN_INSPECTOR',
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('[Background] Error opening page inspector:', error);
             throw error;
         }
     }

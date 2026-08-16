@@ -1,14 +1,14 @@
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 
-import { Main } from '#self/shared/components/Main';
-import { PopupApp, type PopupAppDemoProps } from '#self/popup/PopupApp';
+import { Main } from '@/shared/components/Main';
+import { PopupApp, type PopupAppDemoProps } from '@/popup/PopupApp';
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'preact/hooks';
-import { getEventTarget } from '#self/core/utils/dom';
+import { getEventTarget } from '@/core/utils/dom';
 import { forwardRef } from 'preact/compat';
-import { PageApp } from '#self/page/PageApp';
-import { useSettings } from '#self/shared/hooks/useSettings';
-import { Trigger } from '#self/embed/components/Trigger';
-import type { TriggerSize } from '#self/embed/components/Trigger/Trigger';
+import { PageApp } from '@/page/PageApp';
+import { useSettings } from '@/shared/hooks/useSettings';
+import { Trigger } from '@/embed/components/Trigger';
+import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
 
 export type ShellAppDemoProps = PopupAppDemoProps;
 
@@ -23,7 +23,10 @@ export interface ShellAppRef {
     close: () => void;
 }
 
-export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp({ transport, demoProps, triggerSize }, ref) {
+export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp(
+    { transport, demoProps, triggerSize },
+    ref,
+) {
     const [isOpen, setIsOpen] = useState(false);
     const [initialQuestion, setInitialQuestion] = useState<string>();
     const { theme, toggleTheme } = useSettings({ transport });
@@ -58,34 +61,36 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
         if (!isOpen) return;
 
         // Close popup when clicking outside of it
-        function handleClickOutside(e: MouseEvent) {
+        function handlePointerDownOutside(e: PointerEvent) {
             const target = getEventTarget(e);
-            if (
-                popupRef.current &&
-                !popupRef.current.contains(target) &&
-                triggerRef.current &&
-                !triggerRef.current.contains(target)
-            ) {
+
+            if (!target) return;
+
+            const isInsidePopup = popupRef.current?.contains(target) ?? false;
+            const isInsideTrigger = triggerRef.current?.contains(target) ?? false;
+
+            if (!isInsidePopup && !isInsideTrigger) {
                 closePopup();
             }
         }
+
         // Close popup when pressing escape
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== 'Escape') return;
+
             const target = getEventTarget(e);
             // if typing in an input, don't escape
             if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
 
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                closePopup();
-            }
+            e.preventDefault();
+            closePopup();
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('pointerdown', handlePointerDownOutside);
         document.addEventListener('keydown', handleKeyDown);
 
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('pointerdown', handlePointerDownOutside);
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, [isOpen, closePopup]);
@@ -102,8 +107,9 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
                             transport={transport}
                             demoProps={demoProps}
                             theme={theme}
-                            toggleTheme={toggleTheme}
+                            onToggleTheme={toggleTheme}
                             initialQuestion={initialQuestion}
+                            onClose={closePopup}
                         />
                     </div>
                 )}

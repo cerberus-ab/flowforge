@@ -1,7 +1,7 @@
 import type { DynamicStructuredTool } from '@langchain/core/tools';
-import { PageContextProvider } from '#self/indexer';
-import type { CallableTool, CallableToolResult, CallableToolResultData, ToolResultElement } from '#self/types';
-import { formantElementContextPath, type BaseElement } from '@flowforge/page-model';
+import { PageContextProvider } from '@/indexer';
+import type { CallableTool, CallableToolResult, CallableToolResultData, ToolResultElement } from '@/types';
+import { formantElementContextPath, type BaseElement } from '@flowforge/page-trail';
 
 export abstract class AbstractCallableTool implements CallableTool {
     readonly name: string;
@@ -10,15 +10,12 @@ export abstract class AbstractCallableTool implements CallableTool {
         this.name = name;
     }
 
-    protected abstract callFn(
-        contextProvider: PageContextProvider,
-        query: string,
-    ): Promise<CallableToolResultData>;
+    protected abstract callFn(contextProvider: PageContextProvider, query: string): Promise<CallableToolResultData>;
 
     abstract createStructuredTool(ctx: PageContextProvider): DynamicStructuredTool;
 
     async call(ctx: PageContextProvider, query: string): Promise<string> {
-        console.log(`[Tool] Call ${this.name} for ${ctx.pageModel.basics.url}: ${query}`);
+        console.log(`[Tool] Call ${this.name} for ${ctx.pageTrail.basics.url}: ${query}`);
         try {
             const resultData = await this.callFn(ctx, query);
             const result: CallableToolResult = {
@@ -27,7 +24,7 @@ export abstract class AbstractCallableTool implements CallableTool {
             };
             return AbstractCallableTool.serialiseResult(result);
         } catch (error) {
-            console.error(`[Tool] Error calling ${this.name} for ${ctx.pageModel.basics.url}:`, error);
+            console.error(`[Tool] Error calling ${this.name} for ${ctx.pageTrail.basics.url}:`, error);
             const result: CallableToolResult = {
                 success: false,
                 error: error instanceof Error ? error.message : 'Unknown error',
@@ -41,7 +38,7 @@ export abstract class AbstractCallableTool implements CallableTool {
             elementPath: formantElementContextPath(element.context.path),
             elementSectionName: element.context.sectionName ?? '',
             elementDataId: element.dataId,
-            elementSelector: element.selector,
+            elementCssSelector: element.cssSelector ?? '',
         };
     }
 

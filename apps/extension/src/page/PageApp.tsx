@@ -1,15 +1,16 @@
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 
-import { usePage } from '#self/page/hooks/usePage';
-import { Highlight } from '#self/page/components/Highlight';
-import { Wizard } from '#self/page/components/Wizard';
+import { usePage } from '@/page/hooks/usePage';
+import { Highlight } from '@/page/components/Highlight';
+import { Wizard } from '@/page/components/Wizard';
+import { Inspector } from '@/page/components/Inspector';
 
 export interface PageAppProps {
     transport: TransportService;
 }
 
 export function PageApp({ transport }: PageAppProps) {
-    const { highlights, wizard } = usePage({ transport });
+    const { highlights, wizard, inspector } = usePage({ transport });
 
     return (
         <div className="flowforge-page">
@@ -21,6 +22,7 @@ export function PageApp({ transport }: PageAppProps) {
                 </div>
             )}
             {wizard && <Wizard {...wizard} />}
+            {inspector && <Inspector {...inspector} />}
         </div>
     );
 }

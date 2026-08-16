@@ -1,5 +1,5 @@
-import pkg from '../package.json';
-import type { ExtensionSettings } from '#self/types';
+import pkg from '../package.json' with { type: 'json' };
+import type { ExtensionSettings } from '@/types';
 
 export interface ExtensionConfig {
     // The base URL of the backend server.

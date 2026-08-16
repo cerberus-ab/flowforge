@@ -1,4 +1,4 @@
-import type { Message, MessageResponse } from '#self/types';
+import type { Message, MessageResponse } from '@/types';
 import type { TransportService } from '../interface';
 
 /**
@@ -49,19 +49,19 @@ export class ChromeTransportService implements TransportService {
             _sender: chrome.runtime.MessageSender,
             sendResponse: (response: MessageResponse) => void,
         ): boolean => {
-            Promise.resolve(handler(message))
-                .then((response) => {
-                    if (response !== undefined) {
-                        sendResponse(response);
-                    }
-                })
+            const response = handler(message);
+
+            if (response === undefined) {
+                return false;
+            }
+            Promise.resolve(response)
+                .then(sendResponse)
                 .catch((reason: unknown) => {
                     sendResponse({
                         success: false,
                         error: reason instanceof Error ? reason.message : String(reason),
                     });
                 });
-
             return true;
         };
 

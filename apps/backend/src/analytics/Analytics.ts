@@ -1,4 +1,4 @@
-import type { AgentResponse, AnalyticsData, AnalyticsEvent } from '#self/types';
+import type { AgentResponse, AnalyticsData, AnalyticsEvent } from '@/types';
 
 // TODO: provide a persistence layer
 export class Analytics {

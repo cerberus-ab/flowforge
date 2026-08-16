@@ -4,7 +4,7 @@ import { ToolFindElement } from './ToolFindElement.ts';
 import { ToolGetPageSummary } from './ToolGetPageSummary.ts';
 import { ToolFindWorkflow } from './ToolFindWorkflow.ts';
 import { ToolSearchInContent } from './ToolSearchInContent.ts';
-import { PageContextProvider } from '#self/indexer';
+import { PageContextProvider } from '@/indexer';
 
 export class ToolsRegistry {
     private readonly tools: AbstractCallableTool[];

@@ -8,22 +8,17 @@
   "engines": {
     "node": ">=22"
   },
-  "imports": {
-    "#self/config": "./dist/config.js",
-    "#self/types": "./dist/types/index.js",
-    "#self/agent": "./dist/agent/index.js",
-    "#self/indexer": "./dist/indexer/index.js",
-    "#self/analytics": "./dist/analytics/index.js",
-    "#self/server": "./dist/server/index.js"
-  },
   "scripts": {
     "clean:dist": "rm -rf dist/",
     "clean:data": "rm -rf data/",
     "clean": "npm run clean:dist && npm run clean:data",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "setup": "node scripts/quick-setup.js",
-    "build": "npm run clean:dist && tsc -p tsconfig.json",
+    "build": "npm run clean:dist && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "node dist/server.js",
-    "dev": "tsc -p tsconfig.json --watch"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "dev": "concurrently \"tsc -p tsconfig.json --watch\" \"tsc-alias -p tsconfig.json --watch\""
   },
   "keywords": [
     "ai",
@@ -36,8 +31,8 @@
     "user-experience"
   ],
   "dependencies": {
-    "@flowforge/page-model": "*",
     "@flowforge/contract": "*",
+    "@flowforge/page-trail": "*",
     "@lancedb/lancedb": "^0.27.1",
     "@langchain/core": "^1.1.35",
     "@langchain/ollama": "^1.2.6",
@@ -51,9 +46,16 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tsconfig/node22": "^22.0.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
-    "typescript": "^6.0.2"
+    "concurrently": "^10.0.4",
+    "eslint": "^10.8.1",
+    "globals": "^17.9.0",
+    "tsc-alias": "^1.9.1",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.66.0"
   }
 }

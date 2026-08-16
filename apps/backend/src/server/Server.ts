@@ -3,11 +3,11 @@ import type { Express } from 'express';
 import cors from 'cors';
 import boxen from 'boxen';
 
-import type { LlmProvider } from '#self/types';
-import { PageIndexer } from '#self/indexer';
-import { LlmProviderFactory, WebNavigationAgent } from '#self/agent';
-import type { AppConfig } from '#self/config';
-import { Analytics } from '#self/analytics';
+import type { LlmProvider } from '@/types';
+import { PageIndexer } from '@/indexer';
+import { LlmProviderFactory, WebNavigationAgent } from '@/agent';
+import type { AppConfig } from '@/config';
+import { Analytics } from '@/analytics';
 
 import { createHealthHandler } from './routes/health.ts';
 import { createQueryHandler } from './routes/query.ts';
@@ -103,10 +103,10 @@ export class Server {
         console.log(
             boxen(
                 [
-                    `FlowForge – Backend ${this.config.pkg.version}`,
+                    `FlowForge – backend ${this.config.pkg.version}`,
                     ' ─── ',
                     `Server: running on port ${this.config.port}`,
-                    `LLM Provider: ${LlmProviderInfo.provider}`,
+                    `LLM provider: ${LlmProviderInfo.provider}`,
                     `- Model: ${LlmProviderInfo.model}`,
                     `- Embedding: ${LlmProviderInfo.embedding}`,
                     LlmProviderInfo.details ? `- Details: ${LlmProviderInfo.details}` : '',

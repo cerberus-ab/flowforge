@@ -10,11 +10,12 @@ export interface InjectedRoot {
 }
 
 function createRootStyle(options?: InjectOptions) {
-    return 'box-sizing: border-box; margin: 0; padding: 0; '
-        + (options?.overlay
+    return (
+        'box-sizing: border-box; margin: 0; padding: 0; ' +
+        (options?.overlay
             ? 'position: fixed; inset: 0; isolation: isolate; pointer-events: none; z-index: 2147483647; '
-            : 'position: relative; z-index: 0; '
-        );
+            : 'position: relative; z-index: 0; ')
+    );
 }
 
 export interface RootInjector<T extends InjectedRoot = InjectedRoot> {
@@ -47,7 +48,7 @@ export class DocumentRootInjector implements RootInjector {
             mountPoint.style.cssText = createRootStyle(options);
             doc.body.appendChild(mountPoint);
         }
-        return { mountPoint, destroy: () => mountPoint.remove()};
+        return { mountPoint, destroy: () => mountPoint.remove() };
     }
 }
 
@@ -59,9 +60,7 @@ export interface InjectedShadowRoot extends InjectedRoot {
 }
 
 function createShadowMountStyle(options?: InjectOptions) {
-    return options?.overlay
-        ? 'position: relative; width: 100%; height: 100%; pointer-events: none; '
-        : '';
+    return options?.overlay ? 'position: relative; width: 100%; height: 100%; pointer-events: none; ' : '';
 }
 
 export class ShadowRootInjector implements RootInjector<InjectedShadowRoot> {

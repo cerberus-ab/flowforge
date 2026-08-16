@@ -1,24 +1,26 @@
-import { EmbedTransportService } from '#self/adapters/embed/EmbedTransportService';
-import { type InjectedRoot, ShadowRootInjector } from '#self/core/services/RootInjector';
+import { EmbedTransportService } from '@/adapters/embed/EmbedTransportService';
+import { type InjectedRoot, ShadowRootInjector } from '@/core/services/RootInjector';
 import { render } from 'preact';
 
 import shellStyles from './shell/shell.css?inline';
 
-import type { TransportService } from '#self/adapters/interface';
-import { type ApiClient, DemoApiClient, HttpApiClient } from '#self/core/services/ApiClient';
-import { config } from '#self/config';
-import { HistoryStorage } from '#self/core/services/HistoryStorage';
-import { SettingsStorage } from '#self/core/services/SettignsStorage';
-import { BackgroundWorker } from '#self/background/BackgroundWorker';
-import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '#self/embed/shell/ShellApp';
+import type { TransportService } from '@/adapters/interface';
+import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
+import { config } from '@/config';
+import { HistoryStorage } from '@/core/services/HistoryStorage';
+import { SettingsStorage } from '@/core/services/SettingsStorage';
+import { BackgroundWorker } from '@/background/BackgroundWorker';
+import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
-import { EmbedLocalStorage } from '#self/adapters/embed/EmbedLocalStorage';
+import { EmbedLocalStorage } from '@/adapters/embed/EmbedLocalStorage';
 import type { AgentResult } from '@flowforge/contract';
-import { embedConstants } from '#self/embed/constants';
-import type { TriggerSize } from '#self/embed/components/Trigger/Trigger';
+import { embedConstants } from '@/embed/constants';
+import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
+import type { ExtensionSettings, MessageResponse, OpenPageInspectorMessage } from '@/types';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;
+    settings?: Partial<ExtensionSettings>;
 }
 
 interface RuntimeDemoOptions extends RuntimeStartOptions {
@@ -38,6 +40,7 @@ interface MountShellOptions {
 interface RuntimeApi {
     openPopup(question?: string): void;
     closePopup(): void;
+    openPageInspector(): Promise<void>;
     destroy(): void;
 }
 
@@ -66,9 +69,9 @@ export class Runtime implements RuntimeApi {
     static async start(options: RuntimeStartOptions = {}): Promise<Runtime> {
         const runtime = new Runtime();
         const apiClient = new HttpApiClient(config.serverUrl);
-        runtime.startBackground(apiClient);
+        runtime.startBackground(apiClient, options.settings);
         await runtime.mountShell({
-            triggerSize: options.triggerSize
+            triggerSize: options.triggerSize,
         });
         console.log('[FlowForge] Runtime successfully started');
 
@@ -91,7 +94,7 @@ export class Runtime implements RuntimeApi {
             stubModel: options.stubModel,
             stubQA: options.stubQA,
         });
-        runtime.startBackground(apiClient);
+        runtime.startBackground(apiClient, options.settings);
         await runtime.mountShell({
             triggerSize: options.triggerSize,
             demoProps: {
@@ -100,7 +103,7 @@ export class Runtime implements RuntimeApi {
                     topic: options.topic,
                     stubQuestions: options.stubQA?.map((s) => s.question) ?? [],
                 },
-            }
+            },
         });
         console.log('[FlowForge] Demo runtime successfully started');
 
@@ -115,16 +118,24 @@ export class Runtime implements RuntimeApi {
         this.shellRef.current?.close();
     }
 
+    async openPageInspector(): Promise<void> {
+        const message: OpenPageInspectorMessage = {
+            type: 'OPEN_PAGE_INSPECTOR',
+            senderId: await this.transport.getActiveSenderId(),
+        };
+        await this.transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
+    }
+
     destroy() {
         this.stopBackground();
         this.unmountShell();
         console.log('[FlowForge] Runtime successfully destroyed');
     }
 
-    private startBackground(apiClient: ApiClient): void {
+    private startBackground(apiClient: ApiClient, initialSettings: Partial<ExtensionSettings> = {}): void {
         const localStorage = new EmbedLocalStorage();
         const historyStorage = new HistoryStorage(localStorage, config.questionsHistoryLimit);
-        const settingsStorage = new SettingsStorage(localStorage, config.defaultSettings);
+        const settingsStorage = new SettingsStorage(localStorage, config.defaultSettings, initialSettings);
 
         this.backgroundWorker = new BackgroundWorker(this.transport, apiClient, historyStorage, settingsStorage);
         this.backgroundWorker.start();
@@ -142,7 +153,12 @@ export class Runtime implements RuntimeApi {
             const shellRoot = rootInjector.inject(document, embedConstants.SHELL_ROOT_ID, { overlay: true });
             rootInjector.injectStyles(shellRoot, shellStyles);
             render(
-                <ShellApp ref={this.shellRef} transport={this.transport} triggerSize={options.triggerSize} demoProps={options.demoProps} />,
+                <ShellApp
+                    ref={this.shellRef}
+                    transport={this.transport}
+                    triggerSize={options.triggerSize}
+                    demoProps={options.demoProps}
+                />,
                 shellRoot.mountPoint,
             );
             this.shellRoot = shellRoot;

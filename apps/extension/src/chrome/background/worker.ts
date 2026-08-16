@@ -1,10 +1,10 @@
-import { config } from '#self/config';
-import { HttpApiClient } from '#self/core/services/ApiClient';
-import { HistoryStorage } from '#self/core/services/HistoryStorage';
-import { ChromeTransportService } from '#self/adapters/chrome/ChromeTransportService';
-import { ChromeLocalStorage } from '#self/adapters/chrome/ChromeLocalStorage';
-import { BackgroundWorker } from '#self/background/BackgroundWorker';
-import { SettingsStorage } from '#self/core/services/SettignsStorage';
+import { config } from '@/config';
+import { HttpApiClient } from '@/core/services/ApiClient';
+import { HistoryStorage } from '@/core/services/HistoryStorage';
+import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
+import { ChromeLocalStorage } from '@/adapters/chrome/ChromeLocalStorage';
+import { BackgroundWorker } from '@/background/BackgroundWorker';
+import { SettingsStorage } from '@/core/services/SettingsStorage';
 
 (function main() {
     const transport = new ChromeTransportService();

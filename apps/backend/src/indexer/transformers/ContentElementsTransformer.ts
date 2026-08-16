@@ -1,11 +1,11 @@
-import type { IndexableDocument } from '#self/types';
+import type { IndexableDocument } from '@/types';
 import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
 import {
     type ContentElement,
-    type PageModel,
+    type PageTrail,
     formatContentElement,
     formatContentElementShort,
-} from '@flowforge/page-model';
+} from '@flowforge/page-trail';
 import { RecursiveCharacterTextSplitter, TextSplitter } from '@langchain/textsplitters';
 
 export const CONTENT_TEMPLATE_TEXT_PLACEHOLDER = '{{TEXT}}';
@@ -32,10 +32,10 @@ export class ContentElementsTransformer extends AbstractDocumentTransformer {
         });
     }
 
-    override async transformFn(pageModel: PageModel): Promise<IndexableDocument[]> {
+    override async transformFn(pageTrail: PageTrail): Promise<IndexableDocument[]> {
         const docs: IndexableDocument[] = [];
 
-        for (const el of pageModel.content) {
+        for (const el of pageTrail.content) {
             const contentTemplate = this.createContentTemplate(el);
             const templatedChunkSize =
                 this.chunkSize - contentTemplate.length + CONTENT_TEMPLATE_TEXT_PLACEHOLDER.length;

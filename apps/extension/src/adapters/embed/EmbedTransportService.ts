@@ -1,4 +1,4 @@
-import type { Message, MessageResponse } from '#self/types';
+import type { Message, MessageResponse } from '@/types';
 import type { TransportService } from '../interface';
 
 export class EmbedTransportService implements TransportService {
@@ -10,7 +10,7 @@ export class EmbedTransportService implements TransportService {
         return 1; // not applicable
     }
 
-    async getSenderHostname(_senderId: number): Promise<string> {
+    async getSenderHostname(): Promise<string> {
         return window.location.hostname;
     }
 

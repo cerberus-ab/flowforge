@@ -1,7 +1,12 @@
-import type { ExamplesViewModel } from '#self/popup/hooks/usePopup.types';
-import { Card } from '#self/shared/components/Card';
+import type { PopupExampleItem } from '@/popup/utils/data';
+import { Card } from '@/shared/components/Card';
 
-export function Examples({ examples, applyExampleQuestion }: ExamplesViewModel) {
+interface ExamplesProps {
+    examples: PopupExampleItem[];
+    onExampleQuestionSelect: (question: string) => void;
+}
+
+export function Examples({ examples, onExampleQuestionSelect }: ExamplesProps) {
     if (examples.length === 0) {
         return null;
     }
@@ -16,7 +21,7 @@ export function Examples({ examples, applyExampleQuestion }: ExamplesViewModel) 
                                 className={`flowforge-example-chip flowforge-example-chip--${
                                     example.type === 'default' ? 'primary' : 'secondary'
                                 }`}
-                                onClick={() => applyExampleQuestion(example.question)}
+                                onClick={() => onExampleQuestionSelect(example.question)}
                             >
                                 {example.question}
                             </button>

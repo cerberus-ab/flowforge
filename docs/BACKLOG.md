@@ -5,6 +5,12 @@
 - Test coverage (unit/integration, vitest, playwright, promptfoo)
 - Create extendable abstraction over extractors, embeddings, tooling
 
+## Page Trail
+
+- Cache for the collector heavy computes
+- Adjust importance score for headings (h1-h4)
+- Parse structured data (Schema.org, og, x-card, etc.) for basics info
+
 ## Backend
 
 ### Models
@@ -36,7 +42,7 @@
 - Answer the question: How does the product work? What alternatives do I have? What is the next step?
 - Fetch data from links to provide website context
 
-### Tech Improvements
+### Tech improvements
 
 - Consider using Vercel AI SDK, OpenRouter
 - Use pnpm for package management instead of npm
@@ -52,8 +58,13 @@
 ## Extension
 
 - Support standalone mode, properly
-- Cache for pageModel transfer, with RAG cache
-- Enhance dataId and selector usage for El locator
+- Enhance dataId and CSS selector usage for Element locator
+
+### Page inspector
+
+- Loading state
+- Lazy rendering in JsonViewer
+- Provide the history data about the page usage
 
 ## DX
 

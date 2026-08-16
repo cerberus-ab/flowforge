@@ -5,10 +5,10 @@ import type {
     EmbeddingProvider,
     RetrievedDocument,
     RetrieveOptions,
-} from '#self/types';
+} from '@/types';
 import { VectorStorageFactory } from './vector/VectorStorageFactory.ts';
 import { CompositeDocumentTransformer } from './transformers/CompositeDocumentTransformer.ts';
-import type { PageModel } from '@flowforge/page-model';
+import type { PageTrail } from '@flowforge/page-trail';
 
 interface PageIndexerOptions {
     embeddingProvider: EmbeddingProvider;
@@ -62,27 +62,27 @@ export class PageIndexer {
     }
 
     /**
-     * Transform documents from a page model and indexes it into the vector store
+     * Transform documents from a page trail and indexes it into the vector store
      *
-     * @param pageModel - Structured page content used for transformation and indexing.
-     * @param pageModel.basics.url - Canonical page URL used to derive the dataset name.
+     * @param pageTrail - Structured page content used for transformation and indexing.
+     * @param pageTrail.basics.url - Canonical page URL used to derive the dataset name.
      * @returns Promise resolving to the dataset name where documents were indexed.
      *
-     * @throws {Error} If no documents are transformed from the page model.
+     * @throws {Error} If no documents are transformed from the page trail.
      * @throws {Error} If indexing fails in the vector storage backend.
      */
-    async indexPage(pageModel: PageModel): Promise<string> {
-        const docs = await this.transformer.transform(pageModel);
+    async indexPage(pageTrail: PageTrail): Promise<string> {
+        const docs = await this.transformer.transform(pageTrail);
         if (docs.length === 0) {
             throw new Error('Nothing to index');
         }
-        const datasetName = this.createDatasetName(pageModel.basics.url);
+        const datasetName = this.createDatasetName(pageTrail.basics.url);
         try {
             await this.vectorStorage.index(datasetName, docs);
-            console.log(`[Indexer] Indexed ${datasetName} with ${docs.length} documents for ${pageModel.basics.url}`);
+            console.log(`[Indexer] Indexed ${datasetName} with ${docs.length} documents for ${pageTrail.basics.url}`);
             return datasetName;
         } catch (error) {
-            console.error(`[Indexer] Error while indexing ${pageModel.basics.url}:`, error);
+            console.error(`[Indexer] Error while indexing ${pageTrail.basics.url}:`, error);
             throw error;
         }
     }
@@ -106,15 +106,15 @@ export class PageIndexer {
     /**
      * Searches indexed content for a given page
      *
-     * @param pageModel - Structured page content containing the URL to search.
+     * @param pageTrail - Structured page content containing the URL to search.
      * @param query - Natural language query text.
      * @param options - Retrieval options including number of results and optional type filter.
      *
      * @throws {Error} If the underlying dataset cannot be found or queried.
      */
-    async searchForPage(pageModel: PageModel, query: string, options: RetrieveOptions): Promise<RetrievedDocument[]> {
-        const datasetName = this.createDatasetName(pageModel.basics.url);
-        console.log(`[Indexer] Searching in ${datasetName} for Page with url: ${pageModel.basics.url}`);
+    async searchForPage(pageTrail: PageTrail, query: string, options: RetrieveOptions): Promise<RetrievedDocument[]> {
+        const datasetName = this.createDatasetName(pageTrail.basics.url);
+        console.log(`[Indexer] Searching in ${datasetName} for Page with url: ${pageTrail.basics.url}`);
         return this.search(datasetName, query, options);
     }
 

@@ -1,0 +1,88 @@
+/* Json Viewer */
+.flowforge-json-viewer {
+  font: var(--flowforge-text-monospace-sm);
+}
+.flowforge-json-viewer__node {
+  margin: 0;
+}
+.flowforge-json-viewer__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--flowforge-pad-xs);
+  min-width: 0;
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--flowforge-pad-xs);
+}
+.flowforge-json-viewer__summary:hover,
+.flowforge-json-viewer__summary:focus-visible {
+  background: rgba(var(--flowforge-rgb-primary), 0.08);
+}
+.flowforge-json-viewer__summary::-webkit-details-marker {
+  display: none;
+}
+.flowforge-json-viewer__summary::before {
+  content: '›';
+  width: 1em;
+  flex: 0 0 auto;
+  color: var(--flowforge-color-text-muted);
+  transition: transform 0.12s ease;
+}
+.flowforge-json-viewer__node[open] > .flowforge-json-viewer__summary::before {
+  transform: rotate(90deg);
+}
+.flowforge-json-viewer__row {
+  min-width: 0;
+  padding-left: 1em;
+}
+.flowforge-json-viewer__children {
+  margin-left: 1.5em;
+  padding-left: var(--flowforge-pad-md);
+  border-left: 1px solid var(--flowforge-color-border);
+}
+.flowforge-json-viewer__key {
+  color: var(--flowforge-color-text);
+  overflow-wrap: anywhere;
+}
+.flowforge-json-viewer__summary > .flowforge-json-viewer__key,
+.flowforge-json-viewer__summary > .flowforge-json-viewer__bracket,
+.flowforge-json-viewer__summary > .flowforge-json-viewer__shape {
+  flex: 0 0 auto;
+}
+.flowforge-json-viewer__bracket {
+  color: var(--flowforge-color-text-muted);
+}
+.flowforge-json-viewer__shape {
+  display: none;
+  color: var(--flowforge-color-text-muted);
+}
+.flowforge-json-viewer__node:not([open])
+  > .flowforge-json-viewer__summary
+  .flowforge-json-viewer__shape {
+  display: inline;
+}
+.flowforge-json-viewer__summary-text {
+  color: var(--flowforge-color-text-muted);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flowforge-json-viewer__primitive {
+  overflow-wrap: anywhere;
+}
+.flowforge-json-viewer__primitive--string {
+  color: var(--flowforge-color-secondary);
+}
+.flowforge-json-viewer__primitive--number,
+.flowforge-json-viewer__primitive--boolean {
+  color: var(--flowforge-color-primary);
+}
+.flowforge-json-viewer__primitive--null,
+.flowforge-json-viewer__primitive--undefined {
+  color: var(--flowforge-color-text-muted);
+}
+.flowforge-json-viewer__closing {
+  color: var(--flowforge-color-text-muted);
+}

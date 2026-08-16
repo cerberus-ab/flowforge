@@ -1,4 +1,4 @@
-import type { Message, MessageResponse } from '#self/types';
+import type { Message, MessageResponse } from '@/types';
 
 export interface LocalStorage {
     get<T>(key: string): Promise<T | null>;

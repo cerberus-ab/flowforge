@@ -11,4 +11,3 @@ export function generateDataId(): string {
 export function validateDataId(dataId: string): boolean {
     return /^ff[0-9a-f]{8}$/i.test(dataId);
 }
-

@@ -1,8 +1,8 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
-import { PageContextProvider } from '#self/indexer';
-import type { ToolFindWorkflowResultData } from '#self/types';
+import { PageContextProvider } from '@/indexer';
+import type { ToolFindWorkflowResultData } from '@/types';
 import { rerankRetrievedDocuments } from '../rank/reranker.ts';
 import { scoreForAction } from '../rank/scoring.ts';
 
@@ -46,7 +46,7 @@ WHEN TO USE:
 
 WHAT IT RETURNS:
 - A list of relevant interactive elements (candidates)
-- Each includes description, location, selector, and dataId
+- Each includes description, location, CSS selector, and dataId
 
 IMPORTANT:
 - Results are candidates, not ordered steps

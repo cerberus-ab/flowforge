@@ -3,8 +3,8 @@ import { HumanMessage, AIMessage, createAgent } from 'langchain';
 import type { BaseMessage } from 'langchain';
 
 import { buildSystemPrompt, buildStructuredOutputPrompt } from './prompts.ts';
-import { PageContextProvider } from '#self/indexer';
-import type { AgentExecResult, ToolCallInfo, AgentResponse, LlmProviderInfo } from '#self/types';
+import { PageContextProvider } from '@/indexer';
+import type { AgentExecResult, ToolCallInfo, AgentResponse, LlmProviderInfo } from '@/types';
 import { ToolsRegistry } from './tools/ToolsRegistry.ts';
 import { type AgentResult, type UsageMetadata, validateDataId, AgentResultSchema } from '@flowforge/contract';
 
@@ -107,7 +107,7 @@ export class WebNavigationAgent {
         try {
             const parsed = JSON.parse(aiMessageContent);
             agentResult = AgentResultSchema.parse(parsed);
-        } catch (error) {
+        } catch {
             if (this.verbose) {
                 console.log(`[Agent] The execution result is not valid JSON, invoking structured prompt...`);
             }
@@ -140,7 +140,7 @@ export class WebNavigationAgent {
         const usageMetadata: UsageMetadata = {
             inputTokens: 0,
             outputTokens: 0,
-            totalTokens: 0
+            totalTokens: 0,
         };
 
         for (const message of invokeState.messages) {

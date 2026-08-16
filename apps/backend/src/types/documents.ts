@@ -1,4 +1,4 @@
-import type { BaseElement, ElementKind, PageModel } from '@flowforge/page-model';
+import type { BaseElement, ElementKind, PageTrail } from '@flowforge/page-trail';
 
 export type DocumentType = ElementKind;
 
@@ -25,7 +25,7 @@ export interface RerankedDocument extends RetrievedDocument {
 }
 
 export interface DocumentTransformer {
-    transform(pageModel: PageModel): Promise<IndexableDocument[]>;
+    transform(pageTrail: PageTrail): Promise<IndexableDocument[]>;
 }
 
 export interface RetrieveOptions {

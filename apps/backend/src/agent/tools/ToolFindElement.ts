@@ -1,8 +1,8 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
-import { PageContextProvider } from '#self/indexer';
-import type { ToolFindElementResultData } from '#self/types';
+import { PageContextProvider } from '@/indexer';
+import type { ToolFindElementResultData } from '@/types';
 import { rerankRetrievedDocuments } from '../rank/reranker.ts';
 import { scoreForLookup } from '../rank/scoring.ts';
 
@@ -51,7 +51,7 @@ WHAT IT RETURNS:
 - Best matching element (if any)
 - Description of the element
 - Location context (section, path)
-- Selector and dataId
+- CSS selector and dataId
 
 IMPORTANT:
 - Returns only the best match, which may be imperfect

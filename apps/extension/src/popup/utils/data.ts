@@ -1,5 +1,5 @@
-import { constants } from '#self/constants';
-import { normalizeText } from '#self/core/utils/text';
+import { constants } from '@/constants';
+import { normalizeText } from '@/core/utils/text';
 
 export interface PopupExampleItem {
     question: string;

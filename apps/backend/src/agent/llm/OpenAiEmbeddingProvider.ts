@@ -1,4 +1,4 @@
-import type { EmbeddingProvider } from '#self/types';
+import type { EmbeddingProvider } from '@/types';
 import { OpenAIEmbeddings } from '@langchain/openai';
 
 export class OpenAiEmbeddingProvider implements EmbeddingProvider {

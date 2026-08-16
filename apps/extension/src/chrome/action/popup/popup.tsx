@@ -1,21 +1,27 @@
 import { render } from 'preact';
 
-import '#self/popup/popup.css';
+import '@/popup/popup.css';
 
-import { PopupApp } from '#self/popup/PopupApp';
-import { ChromeTransportService } from '#self/adapters/chrome/ChromeTransportService';
-import { DocumentRootInjector } from '#self/core/services/RootInjector';
-import { chromeConstants } from '#self/chrome/constants';
-import { useSettings } from '#self/shared/hooks/useSettings';
-import { Main } from '#self/shared/components/Main';
-import type { TransportService } from '#self/adapters/interface';
+import { PopupApp } from '@/popup/PopupApp';
+import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
+import { DocumentRootInjector } from '@/core/services/RootInjector';
+import { chromeConstants } from '@/chrome/constants';
+import { useSettings } from '@/shared/hooks/useSettings';
+import { Main } from '@/shared/components/Main';
+import type { TransportService } from '@/adapters/interface';
 
 function PopupAppRoot({ transport }: { transport: TransportService }) {
     const { theme, toggleTheme } = useSettings({ transport });
 
     return (
         <Main theme={theme}>
-            <PopupApp variant="page" transport={transport} theme={theme} toggleTheme={toggleTheme} />
+            <PopupApp
+                variant="page"
+                transport={transport}
+                theme={theme}
+                onToggleTheme={toggleTheme}
+                onClose={() => window.close()}
+            />
         </Main>
     );
 }
@@ -28,7 +34,7 @@ function PopupAppRoot({ transport }: { transport: TransportService }) {
         const root = rootInjector.inject(document, chromeConstants.POPUP_ROOT_ID);
         render(<PopupAppRoot transport={transport} />, root.mountPoint);
         console.log('[FlowForge] Popup loaded');
-    }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', doMount);

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { WizardViewModel } from '#self/page/hooks/usePage.types';
-import { getEventTarget } from '#self/core/utils/dom';
-import { Button } from '#self/shared/components/Button';
+import type { WizardViewModel } from '@/page/hooks/usePage';
+import { getEventTarget } from '@/core/utils/dom';
+import { Button } from '@/shared/components/Button';
 
 interface DragState {
     startX: number;
@@ -10,18 +10,12 @@ interface DragState {
     originBottom: number;
 }
 
-export function Wizard({ title, description, steps, close, changeStep }: WizardViewModel) {
-    const [currentStep, setCurrentStep] = useState(0);
+export function Wizard({ title, description, steps, currentStep, close, changeStep }: WizardViewModel) {
     const [position, setPosition] = useState({ right: 20, bottom: 20 });
     const [isDragging, setIsDragging] = useState(false);
 
     const dragRef = useRef<DragState | null>(null);
     const wizardRef = useRef<HTMLDivElement>(null);
-
-    // Notify parent of step change
-    useEffect(() => {
-        changeStep(currentStep);
-    }, [currentStep, changeStep]);
 
     // Dragging logic
     useEffect(() => {
@@ -99,11 +93,10 @@ export function Wizard({ title, description, steps, close, changeStep }: WizardV
     }, [currentStep, close]);
 
     // Handle wizard controls
-    const handleStart = () => setCurrentStep(1);
-    const handleNext = () => setCurrentStep(Math.min(steps.length, currentStep + 1));
-    const handlePrev = () => setCurrentStep(Math.max(1, currentStep - 1));
+    const handleStart = () => changeStep(1);
+    const handleNext = () => changeStep(Math.min(steps.length, currentStep + 1));
+    const handlePrev = () => changeStep(Math.max(1, currentStep - 1));
     const handleFinish = () => {
-        setCurrentStep(0);
         close();
     };
     // Handle drag handle

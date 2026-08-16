@@ -1,6 +1,6 @@
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
-import type { ChatModelParams, EmbeddingProvider, LlmProvider, LlmProviderInfo } from '#self/types';
+import type { ChatModelParams, EmbeddingProvider, LlmProvider, LlmProviderInfo } from '@/types';
 import { OpenAiEmbeddingProvider } from './OpenAiEmbeddingProvider.ts';
 
 export class OpenAiLlmProvider implements LlmProvider {

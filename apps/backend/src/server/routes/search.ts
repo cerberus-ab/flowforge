@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import type { ErrorResponse, RetrievedDocument, SearchRequest, SearchResponse } from '#self/types';
-import { PageIndexer } from '#self/indexer';
+import type { ErrorResponse, RetrievedDocument, SearchRequest, SearchResponse } from '@/types';
+import { PageIndexer } from '@/indexer';
 
 interface SearchHandlerDeps {
     indexer: PageIndexer;
@@ -8,7 +8,7 @@ interface SearchHandlerDeps {
 
 export function createSearchHandler({ indexer }: SearchHandlerDeps) {
     return async function handleSearch(
-        req: Request<{}, SearchResponse<RetrievedDocument>, SearchRequest>,
+        req: Request<Record<string, never>, SearchResponse<RetrievedDocument>, SearchRequest>,
         res: Response<SearchResponse<RetrievedDocument> | ErrorResponse>,
     ): Promise<void> {
         try {
@@ -31,5 +31,5 @@ export function createSearchHandler({ indexer }: SearchHandlerDeps) {
                 message: error instanceof Error ? error.message : 'Unknown error',
             });
         }
-    }
+    };
 }

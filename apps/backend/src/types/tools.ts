@@ -1,4 +1,4 @@
-import { PageContextProvider } from '#self/indexer';
+import { PageContextProvider } from '@/indexer';
 
 export interface CallableTool {
     call(ctx: PageContextProvider, query: string): Promise<string>;
@@ -36,7 +36,7 @@ export interface ToolResultElement {
     elementPath: string;
     elementSectionName: string;
     elementDataId: string;
-    elementSelector: string;
+    elementCssSelector: string;
 }
 
 export interface ToolFindElementFoundResultData extends ToolResultElement {

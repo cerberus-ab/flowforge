@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { TransportService } from '#self/adapters/interface';
+import type { TransportService } from '@/adapters/interface';
 import {
     type ExtensionSettings,
     type ExtensionSettingsTheme,
@@ -8,12 +8,15 @@ import {
     isApplySettingsMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
-} from '#self/types';
-import { config } from '#self/config';
-import type { SettingsViewModel } from './useSettings.types';
+} from '@/types';
+import { config } from '@/config';
 
 interface UseSettingsParams {
     transport: TransportService;
+}
+
+export interface SettingsViewModel extends ExtensionSettings {
+    toggleTheme: () => Promise<void>;
 }
 
 export function useSettings({ transport }: UseSettingsParams): SettingsViewModel {

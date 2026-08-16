@@ -1,4 +1,4 @@
-import type { DocumentStorage, EmbeddingProvider } from '#self/types';
+import type { DocumentStorage, EmbeddingProvider } from '@/types';
 import { LanceVectorStorage } from './LanceVectorStorage.ts';
 
 /**

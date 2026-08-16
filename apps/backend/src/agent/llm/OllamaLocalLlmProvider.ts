@@ -1,7 +1,16 @@
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { ChatOllama } from '@langchain/ollama';
-import type { ChatModelParams, EmbeddingProvider, LlmProvider, LlmProviderInfo } from '#self/types';
+import type { ChatModelParams, EmbeddingProvider, LlmProvider, LlmProviderInfo } from '@/types';
 import { OllamaLocalEmbeddingProvider } from './OllamaLocalEmbeddingProvider.ts';
+import { z } from 'zod';
+
+const OllamaApiTagsSchema = z.object({
+    models: z.array(
+        z.object({
+            name: z.string(),
+        }),
+    ),
+});
 
 export class OllamaLocalLlmProvider implements LlmProvider {
     private readonly baseUrl: string;
@@ -35,8 +44,10 @@ export class OllamaLocalLlmProvider implements LlmProvider {
         if (!res.ok) {
             throw new Error('[LLM] Ollama Local is not serving');
         }
-        const data = await res.json();
-        if (!data.models?.some((m: any) => m.name === this.model)) {
+        const body = await res.json();
+        const data = OllamaApiTagsSchema.parse(body);
+
+        if (!data.models.some((m) => m.name === this.model)) {
             throw new Error(`[LLM] Model ${this.model} not found in Ollama Local`);
         }
         return true;

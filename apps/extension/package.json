@@ -17,6 +17,8 @@
     "install:chrome": "node scripts/install-chrome.js",
     "dev:chrome": "vite build --config vite.config.chrome.ts --watch",
     "dev:embed": "vite build --config vite.config.embed.ts --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "dev": "concurrently \"npm run dev:chrome\" \"npm run dev:embed\"",
     "sandbox": "node sandbox/server.js"
   },
@@ -31,18 +33,24 @@
     "user-experience"
   ],
   "dependencies": {
-    "@flowforge/page-model": "*",
-    "@flowforge/contract": "*"
+    "@flowforge/contract": "*",
+    "@flowforge/page-trail": "*",
+    "lucide-preact": "^1.31.0"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",
+    "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.5",
+    "@tsconfig/vite-react": "^8.1.1",
     "@types/chrome": "^0.1.38",
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.4",
+    "eslint": "^10.8.1",
     "express": "^5.2.1",
+    "globals": "^17.9.0",
     "marked": "^18.0.2",
     "preact": "^10.29.1",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.66.0",
     "vite": "^8.0.8"
   }
 }
