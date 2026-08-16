@@ -10,7 +10,7 @@ interface TriggerProps {
     ref?: Ref<HTMLButtonElement>;
 }
 
-export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ size='medium', isOpen, onToggle }, ref) => {
+export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ size = 'medium', isOpen, onToggle }, ref) => {
     const classes = ['flowforge-trigger', size === 'large' && 'flowforge-trigger--lg'].filter(Boolean).join(' ');
 
     return (

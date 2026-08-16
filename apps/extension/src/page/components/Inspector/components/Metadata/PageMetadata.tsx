@@ -1,10 +1,10 @@
 import type { PageTrail } from '@flowforge/contract';
 
 export interface PageMetadataProps {
-    metadata: PageTrail['metadata'],
+    metadata: PageTrail['metadata'];
 }
 
-export function PageMetadata({ metadata } : PageMetadataProps) {
+export function PageMetadata({ metadata }: PageMetadataProps) {
     return (
         <div className="flowforge-inspector-page-metadata">
             Selected{' '}

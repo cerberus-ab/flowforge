@@ -21,11 +21,13 @@ The DOM is parsed and normalized into a structured `PageTrail`.
 This stage captures both the raw structure and contextual meaning of the UI.
 
 Includes:
+
 - Page basics (title, URL, metadata)
 - Content elements (text, headings)
 - Interactive elements (buttons, inputs, links)
 
 Each element contains:
+
 - Attributes and properties
 - Semantic roles and labels
 - Embedded layout and context:
@@ -34,13 +36,14 @@ Each element contains:
 
 Each element is also assigned an importance score.
 
-This layer defines *what exists on the page and how it is structured*.
+This layer defines _what exists on the page and how it is structured_.
 
 ### 2. Transforming to semantic representation
 
 Transforms structured page data into AI-friendly, human-readable `IndexableDocuments` enriched with metadata for retrieval.
 
 Includes:
+
 - Chunking (splitting content into manageable pieces)
 - Semantic formatting (constructing descriptions using element attributes, roles, labels, and context)
 - Metadata enrichment:
@@ -51,13 +54,14 @@ Includes:
     - Content documents (informational text)
     - Interactive documents (actionable UI elements)
 
-This layer defines *what the page means and how it can be interpreted and retrieved by AI*.
+This layer defines _what the page means and how it can be interpreted and retrieved by AI_.
 
 ### 3. Indexing / retrieval
 
 Documents are embedded, stored in a vector database, and retrieved at query time based on semantic similarity.
 
 Includes:
+
 - Embedding documents into vector representations
 - Storing them for efficient similarity search
 - Retrieving top-k relevant documents for a given query
@@ -69,11 +73,13 @@ This layer enables fast and context-aware access to relevant UI information.
 Retrieved documents are rescored to improve relevance using a combination of semantic similarity and UI-specific signals.
 
 A hybrid scoring function is applied:
+
 ```
 score = semantic_score * A + importance_score * B
 ```
 
 Where:
+
 - `semantic_score` reflects how well the document matches the query
 - `importance_score` reflects UI relevance (e.g., visibility, role, position, interaction potential)
 
@@ -84,10 +90,12 @@ This step prioritizes elements that are not only semantically relevant, but also
 Transforms ranked documents into final, actionable outputs that Agent can directly use.
 
 Includes:
+
 - **Selection** — choosing the most relevant candidates from reranked documents
 - **Mapping** — converting documents into structured UI targets
 
 Produces:
+
 - Element references (selector, dataId)
 - User-facing descriptions
 - Action hints (click, input, navigate)

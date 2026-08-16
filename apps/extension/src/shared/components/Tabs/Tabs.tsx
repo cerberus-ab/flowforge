@@ -40,9 +40,7 @@ export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, ge
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-        const enabledTabs = tabs
-            .map((tab, index) => ({ tab, index }))
-            .filter(({ tab }) => !tab.disabled);
+        const enabledTabs = tabs.map((tab, index) => ({ tab, index })).filter(({ tab }) => !tab.disabled);
         const currentEnabledIndex = enabledTabs.findIndex(({ tab }) => tab.id === activeId);
 
         if (currentEnabledIndex === -1) return;

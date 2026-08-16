@@ -5,9 +5,11 @@ import { OllamaLocalEmbeddingProvider } from './OllamaLocalEmbeddingProvider.ts'
 import { z } from 'zod';
 
 const OllamaApiTagsSchema = z.object({
-    models: z.array(z.object({
-        name: z.string(),
-    })),
+    models: z.array(
+        z.object({
+            name: z.string(),
+        }),
+    ),
 });
 
 export class OllamaLocalLlmProvider implements LlmProvider {

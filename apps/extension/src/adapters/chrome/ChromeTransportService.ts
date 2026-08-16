@@ -54,12 +54,14 @@ export class ChromeTransportService implements TransportService {
             if (response === undefined) {
                 return false;
             }
-            Promise.resolve(response).then(sendResponse).catch((reason: unknown) => {
-                sendResponse({
-                    success: false,
-                    error: reason instanceof Error ? reason.message : String(reason),
+            Promise.resolve(response)
+                .then(sendResponse)
+                .catch((reason: unknown) => {
+                    sendResponse({
+                        success: false,
+                        error: reason instanceof Error ? reason.message : String(reason),
+                    });
                 });
-            });
             return true;
         };
 

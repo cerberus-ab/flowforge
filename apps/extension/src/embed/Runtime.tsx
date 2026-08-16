@@ -68,7 +68,7 @@ export class Runtime implements RuntimeApi {
         const apiClient = new HttpApiClient(config.serverUrl);
         runtime.startBackground(apiClient);
         await runtime.mountShell({
-            triggerSize: options.triggerSize
+            triggerSize: options.triggerSize,
         });
         console.log('[FlowForge] Runtime successfully started');
 
@@ -100,7 +100,7 @@ export class Runtime implements RuntimeApi {
                     topic: options.topic,
                     stubQuestions: options.stubQA?.map((s) => s.question) ?? [],
                 },
-            }
+            },
         });
         console.log('[FlowForge] Demo runtime successfully started');
 
@@ -142,7 +142,12 @@ export class Runtime implements RuntimeApi {
             const shellRoot = rootInjector.inject(document, embedConstants.SHELL_ROOT_ID, { overlay: true });
             rootInjector.injectStyles(shellRoot, shellStyles);
             render(
-                <ShellApp ref={this.shellRef} transport={this.transport} triggerSize={options.triggerSize} demoProps={options.demoProps} />,
+                <ShellApp
+                    ref={this.shellRef}
+                    transport={this.transport}
+                    triggerSize={options.triggerSize}
+                    demoProps={options.demoProps}
+                />,
                 shellRoot.mountPoint,
             );
             this.shellRoot = shellRoot;

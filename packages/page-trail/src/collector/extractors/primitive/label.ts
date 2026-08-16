@@ -1,7 +1,6 @@
 import { dedupeBy, normalizeText } from '../../../utils/index.ts';
 import type { ElementLabel } from '../../../types/index.ts';
 
-
 /**
  * Resolves the `aria-labelledby` attribute of an element into a normalized label string.
  *

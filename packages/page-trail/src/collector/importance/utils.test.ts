@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-    getMaxImportanceScore,
-    getMinImportanceScore,
-    normalizeImportanceScore,
-    readContextPath,
-} from './utils';
+import { getMaxImportanceScore, getMinImportanceScore, normalizeImportanceScore, readContextPath } from './utils';
 
 describe('importance utils', () => {
     it('calculates min and max scores from weights', () => {

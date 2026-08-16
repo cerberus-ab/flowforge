@@ -1,7 +1,6 @@
 import type { InteractiveElementState } from '../../../types/index.ts';
 import { getElementBooleanAttribute } from './attr.ts';
 
-
 /**
  * Extracts the state of an interactive element by reading native HTML properties and ARIA attributes.
  * ARIA attributes take precedence over native properties when both are present.

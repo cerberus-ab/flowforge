@@ -1,38 +1,36 @@
 import type { AgentResultElement, AgentResultMode, PageTrail, QueryResponse } from '@flowforge/contract';
 import type { ExtensionSettings } from '@/core/types/settings';
 
-type MessageTypeToBackground =
-    'GET_SETTINGS';
+type MessageTypeToBackground = 'GET_SETTINGS';
 
 type MessageTypePopupToBackground =
-    'POPUP_INITIALISE' |
-    'ASK_QUESTION' |
-    'GET_PREV_QUESTIONS' |
-    'NAVIGATE_TO_ELEMENT' |
-    'UPDATE_SETTINGS' |
-    'OPEN_PAGE_INSPECTOR';
+    | 'POPUP_INITIALISE'
+    | 'ASK_QUESTION'
+    | 'GET_PREV_QUESTIONS'
+    | 'NAVIGATE_TO_ELEMENT'
+    | 'UPDATE_SETTINGS'
+    | 'OPEN_PAGE_INSPECTOR';
 
 type MessageTypeBackgroundToPage =
-    'COLLECT_PAGE_TRAIL' |
-    'START_ONBOARDING' |
-    'HIGHLIGHT_ELEMENT' |
-    'CLEAR_PAGE' |
-    'APPLY_SETTINGS' |
-    'OPEN_INSPECTOR';
+    | 'COLLECT_PAGE_TRAIL'
+    | 'START_ONBOARDING'
+    | 'HIGHLIGHT_ELEMENT'
+    | 'CLEAR_PAGE'
+    | 'APPLY_SETTINGS'
+    | 'OPEN_INSPECTOR';
 
 type MessageType = MessageTypeToBackground | MessageTypePopupToBackground | MessageTypeBackgroundToPage;
 
 export type Message<T = undefined> = T extends undefined ? { type: MessageType } : { type: MessageType; data: T };
 
 export type MessageResponse<T = undefined> =
-    | (T extends undefined ? { success: true } : { success: true; data: T })
-    | { success: false; error: string };
+    (T extends undefined ? { success: true } : { success: true; data: T }) | { success: false; error: string };
 
 // Popup, Page -> Background
 
 export type GetSettingsMessage = Message & {
     type: 'GET_SETTINGS';
-}
+};
 
 export type GetSettingsMessageResponseData = ExtensionSettings;
 
@@ -47,7 +45,7 @@ export type PopupInitializeMessage = Message & {
 
 export type UpdateSettingsMessageData = {
     patch: Partial<ExtensionSettings>;
-}
+};
 
 export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
     type: 'UPDATE_SETTINGS';

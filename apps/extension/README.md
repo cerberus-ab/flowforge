@@ -50,6 +50,7 @@ npm run sandbox
 ```
 
 Opens test environment at `http://localhost:3007` with:
+
 - Live embed integration demo
 - Demo mode with predefined Q&A (no backend required)
 - Full backend integration mode (requires backend on http://localhost:3477)

@@ -56,9 +56,7 @@ describe('viewport helpers', () => {
     const viewport = { width: 1024, height: 600, scrollY: 100, scrollHeight: 2000 };
 
     it('detects whether a box intersects the viewport', () => {
-        expect(
-            isInViewport({ top: 0, bottom: 80, left: 0, right: 10, width: 10, height: 80 }, viewport),
-        ).toBeTruthy();
+        expect(isInViewport({ top: 0, bottom: 80, left: 0, right: 10, width: 10, height: 80 }, viewport)).toBeTruthy();
         expect(
             isInViewport({ top: 800, bottom: 900, left: 0, right: 10, width: 10, height: 100 }, viewport),
         ).toBeFalsy();

@@ -8,87 +8,112 @@
 
 /* Popup */
 .flowforge-popup {
-    --flowforge-popup-width: 400px;
-    --flowforge-popup-height: 560px;
-    --flowforge-popup-header-height: 80px;
+  --flowforge-popup-width: 400px;
+  --flowforge-popup-height: 560px;
+  --flowforge-popup-header-height: 80px;
 }
 .flowforge-popup {
-    width: var(--flowforge-popup-width);
-    height: var(--flowforge-popup-height);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    background: var(--flowforge-color-bg);
-    pointer-events: auto;
-    position: static;
+  width: var(--flowforge-popup-width);
+  height: var(--flowforge-popup-height);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--flowforge-color-bg);
+  pointer-events: auto;
+  position: static;
 }
 .flowforge-popup__header {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    flex-shrink: 0;
-    height: var(--flowforge-popup-header-height);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: var(--flowforge-color-text-on-dark);
-    box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-shadow), 0.4);
-    background:
-            url('../shared/img/header-bg-sm.webp') right bottom no-repeat,
-            linear-gradient(135deg, var(--flowforge-color-primary) 0%, var(--flowforge-color-primary-hover) 100%);
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  flex-shrink: 0;
+  height: var(--flowforge-popup-header-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--flowforge-color-text-on-dark);
+  background:
+    url('../shared/img/header-bg-sm.webp') right bottom no-repeat,
+    linear-gradient(
+      135deg,
+      var(--flowforge-color-primary) 0%,
+      var(--flowforge-color-primary-hover) 100%
+    );
+}
+.flowforge-popup__header::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -12px;
+  left: 0;
+  height: 12px;
+  background: linear-gradient(
+    rgba(var(--flowforge-rgb-shadow), 0.4),
+    rgba(var(--flowforge-rgb-shadow), 0)
+  );
+  pointer-events: none;
 }
 .flowforge-popup__header--parallax {
-    background-position: center center, 0 0;
-    animation: flowforge-header-parallax 60s ease-in-out infinite alternate;
+  background-position:
+    center center,
+    0 0;
+  animation: flowforge-header-parallax 60s ease-in-out infinite alternate;
 }
 @keyframes flowforge-header-parallax {
-    0% {
-        background-position: calc(50% - 95px) calc(50% - 15px), 0 0;
-    }
-    50% {
-        background-position: 50% calc(50% + 15px), 0 0;
-    }
-    100% {
-        background-position: calc(50% + 95px) calc(50% - 15px), 0 0;
-    }
+  0% {
+    background-position:
+      calc(50% - 95px) calc(50% - 15px),
+      0 0;
+  }
+  50% {
+    background-position:
+      50% calc(50% + 15px),
+      0 0;
+  }
+  100% {
+    background-position:
+      calc(50% + 95px) calc(50% - 15px),
+      0 0;
+  }
 }
 .flowforge-popup__header-title {
-    font: var(--flowforge-text-h2);
-    position: relative;
+  font: var(--flowforge-text-h2);
+  position: relative;
 }
 .flowforge-popup__header-subtitle {
-    margin-top: 2px;
-    font: var(--flowforge-text-lg);
-    opacity: 0.9;
-    position: relative;
+  margin-top: 2px;
+  font: var(--flowforge-text-lg);
+  opacity: 0.9;
+  position: relative;
 }
 .flowforge-popup__content {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--flowforge-pad-xl);
-    display: flex;
-    flex-direction: column;
-    gap: var(--flowforge-pad-lg);
+  flex: 1;
+  margin-top: -1px;
+  overflow-y: auto;
+  padding: var(--flowforge-pad-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--flowforge-pad-lg);
 }
 .flowforge-popup__content::-webkit-scrollbar {
-    width: var(--flowforge-pad-xs);
+  width: var(--flowforge-pad-xs);
 }
 .flowforge-popup__content::-webkit-scrollbar-thumb {
-    background: rgba(var(--flowforge-rgb-primary), 0.5);
-    border-radius: 999px;
+  background: rgba(var(--flowforge-rgb-primary), 0.5);
+  border-radius: 999px;
 }
 .flowforge-popup__footer {
-    display: flex;
-    justify-content: center;
-    padding-top: var(--flowforge-pad-sm);
-    margin-top: auto;
-    font: var(--flowforge-text-xs);
-    gap: var(--flowforge-pad-md);
+  display: flex;
+  justify-content: center;
+  padding-top: var(--flowforge-pad-sm);
+  margin-top: auto;
+  font: var(--flowforge-text-xs);
+  gap: var(--flowforge-pad-md);
 }
 .flowforge-popup__copyright {
-    color: var(--flowforge-color-text-muted);
-    opacity: 0.8;
-    flex-wrap: wrap;
+  color: var(--flowforge-color-text-muted);
+  opacity: 0.8;
+  flex-wrap: wrap;
 }

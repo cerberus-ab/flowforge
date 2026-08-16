@@ -166,14 +166,12 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
 
     // Handle open inspector
     const handleOpenPageInspector = useCallback(async () => {
-            const message: OpenPageInspectorMessage = {
-                type: 'OPEN_PAGE_INSPECTOR',
-                senderId: await transport.getActiveSenderId(),
-            };
-            await transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
-        },
-        [transport],
-    );
+        const message: OpenPageInspectorMessage = {
+            type: 'OPEN_PAGE_INSPECTOR',
+            senderId: await transport.getActiveSenderId(),
+        };
+        await transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
+    }, [transport]);
 
     return {
         question,

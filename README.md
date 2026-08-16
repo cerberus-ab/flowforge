@@ -19,6 +19,7 @@ Try the live **Demo** at [useflowforge.app](https://useflowforge.app/) ✦
 The Assistant lets you ask questions in natural language and get immediate, contextual guidance directly in the UI.
 
 It can:
+
 - highlight relevant elements
 - explain what's on the page
 - guide users step-by-step through workflows
@@ -28,6 +29,7 @@ It works on any website out of the box and becomes product-aware when integrated
 **Under the hood:** browser extension + AI agent (ReAct) + RAG pipeline.
 
 ## Use cases
+
 - Ask a question and get a clear explanation of what the page is about.
 - Locate links, buttons, or contacts without manual search.
 - Follow step-by-step actions directly in the interface.
@@ -77,9 +79,9 @@ This will:
 1. Open any website
 2. Click the Assistant extension icon
 3. Ask a question, e.g.:
-   - "Where is the login button?"
-   - "How do I checkout?"
-   - "Show me the search bar"
+    - "Where is the login button?"
+    - "How do I checkout?"
+    - "Show me the search bar"
 4. View the answer and highlighted elements directly on the page
 
 ## Security
@@ -94,6 +96,7 @@ Note: As an early-stage MVP, security is evolving and not yet production-ready.
 ## Roadmap
 
 Focus areas:
+
 1. Improve the core engine: extractors, embeddings, reasoning, and tools
 2. Extend context from single pages to full websites
 3. Build a proper standalone extension distribution

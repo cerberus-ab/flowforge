@@ -6,13 +6,7 @@ interface IconProps extends Omit<LucideProps, 'class' | 'size'> {
     className?: string;
 }
 
-export function Icon({
-    icon: IconComponent,
-    size = 'medium',
-    className,
-    strokeWidth = 2,
-    ...props
-}: IconProps) {
+export function Icon({ icon: IconComponent, size = 'medium', className, strokeWidth = 2, ...props }: IconProps) {
     const classes = [
         'flowforge-icon',
         size === 'small' && 'flowforge-icon--sm',

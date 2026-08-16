@@ -1,9 +1,7 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
-import {
-    PageContextProvider,
-} from '@/indexer';
+import { PageContextProvider } from '@/indexer';
 import type { ToolGetPageSummaryResultData } from '@/types';
 import { formatSampleHeadings, formatSampleInteractions } from '@flowforge/page-trail';
 

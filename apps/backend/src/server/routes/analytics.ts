@@ -6,7 +6,7 @@ interface AnalyticsHandlerDeps {
     analytics: Analytics;
 }
 
-export function createAnalyticsHandler({ analytics  }: AnalyticsHandlerDeps) {
+export function createAnalyticsHandler({ analytics }: AnalyticsHandlerDeps) {
     return function handleAnalytics(_req: Request, res: Response<AnalyticsResponse>): void {
         res.json({
             data: Object.fromEntries(

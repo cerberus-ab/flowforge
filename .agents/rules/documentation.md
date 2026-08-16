@@ -82,11 +82,11 @@ Target length: 80–100 lines.
 
 - Overview
 - Stages:
-  - Extraction to structure representation
-  - Transforming to semantic representation
-  - Indexing / retrieval
-  - Reranking
-  - Resolution to tool results
+    - Extraction to structure representation
+    - Transforming to semantic representation
+    - Indexing / retrieval
+    - Reranking
+    - Resolution to tool results
 
 ### `packages/page-trail/README.md`
 

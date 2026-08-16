@@ -11,10 +11,7 @@ const CONTEXT_PATH_HOIST_DEPTH = 6;
 const CONTEXT_PATH_ITEMS_LIMIT = 4;
 
 function isGoodContextSectionName(text: string): boolean {
-    return (
-        text.length >= CONTEXT_SECTION_NAME_MIN_LENGTH &&
-        text.length <= CONTEXT_SECTION_NAME_MAX_LENGTH
-    );
+    return text.length >= CONTEXT_SECTION_NAME_MIN_LENGTH && text.length <= CONTEXT_SECTION_NAME_MAX_LENGTH;
 }
 
 /**

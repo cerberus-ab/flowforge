@@ -10,7 +10,10 @@ export class CompositeDocumentTransformer implements DocumentTransformer {
 
     constructor(params: { chunkSize: number; chunkOverlapRatio: number; verbose: boolean }) {
         this.transformers = [
-            new ContentElementsTransformer({ chunkSize: params.chunkSize, chunkOverlapRatio: params.chunkOverlapRatio }),
+            new ContentElementsTransformer({
+                chunkSize: params.chunkSize,
+                chunkOverlapRatio: params.chunkOverlapRatio,
+            }),
             new InteractiveElementsTransformer(),
         ];
         this.verbose = params.verbose;

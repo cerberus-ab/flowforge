@@ -1,9 +1,4 @@
-import type {
-    BaseElement,
-    ContainerElementRole,
-    ContentElement,
-    InteractiveElement,
-} from '../types/index.ts';
+import type { BaseElement, ContainerElementRole, ContentElement, InteractiveElement } from '../types/index.ts';
 
 const formatSeparator = {
     PARTS: '. ',
@@ -240,11 +235,12 @@ export function formatInteractiveElement(el: InteractiveElement): string {
  * formatSampleHeadings([{ type: 'text', tag: 'p', text: 'No headings here', importanceScore: 1 }])
  */
 export function formatSampleHeadings(contentElements: ContentElement[], headingsLimit = 5): string {
-    return formatConcatElements(contentElements
-        .filter((el) => el.type === 'heading')
-        .sort((a, b) => b.importanceScore - a.importanceScore)
-        .slice(0, headingsLimit)
-        .map((el) => formatContentElementShort(el)),
+    return formatConcatElements(
+        contentElements
+            .filter((el) => el.type === 'heading')
+            .sort((a, b) => b.importanceScore - a.importanceScore)
+            .slice(0, headingsLimit)
+            .map((el) => formatContentElementShort(el)),
     );
 }
 
@@ -279,10 +275,11 @@ export function formatSampleHeadings(contentElements: ContentElement[], headings
  * ])
  */
 export function formatSampleInteractions(interactiveElements: InteractiveElement[], interactionsLimit = 10): string {
-    return formatConcatElements(interactiveElements
-        .filter((el) => el.labels.length > 0 || el.text)
-        .sort((a, b) => b.importanceScore - a.importanceScore)
-        .slice(0, interactionsLimit)
-        .map((el) => formatInteractiveElementShort(el)),
+    return formatConcatElements(
+        interactiveElements
+            .filter((el) => el.labels.length > 0 || el.text)
+            .sort((a, b) => b.importanceScore - a.importanceScore)
+            .slice(0, interactionsLimit)
+            .map((el) => formatInteractiveElementShort(el)),
     );
 }

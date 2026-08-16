@@ -2,15 +2,15 @@
 .flowforge-developer-list {
 }
 .flowforge-developer-list ul {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-    gap: var(--flowforge-pad-xs);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--flowforge-pad-xs);
 }
 .flowforge-developer-list li {
-    margin: 0;
-    padding: 0;
-    font: var(--flowforge-text-sm);
+  margin: 0;
+  padding: 0;
+  font: var(--flowforge-text-sm);
 }

@@ -1,13 +1,13 @@
 /* Modifiers: color */
 .flowforge-u-color-primary {
-    color: var(--flowforge-color-primary);
+  color: var(--flowforge-color-primary);
 }
 .flowforge-u-color-secondary {
-    color: var(--flowforge-color-secondary);
+  color: var(--flowforge-color-secondary);
 }
 .flowforge-u-color-danger {
-    color: var(--flowforge-color-danger);
+  color: var(--flowforge-color-danger);
 }
 .flowforge-u-color-muted {
-    color: var(--flowforge-color-text-muted);
+  color: var(--flowforge-color-text-muted);
 }

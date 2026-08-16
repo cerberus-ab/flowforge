@@ -25,8 +25,7 @@ export interface CollectorOptions {
     getElementCssSelector?: (el: Element) => string;
 }
 
-type ResolvedCollectorOptions =
-    Required<Pick<CollectorOptions, 'contentElementsLimit' | 'interactiveElementsLimit'>> &
+type ResolvedCollectorOptions = Required<Pick<CollectorOptions, 'contentElementsLimit' | 'interactiveElementsLimit'>> &
     Pick<CollectorOptions, 'getElementDataId' | 'getElementCssSelector'>;
 
 /**

@@ -10,10 +10,7 @@ export abstract class AbstractCallableTool implements CallableTool {
         this.name = name;
     }
 
-    protected abstract callFn(
-        contextProvider: PageContextProvider,
-        query: string,
-    ): Promise<CallableToolResultData>;
+    protected abstract callFn(contextProvider: PageContextProvider, query: string): Promise<CallableToolResultData>;
 
     abstract createStructuredTool(ctx: PageContextProvider): DynamicStructuredTool;
 

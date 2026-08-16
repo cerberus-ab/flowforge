@@ -31,5 +31,5 @@ export function createSearchHandler({ indexer }: SearchHandlerDeps) {
                 message: error instanceof Error ? error.message : 'Unknown error',
             });
         }
-    }
+    };
 }

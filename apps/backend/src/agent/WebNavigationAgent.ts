@@ -140,7 +140,7 @@ export class WebNavigationAgent {
         const usageMetadata: UsageMetadata = {
             inputTokens: 0,
             outputTokens: 0,
-            totalTokens: 0
+            totalTokens: 0,
         };
 
         for (const message of invokeState.messages) {

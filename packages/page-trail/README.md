@@ -8,14 +8,15 @@ Used as the core input for RAG, search, and UI guidance.
 
 ```ts
 interface PageTrail {
-  basics: PageBasics;
-  content: ContentElement[];
-  interactive: InteractiveElement[];
-  timestamp: number;
+    basics: PageBasics;
+    content: ContentElement[];
+    interactive: InteractiveElement[];
+    timestamp: number;
 }
 ```
 
 ## Basics
+
 - url, title, description, language
 - viewport (width, height, scroll)
 
@@ -26,8 +27,8 @@ Extracted from text elements (headings, paragraphs, lists, etc).
 Each item:
 
 - text
-- type: heading | text 
-- selector, dataId, bbox 
+- type: heading | text
+- selector, dataId, bbox
 - context (path + optional sectionName)
 - importanceScore [0..1]
 
@@ -43,17 +44,17 @@ Extracted from buttons, links, inputs, ARIA roles.
 Each item:
 
 - role → type (button | input | select | link)
-- text + labels 
+- text + labels
 - state (disabled, checked, etc)
 - link (if any)
-- selector, dataId, bbox 
-- inViewport, aboveTheFold 
-- context 
+- selector, dataId, bbox
+- inViewport, aboveTheFold
+- context
 - importanceScore [0..1]
 
 Filtered:
 
-- hidden elements 
+- hidden elements
 - sensitive inputs (passwords, OTP, card data, etc)
 
 ## Context
@@ -72,8 +73,8 @@ Heuristic scoring normalized to [0..1].
 
 Used to:
 
-- rank elements 
-- apply top-N limits 
+- rank elements
+- apply top-N limits
 - improve retrieval quality
 
 ## Usage
@@ -93,7 +94,7 @@ Used for indexing, retrieval, and tool responses.
 ### Content
 
 ```ts
-formatContentElement(el)
+formatContentElement(el);
 ```
 
 → heading. Pricing. in section "Plans". inside "main content"
@@ -101,7 +102,7 @@ formatContentElement(el)
 ### Interactive
 
 ```ts
-formatInteractiveElement(el)
+formatInteractiveElement(el);
 ```
 
 → internal link. click action. name "Pricing". visible on initial screen. inside "navigation"
@@ -109,15 +110,16 @@ formatInteractiveElement(el)
 ### Short format
 
 ```ts
-formatContentElementShort(el)
-formatInteractiveElementShort(el)
-formatConcatElements(items)
+formatContentElementShort(el);
+formatInteractiveElementShort(el);
+formatConcatElements(items);
 ```
+
 Used for previews and compact lists.
 
 ## Notes
 
 - DOM → structured model (LLM-independent)
-- Single-page snapshot 
-- Optimized for search and UI actions 
+- Single-page snapshot
+- Optimized for search and UI actions
 - Safe by default (sensitive fields excluded)
