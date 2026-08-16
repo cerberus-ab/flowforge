@@ -2,11 +2,7 @@
 
 ## Overview
 
-A lightweight architecture that transforms raw DOM into actionable, UI-aware answers using a Retrieval-Augmented Generation (RAG) approach.
-
-Modern web applications expose rich information through the DOM, but it is not directly usable for AI reasoning.
-
-This pipeline converts the DOM into a structured, searchable, and actionable representation.
+FlowForge converts raw DOM into structured, searchable, UI-aware context for Retrieval-Augmented Generation (RAG).
 
 ![Pipeline schema](assets/dom-rag-pipeline.webp)
 
@@ -16,31 +12,29 @@ This pipeline converts the DOM into a structured, searchable, and actionable rep
 
 ### 1. Extraction to structure representation
 
-The DOM is parsed and normalized into a structured `PageTrail`.
-
-This stage captures both the raw structure and contextual meaning of the UI.
+The browser runtime parses the DOM into a structured `PageTrail`.
 
 Includes:
 
-- Page basics (title, URL, metadata)
+- Page basics (URL, title, description, language, viewport)
 - Content elements (text, headings)
 - Interactive elements (buttons, inputs, links)
+- Collection metadata (counts, limit flags, collected time, duration)
 
-Each element contains:
+Elements include:
 
 - Attributes and properties
 - Semantic roles and labels
 - Embedded layout and context:
     - Section (e.g., header, main, form)
     - Hierarchical path within the page
+- Stable `dataId` and optional CSS selector for browser-side lookup
 
-Each element is also assigned an importance score.
-
-This layer defines _what exists on the page and how it is structured_.
+Each element is assigned an importance score. This layer defines _what exists on the page and how it is structured_.
 
 ### 2. Transforming to semantic representation
 
-Transforms structured page data into AI-friendly, human-readable `IndexableDocuments` enriched with metadata for retrieval.
+Transforms `PageTrail` into AI-friendly `IndexableDocuments`.
 
 Includes:
 
@@ -54,40 +48,41 @@ Includes:
     - Content documents (informational text)
     - Interactive documents (actionable UI elements)
 
-This layer defines _what the page means and how it can be interpreted and retrieved by AI_.
+This layer defines _what the page means and how it can be retrieved by AI_.
 
 ### 3. Indexing / retrieval
 
-Documents are embedded, stored in a vector database, and retrieved at query time based on semantic similarity.
+Documents are embedded, stored in LanceDB, and retrieved at query time by semantic similarity.
 
 Includes:
 
 - Embedding documents into vector representations
-- Storing them for efficient similarity search
+- Storing them in LanceDB under a dataset derived from provider + page URL
 - Retrieving top-k relevant documents for a given query
+- Optional filtering by document type (`content` or `interactive`)
 
-This layer enables fast and context-aware access to relevant UI information.
+This layer provides context-aware access to relevant UI information.
 
 ### 4. Reranking
 
-Retrieved documents are rescored to improve relevance using a combination of semantic similarity and UI-specific signals.
+Retrieved documents are rescored with semantic similarity and UI-specific signals.
 
-A hybrid scoring function is applied:
+A hybrid scoring function is applied by the agent tools:
 
 ```
-score = semantic_score * A + importance_score * B
+score = semantic similarity + UI importance signals
 ```
 
 Where:
 
 - `semantic_score` reflects how well the document matches the query
-- `importance_score` reflects UI relevance (e.g., visibility, role, position, interaction potential)
+- `importance_score` reflects UI relevance such as visibility, role, position, and interaction potential
 
-This step prioritizes elements that are not only semantically relevant, but also meaningful and actionable for the user.
+Different tools use different scoring profiles for lookup, answer, and action-oriented requests.
 
 ### 5. Resolution to tool results
 
-Transforms ranked documents into final, actionable outputs that Agent can directly use.
+Transforms ranked documents into actionable outputs that the agent can use.
 
 Includes:
 
@@ -98,6 +93,8 @@ Produces:
 
 - Element references (selector, dataId)
 - User-facing descriptions
-- Action hints (click, input, navigate)
+- Action hints (`click`, `input`, `select`, `navigate`, `highlight`)
+
+The final backend response is validated as an `AgentResult`; invalid `dataId` values are filtered before response.
 
 This stage bridges retrieval and real UI interaction by turning data into executable guidance.

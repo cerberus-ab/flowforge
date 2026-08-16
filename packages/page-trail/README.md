@@ -1,8 +1,6 @@
 # PageTrail
 
-Normalized representation of a web page extracted from the DOM.
-
-Used as the core input for RAG, search, and UI guidance.
+Normalized DOM snapshot used as the core input for RAG, search, and UI guidance.
 
 ## Structure
 
@@ -11,20 +9,13 @@ interface PageTrail {
     basics: PageBasics;
     content: ContentElement[];
     interactive: InteractiveElement[];
-    timestamp: number;
+    metadata: CollectionMetadata;
 }
 ```
 
-## Basics
+## Content elements
 
-- url, title, description, language
-- viewport (width, height, scroll)
-
-## Content
-
-Extracted from text elements (headings, paragraphs, lists, etc).
-
-Each item:
+Extracted from visible headings, paragraphs, list items, blockquotes, and figcaptions. Very short text is skipped. Default limit: 250.
 
 - text
 - type: heading | text
@@ -32,16 +23,9 @@ Each item:
 - context (path + optional sectionName)
 - importanceScore [0..1]
 
-Filtered:
+## Interactive elements
 
-- hidden elements
-- very short text
-
-## Interactive
-
-Extracted from buttons, links, inputs, ARIA roles.
-
-Each item:
+Extracted from visible buttons, links, inputs, textarea/select/summary, and supported ARIA roles. Sensitive inputs are skipped. Default limit: 150.
 
 - role → type (button | input | select | link)
 - text + labels
@@ -52,30 +36,17 @@ Each item:
 - context
 - importanceScore [0..1]
 
-Filtered:
-
-- hidden elements
-- sensitive inputs (passwords, OTP, card data, etc)
-
 ## Context
 
-Derived from ancestor containers:
-
-- main content, navigation, footer, dialog, etc
-
-Also resolves optional sectionName from:
-
-- aria-labelledby / aria-label / heading / legend
+Derived from ancestor containers such as main content, navigation, footer, dialog, form, section, and table. Optional `sectionName` is resolved from aria labels, headings, or legends.
 
 ## Importance
 
-Heuristic scoring normalized to [0..1].
+Heuristic scoring normalized to [0..1]. It ranks elements, applies top-N limits, and improves retrieval quality.
 
-Used to:
+## Metadata
 
-- rank elements
-- apply top-N limits
-- improve retrieval quality
+`basics` stores URL, title, description, language, and viewport. `metadata` stores selected and total element counts, limit flags, `collectedAt`, and `durationMs`.
 
 ## Usage
 
@@ -87,35 +58,17 @@ const pt = PageTrailCollector.collectFor(window, document, {
 
 ## Format
 
-PageTrail includes helpers to convert elements into compact semantic strings.
-
-Used for indexing, retrieval, and tool responses.
-
-### Content
+Helpers convert PageTrail data into semantic strings.
 
 ```ts
 formatContentElement(el);
-```
-
-→ heading. Pricing. in section "Plans". inside "main content"
-
-### Interactive
-
-```ts
 formatInteractiveElement(el);
-```
-
-→ internal link. click action. name "Pricing". visible on initial screen. inside "navigation"
-
-### Short format
-
-```ts
 formatContentElementShort(el);
 formatInteractiveElementShort(el);
-formatConcatElements(items);
+formatSampleHeadings(el, limit);
+formatSampleInteractions(el, limit);
+generateSemanticMarkdown(pageTrail);
 ```
-
-Used for previews and compact lists.
 
 ## Notes
 

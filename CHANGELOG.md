@@ -2,6 +2,20 @@
 
 All notable changes to the project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Page Inspector for viewing PageTrail `basics`, `content`, `interactive` elements, `metadata`, and semantic Markdown output.
+- PageTrail snapshot `metadata` with collection counts, limits, timestamps, and duration.
+- CI workflow for linting, type checks, builds, and PageTrail unit tests.
+- Project context for agents, including shared rules, skills, and navigation guidance.
+
+### Changed
+
+- Renamed PageModel to PageTrail across the project.
+- Improved PageTrail data collection performance and semantic formatting.
+
 ## [0.1.4] - 2026-05-03
 
 ### Added

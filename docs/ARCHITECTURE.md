@@ -2,9 +2,7 @@
 
 ## Overview
 
-FlowForge is a client–server system that connects user intent to UI-level actions inside web applications.
-
-It consists of a Chrome extension (UI + page understanding) and a backend (AI agent + RAG pipeline) working together to provide contextual, actionable guidance.
+FlowForge is a client–server system that connects user intent to UI-level actions. A Chrome extension or embeddable runtime handles page/UI work; the backend runs the AI agent and RAG pipeline.
 
 ![Architecture overview](assets/architecture-overview.webp)
 
@@ -12,42 +10,45 @@ It consists of a Chrome extension (UI + page understanding) and a backend (AI ag
 
 ### Extension
 
-Extracts page data, handles UI, highlights elements, and manages user interaction. Runs in the browser as a Chrome extension with popup, background, and content scripts.
+Extracts page data, handles UI, highlights elements, and manages user interaction. Runs as a Manifest V3 extension with popup, background service worker, and content script.
+
+### Embed runtime
+
+Website-embedded bundle that can use the local backend or a demo API client with predefined responses.
 
 ### Backend
 
-Processes queries, runs the AI agent, manages vector storage, and exposes HTTP API. Built with Express and LangGraph.
+Processes queries, runs the AI agent, manages vector storage, and exposes HTTP API. Built with Express, LangChain/LangGraph primitives, and LanceDB.
 
 ### Agent
 
-Interprets user intent and orchestrates tool usage using the ReAct pattern. Powered by LangGraph with structured tool calls.
+Interprets user intent and orchestrates tool usage with the ReAct pattern and structured tool calls.
 
 ### RAG pipeline
 
-Indexes page content into vector database (LanceDB) and retrieves relevant context for queries using semantic search.
+Indexes page content into LanceDB and retrieves relevant context for queries using semantic search.
 
 ### LLM provider
 
-Inference layer supporting local (Ollama) or cloud (OpenAI) models for embeddings and generation.
+Inference layer supporting Ollama or OpenAI models for embeddings and generation.
 
 ## Interaction flow
 
 ### Query flow
 
-1. User asks a question in the extension popup
+1. User asks a question in the extension popup or embed shell
 2. Extension sends `pageTrail + question` to backend (`POST /query`)
-3. Backend checks if page is indexed; indexes if needed
+3. Backend indexes the submitted page snapshot
 4. Agent executes with access to tools and vector search
 5. Backend returns structured result (answer + target elements)
-6. Extension highlights elements and displays response in popup
+6. Browser runtime highlights elements and displays the response
 
 ### Indexing flow
 
-1. Extension extracts page structure (content, interactive elements, navigation)
+1. Browser runtime extracts page structure (`basics`, `content`, `interactive`, `metadata`)
 2. Backend splits data into documents with metadata
 3. Embeddings are generated via LLM provider
 4. Documents stored in vector database (LanceDB)
-5. Available for semantic search during query processing
 
 ## Pipeline
 
@@ -60,48 +61,39 @@ High-level overview of the DOM-to-RAG pipeline:
 5. **Reranking** — Hybrid scoring (semantic + importance signals)
 6. **Resolution** — Documents → actionable tool results (selectors + descriptions)
 
-See [DOM-TO-RAG-PIPELINE.md](DOM-TO-RAG-PIPELINE.md) for detailed pipeline documentation.
-
 ## Key decisions
 
 **ReAct agent (LangGraph)**
-Provides reliable tool-based reasoning with full control over execution flow and observability.
+Provides tool-based reasoning with controlled execution flow and observability.
 
 **RAG over page context**
-Enables accurate, contextual answers by retrieving relevant page content instead of relying solely on agent memory.
+Retrieves relevant page content instead of relying only on agent memory.
 
 **LanceDB**
-Embedded vector storage with no external dependencies. Runs locally alongside the backend.
+Embedded vector storage that runs locally alongside the backend.
 
 **Local + cloud LLM**
-Flexibility between privacy (Ollama) and performance (OpenAI) depending on user needs.
+Switches between local Ollama and OpenAI providers.
+
+**Typed contracts**
+Shared request/response contracts live in `@flowforge/contract`; DOM snapshots live in `@flowforge/page-trail`.
 
 ## Contracts
 
-### Extension ↔ backend
-
-HTTP API with main endpoints:
+Extension ↔ backend:
 
 - `POST /query` — submit user question with page data
 - `POST /search` — semantic search over indexed content
-- `GET /analytics` — usage data and query tracking
-- `GET /health` — service status
+- `GET /analytics` / `GET /health` — analytics and service status
 
-### Agent ↔ tools
+`POST /query` accepts `question`, `pageTrail`, `domain`, and optional question history. It returns an `AgentResult` with `answer`, `mode`, optional `topic`, and target `elements`.
 
-Structured tool calls with typed inputs/outputs defined via Zod schemas.
-
-### Indexer ↔ storage
-
-Embeddings + metadata stored per page. Each document includes source URL, type (content/element), and original text.
+Agent tools use structured Zod schemas. Indexer documents are stored per page URL and embedding provider with content text and source element metadata.
 
 ## Constraints
 
 **Single-page context**
-No cross-page memory or session continuity. Each query operates on current page only.
+No cross-page DOM memory. Each query operates on the submitted page snapshot. The extension keeps short per-domain question history.
 
 **Local backend**
 Designed for single-user local deployment. No authentication or multi-tenancy.
-
-**In-memory analytics**
-Query tracking and usage data stored in memory. No persistence across restarts.

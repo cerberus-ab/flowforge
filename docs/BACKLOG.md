@@ -5,6 +5,12 @@
 - Test coverage (unit/integration, vitest, playwright, promptfoo)
 - Create extendable abstraction over extractors, embeddings, tooling
 
+## Page Trail
+
+- Cache for the collector heavy computes
+- Adjust importance score for headings (h1-h4)
+- Parse structured data (Schema.org, og, x-card, etc.) for basics info
+
 ## Backend
 
 ### Models
@@ -52,13 +58,13 @@
 ## Extension
 
 - Support standalone mode, properly
-- Cache for pageTrail transfer, with RAG cache
 - Enhance dataId and CSS selector usage for Element locator
 
 ### Page inspector
 
 - Loading state
 - Lazy rendering in JsonViewer
+- Provide the history data about the page usage
 
 ## DX
 

@@ -4,8 +4,8 @@ _Forging your experience..._
 
 FlowForge is a Web Onboarding Assistant that turns user intent into actionable UI guidance inside web applications.
 
-- Explore content and interface instantly
-- Ask anything about the page
+- Ask questions about the current page
+- Find relevant UI elements
 - Get step-by-step onboarding flows
 
 ## Demo
@@ -14,17 +14,13 @@ Try the live **Demo** at [useflowforge.app](https://useflowforge.app/) ✦
 
 ## Overview
 
-**Why?** Modern web apps are powerful – but hard to navigate.
-
-The Assistant lets you ask questions in natural language and get immediate, contextual guidance directly in the UI.
+Modern web apps are powerful but hard to navigate. The Assistant lets you ask natural-language questions and get contextual guidance directly in the UI.
 
 It can:
 
 - highlight relevant elements
 - explain what's on the page
 - guide users step-by-step through workflows
-
-It works on any website out of the box and becomes product-aware when integrated.
 
 **Under the hood:** browser extension + AI agent (ReAct) + RAG pipeline.
 
@@ -63,12 +59,7 @@ npm i
 npm start
 ```
 
-This will:
-
-- Install dependencies
-- Build backend and extension
-- Guide you to install the extension in Chrome
-- Start the backend at http://localhost:3477
+This installs dependencies, builds backend and extension, guides Chrome installation, and starts the backend at http://localhost:3477.
 
 <p align="left">
   <img src="./docs/assets/install.gif" width="480" />
