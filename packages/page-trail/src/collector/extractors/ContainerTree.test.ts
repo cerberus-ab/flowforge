@@ -4,6 +4,18 @@ import { markVisible, resetDocument } from '../../../test/domUtils';
 import { ElementRegistry } from '../ElementRegistry';
 import { ContainerTree } from './ContainerTree';
 
+const containerRect = {
+    top: 0,
+    left: 0,
+    width: 100,
+    height: 100,
+    right: 100,
+    bottom: 100,
+    x: 0,
+    y: 0,
+    toJSON: () => {},
+} as DOMRect;
+
 afterEach(() => {
     resetDocument();
     vi.restoreAllMocks();
@@ -19,10 +31,10 @@ describe('ContainerTree', () => {
                 <nav id="nav" aria-label="Primary navigation"></nav>
             </main>
         `;
-        markVisible('#main');
-        markVisible('#overview');
-        markVisible('#feature');
-        markVisible('#nav');
+        markVisible('#main', containerRect);
+        markVisible('#overview', containerRect);
+        markVisible('#feature', containerRect);
+        markVisible('#nav', containerRect);
 
         const tree = createTree();
 
@@ -73,8 +85,8 @@ describe('ContainerTree', () => {
                 </div>
             </main>
         `;
-        markVisible('#main');
-        markVisible('#wrapped');
+        markVisible('#main', containerRect);
+        markVisible('#wrapped', containerRect);
 
         const tree = createTree();
 
@@ -100,8 +112,8 @@ describe('ContainerTree', () => {
                 <main id="main"></main>
             </div>
         `;
-        markVisible('#header');
-        markVisible('#main');
+        markVisible('#header', containerRect);
+        markVisible('#main', containerRect);
 
         const tree = createTree(document.querySelector('#root')!);
 
@@ -120,9 +132,9 @@ describe('ContainerTree', () => {
                 </div>
             </main>
         `;
-        markVisible('#main');
-        markVisible('#announcements');
-        markVisible('#toolbar');
+        markVisible('#main', containerRect);
+        markVisible('#announcements', containerRect);
+        markVisible('#toolbar', containerRect);
 
         const tree = createTree();
 
@@ -147,8 +159,8 @@ describe('ContainerTree', () => {
             <header id="header" aria-label="Site header"></header>
             <main id="main" aria-label="Content"></main>
         `;
-        markVisible('#header');
-        markVisible('#main');
+        markVisible('#header', containerRect);
+        markVisible('#main', containerRect);
 
         const tree = ContainerTree.extractFor(window, document, createRegistry());
 
@@ -166,22 +178,24 @@ describe('ContainerTree', () => {
         ]);
     });
 
-    it('collects visible containers in DOM order without importance scores', () => {
+    it('collects visible containers in DOM order with base importance scores', () => {
         document.body.innerHTML = `
             <main id="main">
                 <section id="section"></section>
                 <nav id="nav"></nav>
             </main>
         `;
-        markVisible('#main');
-        markVisible('#section');
-        markVisible('#nav');
+        markVisible('#main', containerRect);
+        markVisible('#section', containerRect);
+        markVisible('#nav', containerRect);
 
         const tree = createTree();
 
         expect(tree.elements.map((el) => el.dataId)).toEqual(['main', 'section', 'nav']);
         tree.elements.forEach((el) => {
             expect(el).not.toHaveProperty('importanceScore');
+            expect(el.baseImportanceScore).toBeGreaterThanOrEqual(0);
+            expect(el.baseImportanceScore).toBeLessThanOrEqual(1);
         });
     });
 });

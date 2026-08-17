@@ -133,7 +133,9 @@ export interface BaseElement {
     bbox: BoundingBox;
 }
 
-export interface ContextElement extends BaseElement {}
+export interface ContextElement extends BaseElement {
+    baseImportanceScore: number; // [0..1]
+}
 
 export interface ContainerElement extends ContextElement {
     kind: 'container';

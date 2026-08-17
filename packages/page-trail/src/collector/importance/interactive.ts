@@ -8,6 +8,8 @@ import type {
 } from '../../types/index.ts';
 import { getMaxImportanceScore, getMinImportanceScore, normalizeImportanceScore, readContextPath } from './utils.ts';
 
+const SMALL_INTERACTIVE_AREA = 24 * 24;
+
 /**
  * Typical interpretation:
  *  - 7–10 → strong action targets
@@ -82,7 +84,7 @@ export function scoreInteractiveElement(scoringData: InteractiveElementScoringDa
     }
     // by view
     if (state.hidden || state.disabled) score += interactiveScoringWeights.NOT_USABLE;
-    if (bbox.width * bbox.height < 24 * 24) score += interactiveScoringWeights.SIZE_TOO_SMALL;
+    if (bbox.width * bbox.height < SMALL_INTERACTIVE_AREA) score += interactiveScoringWeights.SIZE_TOO_SMALL;
     // by context
     const { inMain, inDialog, inFooter, inNav } = readContextPath(context.path);
     if (inMain) score += interactiveScoringWeights.IN_MAIN;

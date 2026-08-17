@@ -6,6 +6,10 @@ import { SELECTOR_CONTAINER } from '../selectors.ts';
 import { getElementBoundingBox, isElementVisible } from './primitive/view.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
 import { getCssSelector } from './primitive/selector.ts';
+import { scoreBaseContainerElement } from '../importance/container.ts';
+
+// constants
+const CONTAINER_MIN_AREA = 20 * 20;
 
 /**
  * Builds a semantic container hierarchy from a DOM subtree.
@@ -60,6 +64,11 @@ export class ContainerTree {
             // skip containers with no resolved type
             const type = roleToContainerElementType(role);
             if (!type) continue;
+            // skip too small container area
+            const bbox = getElementBoundingBox(el);
+            if (bbox.width * bbox.height < CONTAINER_MIN_AREA) continue;
+
+            const labels = getContainerElementLabels(el);
 
             elements.push({
                 role,
@@ -68,8 +77,9 @@ export class ContainerTree {
                 cssSelector: getCssSelector(el),
                 tag: el.tagName.toLowerCase(),
                 kind: 'container',
-                labels: getContainerElementLabels(el),
-                bbox: getElementBoundingBox(el),
+                labels,
+                bbox,
+                baseImportanceScore: scoreBaseContainerElement({ role, type, labels, bbox }),
             });
         }
         return elements;
