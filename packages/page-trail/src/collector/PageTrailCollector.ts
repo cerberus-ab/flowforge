@@ -1,6 +1,6 @@
 import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
 
-import { type TopElements } from './importance/topEl.ts';
+import { type TopElements } from './scoring/topEl.ts';
 import { ContainerTree } from './extractors/ContainerTree.ts';
 import { ElementRegistry } from './ElementRegistry.ts';
 import { extractContentElements } from './extractors/content.ts';
@@ -56,10 +56,10 @@ export class PageTrailCollector {
         const containerTree = this.collectContainerTree();
         const t2_container = performance.now();
 
-        const topContentElements = this.collectContentElements();
+        const topContentElements = this.collectContentElements(containerTree);
         const t3_content = performance.now();
 
-        const topInteractiveElements = this.collectInteractiveElements(basics);
+        const topInteractiveElements = this.collectInteractiveElements(basics, containerTree);
         const t4_interactive = performance.now();
 
         return {
@@ -105,15 +105,25 @@ export class PageTrailCollector {
         return ContainerTree.extractFor(this.window, this.document, this.elementRegistry);
     }
 
-    private collectContentElements(): TopElements<ContentElement> {
-        return extractContentElements(this.window, this.document.body, this.elementRegistry, {
+    private collectContentElements(containerTree: ContainerTree): TopElements<ContentElement> {
+        return extractContentElements(this.window, this.document.body, this.elementRegistry, containerTree, {
             elementsLimit: this.options.contentElementsLimit,
         });
     }
 
-    private collectInteractiveElements(basics: PageBasics): TopElements<InteractiveElement> {
-        return extractInteractiveElements(this.window, this.document.body, this.elementRegistry, basics, {
-            elementsLimit: this.options.interactiveElementsLimit,
-        });
+    private collectInteractiveElements(
+        basics: PageBasics,
+        containerTree: ContainerTree,
+    ): TopElements<InteractiveElement> {
+        return extractInteractiveElements(
+            this.window,
+            this.document.body,
+            this.elementRegistry,
+            basics,
+            containerTree,
+            {
+                elementsLimit: this.options.interactiveElementsLimit,
+            },
+        );
     }
 }

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markHidden, markVisible, resetDocument } from '../../../test/domUtils';
 import { ElementRegistry } from '../ElementRegistry';
+import { ContainerTree } from './ContainerTree';
 import { extractContentElements } from './content';
 
 afterEach(() => {
@@ -24,7 +25,9 @@ describe('extractContentElements', () => {
         markVisible('#short');
         markHidden('#hidden');
 
-        const topElements = extractContentElements(window, document.body, createRegistry(), { elementsLimit: 0 });
+        const registry = createRegistry();
+        const containerTree = ContainerTree.extractFor(window, document, registry);
+        const topElements = extractContentElements(window, document.body, registry, containerTree, { elementsLimit: 0 });
 
         expect(topElements.data).toEqual(
             expect.arrayContaining([
@@ -48,6 +51,11 @@ describe('extractContentElements', () => {
         );
         expect(topElements.data.map((el) => el.dataId)).not.toContain('short');
         expect(topElements.data.map((el) => el.dataId)).not.toContain('hidden');
+
+        topElements.data.forEach((el) => {
+            expect(el.context.contextScore.value).toBeGreaterThan(0);
+            expect(el.context.contextScore).toHaveProperty('features');
+        });
     });
 
     it('applies the element limit after importance scoring', () => {
@@ -60,7 +68,9 @@ describe('extractContentElements', () => {
         markVisible('#heading');
         markVisible('#paragraph');
 
-        const topElements = extractContentElements(window, document.body, createRegistry(), { elementsLimit: 1 });
+        const registry = createRegistry();
+        const containerTree = ContainerTree.extractFor(window, document, registry);
+        const topElements = extractContentElements(window, document.body, registry, containerTree, { elementsLimit: 1 });
 
         expect(topElements.data).toHaveLength(1);
         expect(topElements.data[0]).toEqual(expect.objectContaining({ dataId: 'heading' }));

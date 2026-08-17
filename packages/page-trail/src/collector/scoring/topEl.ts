@@ -1,3 +1,5 @@
+import type { Scoring } from '../../types/index.ts';
+
 export interface TopElements<T> {
     data: T[];
     total: number;
@@ -10,12 +12,12 @@ export interface TopElements<T> {
  *
  * A limit of `0` returns all elements without truncation.
  */
-export function topElements<S extends { importanceScore: number }, T>(
+export function topElements<S extends { importanceScore: Scoring }, T>(
     elements: S[],
     limit: number,
     transform: (element: S) => T,
 ): TopElements<T> {
-    const sorted = [...elements].sort((a, b) => b.importanceScore - a.importanceScore);
+    const sorted = [...elements].sort((a, b) => b.importanceScore.value - a.importanceScore.value);
 
     if (limit === 0) {
         return {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalizeText } from './text';
+import { normalizeText, toUpperSnakeCase } from './text';
 
 describe('normalizeText', () => {
     it('trims leading and trailing whitespace', () => {
@@ -19,5 +19,25 @@ describe('normalizeText', () => {
 
     it('returns an empty string for whitespace-only input', () => {
         expect(normalizeText(' \n\t ')).toBe('');
+    });
+});
+
+describe('toUpperSnakeCase', () => {
+    it('converts camelCase to uppercase snake case', () => {
+        expect(toUpperSnakeCase('hasVisibleText')).toBe('HAS_VISIBLE_TEXT');
+    });
+
+    it('converts hyphen and whitespace separators to underscores', () => {
+        expect(toUpperSnakeCase('generic-unlabeled')).toBe('GENERIC_UNLABELED');
+        expect(toUpperSnakeCase('main content')).toBe('MAIN_CONTENT');
+    });
+
+    it('handles mixed separators and camelCase boundaries together', () => {
+        expect(toUpperSnakeCase('ariaLabel primary-action')).toBe('ARIA_LABEL_PRIMARY_ACTION');
+    });
+
+    it('preserves existing underscores', () => {
+        expect(toUpperSnakeCase('HAS_VISIBLE_TEXT')).toBe('HAS_VISIBLE_TEXT');
+        expect(toUpperSnakeCase('has_visible_text')).toBe('HAS_VISIBLE_TEXT');
     });
 });

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { markHidden, markVisible, resetDocument, setViewport } from '../../../test/domUtils';
 import { ElementRegistry } from '../ElementRegistry';
 import { extractPageBasics } from './basics';
+import { ContainerTree } from './ContainerTree';
 import { extractInteractiveElements } from './interactive';
 
 afterEach(() => {
@@ -28,11 +29,14 @@ describe('extractInteractiveElements', () => {
         markVisible('#password');
         setViewport({ width: 1024, height: 768, scrollY: 0, scrollHeight: 2000 });
 
+        const registry = createRegistry();
+        const containerTree = ContainerTree.extractFor(window, document, registry);
         const topElements = extractInteractiveElements(
             window,
             document.body,
-            createRegistry(),
+            registry,
             extractPageBasics(window, document),
+            containerTree,
             { elementsLimit: 0 },
         );
 
@@ -71,6 +75,11 @@ describe('extractInteractiveElements', () => {
         );
         expect(topElements.data.map((el) => el.dataId)).not.toContain('hidden');
         expect(topElements.data.map((el) => el.dataId)).not.toContain('password');
+
+        topElements.data.forEach((el) => {
+            expect(el.context.contextScore.value).toBeGreaterThan(0);
+            expect(el.context.contextScore).toHaveProperty('features');
+        });
     });
 
     it('applies the element limit after importance scoring', () => {
@@ -83,11 +92,14 @@ describe('extractInteractiveElements', () => {
         markVisible('#button');
         markVisible('#link');
 
+        const registry = createRegistry();
+        const containerTree = ContainerTree.extractFor(window, document, registry);
         const topElements = extractInteractiveElements(
             window,
             document.body,
-            createRegistry(),
+            registry,
             extractPageBasics(window, document),
+            containerTree,
             { elementsLimit: 1 },
         );
 

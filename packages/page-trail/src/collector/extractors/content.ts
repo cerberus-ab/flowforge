@@ -1,12 +1,12 @@
-import { topElements, type TopElements } from '../importance/topEl.ts';
-import type { ContentElement } from '../../types/index.ts';
-import { type ContentElementScoringData, scoreContentElement } from '../importance/content.ts';
+import { topElements, type TopElements } from '../scoring/topEl.ts';
+import type { ContentElement, Scoring } from '../../types/index.ts';
+import { scoreContentMeaning, scoreTargetContext, scoreTargetImportance } from '../scoring/index.ts';
 import { SELECTOR_CONTENT } from '../selectors.ts';
 import { getElementBoundingBox, isElementVisible } from './primitive/view.ts';
 import { getElementText } from './primitive/text.ts';
-import { getElementContext } from '../context/context.ts';
 import { getCssSelector } from './primitive/selector.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
+import { ContainerTree } from './ContainerTree.ts';
 
 // constants
 const CONTENT_MIN_TEXT_LENGTH = 5;
@@ -27,9 +27,14 @@ export function extractContentElements(
     win: Window,
     root: Element,
     elementRegistry: ElementRegistry,
+    containerTree: ContainerTree,
     options: ExtractContentElementsOptions,
 ): TopElements<ContentElement> {
-    const candidates: { el: Element; scoringData: ContentElementScoringData; importanceScore: number }[] = [];
+    const candidates: {
+        el: Element;
+        prefilled: Pick<ContentElement, 'text' | 'type' | 'context' | 'meaningScore'>;
+        importanceScore: Scoring;
+    }[] = [];
 
     Array.from(root.querySelectorAll(SELECTOR_CONTENT)).forEach((el) => {
         // skip hidden text blocks
@@ -39,15 +44,16 @@ export function extractContentElements(
         if (!text || text.length < CONTENT_MIN_TEXT_LENGTH) return;
 
         // compute only necessary data for scoring the candidates
-        const scoringData: ContentElementScoringData = {
-            text,
-            type: /^h[1-4]$/i.test(el.tagName) ? 'heading' : 'text',
-            context: getElementContext(el),
-        };
+        const type = /^h[1-4]$/i.test(el.tagName) ? 'heading' : 'text';
+        const meaningScore = scoreContentMeaning({ type, text });
+        const path = containerTree.getContentTargetPath(el, { type });
+        const context = { path, contextScore: scoreTargetContext({ path }) };
+        const importanceScore = scoreTargetImportance({ meaningScore, contextScore: context.contextScore });
+
         candidates.push({
             el,
-            scoringData: scoringData,
-            importanceScore: scoreContentElement(scoringData),
+            prefilled: { text, type, context, meaningScore },
+            importanceScore,
         });
     });
 
@@ -55,8 +61,8 @@ export function extractContentElements(
         candidates,
         options.elementsLimit,
         // continue to compute only for selected elements
-        ({ el, scoringData, importanceScore }) => ({
-            ...scoringData,
+        ({ el, prefilled, importanceScore }) => ({
+            ...prefilled,
             dataId: elementRegistry.register(el),
             cssSelector: getCssSelector(el),
             tag: el.tagName.toLowerCase(),

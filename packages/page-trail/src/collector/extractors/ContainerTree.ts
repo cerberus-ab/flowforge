@@ -1,4 +1,13 @@
-import type { ContainerElement, ContainerTreeNode } from '../../types/index.ts';
+import type {
+    ContainerElement,
+    ContainerTreeNode,
+    ContainerPathNode,
+    ContentElementType,
+    InteractiveElementRole,
+    InteractiveElementType,
+    ContentElement,
+    InteractiveElement,
+} from '../../types/index.ts';
 
 import { getContainerElementLabels } from './primitive/label.ts';
 import { getContainerRole, roleToContainerElementType } from './primitive/role.ts';
@@ -6,10 +15,26 @@ import { SELECTOR_CONTAINER } from '../selectors.ts';
 import { getElementBoundingBox, isElementVisible } from './primitive/view.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
 import { getCssSelector } from './primitive/selector.ts';
-import { scoreBaseContainerElement } from '../importance/container.ts';
+import {
+    scoreContainerMeaning,
+    scoreContainerRelevanceForContentTarget,
+    scoreContainerRelevanceForInteractiveTarget,
+    type ScoringResult,
+} from '../scoring/index.ts';
 
 // constants
 const CONTAINER_MIN_AREA = 20 * 20;
+
+export type ElementPathTarget =
+    | {
+          kind: 'content';
+          type: ContentElementType;
+      }
+    | {
+          kind: 'interactive';
+          role: InteractiveElementRole;
+          type: InteractiveElementType;
+      };
 
 /**
  * Builds a semantic container hierarchy from a DOM subtree.
@@ -23,17 +48,18 @@ export class ContainerTree {
     private readonly window: Window;
     private readonly root: Element;
     private readonly elementRegistry: ElementRegistry;
+    private readonly nodeByEl = new WeakMap<Element, ContainerTreeNode>();
 
-    readonly elements: ContainerElement[];
-    readonly nodes: ContainerTreeNode[];
+    readonly elements: ContainerElement[] = [];
+    readonly nodes: ContainerTreeNode[] = [];
 
     constructor(win: Window, root: Element, elementRegistry: ElementRegistry) {
         this.window = win;
         this.root = root;
         this.elementRegistry = elementRegistry;
 
-        this.elements = this.collectElements();
-        this.nodes = this.buildTree();
+        this.collectElements();
+        this.buildTree();
     }
 
     /**
@@ -50,11 +76,8 @@ export class ContainerTree {
      * or unsupported nodes, and returns structured metadata including locator
      * info, role, type, labels, and bounding box.
      *
-     * @returns {ContainerElement[]} Extracted container elements.
      */
-    private collectElements(): ContainerElement[] {
-        const elements: ContainerElement[] = [];
-
+    private collectElements(): void {
         for (const el of Array.from(this.root.querySelectorAll(SELECTOR_CONTAINER))) {
             // skip hidden containers
             if (!isElementVisible(el, this.window)) continue;
@@ -70,7 +93,7 @@ export class ContainerTree {
 
             const labels = getContainerElementLabels(el);
 
-            elements.push({
+            const containerElement: ContainerElement = {
                 role,
                 type,
                 dataId: this.elementRegistry.register(el),
@@ -79,10 +102,10 @@ export class ContainerTree {
                 kind: 'container',
                 labels,
                 bbox,
-                baseImportanceScore: scoreBaseContainerElement({ role, type, labels, bbox }),
-            });
+                meaningScore: scoreContainerMeaning({ role, type, labels, bbox }),
+            };
+            this.elements.push(containerElement);
         }
-        return elements;
     }
 
     /**
@@ -92,31 +115,14 @@ export class ContainerTree {
      * extracted ancestor. Unsupported wrapper elements are skipped by walking
      * up the DOM until an extracted ancestor container is found.
      *
-     * @returns A hierarchy of extracted container nodes.
      */
-    private buildTree(): ContainerTreeNode[] {
-        const nodes: ContainerTreeNode[] = [];
-
-        const nodeByEl = new WeakMap<Element, ContainerTreeNode>();
-        // finds the nearest extracted container node above an element.
-        const getParentNode = (el: Element, root: Element): ContainerTreeNode | undefined => {
-            let current = el.parentElement;
-
-            while (current) {
-                const parent = nodeByEl.get(current);
-                if (parent) return parent;
-                if (current === root) return undefined;
-                current = current.parentElement;
-            }
-            return undefined;
-        };
-
+    private buildTree() {
         // collect node by element map
         this.elements.forEach((containerElement) => {
             const el = this.elementRegistry.get(containerElement.dataId);
             if (!el) return;
 
-            nodeByEl.set(el, { ...containerElement, nodes: [] });
+            this.nodeByEl.set(el, { element: containerElement, nodes: [] });
         });
 
         // connect ancestors though the map
@@ -124,28 +130,96 @@ export class ContainerTree {
             const el = this.elementRegistry.get(containerElement.dataId);
             if (!el) return;
 
-            const node = nodeByEl.get(el);
+            const node = this.nodeByEl.get(el);
             if (!node) return;
 
-            const parent = getParentNode(el, this.root);
+            const parent = this.getParentNode(el);
             if (parent) {
                 parent.nodes.push(node);
             } else {
-                nodes.push(node);
+                this.nodes.push(node);
             }
         });
+    }
 
-        return nodes;
+    private getParentNode(el: Element): ContainerTreeNode | undefined {
+        if (!this.root.contains(el)) return undefined;
+
+        let current = el.parentElement;
+        while (current) {
+            const parent = this.nodeByEl.get(current);
+            if (parent) return parent;
+            if (current === this.root) return undefined;
+            current = current.parentElement;
+        }
+        return undefined;
+    }
+
+    private getPathToRoot(el: Element): ContainerTreeNode[] {
+        if (!this.root.contains(el)) return [];
+
+        const path: ContainerTreeNode[] = [];
+        let current = el.parentElement;
+        while (current) {
+            const node = this.nodeByEl.get(current);
+            if (node) path.push(node);
+
+            if (current === this.root) break;
+            current = current.parentElement;
+        }
+        return path;
+    }
+
+    private getTargetPath(
+        el: Element,
+        scoreRelevance: (node: ContainerTreeNode, distance: number) => ScoringResult,
+    ): ContainerPathNode[] {
+        return this.getPathToRoot(el).map((node, distance) => ({
+            distance,
+            element: node.element,
+            relevanceScore: scoreRelevance(node, distance),
+        }));
     }
 
     /**
-     * Compute max depth for a container subtree
+     * Returns the semantic container path for a content target.
      *
-     * Empty node arrays have depth 0. Leaf nodes have depth 1.
-     *
-     * @param nodes - Container nodes to inspect.
-     * @returns Maximum nested depth.
+     * The path starts with the nearest ancestor container and walks toward the
+     * root. Each container is annotated with its distance from the target and a
+     * relevance score calculated for the target content type.
      */
+    getContentTargetPath(el: Element, target: Pick<ContentElement, 'type'>): ContainerPathNode[] {
+        return this.getTargetPath(el, (node, distance) =>
+            scoreContainerRelevanceForContentTarget({
+                targetType: target.type,
+                containerRole: node.element.role,
+                containerType: node.element.type,
+                containerMeaningScore: node.element.meaningScore.value,
+                distance,
+            }),
+        );
+    }
+
+    /**
+     * Returns the semantic container path for an interactive target.
+     *
+     * The path starts with the nearest ancestor container and walks toward the
+     * root. Each container is annotated with its distance from the target and a
+     * relevance score calculated for the target interactive role and type.
+     */
+    getInteractiveTargetPath(el: Element, target: Pick<InteractiveElement, 'role' | 'type'>): ContainerPathNode[] {
+        return this.getTargetPath(el, (node, distance) =>
+            scoreContainerRelevanceForInteractiveTarget({
+                targetRole: target.role,
+                targetType: target.type,
+                containerRole: node.element.role,
+                containerType: node.element.type,
+                containerMeaningScore: node.element.meaningScore.value,
+                distance,
+            }),
+        );
+    }
+
     private getMaxDepthR(nodes: ContainerTreeNode[]): number {
         if (nodes.length === 0) return 0;
 

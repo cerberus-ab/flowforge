@@ -1,6 +1,6 @@
-import { topElements, type TopElements } from '../importance/topEl.ts';
-import type { InteractiveElement, PageBasics } from '../../types/index.ts';
-import { type InteractiveElementScoringData, scoreInteractiveElement } from '../importance/interactive.ts';
+import { topElements, type TopElements } from '../scoring/topEl.ts';
+import type { InteractiveElement, PageBasics, Scoring } from '../../types/index.ts';
+import { scoreInteractiveMeaning, scoreTargetContext, scoreTargetImportance } from '../scoring/index.ts';
 import { SELECTOR_INTERACTIVE } from '../selectors.ts';
 import { getElementBoundingBox, isAboveTheFold, isElementVisible, isInViewport } from './primitive/view.ts';
 import { isSensitiveElement } from './primitive/sensitive.ts';
@@ -8,10 +8,10 @@ import { getInteractiveRole, roleToInteractiveElementType } from './primitive/ro
 import { getInteractiveElementLabels } from './primitive/label.ts';
 import { getElementText } from './primitive/text.ts';
 import { getInteractiveElementState } from './primitive/state.ts';
-import { getElementContext } from '../context/context.ts';
 import { getCssSelector } from './primitive/selector.ts';
 import { getElementLink } from './primitive/link.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
+import { ContainerTree } from './ContainerTree.ts';
 
 interface ExtractInteractiveElementsOptions {
     elementsLimit: number;
@@ -31,9 +31,17 @@ export function extractInteractiveElements(
     root: Element,
     elementRegistry: ElementRegistry,
     basics: PageBasics,
+    containerTree: ContainerTree,
     options: ExtractInteractiveElementsOptions,
 ): TopElements<InteractiveElement> {
-    const candidates: { el: Element; scoringData: InteractiveElementScoringData; importanceScore: number }[] = [];
+    const candidates: {
+        el: Element;
+        prefilled: Pick<
+            InteractiveElement,
+            'role' | 'type' | 'labels' | 'text' | 'state' | 'bbox' | 'meaningScore' | 'context'
+        >;
+        importanceScore: Scoring;
+    }[] = [];
 
     Array.from(root.querySelectorAll(SELECTOR_INTERACTIVE)).forEach((el) => {
         // skip hidden elements
@@ -48,19 +56,19 @@ export function extractInteractiveElements(
         if (!type) return;
 
         // compute only necessary data for scoring the candidates
-        const scoringData: InteractiveElementScoringData = {
-            role,
-            type,
-            labels: getInteractiveElementLabels(el),
-            text: getElementText(el),
-            state: getInteractiveElementState(el),
-            context: getElementContext(el),
-            bbox: getElementBoundingBox(el),
-        };
+        const labels = getInteractiveElementLabels(el);
+        const text = getElementText(el);
+        const state = getInteractiveElementState(el);
+        const bbox = getElementBoundingBox(el);
+        const meaningScore = scoreInteractiveMeaning({ role, type, labels, text, state, bbox });
+        const path = containerTree.getInteractiveTargetPath(el, { role, type });
+        const context = { path, contextScore: scoreTargetContext({ path }) };
+        const importanceScore = scoreTargetImportance({ meaningScore, contextScore: context.contextScore });
+
         candidates.push({
             el,
-            scoringData: scoringData,
-            importanceScore: scoreInteractiveElement(scoringData),
+            prefilled: { role, type, labels, text, state, bbox, meaningScore, context },
+            importanceScore,
         });
     });
 
@@ -68,15 +76,15 @@ export function extractInteractiveElements(
         candidates,
         options.elementsLimit,
         // continue to compute only for selected elements
-        ({ el, scoringData, importanceScore }) => ({
-            ...scoringData,
+        ({ el, prefilled, importanceScore }) => ({
+            ...prefilled,
             dataId: elementRegistry.register(el),
             cssSelector: getCssSelector(el),
             tag: el.tagName.toLowerCase(),
             kind: 'interactive',
             link: getElementLink(el),
-            inViewport: isInViewport(scoringData.bbox, basics.viewport),
-            aboveTheFold: isAboveTheFold(scoringData.bbox, basics.viewport),
+            inViewport: isInViewport(prefilled.bbox, basics.viewport),
+            aboveTheFold: isAboveTheFold(prefilled.bbox, basics.viewport),
             importanceScore,
         }),
     );

@@ -21,11 +21,11 @@ export function formatConcatElements(formatted: string[]): string {
 function formatElementContext(el: TargetElement): string[] {
     const parts: string[] = [];
 
-    if (el.context.sectionName) {
-        parts.push(`in section "${el.context.sectionName}"`);
+    if (el.contextDeprecated.sectionName) {
+        parts.push(`in section "${el.contextDeprecated.sectionName}"`);
     }
-    if (el.context.path.length > 0) {
-        parts.push(`inside "${formantElementContextPath(el.context.path)}"`);
+    if (el.contextDeprecated.path.length > 0) {
+        parts.push(`inside "${formantElementContextPath(el.contextDeprecated.path)}"`);
     }
     return parts;
 }

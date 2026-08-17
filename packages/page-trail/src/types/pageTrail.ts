@@ -1,3 +1,19 @@
+// Generic
+
+export interface TreeNode<E> {
+    element: E;
+    nodes: TreeNode<E>[];
+}
+
+export interface PathNode<E> {
+    element: E;
+    distance: number;
+}
+
+export interface Scoring {
+    value: number; // [0..1]
+}
+
 // Document Basics
 
 export interface Viewport {
@@ -58,8 +74,15 @@ export interface ContainerElementLabel {
     source: ContainerElementLabelSource;
 }
 
-export interface ContainerTreeNode extends ContainerElement {
-    nodes: ContainerTreeNode[];
+export type ContainerTreeNode = TreeNode<ContainerElement>;
+
+export type ContainerPathNode = PathNode<ContainerElement> & {
+    relevanceScore: Scoring;
+};
+
+export interface ElementContext {
+    path: ContainerPathNode[];
+    contextScore: Scoring;
 }
 
 // Interactive element
@@ -131,28 +154,19 @@ export interface BaseElement {
     kind: ElementKind;
     type: ContainerElementType | ContentElementType | InteractiveElementType;
     bbox: BoundingBox;
+    meaningScore: Scoring;
 }
 
-export interface ContextElement extends BaseElement {
-    baseImportanceScore: number; // [0..1]
-}
-
-export interface ContainerElement extends ContextElement {
+export interface ContainerElement extends BaseElement {
     kind: 'container';
     type: ContainerElementType;
     role: ContainerElementRole;
     labels: ContainerElementLabel[];
 }
 
-// @deprecated
-export interface ElementContext {
-    path: ContainerElementRole[];
-    sectionName?: string;
-}
-
 export interface TargetElement extends BaseElement {
     context: ElementContext;
-    importanceScore: number; // [0..1]
+    importanceScore: Scoring;
 }
 
 export interface ContentElement extends TargetElement {

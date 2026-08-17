@@ -13,14 +13,14 @@ describe('generateSemanticMarkdown', () => {
                     tag: 'h1',
                     text: 'Explore Embed',
                     importanceScore: 0.9,
-                    context: { path: ['main content'] },
+                    contextDeprecated: { path: ['main content'] },
                 }),
                 contentElement({
                     type: 'text',
                     tag: 'p',
                     text: 'Click Start to launch the extension.',
                     importanceScore: 0.4,
-                    context: { path: ['main content'], sectionName: 'Controls' },
+                    contextDeprecated: { path: ['main content'], sectionName: 'Controls' },
                 }),
             ],
             interactive: [
@@ -28,7 +28,7 @@ describe('generateSemanticMarkdown', () => {
                     text: 'Start',
                     importanceScore: 0.8,
                     aboveTheFold: true,
-                    context: { path: ['toolbar'] },
+                    contextDeprecated: { path: ['toolbar'] },
                 }),
                 interactiveElement({
                     type: 'link',
@@ -37,7 +37,7 @@ describe('generateSemanticMarkdown', () => {
                     link: { type: 'internal', href: '/docs' },
                     importanceScore: 0.7,
                     inViewport: true,
-                    context: { path: ['navigation'] },
+                    contextDeprecated: { path: ['navigation'] },
                 }),
             ],
         });

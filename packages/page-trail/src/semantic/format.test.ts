@@ -57,7 +57,7 @@ describe('formatContentElement', () => {
                 contentElement({
                     type: 'heading',
                     text: 'Pricing',
-                    context: { sectionName: 'Plans', path: ['main content'] },
+                    contextDeprecated: { sectionName: 'Plans', path: ['main content'] },
                 }),
             ),
         ).toBe('heading. Pricing. in section "Plans". inside "main content"');
@@ -72,7 +72,7 @@ describe('formatInteractiveElement', () => {
                     labels: [{ source: 'aria-label', value: 'Save changes' }],
                     state: { disabled: true, required: true },
                     aboveTheFold: true,
-                    context: { path: ['form'], sectionName: 'Profile' },
+                    contextDeprecated: { path: ['form'], sectionName: 'Profile' },
                 }),
             ),
         ).toBe(
