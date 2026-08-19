@@ -261,8 +261,7 @@ describe('ContainerTree', () => {
         markVisible('#form', containerRect);
 
         const tree = createTree();
-        const path = tree.getElementPath(document.querySelector('#button')!, {
-            kind: 'interactive',
+        const path = tree.getInteractiveTargetPath(document.querySelector('#button')!, {
             role: 'button',
             type: 'button',
         });

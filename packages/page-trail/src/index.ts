@@ -1,5 +1,4 @@
 export type * from './types/pageTrail.ts';
 
-export * from './semantic/format.ts';
-export * from './semantic/markdown.ts';
-export { PageTrailCollector, type CollectorOptions } from './collector/PageTrailCollector.ts';
+export * from './collector/index.ts';
+export * from './semantic/index.ts';

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import type { PageTrail } from '../types';
-import { contentElement, interactiveElement } from '../../test/fixtures';
-import { generateSemanticMarkdown } from './markdown';
+import type { PageTrail } from '../../types';
+import { contentElement, interactiveElement } from '../../../test/fixtures';
+import { semMarkdown } from './markdown';
 
-describe('generateSemanticMarkdown', () => {
+describe('semMarkdown', () => {
     it('generates a semantic markdown view for page basics, samples, content, and interactions', () => {
         const pageTrail = pageTrailFixture({
             content: [
@@ -12,37 +12,33 @@ describe('generateSemanticMarkdown', () => {
                     type: 'heading',
                     tag: 'h1',
                     text: 'Explore Embed',
-                    importanceScore: 0.9,
-                    contextDeprecated: { path: ['main content'] },
+                    importanceScore: { value: 0.9 },
                 }),
                 contentElement({
                     type: 'text',
                     tag: 'p',
                     text: 'Click Start to launch the extension.',
-                    importanceScore: 0.4,
-                    contextDeprecated: { path: ['main content'], sectionName: 'Controls' },
+                    importanceScore: { value: 0.4 },
                 }),
             ],
             interactive: [
                 interactiveElement({
                     text: 'Start',
-                    importanceScore: 0.8,
+                    importanceScore: { value: 0.8 },
                     aboveTheFold: true,
-                    contextDeprecated: { path: ['toolbar'] },
                 }),
                 interactiveElement({
                     type: 'link',
                     role: 'link',
                     text: 'Docs',
                     link: { type: 'internal', href: '/docs' },
-                    importanceScore: 0.7,
+                    importanceScore: { value: 0.7 },
                     inViewport: true,
-                    contextDeprecated: { path: ['navigation'] },
                 }),
             ],
         });
 
-        expect(generateSemanticMarkdown(pageTrail)).toBe(`# Semantic view
+        expect(semMarkdown(pageTrail)).toBe(`# Semantic view
 
 ## Page
 
@@ -54,21 +50,21 @@ describe('generateSemanticMarkdown', () => {
 
 ## Sample headings
 
-h1. Explore Embed
+Heading h1: Explore Embed
 
 ## Sample interactions
 
-button. Start | link. Docs
+Button. Name: Start. Action: click action. State: visible on initial screen | Internal link. Name: Docs. Action: click action. State: currently visible
 
 ## Content
 
-- heading. Explore Embed. inside "main content"
-- text. Click Start to launch the extension.. in section "Controls". inside "main content"
+- Heading h1: Explore Embed
+- Text: Click Start to launch the extension.
 
 ## Interactive
 
-- button. click action. name "Start". visible on initial screen. inside "toolbar"
-- internal link. click action. name "Docs". currently visible. inside "navigation"`);
+- Button. Name: Start. Action: click action. State: visible on initial screen
+- Internal link. Name: Docs. Action: click action. State: currently visible`);
     });
 
     it('uses empty markers for missing optional sections', () => {
@@ -81,7 +77,7 @@ button. Start | link. Docs
             interactive: [],
         });
 
-        expect(generateSemanticMarkdown(pageTrail)).toBe(`# Semantic view
+        expect(semMarkdown(pageTrail)).toBe(`# Semantic view
 
 ## Page
 
@@ -123,9 +119,12 @@ function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
                 scrollHeight: 1440,
             },
         },
+        container: [],
         content: [],
         interactive: [],
         metadata: {
+            containerElements: 0,
+            containerMaxDepth: 0,
             contentElements: 0,
             contentElementsTotal: 0,
             contentElementsLimitReached: false,
@@ -133,7 +132,13 @@ function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
             interactiveElementsTotal: 0,
             interactiveElementsLimitReached: false,
             collectedAt: 0,
-            durationMs: 0,
+            performance: {
+                basicsMs: 0,
+                containerMs: 0,
+                contentMs: 0,
+                interactiveMs: 0,
+                totalMs: 0,
+            },
         },
         ...overrides,
     };

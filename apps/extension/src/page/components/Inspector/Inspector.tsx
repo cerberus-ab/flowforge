@@ -8,7 +8,7 @@ import { JsonViewer } from '@/shared/components/JsonViewer';
 import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
 import { Tabs } from '@/shared/components/Tabs';
 import { PageMetadata } from '@/page/components/Inspector/components/Metadata';
-import { formatContentElement, formatInteractiveElement, generateSemanticMarkdown } from '@flowforge/page-trail';
+import { semMarkdown, semModelContainer, semModelContent, semModelInteractive } from '@flowforge/page-trail';
 
 const inspectorTabs = [
     { id: 'basics', label: 'Basics', icon: BadgeInfo },
@@ -21,16 +21,19 @@ const inspectorTabs = [
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];
 
-function getSemanticDescription(value: unknown): string | undefined {
-    if (
-        typeof value === 'object' &&
-        value !== null &&
-        'importanceScore' in value &&
-        'semanticDescription' in value &&
-        typeof value.importanceScore === 'number' &&
-        typeof value.semanticDescription === 'string'
-    ) {
-        return `${value.importanceScore.toFixed(2)} · ${value.semanticDescription}`;
+function getTargetElementSummary(value: unknown): string | undefined {
+    if (typeof value !== 'object' || value === null) {
+        return undefined;
+    }
+    const candidate = value as Record<string, unknown>;
+    const importanceScore = candidate.importanceScore;
+    const importanceValue =
+        typeof importanceScore === 'object' && importanceScore !== null
+            ? (importanceScore as Record<string, unknown>).value
+            : undefined;
+
+    if (typeof importanceValue === 'number' && typeof candidate.semanticText === 'string') {
+        return `${importanceValue.toFixed(2)} · ${candidate.semanticText}`;
     }
     return undefined;
 }
@@ -107,30 +110,30 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                     aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
-                    {activeTab === 'container' && <JsonViewer rootArrayExpandedItems={1} value={pageTrail.container} />}
-                    {activeTab === 'content' && (
+                    {activeTab === 'container' && (
                         <JsonViewer
-                            getNodeSummary={getSemanticDescription}
                             rootArrayExpandedItems={1}
                             sortKeys
-                            value={pageTrail.content.map((contentElement) => ({
-                                ...contentElement,
-                                semanticDescription: formatContentElement(contentElement),
-                            }))}
+                            value={semModelContainer(pageTrail.container)}
+                        />
+                    )}
+                    {activeTab === 'content' && (
+                        <JsonViewer
+                            getNodeSummary={getTargetElementSummary}
+                            rootArrayExpandedItems={1}
+                            sortKeys
+                            value={semModelContent(pageTrail.content)}
                         />
                     )}
                     {activeTab === 'interactive' && (
                         <JsonViewer
-                            getNodeSummary={getSemanticDescription}
+                            getNodeSummary={getTargetElementSummary}
                             rootArrayExpandedItems={1}
                             sortKeys
-                            value={pageTrail.interactive.map((interactiveElement) => ({
-                                ...interactiveElement,
-                                semanticDescription: formatInteractiveElement(interactiveElement),
-                            }))}
+                            value={semModelInteractive(pageTrail.interactive)}
                         />
                     )}
-                    {activeTab === 'semanticView' && <MarkdownViewer value={generateSemanticMarkdown(pageTrail)} />}
+                    {activeTab === 'semanticView' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
                     {activeTab === 'metadata' && <JsonViewer value={pageTrail.metadata} sortKeys />}
                 </div>
                 <div className="flowforge-inspector__footer">

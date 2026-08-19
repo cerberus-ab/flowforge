@@ -20,6 +20,7 @@ describe('extractContentElements', () => {
                 <p id="hidden">Hidden paragraph text</p>
             </main>
         `;
+        markVisible('main');
         markVisible('#title');
         markVisible('#intro');
         markVisible('#short');
@@ -27,7 +28,9 @@ describe('extractContentElements', () => {
 
         const registry = createRegistry();
         const containerTree = ContainerTree.extractFor(window, document, registry);
-        const topElements = extractContentElements(window, document.body, registry, containerTree, { elementsLimit: 0 });
+        const topElements = extractContentElements(window, document.body, registry, containerTree, {
+            elementsLimit: 0,
+        });
 
         expect(topElements.data).toEqual(
             expect.arrayContaining([
@@ -54,7 +57,7 @@ describe('extractContentElements', () => {
 
         topElements.data.forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);
-            expect(el.context.contextScore).toHaveProperty('features');
+            expect(el.context.breadcrumbs.length).toBeGreaterThan(0);
         });
     });
 
@@ -65,12 +68,15 @@ describe('extractContentElements', () => {
                 <p id="paragraph">Regular paragraph text</p>
             </main>
         `;
+        markVisible('main');
         markVisible('#heading');
         markVisible('#paragraph');
 
         const registry = createRegistry();
         const containerTree = ContainerTree.extractFor(window, document, registry);
-        const topElements = extractContentElements(window, document.body, registry, containerTree, { elementsLimit: 1 });
+        const topElements = extractContentElements(window, document.body, registry, containerTree, {
+            elementsLimit: 1,
+        });
 
         expect(topElements.data).toHaveLength(1);
         expect(topElements.data[0]).toEqual(expect.objectContaining({ dataId: 'heading' }));

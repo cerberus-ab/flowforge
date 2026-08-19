@@ -34,10 +34,9 @@ export function contentElement(overrides: Partial<ContentElement> = {}): Content
         cssSelector: '#content-1',
         bbox: testBoundingBox,
         meaningScore: { value: 0 },
-        context: { path: [], contextScore: { value: 0 } },
-        contextDeprecated: { path: [] },
+        context: { path: [], breadcrumbs: [], contextScore: { value: 0 } },
         text: 'Welcome',
-        importanceScore: 0,
+        importanceScore: { value: 0 },
         ...overrides,
     };
 }
@@ -52,15 +51,14 @@ export function interactiveElement(overrides: Partial<InteractiveElement> = {}):
         cssSelector: '#button-1',
         bbox: { ...testBoundingBox, height: 40, bottom: 40 },
         meaningScore: { value: 0 },
-        context: { path: [], contextScore: { value: 0 } },
-        contextDeprecated: { path: [] },
+        context: { path: [], breadcrumbs: [], contextScore: { value: 0 } },
         text: 'Save',
         labels: [],
         state: {},
         link: undefined,
         inViewport: false,
         aboveTheFold: false,
-        importanceScore: 0,
+        importanceScore: { value: 0 },
         ...overrides,
     };
 }

@@ -1,6 +1,6 @@
 import { topElements, type TopElements } from '../scoring/topEl.ts';
 import type { InteractiveElement, PageBasics, Scoring } from '../../types/index.ts';
-import { scoreInteractiveMeaning, scoreTargetContext, scoreTargetImportance } from '../scoring/index.ts';
+import { scoreInteractiveMeaning, scoreTargetImportance } from '../scoring/index.ts';
 import { SELECTOR_INTERACTIVE } from '../selectors.ts';
 import { getElementBoundingBox, isAboveTheFold, isElementVisible, isInViewport } from './primitive/view.ts';
 import { isSensitiveElement } from './primitive/sensitive.ts';
@@ -12,6 +12,7 @@ import { getCssSelector } from './primitive/selector.ts';
 import { getElementLink } from './primitive/link.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
 import { ContainerTree } from './ContainerTree.ts';
+import { extractInteractiveElementContext } from './context.ts';
 
 interface ExtractInteractiveElementsOptions {
     elementsLimit: number;
@@ -61,8 +62,7 @@ export function extractInteractiveElements(
         const state = getInteractiveElementState(el);
         const bbox = getElementBoundingBox(el);
         const meaningScore = scoreInteractiveMeaning({ role, type, labels, text, state, bbox });
-        const path = containerTree.getInteractiveTargetPath(el, { role, type });
-        const context = { path, contextScore: scoreTargetContext({ path }) };
+        const context = extractInteractiveElementContext(containerTree, el, { role, type });
         const importanceScore = scoreTargetImportance({ meaningScore, contextScore: context.contextScore });
 
         candidates.push({

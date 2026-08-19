@@ -82,6 +82,7 @@ export type ContainerPathNode = PathNode<ContainerElement> & {
 
 export interface ElementContext {
     path: ContainerPathNode[];
+    breadcrumbs: number[];
     contextScore: Scoring;
 }
 

@@ -22,6 +22,7 @@ describe('extractInteractiveElements', () => {
                 <input id="password" type="password" />
             </main>
         `;
+        markVisible('main');
         markVisible('#save');
         markVisible('#docs');
         markVisible('#email');
@@ -78,7 +79,7 @@ describe('extractInteractiveElements', () => {
 
         topElements.data.forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);
-            expect(el.context.contextScore).toHaveProperty('features');
+            expect(el.context.breadcrumbs.length).toBeGreaterThan(0);
         });
     });
 
@@ -89,6 +90,7 @@ describe('extractInteractiveElements', () => {
                 <a id="link" href="/docs">Docs</a>
             </main>
         `;
+        markVisible('main');
         markVisible('#button');
         markVisible('#link');
 

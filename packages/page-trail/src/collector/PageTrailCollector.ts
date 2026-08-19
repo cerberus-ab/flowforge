@@ -1,11 +1,11 @@
 import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
 
 import { type TopElements } from './scoring/topEl.ts';
-import { ContainerTree } from './extractors/ContainerTree.ts';
+import { ContainerTree } from './extractors/index.ts';
 import { ElementRegistry } from './ElementRegistry.ts';
 import { extractContentElements } from './extractors/content.ts';
 import { extractPageBasics } from './extractors/basics.ts';
-import { extractInteractiveElements } from './extractors/interactive.ts';
+import { extractInteractiveElements } from './extractors/index.ts';
 
 export interface CollectorOptions {
     /** Maximum number of content elements to keep after importance scoring. */

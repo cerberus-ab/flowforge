@@ -2,9 +2,6 @@ import type {
     ContainerElement,
     ContainerTreeNode,
     ContainerPathNode,
-    ContentElementType,
-    InteractiveElementRole,
-    InteractiveElementType,
     ContentElement,
     InteractiveElement,
 } from '../../types/index.ts';
@@ -25,16 +22,14 @@ import {
 // constants
 const CONTAINER_MIN_AREA = 20 * 20;
 
-export type ElementPathTarget =
-    | {
-          kind: 'content';
-          type: ContentElementType;
-      }
-    | {
-          kind: 'interactive';
-          role: InteractiveElementRole;
-          type: InteractiveElementType;
-      };
+/**
+ * Minimal content target data needed to score ancestor container relevance.
+ */
+export type ContentTargetForPath = Pick<ContentElement, 'type'>;
+/**
+ * Minimal interactive target data needed to score ancestor container relevance.
+ */
+export type InteractiveTargetForPath = Pick<InteractiveElement, 'role' | 'type'>;
 
 /**
  * Builds a semantic container hierarchy from a DOM subtree.
@@ -188,7 +183,7 @@ export class ContainerTree {
      * root. Each container is annotated with its distance from the target and a
      * relevance score calculated for the target content type.
      */
-    getContentTargetPath(el: Element, target: Pick<ContentElement, 'type'>): ContainerPathNode[] {
+    getContentTargetPath(el: Element, target: ContentTargetForPath): ContainerPathNode[] {
         return this.getTargetPath(el, (node, distance) =>
             scoreContainerRelevanceForContentTarget({
                 targetType: target.type,
@@ -207,7 +202,7 @@ export class ContainerTree {
      * root. Each container is annotated with its distance from the target and a
      * relevance score calculated for the target interactive role and type.
      */
-    getInteractiveTargetPath(el: Element, target: Pick<InteractiveElement, 'role' | 'type'>): ContainerPathNode[] {
+    getInteractiveTargetPath(el: Element, target: InteractiveTargetForPath): ContainerPathNode[] {
         return this.getTargetPath(el, (node, distance) =>
             scoreContainerRelevanceForInteractiveTarget({
                 targetRole: target.role,

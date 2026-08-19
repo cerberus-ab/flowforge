@@ -22,9 +22,20 @@ export function normalizeText(text: string) {
  * toUpperSnakeCase('hasVisibleText') // 'HAS_VISIBLE_TEXT'
  * toUpperSnakeCase('generic-unlabeled') // 'GENERIC_UNLABELED'
  */
-export function toUpperSnakeCase(value: string): string {
-    return value
+export function toUpperSnakeCase(text: string): string {
+    return text
         .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
         .replace(/[\s-]+/g, '_')
         .toUpperCase();
+}
+
+/**
+ * Converts the first character of a string to uppercase.
+ *
+ * @param text Input text to capitalize.
+ * @returns Text with an uppercase first character.
+ */
+export function capitaliseFirst(text: string): string {
+    if (text.length < 1) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }

@@ -1,22 +1,23 @@
-import type { PageTrail } from '../types/index.ts';
-import {
-    formatContentElement,
-    formatInteractiveElement,
-    formatSampleHeadings,
-    formatSampleInteractions,
-} from './format.ts';
+import type { PageTrail } from '../../types/index.ts';
+import { semSampleHeadings, semSampleInteractions } from './basics.ts';
+import { semContentElement } from '../element/content.ts';
+import { semInteractiveElement } from '../element/interactive.ts';
 
-// constants
 const PLACEHOLDER_NONE = '_None_';
-
-function formatMarkdownList(items: string[]): string[] {
-    if (items.length === 0) return [PLACEHOLDER_NONE];
-    return items.map((item) => `- ${item}`);
-}
 
 function formatOptionalText(text: string): string {
     return text || PLACEHOLDER_NONE;
 }
+
+function formatMarkdownList(items: string[]): string[] {
+    return items.map((item) => `- ${item}`);
+}
+
+function formatOptionalMarkdownList(items: string[]): string[] {
+    return items.length > 0 ? formatMarkdownList(items) : [PLACEHOLDER_NONE];
+}
+
+// Exports
 
 /**
  * Generates a human-readable Markdown snapshot of a `PageTrail`.
@@ -24,7 +25,7 @@ function formatOptionalText(text: string): string {
  * Intended for Inspector previews, debugging, copy/export flows, and examples
  * where the structured page model should be shown as semantic text.
  */
-export function generateSemanticMarkdown(pageTrail: PageTrail): string {
+export function semMarkdown(pageTrail: PageTrail): string {
     const lines: string[] = [];
 
     lines.push('# Semantic view');
@@ -44,22 +45,22 @@ export function generateSemanticMarkdown(pageTrail: PageTrail): string {
 
     lines.push('## Sample headings');
     lines.push('');
-    lines.push(formatOptionalText(formatSampleHeadings(pageTrail.content)));
+    lines.push(formatOptionalText(semSampleHeadings(pageTrail.content)));
     lines.push('');
 
     lines.push('## Sample interactions');
     lines.push('');
-    lines.push(formatOptionalText(formatSampleInteractions(pageTrail.interactive)));
+    lines.push(formatOptionalText(semSampleInteractions(pageTrail.interactive)));
     lines.push('');
 
     lines.push('## Content');
     lines.push('');
-    lines.push(...formatMarkdownList(pageTrail.content.map((el) => formatContentElement(el))));
+    lines.push(...formatOptionalMarkdownList(pageTrail.content.map((el) => semContentElement(el).text())));
     lines.push('');
 
     lines.push('## Interactive');
     lines.push('');
-    lines.push(...formatMarkdownList(pageTrail.interactive.map((el) => formatInteractiveElement(el))));
+    lines.push(...formatOptionalMarkdownList(pageTrail.interactive.map((el) => semInteractiveElement(el).text())));
 
     return lines.join('\n');
 }

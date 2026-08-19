@@ -1,12 +1,13 @@
 import { topElements, type TopElements } from '../scoring/topEl.ts';
 import type { ContentElement, Scoring } from '../../types/index.ts';
-import { scoreContentMeaning, scoreTargetContext, scoreTargetImportance } from '../scoring/index.ts';
+import { scoreContentMeaning, scoreTargetImportance } from '../scoring/index.ts';
 import { SELECTOR_CONTENT } from '../selectors.ts';
 import { getElementBoundingBox, isElementVisible } from './primitive/view.ts';
 import { getElementText } from './primitive/text.ts';
 import { getCssSelector } from './primitive/selector.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
 import { ContainerTree } from './ContainerTree.ts';
+import { extractContentElementContext } from './context.ts';
 
 // constants
 const CONTENT_MIN_TEXT_LENGTH = 5;
@@ -46,8 +47,7 @@ export function extractContentElements(
         // compute only necessary data for scoring the candidates
         const type = /^h[1-4]$/i.test(el.tagName) ? 'heading' : 'text';
         const meaningScore = scoreContentMeaning({ type, text });
-        const path = containerTree.getContentTargetPath(el, { type });
-        const context = { path, contextScore: scoreTargetContext({ path }) };
+        const context = extractContentElementContext(containerTree, el, { type });
         const importanceScore = scoreTargetImportance({ meaningScore, contextScore: context.contextScore });
 
         candidates.push({

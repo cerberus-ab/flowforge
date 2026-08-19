@@ -28,7 +28,7 @@ export class ToolFindElement extends AbstractCallableTool {
         const rd = bestMatch[0];
         return {
             found: true,
-            semanticDescription: rd.content,
+            semanticText: rd.content,
             ...this.getToolResultElement(rd.metadata.element),
         };
     }

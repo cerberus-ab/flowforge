@@ -5,9 +5,9 @@ import { topElements } from './topEl';
 
 describe('topElements', () => {
     it('sorts elements by importance score in descending order', () => {
-        const low = contentElement({ dataId: 'low', importanceScore: 0.1 });
-        const high = contentElement({ dataId: 'high', importanceScore: 0.9 });
-        const medium = contentElement({ dataId: 'medium', importanceScore: 0.5 });
+        const low = contentElement({ dataId: 'low', importanceScore: { value: 0.1 } });
+        const high = contentElement({ dataId: 'high', importanceScore: { value: 0.9 } });
+        const medium = contentElement({ dataId: 'medium', importanceScore: { value: 0.5 } });
 
         const result = topElements([low, high, medium], 0, (el) => el);
 
@@ -17,9 +17,9 @@ describe('topElements', () => {
     it('returns only the requested number of top elements', () => {
         const result = topElements(
             [
-                contentElement({ dataId: 'first', importanceScore: 0.7 }),
-                contentElement({ dataId: 'second', importanceScore: 0.9 }),
-                contentElement({ dataId: 'third', importanceScore: 0.2 }),
+                contentElement({ dataId: 'first', importanceScore: { value: 0.7 } }),
+                contentElement({ dataId: 'second', importanceScore: { value: 0.9 } }),
+                contentElement({ dataId: 'third', importanceScore: { value: 0.2 } }),
             ],
             2,
             (el) => el,
@@ -33,8 +33,8 @@ describe('topElements', () => {
     it('does not mark the limit as reached when all elements fit', () => {
         const result = topElements(
             [
-                contentElement({ dataId: 'first', importanceScore: 0.7 }),
-                contentElement({ dataId: 'second', importanceScore: 0.9 }),
+                contentElement({ dataId: 'first', importanceScore: { value: 0.7 } }),
+                contentElement({ dataId: 'second', importanceScore: { value: 0.9 } }),
             ],
             2,
             (el) => el,
@@ -48,9 +48,9 @@ describe('topElements', () => {
     it('transforms selected elements after sorting and limiting', () => {
         const result = topElements(
             [
-                contentElement({ dataId: 'first', importanceScore: 0.7 }),
-                contentElement({ dataId: 'second', importanceScore: 0.9 }),
-                contentElement({ dataId: 'third', importanceScore: 0.2 }),
+                contentElement({ dataId: 'first', importanceScore: { value: 0.7 } }),
+                contentElement({ dataId: 'second', importanceScore: { value: 0.9 } }),
+                contentElement({ dataId: 'third', importanceScore: { value: 0.2 } }),
             ],
             2,
             (el) => el.dataId,
