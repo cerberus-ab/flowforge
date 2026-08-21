@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import type { PageTrail } from '../../types';
-import { contentElement, interactiveElement } from '../../../test/fixtures';
+import type { ContainerElement, ContainerTreeNode, PageTrail } from '../../types';
+import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
 import { semMarkdown } from './markdown';
 
 describe('semMarkdown', () => {
     it('generates a semantic markdown view for page basics, samples, content, and interactions', () => {
         const pageTrail = pageTrailFixture({
+            container: [
+                containerNode('Main', 'main content', [
+                    containerNode('Tabs', 'navigation'),
+                ]),
+            ],
             content: [
                 contentElement({
                     type: 'heading',
@@ -56,6 +61,11 @@ Heading h1: Explore Embed
 
 Button. Name: Start. Action: click action. State: visible on initial screen | Internal link. Name: Docs. Action: click action. State: currently visible
 
+## Sample page structure
+
+- Main content. Name: Main
+  - Navigation. Name: Tabs
+
 ## Content
 
 - Heading h1: Explore Embed
@@ -92,6 +102,10 @@ Button. Name: Start. Action: click action. State: visible on initial screen | In
 _None_
 
 ## Sample interactions
+
+_None_
+
+## Sample page structure
 
 _None_
 
@@ -141,5 +155,19 @@ function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
             },
         },
         ...overrides,
+    };
+}
+
+function containerNode(
+    name: string,
+    role: ContainerElement['role'] = 'section',
+    nodes: ContainerTreeNode[] = [],
+): ContainerTreeNode {
+    return {
+        element: containerElement({
+            role,
+            labels: [{ source: 'aria-label', value: name }],
+        }),
+        nodes,
     };
 }

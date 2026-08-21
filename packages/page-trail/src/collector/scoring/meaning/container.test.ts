@@ -33,6 +33,24 @@ describe('scoreContainerMeaning', () => {
         ).toBeGreaterThan(scoreContainerMeaning(baseScoringData).value);
     });
 
+    it('scores strong label sources above subheadings and title-only labels', () => {
+        const strongLabelScore = scoreContainerMeaning({
+            ...baseScoringData,
+            labels: [{ source: 'heading', value: 'Payment details' }],
+        }).value;
+        const subheadingLabelScore = scoreContainerMeaning({
+            ...baseScoringData,
+            labels: [{ source: 'subheading', value: 'Payment details' }],
+        }).value;
+        const titleLabelScore = scoreContainerMeaning({
+            ...baseScoringData,
+            labels: [{ source: 'title', value: 'Payment details' }],
+        }).value;
+
+        expect(strongLabelScore).toBeGreaterThan(subheadingLabelScore);
+        expect(subheadingLabelScore).toBeGreaterThan(titleLabelScore);
+    });
+
     it('scores strong label sources above title-only labels', () => {
         expect(
             scoreContainerMeaning({
@@ -107,6 +125,15 @@ describe('scoreContainerMeaning', () => {
                 labels: [{ source: 'title', value: 'Payment details' }],
             }).features,
         ).toEqual(expect.arrayContaining(['TYPE_STRUCTURAL_INC_2', 'ROLE_MEANINGFUL_INC_3', 'LABEL_TITLE_ONLY_INC_2']));
+    });
+
+    it('returns subheading label diagnostics separately from strong and title-only labels', () => {
+        expect(
+            scoreContainerMeaning({
+                ...baseScoringData,
+                labels: [{ source: 'subheading', value: 'Payment details' }],
+            }).features,
+        ).toEqual(expect.arrayContaining(['TYPE_STRUCTURAL_INC_2', 'ROLE_MEANINGFUL_INC_3', 'LABEL_SUBHEADING_INC_3']));
     });
 
     it('penalizes weak and noisy containers without making every noisy scope useless by itself', () => {

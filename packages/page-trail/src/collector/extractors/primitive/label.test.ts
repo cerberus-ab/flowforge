@@ -60,6 +60,24 @@ describe('getContainerLabels', () => {
     it('returns an empty array when no labels are found', () => {
         expect(getContainerElementLabels(document.createElement('section'))).toEqual([]);
     });
+
+    it('returns lower-level and ARIA headings as subheading labels', () => {
+        document.body.innerHTML = `
+            <section id="native">
+                <h5>Native subheading</h5>
+            </section>
+            <section id="aria">
+                <div role="heading">ARIA subheading</div>
+            </section>
+        `;
+
+        expect(getContainerElementLabels(document.querySelector('#native')!)).toEqual([
+            { value: 'Native subheading', source: 'subheading' },
+        ]);
+        expect(getContainerElementLabels(document.querySelector('#aria')!)).toEqual([
+            { value: 'ARIA subheading', source: 'subheading' },
+        ]);
+    });
 });
 
 describe('getInteractiveElementLabels', () => {

@@ -22,13 +22,7 @@ import {
 // constants
 const CONTAINER_MIN_AREA = 20 * 20;
 
-/**
- * Minimal content target data needed to score ancestor container relevance.
- */
 export type ContentTargetForPath = Pick<ContentElement, 'type'>;
-/**
- * Minimal interactive target data needed to score ancestor container relevance.
- */
 export type InteractiveTargetForPath = Pick<InteractiveElement, 'role' | 'type'>;
 
 /**

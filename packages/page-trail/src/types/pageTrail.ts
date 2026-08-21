@@ -67,7 +67,13 @@ export type ContainerElementRole =
     | 'table row'
     | 'menu';
 
-export type ContainerElementLabelSource = 'aria-labelledby' | 'aria-label' | 'legend' | 'heading' | 'title';
+export type ContainerElementLabelSource =
+    | 'aria-labelledby'
+    | 'aria-label'
+    | 'legend'
+    | 'heading'
+    | 'subheading'
+    | 'title';
 
 export interface ContainerElementLabel {
     value: string;

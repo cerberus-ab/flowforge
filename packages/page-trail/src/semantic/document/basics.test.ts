@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentElement, interactiveElement } from '../../../test/fixtures';
-import { semSampleHeadings, semSampleInteractions } from './basics';
+import type { ContainerElement, ContainerTreeNode } from '../../types';
+import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
+import { semSamplePageStructure, semSampleHeadings, semSampleInteractions } from './basics';
 
 describe('semSampleHeadings', () => {
     it('formats headings sorted by importance and limited by headingsLimit', () => {
@@ -89,3 +90,60 @@ describe('semSampleInteractions', () => {
         ).toBe('');
     });
 });
+
+describe('semSampleContainerTree', () => {
+    it('formats sampled containers in tree order limited within each sibling list', () => {
+        expect(
+            semSamplePageStructure(
+                [
+                    containerNode('Sidebar', 0.4, 'sidebar'),
+                    containerNode('Main', 0.9, 'main content', [
+                        containerNode('Secondary', 0.5),
+                        containerNode('Primary', 0.8),
+                        containerNode('Ignored', 0.1),
+                    ]),
+                    containerNode('Footer', 0.2, 'footer'),
+                ],
+                2,
+                2,
+            ),
+        ).toEqual([
+            { depth: 0, text: 'Sidebar. Name: Sidebar' },
+            { depth: 0, text: 'Main content. Name: Main' },
+            { depth: 1, text: 'Section. Name: Secondary' },
+            { depth: 1, text: 'Section. Name: Primary' },
+        ]);
+    });
+
+    it('stops after maxDepth', () => {
+        expect(
+            semSamplePageStructure(
+                [
+                    containerNode('Main', 1, 'main content', [
+                        containerNode('Included', 1, 'section', [containerNode('Too deep', 1)]),
+                    ]),
+                ],
+                1,
+            ),
+        ).toEqual([
+            { depth: 0, text: 'Main content. Name: Main' },
+            { depth: 1, text: 'Section. Name: Included' },
+        ]);
+    });
+});
+
+function containerNode(
+    name: string,
+    meaningScore: number,
+    role: ContainerElement['role'] = 'section',
+    nodes: ContainerTreeNode[] = [],
+): ContainerTreeNode {
+    return {
+        element: containerElement({
+            role,
+            labels: [{ source: 'aria-label', value: name }],
+            meaningScore: { value: meaningScore },
+        }),
+        nodes,
+    };
+}

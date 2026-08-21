@@ -1,5 +1,5 @@
 import type { PageTrail } from '../../types/index.ts';
-import { semSampleHeadings, semSampleInteractions } from './basics.ts';
+import { semSamplePageStructure, semSampleHeadings, semSampleInteractions } from './basics.ts';
 import { semContentElement } from '../element/content.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
 
@@ -9,12 +9,12 @@ function formatOptionalText(text: string): string {
     return text || PLACEHOLDER_NONE;
 }
 
-function formatMarkdownList(items: string[]): string[] {
-    return items.map((item) => `- ${item}`);
+function formatMarkdownListItem(text: string, offset: number = 0): string {
+    return `${' '.repeat(2 * offset)}- ${text}`;
 }
 
 function formatOptionalMarkdownList(items: string[]): string[] {
-    return items.length > 0 ? formatMarkdownList(items) : [PLACEHOLDER_NONE];
+    return items.length > 0 ? items : [PLACEHOLDER_NONE];
 }
 
 // Exports
@@ -53,14 +53,31 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push(formatOptionalText(semSampleInteractions(pageTrail.interactive)));
     lines.push('');
 
+    lines.push('## Sample page structure');
+    lines.push('');
+    lines.push(
+        ...formatOptionalMarkdownList(
+            semSamplePageStructure(pageTrail.container).map(({ depth, text }) => formatMarkdownListItem(text, depth)),
+        ),
+    );
+    lines.push('');
+
     lines.push('## Content');
     lines.push('');
-    lines.push(...formatOptionalMarkdownList(pageTrail.content.map((el) => semContentElement(el).text())));
+    lines.push(
+        ...formatOptionalMarkdownList(
+            pageTrail.content.map((el) => semContentElement(el).text()).map((st) => formatMarkdownListItem(st)),
+        ),
+    );
     lines.push('');
 
     lines.push('## Interactive');
     lines.push('');
-    lines.push(...formatOptionalMarkdownList(pageTrail.interactive.map((el) => semInteractiveElement(el).text())));
+    lines.push(
+        ...formatOptionalMarkdownList(
+            pageTrail.interactive.map((el) => semInteractiveElement(el).text()).map((st) => formatMarkdownListItem(st)),
+        ),
+    );
 
     return lines.join('\n');
 }

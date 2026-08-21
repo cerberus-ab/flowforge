@@ -1,6 +1,7 @@
-import type { ContentElement, InteractiveElement } from '../../types/index.ts';
+import type { ContainerTreeNode, ContentElement, InteractiveElement } from '../../types/index.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
 import { semContentElement } from '../element/content.ts';
+import { semContainerElement } from '../element/container.ts';
 
 // Exports
 
@@ -73,4 +74,45 @@ export function semSampleInteractions(interactiveElements: InteractiveElement[],
         .slice(0, interactionsLimit)
         .map((el) => semInteractiveElement(el).text())
         .join(' | ');
+}
+
+/**
+ * Formats a sampled container tree.
+ *
+ * At each sibling list, the first `branchLimit` containers are sampled in tree
+ * order. Sampling stops after `maxDepth`. Returned items include the sampled
+ * node depth and text from `semContainerElement`.
+ *
+ * @param containerTree - Container tree collected from the page
+ * @param maxDepth - Maximum tree depth to include
+ * @param branchLimit - Maximum number of sibling containers to sample per branch
+ * @returns Container sample records with depth and semantic text
+ *
+ * @example
+ * // → [{ depth: 0, text: "Main content" }, { depth: 1, text: "Navigation. Name: Tabs" }]
+ * semSampleContainerTree([
+ *   { element: { role: 'main content', labels: [], meaningScore: { value: 1 } }, nodes: [...] },
+ * ], 1, 2)
+ *
+ * @example
+ * // → []
+ * semSampleContainerTree([], 2, 5)
+ */
+export function semSamplePageStructure(
+    containerTree: ContainerTreeNode[],
+    maxDepth = 3,
+    branchLimit = 5,
+): { depth: number; text: string }[] {
+    const walkSample = (nodes: ContainerTreeNode[], level: number): { depth: number; text: string }[] => {
+        if (level > maxDepth) {
+            return [];
+        }
+        return nodes
+            .slice(0, branchLimit)
+            .flatMap((node) => [
+                { depth: level, text: semContainerElement(node.element).text() },
+                ...walkSample(node.nodes, level + 1),
+            ]);
+    };
+    return walkSample(containerTree, 0);
 }

@@ -31,8 +31,9 @@ export function getElementAttrAriaLabelledBy(el: Element): string | undefined {
  * 1. `aria-labelledby` (resolved to text content)
  * 2. `aria-label`
  * 3. direct child `<legend>`
- * 4. owned heading
- * 5. `title`
+ * 4. owned strong heading (`h1`-`h4`)
+ * 5. owned subheading (`h5`, `h6`, or ARIA heading)
+ * 6. `title`
  *
  * Labels are deduplicated case-insensitively and whitespace is normalized.
  *
@@ -57,12 +58,13 @@ export function getContainerElementLabels(el: Element): ContainerElementLabel[] 
     if (legend) {
         labels.push({ value: normalizeText(legend.textContent), source: 'legend' });
     }
-    // 4. heading
+    // 4,5. heading/subheading
     const heading = getContainerHeading(el);
     if (heading) {
-        labels.push({ value: normalizeText(heading.textContent), source: 'heading' });
+        const source = /^h[1-4]$/i.test(heading.tagName) ? 'heading' : 'subheading';
+        labels.push({ value: normalizeText(heading.textContent), source });
     }
-    // 5. title
+    // 6. title
     const title = el.getAttribute('title');
     if (title) {
         labels.push({ value: normalizeText(title), source: 'title' });

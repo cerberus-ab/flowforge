@@ -35,6 +35,8 @@ const scoringWeights = {
     label: {
         // heading, legend, and aria labels usually provide strong scope names
         strong: 4,
+        // lower-level and ARIA headings provide visible scope names, but with weaker structure
+        subheading: 3,
         // title-only labels are weaker but still useful
         titleOnly: 2,
         // generic unlabeled containers are often layout wrappers
@@ -97,8 +99,11 @@ function readLabelScoringCategory(
     ) {
         return 'genericUnlabeled';
     }
-    if (labels.some((label) => label.source !== 'title')) {
+    if (labels.some((label) => label.source !== 'subheading' && label.source !== 'title')) {
         return 'strong';
+    }
+    if (labels.some((label) => label.source === 'subheading')) {
+        return 'subheading';
     }
     if (labels.length > 0) {
         return 'titleOnly';
