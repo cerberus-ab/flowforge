@@ -1,78 +1,97 @@
 # PageTrail
 
-Normalized DOM snapshot used as the core input for RAG, search, and UI guidance.
+## Overview
+
+`@flowforge/page-trail` extracts the current document into a typed `PageTrail`.
+The model is DOM-focused, LLM-independent, and keeps locator data for resolving
+results back to browser elements.
 
 ## Structure
+
+`PageTrail` is the top-level snapshot object:
 
 ```ts
 interface PageTrail {
     basics: PageBasics;
+    container: ContainerTreeNode[];
     content: ContentElement[];
     interactive: InteractiveElement[];
     metadata: CollectionMetadata;
 }
 ```
 
-## Content elements
+`basics` stores page metadata and viewport; `metadata` stores counts, limit
+flags, timestamp, and per-stage timings.
 
-Extracted from visible headings, paragraphs, list items, blockquotes, and figcaptions. Very short text is skipped. Default limit: 250.
+## Container Elements
 
-- text
-- type: heading | text
-- selector, dataId, bbox
-- context (path + optional sectionName)
-- importanceScore [0..1]
+Container elements are visible semantic wrappers: dialogs, forms, navigation,
+landmarks, sections, widgets, and tables. They are collected as a DOM-ordered
+tree and are not importance-scored or limited.
 
-## Interactive elements
+Each container includes `kind`, `type`, `role`, labels, source `tag`, `dataId`,
+fallback `cssSelector`, `bbox`, and `meaningScore`.
 
-Extracted from visible buttons, links, inputs, textarea/select/summary, and supported ARIA roles. Sensitive inputs are skipped. Default limit: 150.
+## Content Elements
 
-- role → type (button | input | select | link)
-- text + labels
-- state (disabled, checked, etc)
-- link (if any)
-- selector, dataId, bbox
-- inViewport, aboveTheFold
-- context
-- importanceScore [0..1]
+Content elements are visible headings, paragraphs, list items, blockquotes, and
+figcaptions. Text shorter than five characters is skipped. The default retained
+limit is 250 elements after scoring.
+
+Each content record includes source text, `tag`, `dataId`, fallback
+`cssSelector`, `bbox`, container `context`, `meaningScore`, and
+`importanceScore`.
+
+## Interactive Elements
+
+Interactive elements are visible buttons, links, inputs, textareas, selects,
+summaries, dialogs, options, and supported ARIA controls. Sensitive fields are
+excluded. The default retained limit is 150 elements after scoring.
+
+Each interactive record includes `role`, text, labels, state, visibility,
+optional link metadata, `dataId`, fallback `cssSelector`, `bbox`, context, and
+scores.
 
 ## Context
 
-Derived from ancestor containers such as main content, navigation, footer, dialog, form, section, and table. Optional `sectionName` is resolved from aria labels, headings, or legends.
+Content and interactive targets store a container path from the nearest ancestor
+toward the page root. Path nodes include the container, distance, and
+`relevanceScore`; breadcrumb indexes identify the strongest context entries.
 
-## Importance
+## Scoring
 
-Heuristic scoring normalized to [0..1]. It ranks elements, applies top-N limits, and improves retrieval quality.
+Scores are normalized to `[0..1]`:
 
-## Metadata
+- `meaningScore` describes an element by itself. Containers use type, role,
+  labels, and size; content uses type and text length; interactive elements use
+  type, role, name, usability, required state, and size.
+- `relevanceScore` scores one container for one target from container meaning,
+  distance, and target/container fit.
+- `contextScore` aggregates the strongest relevant containers on a target path
+  and stores breadcrumb indexes for semantic context.
+- `importanceScore` ranks content and interactive targets from `meaningScore`
+  plus a context boost; context cannot make a meaningless target important.
 
-`basics` stores URL, title, description, language, and viewport. `metadata` stores selected and total element counts, limit flags, `collectedAt`, and `durationMs`.
+## Format
+
+Semantic helpers are exported from the package root:
+
+```ts
+semContentElement(contentElement).text();
+semInteractiveElement(interactiveElement).text();
+semContainerElement(containerElement).text();
+semSamplePageStructure(pageTrail.container);
+semMarkdown(pageTrail);
+```
 
 ## Usage
 
 ```ts
-const pt = PageTrailCollector.collectFor(window, document, {
+import { PageTrailCollector, semMarkdown } from '@flowforge/page-trail';
+
+const pageTrail = PageTrailCollector.collectFor(window, document, {
     getElementDataId: (el) => getOrCreateDataId(el),
 });
+
+const preview = semMarkdown(pageTrail);
 ```
-
-## Format
-
-Helpers convert PageTrail data into semantic strings.
-
-```ts
-formatContentElement(el);
-formatInteractiveElement(el);
-formatContentElementShort(el);
-formatInteractiveElementShort(el);
-formatSampleHeadings(el, limit);
-formatSampleInteractions(el, limit);
-generateSemanticMarkdown(pageTrail);
-```
-
-## Notes
-
-- DOM → structured model (LLM-independent)
-- Single-page snapshot
-- Optimized for search and UI actions
-- Safe by default (sensitive fields excluded)

@@ -91,14 +91,15 @@ Target length: 80–100 lines.
 
 ### `packages/page-trail/README.md`
 
-Target length: 60–80 lines.
+Target length: 80–100 lines.
 
 - Overview
-- Structure
+- Structure (`PageTrail` object shape only)
+- Container elements
 - Content elements
 - Interactive elements
 - Context
-- Importance
+- Scoring (`meaningScore`, `relevanceScore`, `contextScore`, `importanceScore`)
 - Format
 - Usage
 
