@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { AbstractCallableTool } from './AbstractCallableTool.ts';
 import { PageContextProvider } from '@/indexer';
 import type { ToolGetPageSummaryResultData } from '@/types';
-import { formatSampleHeadings, formatSampleInteractions } from '@flowforge/page-trail';
+import { semSampleHeadings, semSampleInteractions } from '@flowforge/page-trail';
 
 export class ToolGetPageSummary extends AbstractCallableTool {
     private readonly elementsHeadingsLimit: number;
@@ -21,8 +21,8 @@ export class ToolGetPageSummary extends AbstractCallableTool {
             url: ctx.pageTrail.basics.url,
             description: ctx.pageTrail.basics.description,
             language: ctx.pageTrail.basics.language,
-            sampleHeadings: formatSampleHeadings(ctx.pageTrail.content, this.elementsHeadingsLimit),
-            sampleInteractions: formatSampleInteractions(ctx.pageTrail.interactive, this.elementsInteractionsLimit),
+            sampleHeadings: semSampleHeadings(ctx.pageTrail.content, this.elementsHeadingsLimit),
+            sampleInteractions: semSampleInteractions(ctx.pageTrail.interactive, this.elementsInteractionsLimit),
         };
     }
 

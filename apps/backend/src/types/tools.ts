@@ -33,10 +33,9 @@ export interface ToolGetPageSummaryResultData {
 }
 
 export interface ToolResultElement {
-    elementPath: string;
-    elementSectionName: string;
     elementDataId: string;
-    elementCssSelector: string;
+    elementContext: string[];
+    elementCssSelector?: string;
 }
 
 export interface ToolFindElementFoundResultData extends ToolResultElement {

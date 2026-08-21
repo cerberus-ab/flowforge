@@ -46,11 +46,14 @@ WHEN TO USE:
 
 WHAT IT RETURNS:
 - Relevant content fragments from the page
-- Each fragment includes text and location context
+- Each fragment includes text, elementContext, elementDataId, and optional elementCssSelector
+- text is semantic page text for the matched content fragment
+- elementContext contains semantic container breadcrumbs around the fragment, ordered from broader page area to nearer target area
 
 IMPORTANT:
 - Results are partial matches, not guaranteed answers
 - You must interpret and combine them into a final answer
+- Use elementContext to describe where the supporting text appears when helpful
 - If needed, you can follow up with another tool to locate related elements`,
             schema: z.object({
                 query: z.string().describe('Topic to search for'),

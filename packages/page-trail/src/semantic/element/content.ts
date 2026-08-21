@@ -1,6 +1,6 @@
 import type { ContentElement } from '../../types/index.ts';
 import { SemRecord } from '../SemRecord.ts';
-import { semElementContext } from './context.ts';
+import { semElementContextShort } from './context.ts';
 
 // text, heading h1, etc.
 function semContentElementDescriptor(element: ContentElement): string {
@@ -14,7 +14,7 @@ function semContentElementDescriptor(element: ContentElement): string {
 
 /**
  * Builds a semantic record for a content element:
- * descriptor + payload text + optional context.
+ * descriptor + payload text + optional compact context.
  *
  * Headings include their source heading tag in the descriptor.
  *
@@ -34,6 +34,6 @@ export function semContentElement(element: ContentElement, textOverride?: string
     return SemRecord.builder()
         .withDescriptor(semContentElementDescriptor(element))
         .withPayload(textOverride ?? element.text)
-        .withContext(semElementContext(element.context))
+        .withContext(semElementContextShort(element.context))
         .build();
 }

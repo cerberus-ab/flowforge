@@ -1,7 +1,7 @@
 import type { DynamicStructuredTool } from '@langchain/core/tools';
 import { PageContextProvider } from '@/indexer';
 import type { CallableTool, CallableToolResult, CallableToolResultData, ToolResultElement } from '@/types';
-import { formantElementContextPath, type TargetElement } from '@flowforge/page-trail';
+import { semElementContextBreadcrumbs, type TargetElement } from '@flowforge/page-trail';
 
 export abstract class AbstractCallableTool implements CallableTool {
     readonly name: string;
@@ -35,10 +35,9 @@ export abstract class AbstractCallableTool implements CallableTool {
 
     protected getToolResultElement(element: TargetElement): ToolResultElement {
         return {
-            elementPath: formantElementContextPath(element.contextDeprecated.path),
-            elementSectionName: element.contextDeprecated.sectionName ?? '',
             elementDataId: element.dataId,
-            elementCssSelector: element.cssSelector ?? '',
+            elementContext: semElementContextBreadcrumbs(element.context),
+            elementCssSelector: element.cssSelector,
         };
     }
 

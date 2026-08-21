@@ -32,6 +32,24 @@ describe('SemRecord', () => {
         expect(record.text()).toBe('Button. Name: Save changes. Also labeled: Save. Action: click action');
     });
 
+    it('renders short text with descriptor and payload', () => {
+        const record = SemRecord.builder().withDescriptor('heading h1').withPayload('Save changes').build();
+
+        expect(record.short()).toBe('Heading h1: Save changes');
+    });
+
+    it('renders short text with primary name only', () => {
+        const record = SemRecord.builder()
+            .withDescriptor('button')
+            .withLabels(['Save changes', 'Save'])
+            .withAction('click action')
+            .addState('disabled')
+            .withContext('header')
+            .build();
+
+        expect(record.short()).toBe('Button. Name: Save changes');
+    });
+
     it('renders state from an array without duplicates', () => {
         const record = SemRecord.builder()
             .withDescriptor('text input')

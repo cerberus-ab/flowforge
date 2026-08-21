@@ -46,12 +46,15 @@ WHEN TO USE:
 
 WHAT IT RETURNS:
 - A list of relevant interactive elements (candidates)
-- Each includes description, location, CSS selector, and dataId
+- Each step includes semanticDescription, elementContext, elementDataId, and optional elementCssSelector
+- elementContext contains semantic container breadcrumbs around the element, ordered from broader page area to nearer target area
+- elementDataId is the primary browser locator; elementCssSelector is only an optional fallback
 
 IMPORTANT:
 - Results are candidates, not ordered steps
 - Select relevant items and arrange them into a logical sequence
 - Ignore irrelevant or duplicate items
+- Use elementContext to describe where a step is located when it helps the user
 - Some steps may be missing
 - Use other tools if needed to clarify or validate steps`,
             schema: z.object({

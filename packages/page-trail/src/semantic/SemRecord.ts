@@ -93,14 +93,16 @@ export class SemRecord {
         private readonly context?: string,
     ) {}
 
-    text(): string {
-        const parts = [];
-        // subject (descriptor + payload)
+    // subject is descriptor + payload
+    private subject(): string {
         if (this.payload !== undefined) {
-            parts.push(`${capitaliseFirst(this.descriptor)}: ${this.payload}`);
-        } else {
-            parts.push(capitaliseFirst(this.descriptor));
+            return `${capitaliseFirst(this.descriptor)}: ${this.payload}`;
         }
+        return capitaliseFirst(this.descriptor);
+    }
+
+    text(): string {
+        const parts = [this.subject()];
         // optional labels (and name)
         if (this.labels !== undefined && this.labels.length > 0) {
             parts.push(`Name: ${this.labels[0]}`);
@@ -119,6 +121,15 @@ export class SemRecord {
         // optional context
         if (this.context !== undefined) {
             parts.push(`Context: ${this.context}`);
+        }
+        return parts.join(SEPARATOR_PARTS);
+    }
+
+    short(): string {
+        const parts = [this.subject()];
+        // name by labels
+        if (this.labels !== undefined && this.labels.length > 0) {
+            parts.push(`Name: ${this.labels[0]}`);
         }
         return parts.join(SEPARATOR_PARTS);
     }

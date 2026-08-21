@@ -1,11 +1,6 @@
 import type { IndexableDocument } from '@/types';
 import { AbstractDocumentTransformer } from './AbstractDocumentTransformer.ts';
-import {
-    type ContentElement,
-    type PageTrail,
-    formatContentElement,
-    formatContentElementShort,
-} from '@flowforge/page-trail';
+import { type ContentElement, type PageTrail, semContentElement } from '@flowforge/page-trail';
 import { RecursiveCharacterTextSplitter, TextSplitter } from '@langchain/textsplitters';
 
 export const CONTENT_TEMPLATE_TEXT_PLACEHOLDER = '{{TEXT}}';
@@ -56,11 +51,12 @@ export class ContentElementsTransformer extends AbstractDocumentTransformer {
     }
 
     private createContentTemplate(el: ContentElement): string {
-        const template = formatContentElement(el, CONTENT_TEMPLATE_TEXT_PLACEHOLDER);
+        const sr = semContentElement(el, CONTENT_TEMPLATE_TEXT_PLACEHOLDER);
+        const template = sr.text();
         // fallback if the template contains too many context data
         const templateContextSize = template.length - CONTENT_TEMPLATE_TEXT_PLACEHOLDER.length;
         if (templateContextSize > this.chunkSize * CONTENT_TEMPLATE_MAX_CONTEXT_RATIO) {
-            return formatContentElementShort(el, CONTENT_TEMPLATE_TEXT_PLACEHOLDER);
+            return sr.short();
         }
         return template;
     }

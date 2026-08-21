@@ -1,6 +1,6 @@
 import type { InteractiveElement } from '../../types/index.ts';
 import { SemRecord } from '../SemRecord.ts';
-import { semElementContext } from './context.ts';
+import { semElementContextShort } from './context.ts';
 
 // button, internal link, searchbox, text input, etc.
 function semInteractiveElementDescriptor(element: InteractiveElement): string {
@@ -115,6 +115,6 @@ export function semInteractiveElement(element: InteractiveElement): SemRecord {
         .withLabels(semInteractiveElementLabels(element))
         .withAction(semInteractiveElementAction(element))
         .withState(semInteractiveElementState(element))
-        .withContext(semElementContext(element.context))
+        .withContext(semElementContextShort(element.context))
         .build();
 }
