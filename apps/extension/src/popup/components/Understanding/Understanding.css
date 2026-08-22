@@ -1,15 +1,15 @@
-/* Developer */
-.flowforge-developer-list {
+/* Understanding */
+.flowforge-understanding-list {
 }
-.flowforge-developer-list ul {
+.flowforge-understanding-list ul {
   list-style: none;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   margin: 0;
   padding: 0;
   gap: var(--flowforge-pad-xs);
 }
-.flowforge-developer-list li {
+.flowforge-understanding-list li {
   margin: 0;
   padding: 0;
   font: var(--flowforge-text-sm);

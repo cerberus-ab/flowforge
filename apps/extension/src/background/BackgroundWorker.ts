@@ -2,7 +2,6 @@ import type { TransportService } from '@/adapters/interface';
 import type { ApiClient } from '@/core/services/ApiClient';
 import { HistoryStorage } from '@/core/services/HistoryStorage';
 import {
-    type ApplySettingsMessage,
     type AskQuestionMessage,
     type AskQuestionMessageResponse,
     type ClearPageMessage,
@@ -125,11 +124,6 @@ export class BackgroundWorker {
     private async handleUpdateSettings(message: UpdateSettingsMessage): Promise<UpdateSettingsMessageResponse> {
         try {
             const updatedSettings = await this.settingsStorage.update(message.data.patch);
-            // Apply updated settings to the page
-            await this.transport.sendToPage<ApplySettingsMessage>(message.senderId, {
-                type: 'APPLY_SETTINGS',
-                data: { settings: updatedSettings },
-            });
             return { success: true, data: updatedSettings };
         } catch (error) {
             console.error('[Background] Error updating extension settings:', error);
@@ -263,6 +257,7 @@ export class BackgroundWorker {
             // Open inspector
             await this.transport.sendToPage<OpenInspectorMessage>(message.senderId, {
                 type: 'OPEN_INSPECTOR',
+                data: message.data,
             });
             return { success: true };
         } catch (error) {

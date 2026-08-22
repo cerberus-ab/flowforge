@@ -1,11 +1,20 @@
 import type { TargetedPointerEvent } from 'preact';
-import { useEffect, useId, useState } from 'preact/hooks';
-import { BadgeInfo, BookOpenText, ChartNoAxesColumn, FileText, ListTree, MousePointerClick } from 'lucide-preact';
+import { useEffect, useId, useMemo, useState } from 'preact/hooks';
+import {
+    type LucideIcon,
+    BadgeInfo,
+    BookOpenText,
+    ChartNoAxesColumn,
+    FileText,
+    ListTree,
+    MousePointerClick,
+} from 'lucide-preact';
 import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
+import { Switch } from '@/shared/components/Switch';
 import { Tabs } from '@/shared/components/Tabs';
 import { InspectorPageMetadata } from '@/page/components/Inspector/components/Metadata';
 import { semMarkdown } from '@flowforge/page-trail';
@@ -15,22 +24,45 @@ import {
     InspectorPageInteractive,
 } from '@/page/components/Inspector/components/Elements';
 
-const inspectorTabs = [
+type InspectorTab = {
+    id: 'basics' | 'container' | 'content' | 'interactive' | 'semanticView' | 'metadata';
+    label: string;
+    icon: LucideIcon;
+    devModeOnly?: boolean;
+};
+
+const inspectorTabs: InspectorTab[] = [
     { id: 'basics', label: 'Basics', icon: BadgeInfo },
     { id: 'container', label: 'Container', icon: ListTree },
     { id: 'content', label: 'Content', icon: BookOpenText },
     { id: 'interactive', label: 'Interactive', icon: MousePointerClick },
     { id: 'semanticView', label: 'Semantic view', icon: FileText },
-    { id: 'metadata', label: 'Metadata', icon: ChartNoAxesColumn },
-] as const;
+    { id: 'metadata', label: 'Metadata', icon: ChartNoAxesColumn, devModeOnly: true },
+];
 
-type InspectorTabId = (typeof inspectorTabs)[number]['id'];
+function resolveInspectorTabId(tabs: readonly InspectorTab[], preferredTab?: string): InspectorTab['id'] {
+    const tab = tabs.find((item) => item.id === preferredTab);
 
-export function Inspector({ pageTrail, close }: InspectorViewModel) {
-    const [activeTab, setActiveTab] = useState<InspectorTabId>('basics');
+    return tab?.id ?? tabs[0]!.id;
+}
+
+// Exports
+
+export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChange }: InspectorViewModel) {
+    const availableTabs = useMemo(() => inspectorTabs.filter((tab) => !tab.devModeOnly || devMode), [devMode]);
+    const [activeTab, setActiveTab] = useState<InspectorTab['id']>(() =>
+        resolveInspectorTabId(availableTabs, initialTab),
+    );
     const tabsIdPrefix = `flowforge-inspector-tabs-${useId()}`;
     const getTabId = (id: string) => `${tabsIdPrefix}-tab-${id}`;
     const getPanelId = (id: string) => `${tabsIdPrefix}-panel-${id}`;
+
+    // Reset the active tab
+    useEffect(() => {
+        if (availableTabs.some((tab) => tab.id === activeTab)) return;
+
+        setActiveTab(resolveInspectorTabId(availableTabs, initialTab));
+    }, [activeTab, availableTabs, initialTab]);
 
     // Close on esc
     useEffect(() => {
@@ -76,6 +108,7 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                         </p>
                     </div>
                     <div className="flowforge-inspector__header-ctrl">
+                        <Switch checked={devMode} label="Dev mode" onCheckedChange={onDevModeChange} />
                         <Button variant="secondary" size="small" onClick={close}>
                             Close
                         </Button>
@@ -83,9 +116,9 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                 </div>
                 <div className="flowforge-inspector__nav">
                     <Tabs
-                        tabs={inspectorTabs}
+                        tabs={availableTabs}
                         activeId={activeTab}
-                        onChange={(id) => setActiveTab(id as InspectorTabId)}
+                        onChange={(id) => setActiveTab(id as InspectorTab['id'])}
                         getTabId={getTabId}
                         getPanelId={getPanelId}
                         autoFocus
@@ -98,14 +131,16 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                     aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
-                    {activeTab === 'container' && <InspectorPageContainer container={pageTrail.container} />}
-                    {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} />}
-                    {activeTab === 'interactive' && <InspectorPageInteractive interactive={pageTrail.interactive} />}
+                    {activeTab === 'container' && <InspectorPageContainer container={pageTrail.container} devMode />}
+                    {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} devMode />}
+                    {activeTab === 'interactive' && (
+                        <InspectorPageInteractive interactive={pageTrail.interactive} devMode />
+                    )}
                     {activeTab === 'semanticView' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
-                    {activeTab === 'metadata' && <JsonViewer value={pageTrail.metadata} sortKeys />}
+                    {activeTab === 'metadata' && devMode && <JsonViewer value={pageTrail.metadata} sortKeys />}
                 </div>
                 <div className="flowforge-inspector__footer">
-                    <InspectorPageMetadata metadata={pageTrail.metadata} />
+                    <InspectorPageMetadata metadata={pageTrail.metadata} devMode />
                 </div>
             </div>
         </div>

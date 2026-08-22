@@ -19,7 +19,7 @@ function getPageElementSummary(value: unknown): string | undefined {
 
 // Exports
 
-export function InspectorPageContainer({ container }: { container: PageTrail['container'] }) {
+export function InspectorPageContainer({ container }: { container: PageTrail['container']; devMode: boolean }) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
@@ -30,7 +30,7 @@ export function InspectorPageContainer({ container }: { container: PageTrail['co
     );
 }
 
-export function InspectorPageContent({ content }: { content: PageTrail['content'] }) {
+export function InspectorPageContent({ content }: { content: PageTrail['content']; devMode: boolean }) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
@@ -41,7 +41,7 @@ export function InspectorPageContent({ content }: { content: PageTrail['content'
     );
 }
 
-export function InspectorPageInteractive({ interactive }: { interactive: PageTrail['interactive'] }) {
+export function InspectorPageInteractive({ interactive }: { interactive: PageTrail['interactive']; devMode: boolean }) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}

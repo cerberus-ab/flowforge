@@ -2,10 +2,8 @@ import { useCallback, useEffect, useState } from 'preact/hooks';
 import type { TransportService } from '@/adapters/interface';
 import {
     type ExtensionSettings,
-    type ExtensionSettingsTheme,
     type GetSettingsMessage,
     type GetSettingsMessageResponse,
-    isApplySettingsMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
 } from '@/types';
@@ -17,6 +15,7 @@ interface UseSettingsParams {
 
 export interface SettingsViewModel extends ExtensionSettings {
     toggleTheme: () => Promise<void>;
+    setDevMode: (enabled: boolean) => Promise<void>;
 }
 
 export function useSettings({ transport }: UseSettingsParams): SettingsViewModel {
@@ -34,34 +33,34 @@ export function useSettings({ transport }: UseSettingsParams): SettingsViewModel
         })();
     }, [transport]);
 
-    // Handle theme toggle
-    const handleToggleTheme = useCallback(async () => {
-        const nextTheme: ExtensionSettingsTheme = settings.theme === 'dark' ? 'light' : 'dark';
-        const response = await transport.sendToBackground<UpdateSettingsMessage, UpdateSettingsMessageResponse>({
-            type: 'UPDATE_SETTINGS',
-            senderId: await transport.getActiveSenderId(),
-            data: {
-                patch: { theme: nextTheme },
-            },
-        });
-        if (response.success) {
-            setSettings(response.data);
-        }
-    }, [settings, transport]);
-
-    // Listen to settings updates from background
-    useEffect(() => {
-        return transport.addMessageListener((message) => {
-            if (isApplySettingsMessage(message)) {
-                setSettings(message.data.settings);
-                return { success: true };
+    const handleUpdateSettings = useCallback(
+        async (patch: Partial<ExtensionSettings>) => {
+            const response = await transport.sendToBackground<UpdateSettingsMessage, UpdateSettingsMessageResponse>({
+                type: 'UPDATE_SETTINGS',
+                data: { patch },
+            });
+            if (response.success) {
+                setSettings(response.data);
             }
-            return undefined;
-        });
-    }, [transport]);
+        },
+        [transport],
+    );
+
+    // Handle theme toggle
+    const handleToggleTheme = useCallback(
+        () => handleUpdateSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark' }),
+        [handleUpdateSettings, settings.theme],
+    );
+
+    // Handle set dev mode
+    const handleSetDevMode = useCallback(
+        (enabled: boolean) => handleUpdateSettings({ devMode: enabled }),
+        [handleUpdateSettings],
+    );
 
     return {
         ...settings,
         toggleTheme: handleToggleTheme,
+        setDevMode: handleSetDevMode,
     };
 }

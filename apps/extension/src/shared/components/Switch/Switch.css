@@ -1,0 +1,71 @@
+/* Switch */
+.flowforge-switch {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--flowforge-pad-xs);
+  margin: 0;
+  padding: var(--flowforge-pad-xs) var(--flowforge-pad-sm);
+  border: none;
+  border-radius: var(--flowforge-pad-xs);
+  background: transparent;
+  color: var(--flowforge-color-text-muted);
+  font: var(--flowforge-text-xs);
+  cursor: pointer;
+  transition: var(--flowforge-transition-default);
+}
+.flowforge-switch__copy {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.flowforge-switch__label {
+  color: currentColor;
+  user-select: none;
+  white-space: nowrap;
+}
+.flowforge-switch:not(:disabled):hover {
+  color: var(--flowforge-color-text);
+  background: var(--flowforge-color-surface);
+}
+.flowforge-switch:focus-visible {
+  outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
+}
+.flowforge-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.flowforge-switch__control {
+  position: relative;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+.flowforge-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--flowforge-color-surface);
+  box-shadow: 0 1px 3px rgba(var(--flowforge-rgb-shadow), 0.24);
+  transition: transform 0.2s ease;
+}
+.flowforge-switch[aria-checked='true'] .flowforge-switch__control {
+  background: currentColor;
+}
+.flowforge-switch[aria-checked='true'] .flowforge-switch__thumb {
+  transform: translateX(12px);
+}
+.flowforge-switch:not(:disabled):hover .flowforge-switch__control {
+  border-color: currentColor;
+}

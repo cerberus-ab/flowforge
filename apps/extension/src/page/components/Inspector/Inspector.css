@@ -42,6 +42,12 @@
   padding: var(--flowforge-pad-lg) var(--flowforge-pad-lg) var(--flowforge-pad-xl)
     var(--flowforge-pad-lg);
 }
+.flowforge-inspector__header-ctrl {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--flowforge-pad-sm);
+}
 .flowforge-inspector__header-title {
   margin: 0 0 var(--flowforge-pad-lg);
   font: var(--flowforge-text-h3);

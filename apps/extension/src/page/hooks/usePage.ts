@@ -23,6 +23,8 @@ function collectPageTrail(): PageTrail {
 
 export interface UsePageOptions {
     transport: TransportService;
+    devMode: boolean;
+    onDevModeChange: (enabled: boolean) => void | Promise<void>;
 }
 
 interface HighlightState {
@@ -51,10 +53,13 @@ export interface WizardViewModel extends WizardState {
 
 interface InspectorState {
     pageTrail: PageTrail;
+    initialTab?: string;
 }
 
 export interface InspectorViewModel extends InspectorState {
     close: () => void;
+    devMode: boolean;
+    onDevModeChange: (enabled: boolean) => void | Promise<void>;
 }
 
 export interface PageViewModel {
@@ -63,7 +68,7 @@ export interface PageViewModel {
     inspector: InspectorViewModel | null;
 }
 
-export function usePage({ transport }: UsePageOptions): PageViewModel {
+export function usePage({ transport, devMode, onDevModeChange }: UsePageOptions): PageViewModel {
     const [highlights, setHighlights] = useState<HighlightState[]>([]);
     const [wizard, setWizard] = useState<WizardState | null>(null);
     const [inspector, setInspector] = useState<InspectorState | null>(null);
@@ -122,8 +127,8 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
     );
 
     // Open inspector
-    const openInspector = useCallback((pageTrail: PageTrail) => {
-        setInspector({ pageTrail });
+    const openInspector = useCallback((pageTrail: PageTrail, initialTab?: string) => {
+        setInspector({ pageTrail, initialTab });
     }, []);
 
     // Handle wizard step change
@@ -184,7 +189,7 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
             }
             if (isOpenInspectorMessage(message)) {
                 const pageTrail = collectPageTrail();
-                openInspector(pageTrail);
+                openInspector(pageTrail, message.data.tab);
                 return { success: true };
             }
             return undefined;
@@ -207,6 +212,8 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
             ? {
                   ...inspector,
                   close: closeInspector,
+                  devMode,
+                  onDevModeChange,
               }
             : null,
     };

@@ -40,7 +40,7 @@ interface MountShellOptions {
 interface RuntimeApi {
     openPopup(question?: string): void;
     closePopup(): void;
-    openPageInspector(): Promise<void>;
+    openPageInspector(tab?: string): Promise<void>;
     destroy(): void;
 }
 
@@ -118,10 +118,11 @@ export class Runtime implements RuntimeApi {
         this.shellRef.current?.close();
     }
 
-    async openPageInspector(): Promise<void> {
+    async openPageInspector(tab?: string): Promise<void> {
         const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
             senderId: await this.transport.getActiveSenderId(),
+            data: { tab },
         };
         await this.transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
     }

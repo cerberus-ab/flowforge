@@ -11,6 +11,7 @@ export interface FlowForgeRuntime {
         triggerSize?: 'medium' | 'large';
         settings?: {
             theme?: 'light' | 'dark';
+            devMode?: boolean;
         };
     }): Promise<FlowForgeInstance>;
 
@@ -18,6 +19,7 @@ export interface FlowForgeRuntime {
         triggerSize?: 'medium' | 'large';
         settings?: {
             theme?: 'light' | 'dark';
+            devMode?: boolean;
         };
         topic?: string;
         stubModel?: string;
@@ -31,7 +33,7 @@ export interface FlowForgeRuntime {
 export interface FlowForgeInstance {
     openPopup(question?: string): void;
     closePopup(): void;
-    openPageInspector(): Promise<void>;
+    openPageInspector(tab?: string): Promise<void>;
     destroy(): void;
 }
 

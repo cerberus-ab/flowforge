@@ -36,7 +36,7 @@ export interface PopupViewModel {
     askQuestion: () => Promise<void>;
     applyExampleQuestion: (question: string) => void;
     navigateToElement: (element: AgentResultElement) => void;
-    openPageInspector: () => void;
+    openPageInspector: (tab?: string) => void;
 }
 
 export function usePopup({ transport, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
@@ -165,13 +165,17 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
     );
 
     // Handle open inspector
-    const handleOpenPageInspector = useCallback(async () => {
-        const message: OpenPageInspectorMessage = {
-            type: 'OPEN_PAGE_INSPECTOR',
-            senderId: await transport.getActiveSenderId(),
-        };
-        await transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
-    }, [transport]);
+    const handleOpenPageInspector = useCallback(
+        async (tab?: string) => {
+            const message: OpenPageInspectorMessage = {
+                type: 'OPEN_PAGE_INSPECTOR',
+                senderId: await transport.getActiveSenderId(),
+                data: { tab },
+            };
+            await transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
+        },
+        [transport],
+    );
 
     return {
         question,

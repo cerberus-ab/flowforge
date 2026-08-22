@@ -4,7 +4,7 @@
 @import './components/Loading/Loading.css';
 @import './components/Result/Result.css';
 @import './components/Examples/Examples.css';
-@import './components/Developer/Developer.css';
+@import 'components/Understanding/Understanding.css';
 
 /* Popup */
 .flowforge-popup {

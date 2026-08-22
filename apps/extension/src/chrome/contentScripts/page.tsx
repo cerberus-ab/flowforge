@@ -11,11 +11,11 @@ import { useSettings } from '@/shared/hooks/useSettings';
 import type { TransportService } from '@/adapters/interface';
 
 function PageAppRoot({ transport }: { transport: TransportService }) {
-    const { theme } = useSettings({ transport });
+    const { theme, devMode, setDevMode } = useSettings({ transport });
 
     return (
         <Main theme={theme}>
-            <PageApp transport={transport} />
+            <PageApp transport={transport} devMode={devMode} onDevModeChange={setDevMode} />
         </Main>
     );
 }

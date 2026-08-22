@@ -30,5 +30,6 @@ export const config: ExtensionConfig = {
     github: 'https://github.com/cerberus-ab/flowforge',
     defaultSettings: {
         theme: 'light',
+        devMode: false,
     },
 };

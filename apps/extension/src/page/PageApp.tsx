@@ -7,10 +7,12 @@ import { Inspector } from '@/page/components/Inspector';
 
 export interface PageAppProps {
     transport: TransportService;
+    devMode: boolean;
+    onDevModeChange: (enabled: boolean) => void | Promise<void>;
 }
 
-export function PageApp({ transport }: PageAppProps) {
-    const { highlights, wizard, inspector } = usePage({ transport });
+export function PageApp({ transport, devMode, onDevModeChange }: PageAppProps) {
+    const { highlights, wizard, inspector } = usePage({ transport, devMode, onDevModeChange });
 
     return (
         <div className="flowforge-page">

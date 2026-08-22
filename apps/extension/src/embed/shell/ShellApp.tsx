@@ -29,7 +29,7 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
 ) {
     const [isOpen, setIsOpen] = useState(false);
     const [initialQuestion, setInitialQuestion] = useState<string>();
-    const { theme, toggleTheme } = useSettings({ transport });
+    const { theme, devMode, toggleTheme, setDevMode } = useSettings({ transport });
 
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -98,7 +98,7 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
     return (
         <Main theme={theme}>
             <div className="flowforge-shell">
-                <PageApp transport={transport} />
+                <PageApp transport={transport} devMode={devMode} onDevModeChange={setDevMode} />
                 <Trigger ref={triggerRef} size={triggerSize} isOpen={isOpen} onToggle={togglePopup} />
                 {isOpen && (
                     <div className="flowforge-popup-container" ref={popupRef}>
