@@ -1,4 +1,7 @@
 import type { PageTrail } from '@flowforge/contract';
+import { Tooltip } from '@/shared/components/Tooltip';
+
+const limitTooltip = 'Only a limited number of top candidates by importance are selected.';
 
 // Exports
 
@@ -8,12 +11,9 @@ export function InspectorPageMetadata({ metadata }: { metadata: PageTrail['metad
             Selected{' '}
             {metadata.contentElementsLimitReached ? (
                 <>
-                    <span
-                        className="flowforge-u-color-secondary"
-                        title="Only a limited number of top candidates by importance are selected"
-                    >
-                        {metadata.contentElements}
-                    </span>
+                    <Tooltip content={limitTooltip} variant="secondary">
+                        <span className="flowforge-u-color-secondary">{metadata.contentElements}</span>
+                    </Tooltip>
                     /{metadata.contentElementsTotal}
                 </>
             ) : (
@@ -22,12 +22,9 @@ export function InspectorPageMetadata({ metadata }: { metadata: PageTrail['metad
             content elements,{' '}
             {metadata.interactiveElementsLimitReached ? (
                 <>
-                    <span
-                        className="flowforge-u-color-secondary"
-                        title="Only a limited number of top candidates by importance are selected"
-                    >
-                        {metadata.interactiveElements}
-                    </span>
+                    <Tooltip content={limitTooltip} variant="secondary">
+                        <span className="flowforge-u-color-secondary">{metadata.interactiveElements}</span>
+                    </Tooltip>
                     /{metadata.interactiveElementsTotal}
                 </>
             ) : (

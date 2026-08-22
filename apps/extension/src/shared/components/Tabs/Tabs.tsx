@@ -3,22 +3,7 @@ import { forwardRef } from 'preact/compat';
 import { useEffect, useId, useRef } from 'preact/hooks';
 import type { LucideIcon } from 'lucide-preact';
 import { Button } from '@/shared/components/Button';
-
-export interface TabItem {
-    id: string;
-    label: ComponentChildren;
-    icon?: LucideIcon;
-    disabled?: boolean;
-}
-
-interface TabsProps {
-    tabs: readonly TabItem[];
-    activeId: string;
-    onChange: (id: string) => void;
-    autoFocus?: boolean;
-    getTabId?: (id: string) => string;
-    getPanelId?: (id: string) => string;
-}
+import { Tooltip } from '@/shared/components/Tooltip';
 
 interface TabButtonProps {
     tab: TabItem;
@@ -40,27 +25,54 @@ const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(function TabButt
         .filter(Boolean)
         .join(' ');
 
+    const button = (
+        <Button
+            ref={ref}
+            id={tabId}
+            appearance="ghost"
+            size="small"
+            icon={tab.icon}
+            className="flowforge-tabs__button"
+            role="tab"
+            aria-selected={active}
+            aria-controls={panelId}
+            tabIndex={active ? 0 : -1}
+            disabled={tab.disabled}
+            onClick={onSelect}
+        >
+            {tab.label}
+        </Button>
+    );
+
     return (
         <div className={classes}>
-            <Button
-                ref={ref}
-                id={tabId}
-                appearance="ghost"
-                size="small"
-                icon={tab.icon}
-                className="flowforge-tabs__button"
-                role="tab"
-                aria-selected={active}
-                aria-controls={panelId}
-                tabIndex={active ? 0 : -1}
-                disabled={tab.disabled}
-                onClick={onSelect}
-            >
-                {tab.label}
-            </Button>
+            {tab.tooltip ? (
+                <Tooltip content={tab.tooltip} side="bottom" disabled={tab.disabled}>
+                    {button}
+                </Tooltip>
+            ) : (
+                button
+            )}
         </div>
     );
 });
+
+export interface TabItem {
+    id: string;
+    label: ComponentChildren;
+    icon?: LucideIcon;
+    disabled?: boolean;
+    tooltip?: ComponentChildren;
+}
+
+export interface TabsProps {
+    tabs: readonly TabItem[];
+    activeId: string;
+    onChange: (id: string) => void;
+    autoFocus?: boolean;
+    getTabId?: (id: string) => string;
+    getPanelId?: (id: string) => string;
+}
 
 export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, getPanelId }: TabsProps) {
     const fallbackIdPrefix = `flowforge-tabs-${useId()}`;

@@ -16,6 +16,7 @@ import { JsonViewer } from '@/shared/components/JsonViewer';
 import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
 import { Switch } from '@/shared/components/Switch';
 import { Tabs } from '@/shared/components/Tabs';
+import { Tooltip } from '@/shared/components/Tooltip';
 import { InspectorPageMetadata } from '@/page/components/Inspector/components/Metadata';
 import { semMarkdown } from '@flowforge/page-trail';
 import {
@@ -28,16 +29,48 @@ type InspectorTab = {
     id: 'basics' | 'structure' | 'content' | 'interactive' | 'markdown' | 'metadata';
     label: string;
     icon: LucideIcon;
+    tooltip: string;
     devModeOnly?: boolean;
 };
 
 const inspectorTabs: InspectorTab[] = [
-    { id: 'basics', label: 'Basics', icon: BadgeInfo },
-    { id: 'structure', label: 'Structure', icon: ListTree },
-    { id: 'content', label: 'Content', icon: BookOpenText },
-    { id: 'interactive', label: 'Interactive', icon: MousePointerClick },
-    { id: 'markdown', label: 'Markdown', icon: FileText },
-    { id: 'metadata', label: 'Metadata', icon: ChartNoAxesColumn, devModeOnly: true },
+    {
+        id: 'basics',
+        label: 'Basics',
+        icon: BadgeInfo,
+        tooltip: 'Page URL, title, description, language, and viewport.',
+    },
+    {
+        id: 'structure',
+        label: 'Structure',
+        icon: ListTree,
+        tooltip: 'Detected landmarks, sections, forms, and dialogs as a tree.',
+    },
+    {
+        id: 'content',
+        label: 'Content',
+        icon: BookOpenText,
+        tooltip: 'Top text and heading elements with scores and page context.',
+    },
+    {
+        id: 'interactive',
+        label: 'Interactive',
+        icon: MousePointerClick,
+        tooltip: 'Top buttons, links, inputs, and controls with labels, state, and context.',
+    },
+    {
+        id: 'markdown',
+        label: 'Markdown',
+        icon: FileText,
+        tooltip: 'Human-readable semantic snapshot used for inspection and copy.',
+    },
+    {
+        id: 'metadata',
+        label: 'Metadata',
+        icon: ChartNoAxesColumn,
+        tooltip: 'Collection counts, limit flags, timing, depth, and timestamp.',
+        devModeOnly: true,
+    },
 ];
 
 function resolveInspectorTabId(tabs: readonly InspectorTab[], preferredTab?: string): InspectorTab['id'] {
@@ -108,7 +141,12 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                         </p>
                     </div>
                     <div className="flowforge-inspector__header-ctrl">
-                        <Switch checked={devMode} label="Dev mode" onCheckedChange={onDevModeChange} />
+                        <Tooltip
+                            content="Show enriched PageTrail records with raw fields, selectors, scores, and diagnostics."
+                            variant="secondary"
+                        >
+                            <Switch checked={devMode} label="Dev mode" onCheckedChange={onDevModeChange} />
+                        </Tooltip>
                         <Button variant="secondary" size="small" onClick={close}>
                             Close
                         </Button>

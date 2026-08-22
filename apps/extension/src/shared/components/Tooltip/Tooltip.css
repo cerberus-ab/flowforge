@@ -1,0 +1,34 @@
+/* Tooltip */
+.flowforge-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.flowforge-tooltip__content {
+  position: fixed;
+  z-index: 10;
+  width: max-content;
+  max-width: 220px;
+  box-sizing: border-box;
+  padding: var(--flowforge-pad-xs) var(--flowforge-pad-sm);
+  border-radius: var(--flowforge-pad-xs);
+  font: var(--flowforge-text-xs);
+  white-space: normal;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: var(--flowforge-transition-default);
+}
+.flowforge-tooltip--primary .flowforge-tooltip__content {
+  color: var(--flowforge-color-text-on-dark);
+  background: var(--flowforge-color-primary);
+}
+.flowforge-tooltip--secondary .flowforge-tooltip__content {
+  color: var(--flowforge-color-text-on-dark);
+  background: var(--flowforge-color-secondary);
+}
+.flowforge-tooltip[data-open='true'] .flowforge-tooltip__content {
+  opacity: 1;
+  visibility: visible;
+}
