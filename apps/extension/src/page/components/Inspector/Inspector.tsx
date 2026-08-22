@@ -7,8 +7,13 @@ import { Button } from '@/shared/components/Button';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
 import { Tabs } from '@/shared/components/Tabs';
-import { PageMetadata } from '@/page/components/Inspector/components/Metadata';
-import { semMarkdown, semModelContainer, semModelContent, semModelInteractive } from '@flowforge/page-trail';
+import { InspectorPageMetadata } from '@/page/components/Inspector/components/Metadata';
+import { semMarkdown } from '@flowforge/page-trail';
+import {
+    InspectorPageContainer,
+    InspectorPageContent,
+    InspectorPageInteractive,
+} from '@/page/components/Inspector/components/Elements';
 
 const inspectorTabs = [
     { id: 'basics', label: 'Basics', icon: BadgeInfo },
@@ -20,23 +25,6 @@ const inspectorTabs = [
 ] as const;
 
 type InspectorTabId = (typeof inspectorTabs)[number]['id'];
-
-function getTargetElementSummary(value: unknown): string | undefined {
-    if (typeof value !== 'object' || value === null) {
-        return undefined;
-    }
-    const candidate = value as Record<string, unknown>;
-    const importanceScore = candidate.importanceScore;
-    const importanceValue =
-        typeof importanceScore === 'object' && importanceScore !== null
-            ? (importanceScore as Record<string, unknown>).value
-            : undefined;
-
-    if (typeof importanceValue === 'number' && typeof candidate.semanticText === 'string') {
-        return `${importanceValue.toFixed(2)} · ${candidate.semanticText}`;
-    }
-    return undefined;
-}
 
 export function Inspector({ pageTrail, close }: InspectorViewModel) {
     const [activeTab, setActiveTab] = useState<InspectorTabId>('basics');
@@ -110,34 +98,14 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                     aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
-                    {activeTab === 'container' && (
-                        <JsonViewer
-                            rootArrayExpandedItems={1}
-                            sortKeys
-                            value={semModelContainer(pageTrail.container)}
-                        />
-                    )}
-                    {activeTab === 'content' && (
-                        <JsonViewer
-                            getNodeSummary={getTargetElementSummary}
-                            rootArrayExpandedItems={1}
-                            sortKeys
-                            value={semModelContent(pageTrail.content)}
-                        />
-                    )}
-                    {activeTab === 'interactive' && (
-                        <JsonViewer
-                            getNodeSummary={getTargetElementSummary}
-                            rootArrayExpandedItems={1}
-                            sortKeys
-                            value={semModelInteractive(pageTrail.interactive)}
-                        />
-                    )}
+                    {activeTab === 'container' && <InspectorPageContainer container={pageTrail.container} />}
+                    {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} />}
+                    {activeTab === 'interactive' && <InspectorPageInteractive interactive={pageTrail.interactive} />}
                     {activeTab === 'semanticView' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
                     {activeTab === 'metadata' && <JsonViewer value={pageTrail.metadata} sortKeys />}
                 </div>
                 <div className="flowforge-inspector__footer">
-                    <PageMetadata metadata={pageTrail.metadata} />
+                    <InspectorPageMetadata metadata={pageTrail.metadata} />
                 </div>
             </div>
         </div>

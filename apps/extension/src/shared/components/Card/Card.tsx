@@ -6,6 +6,7 @@ interface CardProps {
     text?: string;
     variant?: 'primary' | 'secondary';
     direction?: 'none' | 'left';
+    transparent?: boolean;
     twinkle?: boolean;
     error?: boolean;
     children?: ComponentChildren;
@@ -16,6 +17,7 @@ export function Card({
     text,
     variant = 'primary',
     direction = 'none',
+    transparent = false,
     twinkle = false,
     error = false,
     children,
@@ -24,6 +26,7 @@ export function Card({
         'flowforge-card',
         `flowforge-card--${variant}`,
         direction !== 'none' && `flowforge-card--${direction}`,
+        transparent && 'flowforge-card--transparent',
         twinkle && 'flowforge-stared-twinkle',
         twinkle && `flowforge-stared-twinkle--${variant}`,
     ]

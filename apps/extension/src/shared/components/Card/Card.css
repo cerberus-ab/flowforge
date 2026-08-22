@@ -25,6 +25,9 @@
 .flowforge-card__footer {
   padding-top: var(--flowforge-pad-sm);
 }
+.flowforge-card--transparent {
+  background: transparent;
+}
 .flowforge-card__text:last-child,
 .flowforge-card__text:has(+ .flowforge-card__footer) {
   padding-bottom: 0;

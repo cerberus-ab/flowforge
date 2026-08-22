@@ -49,6 +49,25 @@ function semModelElementContext(context: ElementContext): SemanticElementContext
 
 // Exports
 
+/**
+ * Adds semantic text to each container tree node.
+ *
+ * Preserves the tree shape and enriches every container element recursively.
+ */
+export function semModelContainer(container: ContainerTreeNode[]): SemanticContainerTreeNode[] {
+    return container.map((containerNode) => ({
+        ...containerNode,
+        element: semModelContainerElement(containerNode.element),
+        nodes: semModelContainer(containerNode.nodes),
+    }));
+}
+
+/**
+ * Adds semantic text to content elements and their context paths.
+ *
+ * Each content element gets its own semantic text, and each path container is
+ * enriched with the container semantic text used to describe its surroundings.
+ */
 export function semModelContent(content: ContentElement[]): SemanticContentElement[] {
     return content.map((contentElement) => ({
         ...contentElement,
@@ -57,18 +76,16 @@ export function semModelContent(content: ContentElement[]): SemanticContentEleme
     }));
 }
 
+/**
+ * Adds semantic text to interactive elements and their context paths.
+ *
+ * Each interactive element gets its own semantic text, and each path container
+ * is enriched so callers can render the element with readable context.
+ */
 export function semModelInteractive(interactive: InteractiveElement[]): SemanticInteractiveElement[] {
     return interactive.map((interactiveElement) => ({
         ...interactiveElement,
         context: semModelElementContext(interactiveElement.context),
         semanticText: semInteractiveElement(interactiveElement).text(),
-    }));
-}
-
-export function semModelContainer(container: ContainerTreeNode[]): SemanticContainerTreeNode[] {
-    return container.map((containerNode) => ({
-        ...containerNode,
-        element: semModelContainerElement(containerNode.element),
-        nodes: semModelContainer(containerNode.nodes),
     }));
 }

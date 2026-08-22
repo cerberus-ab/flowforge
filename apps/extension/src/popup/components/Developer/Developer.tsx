@@ -1,5 +1,6 @@
+import { ListTree } from 'lucide-preact';
 import { Card } from '@/shared/components/Card';
-import { ButtonText } from '@/shared/components/Button';
+import { Button } from '@/shared/components/Button';
 
 interface DeveloperProps {
     onOpenPageInspector: () => void;
@@ -7,17 +8,19 @@ interface DeveloperProps {
 
 export function Developer({ onOpenPageInspector }: DeveloperProps) {
     return (
-        <Card title="Understanding" variant="secondary" twinkle>
+        <Card title="Understanding" variant="secondary" transparent twinkle>
             <div className="flowforge-developer-list">
                 <ul>
                     <li key={'page-trail'}>
-                        <ButtonText
-                            variant="secondary"
-                            tooltip="See what FlowForge understands about this page"
+                        <Button
+                            appearance="ghost"
+                            size="small"
+                            icon={ListTree}
+                            title="See what FlowForge understands about this page"
                             onClick={onOpenPageInspector}
                         >
                             Inspect page context
-                        </ButtonText>
+                        </Button>
                     </li>
                 </ul>
             </div>

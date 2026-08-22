@@ -1,7 +1,8 @@
 import type { ComponentChildren } from 'preact';
+import { forwardRef } from 'preact/compat';
 import { useEffect, useId, useRef } from 'preact/hooks';
 import type { LucideIcon } from 'lucide-preact';
-import { Icon } from '@/shared/components/Icon';
+import { Button } from '@/shared/components/Button';
 
 export interface TabItem {
     id: string;
@@ -18,6 +19,48 @@ interface TabsProps {
     getTabId?: (id: string) => string;
     getPanelId?: (id: string) => string;
 }
+
+interface TabButtonProps {
+    tab: TabItem;
+    tabId: string;
+    panelId?: string;
+    active: boolean;
+    onSelect: () => void;
+}
+
+const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(function TabButton(
+    { tab, tabId, panelId, active, onSelect },
+    ref,
+) {
+    const classes = [
+        'flowforge-tabs__tab',
+        active && 'flowforge-tabs__tab--active',
+        tab.disabled && 'flowforge-tabs__tab--disabled',
+    ]
+        .filter(Boolean)
+        .join(' ');
+
+    return (
+        <div className={classes}>
+            <Button
+                ref={ref}
+                id={tabId}
+                appearance="ghost"
+                size="small"
+                icon={tab.icon}
+                className="flowforge-tabs__button"
+                role="tab"
+                aria-selected={active}
+                aria-controls={panelId}
+                tabIndex={active ? 0 : -1}
+                disabled={tab.disabled}
+                onClick={onSelect}
+            >
+                {tab.label}
+            </Button>
+        </div>
+    );
+});
 
 export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, getPanelId }: TabsProps) {
     const fallbackIdPrefix = `flowforge-tabs-${useId()}`;
@@ -69,26 +112,17 @@ export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, ge
                 const isActive = index === activeIndex;
 
                 return (
-                    <button
+                    <TabButton
                         key={tab.id}
-                        ref={(el) => {
+                        ref={(el: HTMLButtonElement | null) => {
                             tabRefs.current[tab.id] = el;
                         }}
-                        id={resolveTabId(tab.id)}
-                        type="button"
-                        className={isActive ? 'flowforge-tabs__tab flowforge-tabs__tab--active' : 'flowforge-tabs__tab'}
-                        role="tab"
-                        aria-selected={isActive}
-                        aria-controls={getPanelId?.(tab.id)}
-                        tabIndex={isActive ? 0 : -1}
-                        disabled={tab.disabled}
-                        onClick={() => onChange(tab.id)}
-                    >
-                        <span className="flowforge-tabs__tab-label">
-                            {tab.icon && <Icon icon={tab.icon} size="medium" />}
-                            {tab.label}
-                        </span>
-                    </button>
+                        tab={tab}
+                        tabId={resolveTabId(tab.id)}
+                        panelId={getPanelId?.(tab.id)}
+                        active={isActive}
+                        onSelect={() => onChange(tab.id)}
+                    />
                 );
             })}
         </div>
