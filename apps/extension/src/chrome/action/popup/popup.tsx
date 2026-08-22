@@ -11,15 +11,18 @@ import { Main } from '@/shared/components/Main';
 import type { TransportService } from '@/adapters/interface';
 
 function PopupAppRoot({ transport }: { transport: TransportService }) {
-    const { theme, toggleTheme } = useSettings({ transport });
+    const settings = useSettings({ transport });
 
+    if (settings.status === 'loading') {
+        return null;
+    }
     return (
-        <Main theme={theme}>
+        <Main theme={settings.theme}>
             <PopupApp
                 variant="page"
                 transport={transport}
-                theme={theme}
-                onToggleTheme={toggleTheme}
+                theme={settings.theme}
+                onToggleTheme={settings.toggleTheme}
                 onClose={() => window.close()}
             />
         </Main>

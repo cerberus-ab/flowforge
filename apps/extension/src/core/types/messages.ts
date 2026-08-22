@@ -7,7 +7,12 @@ type MessageTypePopupToBackground =
     'POPUP_INITIALISE' | 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT' | 'OPEN_PAGE_INSPECTOR';
 
 type MessageTypeBackgroundToPage =
-    'COLLECT_PAGE_TRAIL' | 'START_ONBOARDING' | 'HIGHLIGHT_ELEMENT' | 'CLEAR_PAGE' | 'OPEN_INSPECTOR';
+    | 'COLLECT_PAGE_TRAIL'
+    | 'START_ONBOARDING'
+    | 'HIGHLIGHT_ELEMENT'
+    | 'CLEAR_PAGE'
+    | 'OPEN_INSPECTOR'
+    | 'SETTINGS_UPDATED';
 
 type MessageType = MessageTypeToBackground | MessageTypePopupToBackground | MessageTypeBackgroundToPage;
 
@@ -32,6 +37,7 @@ export type UpdateSettingsMessageData = {
 
 export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
     type: 'UPDATE_SETTINGS';
+    senderId?: number;
 };
 
 export type UpdateSettingsMessageResponseData = ExtensionSettings;
@@ -122,6 +128,12 @@ export type OpenInspectorMessage = Message<OpenPageInspectorMessageData> & {
     type: 'OPEN_INSPECTOR';
 };
 
+export type SettingsUpdatedMessageData = ExtensionSettings;
+
+export type SettingsUpdatedMessage = Message<SettingsUpdatedMessageData> & {
+    type: 'SETTINGS_UPDATED';
+};
+
 // Type guards
 
 export function isPopupInitializeMessage(message: Message): message is PopupInitializeMessage {
@@ -170,4 +182,8 @@ export function isNavigateToElementMessage(message: Message): message is Navigat
 
 export function isHighlightElementMessage(message: Message): message is HighlightElementMessage {
     return message.type === 'HIGHLIGHT_ELEMENT';
+}
+
+export function isSettingsUpdatedMessage(message: Message): message is SettingsUpdatedMessage {
+    return message.type === 'SETTINGS_UPDATED';
 }

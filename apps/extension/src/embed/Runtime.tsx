@@ -150,6 +150,11 @@ export class Runtime implements RuntimeApi {
     private async mountShell(options: MountShellOptions): Promise<void> {
         const rootInjector = new ShadowRootInjector();
 
+        let resolveShellReady!: () => void;
+        const shellReady = new Promise<void>((resolve) => {
+            resolveShellReady = resolve;
+        });
+
         const doMount = () => {
             const shellRoot = rootInjector.inject(document, embedConstants.SHELL_ROOT_ID, { overlay: true });
             rootInjector.injectStyles(shellRoot, shellStyles);
@@ -159,6 +164,7 @@ export class Runtime implements RuntimeApi {
                     transport={this.transport}
                     triggerSize={options.triggerSize}
                     demoProps={options.demoProps}
+                    onShellReady={resolveShellReady}
                 />,
                 shellRoot.mountPoint,
             );
@@ -176,7 +182,7 @@ export class Runtime implements RuntimeApi {
         } else {
             doMount();
         }
-        await new Promise<void>((resolve) => queueMicrotask(resolve));
+        await shellReady;
     }
 
     private unmountShell(): void {

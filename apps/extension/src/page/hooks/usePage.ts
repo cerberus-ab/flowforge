@@ -6,7 +6,7 @@ import {
     isStartOnboardingMessage,
 } from '@/types';
 import type { Message, StartOnboardingMessageData } from '@/types';
-import { useCallback, useLayoutEffect, useState } from 'preact/hooks';
+import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { findElement, getOrCreateDataId } from '@/core/locator/locate';
 import type { TransportService } from '@/adapters/interface';
 import { constants } from '@/constants';
@@ -25,6 +25,7 @@ export interface UsePageOptions {
     transport: TransportService;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
+    onReady?: () => void;
 }
 
 interface HighlightState {
@@ -68,10 +69,11 @@ export interface PageViewModel {
     inspector: InspectorViewModel | null;
 }
 
-export function usePage({ transport, devMode, onDevModeChange }: UsePageOptions): PageViewModel {
+export function usePage({ transport, devMode, onDevModeChange, onReady }: UsePageOptions): PageViewModel {
     const [highlights, setHighlights] = useState<HighlightState[]>([]);
     const [wizard, setWizard] = useState<WizardState | null>(null);
     const [inspector, setInspector] = useState<InspectorState | null>(null);
+    const readyRef = useRef(false);
 
     const closeWizard = useCallback(() => {
         setHighlights([]);
@@ -170,7 +172,7 @@ export function usePage({ transport, devMode, onDevModeChange }: UsePageOptions)
 
     // Listen to messages from background
     useLayoutEffect(() => {
-        return transport.addMessageListener((message: Message) => {
+        const unsubscribe = transport.addMessageListener((message: Message) => {
             if (isCollectPageTrailMessage(message)) {
                 const pageTrail = collectPageTrail();
                 return { success: true, data: pageTrail };
@@ -194,7 +196,13 @@ export function usePage({ transport, devMode, onDevModeChange }: UsePageOptions)
             }
             return undefined;
         });
-    }, [transport, startOnboarding, highlightElement, openInspector, clearPage]);
+
+        if (!readyRef.current) {
+            readyRef.current = true;
+            onReady?.();
+        }
+        return unsubscribe;
+    }, [transport, startOnboarding, highlightElement, openInspector, clearPage, onReady]);
 
     return {
         highlights: highlights.map((highlight) => ({

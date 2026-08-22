@@ -21,6 +21,7 @@ import {
     type OpenInspectorMessage,
     type OpenPageInspectorMessage,
     type PopupInitializeMessage,
+    type SettingsUpdatedMessage,
     type StartOnboardingMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
@@ -124,6 +125,12 @@ export class BackgroundWorker {
     private async handleUpdateSettings(message: UpdateSettingsMessage): Promise<UpdateSettingsMessageResponse> {
         try {
             const updatedSettings = await this.settingsStorage.update(message.data.patch);
+            if (message.senderId !== undefined) {
+                void this.transport.sendToPage<SettingsUpdatedMessage>(message.senderId, {
+                    type: 'SETTINGS_UPDATED',
+                    data: updatedSettings,
+                }).catch(() => undefined);
+            }
             return { success: true, data: updatedSettings };
         } catch (error) {
             console.error('[Background] Error updating extension settings:', error);

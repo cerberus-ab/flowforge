@@ -6,7 +6,7 @@
   justify-content: center;
   gap: var(--flowforge-pad-xs);
   padding: var(--flowforge-pad-sm) var(--flowforge-pad-lg);
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--flowforge-pad-xs);
   font: var(--flowforge-text-md);
   cursor: pointer;
@@ -54,12 +54,12 @@
   opacity: 0.5;
 }
 .flowforge-button--ghost {
-  background: transparent;
+  background: var(--flowforge-color-surface);
   color: var(--flowforge-color-text-muted);
 }
 .flowforge-button--ghost:not(:disabled):hover {
   color: var(--flowforge-color-text);
-  background: var(--flowforge-color-surface);
+  border-color: var(--flowforge-color-border);
 }
 .flowforge-button--ghost:focus-visible {
   outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);

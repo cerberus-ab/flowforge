@@ -7,9 +7,9 @@
   gap: var(--flowforge-pad-xs);
   margin: 0;
   padding: var(--flowforge-pad-xs) var(--flowforge-pad-sm);
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--flowforge-pad-xs);
-  background: transparent;
+  background: var(--flowforge-color-surface);
   color: var(--flowforge-color-text-muted);
   font: var(--flowforge-text-xs);
   cursor: pointer;
@@ -28,7 +28,7 @@
 }
 .flowforge-switch:not(:disabled):hover {
   color: var(--flowforge-color-text);
-  background: var(--flowforge-color-surface);
+  border-color: var(--flowforge-color-border);
 }
 .flowforge-switch:focus-visible {
   outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
@@ -47,7 +47,10 @@
   border: 1px solid currentColor;
   border-radius: 999px;
   background: transparent;
-  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
 }
 .flowforge-switch__thumb {
   position: absolute;
