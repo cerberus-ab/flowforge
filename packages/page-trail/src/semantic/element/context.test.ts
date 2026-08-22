@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { ElementContext } from '../../types';
 import { containerElement } from '../../../test/fixtures';
-import { semElementContextBreadcrumbs, semElementContextShort } from './context';
+import { semElementContextByBreadcrumbs, semElementContextShort } from './context';
 
 describe('semElementContextShort', () => {
     it('returns undefined when no breadcrumbs are selected', () => {
@@ -85,12 +85,12 @@ describe('semElementContextShort', () => {
 
 describe('semElementContextPathBreadcrumbs', () => {
     it('returns an empty list when no breadcrumbs are selected', () => {
-        expect(semElementContextBreadcrumbs(contextFixture())).toEqual([]);
+        expect(semElementContextByBreadcrumbs(contextFixture())).toEqual([]);
     });
 
     it('formats selected breadcrumb containers as full semantic records', () => {
         expect(
-            semElementContextBreadcrumbs(
+            semElementContextByBreadcrumbs(
                 contextFixture({
                     path: [
                         {
@@ -126,7 +126,7 @@ describe('semElementContextPathBreadcrumbs', () => {
 
     it('skips breadcrumb indexes that do not exist in the path', () => {
         expect(
-            semElementContextBreadcrumbs(
+            semElementContextByBreadcrumbs(
                 contextFixture({
                     path: [
                         {

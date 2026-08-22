@@ -1,4 +1,12 @@
-import { type PageTrail, semModelContainerTree, semModelContent, semModelInteractive } from '@flowforge/page-trail';
+import {
+    type PageTrail,
+    semModelEnrichedContent,
+    semModelEnrichedInteractive,
+    semModelEnrichedStructure,
+    semModelPreviewContent,
+    semModelPreviewInteractive,
+    semModelPreviewStructure,
+} from '@flowforge/page-trail';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 
 // "importanceScore.value · semanticText"
@@ -19,35 +27,47 @@ function getPageElementSummary(value: unknown): string | undefined {
 
 // Exports
 
-export function InspectorPageStructure({ structure }: { structure: PageTrail['structure']; devMode: boolean }) {
+export function InspectorPageStructure({
+    structure,
+    devMode,
+}: {
+    structure: PageTrail['structure'];
+    devMode: boolean;
+}) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={semModelContainerTree(structure)}
+            value={devMode ? semModelEnrichedStructure(structure) : semModelPreviewStructure(structure)}
         />
     );
 }
 
-export function InspectorPageContent({ content }: { content: PageTrail['content']; devMode: boolean }) {
+export function InspectorPageContent({ content, devMode }: { content: PageTrail['content']; devMode: boolean }) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={semModelContent(content)}
+            value={devMode ? semModelEnrichedContent(content) : semModelPreviewContent(content)}
         />
     );
 }
 
-export function InspectorPageInteractive({ interactive }: { interactive: PageTrail['interactive']; devMode: boolean }) {
+export function InspectorPageInteractive({
+    interactive,
+    devMode,
+}: {
+    interactive: PageTrail['interactive'];
+    devMode: boolean;
+}) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={semModelInteractive(interactive)}
+            value={devMode ? semModelEnrichedInteractive(interactive) : semModelPreviewInteractive(interactive)}
         />
     );
 }

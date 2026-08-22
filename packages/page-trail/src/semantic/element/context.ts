@@ -46,7 +46,7 @@ export function semElementContextShort(context: ElementContext): string | undefi
  * // -> ["Main content", "Section. Name: Pricing", "Form. Name: Checkout"]
  * semElementContextPathBreadcrumbs(context)
  */
-export function semElementContextBreadcrumbs(context: ElementContext): string[] {
+export function semElementContextByBreadcrumbs(context: ElementContext): string[] {
     return context.breadcrumbs
         .map((i) => context.path[i])
         .filter(Boolean)

@@ -131,16 +131,18 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                     aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
-                    {activeTab === 'structure' && <InspectorPageStructure structure={pageTrail.structure} devMode />}
-                    {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} devMode />}
+                    {activeTab === 'structure' && (
+                        <InspectorPageStructure structure={pageTrail.structure} devMode={devMode} />
+                    )}
+                    {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} devMode={devMode} />}
                     {activeTab === 'interactive' && (
-                        <InspectorPageInteractive interactive={pageTrail.interactive} devMode />
+                        <InspectorPageInteractive interactive={pageTrail.interactive} devMode={devMode} />
                     )}
                     {activeTab === 'markdown' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
                     {activeTab === 'metadata' && devMode && <JsonViewer value={pageTrail.metadata} sortKeys />}
                 </div>
                 <div className="flowforge-inspector__footer">
-                    <InspectorPageMetadata metadata={pageTrail.metadata} devMode />
+                    <InspectorPageMetadata metadata={pageTrail.metadata} devMode={devMode} />
                 </div>
             </div>
         </div>

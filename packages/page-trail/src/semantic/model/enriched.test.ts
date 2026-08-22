@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ContainerPathNode, ContainerTreeNode } from '../types';
-import { containerElement, contentElement, interactiveElement } from '../../test/fixtures';
-import { semModelContainerTree, semModelContent, semModelInteractive } from './model';
+import type { ContainerPathNode, ContainerTreeNode } from '../../types';
+import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
+import { semModelEnrichedContent, semModelEnrichedInteractive, semModelEnrichedStructure } from './enriched';
 
 function pathNode(element: ContainerPathNode['element'], distance = 0): ContainerPathNode {
     return {
@@ -12,7 +12,7 @@ function pathNode(element: ContainerPathNode['element'], distance = 0): Containe
     };
 }
 
-describe('semantic model', () => {
+describe('semantic model enriched', () => {
     it('adds semantic text to every container tree node', () => {
         const container: ContainerTreeNode[] = [
             {
@@ -35,7 +35,7 @@ describe('semantic model', () => {
             },
         ];
 
-        expect(semModelContainerTree(container)).toMatchObject([
+        expect(semModelEnrichedStructure(container)).toMatchObject([
             {
                 element: { dataId: 'main', semanticText: 'Main content' },
                 nodes: [
@@ -64,7 +64,7 @@ describe('semantic model', () => {
             },
         });
 
-        expect(semModelContent([content])[0]!.context.path[0]!.element).toMatchObject({
+        expect(semModelEnrichedContent([content])[0]!.context.path[0]!.element).toMatchObject({
             dataId: 'article',
             semanticText: 'Article. Name: Release notes',
         });
@@ -88,7 +88,7 @@ describe('semantic model', () => {
             },
         });
 
-        expect(semModelInteractive([interactive])[0]!.context.path[0]!.element).toMatchObject({
+        expect(semModelEnrichedInteractive([interactive])[0]!.context.path[0]!.element).toMatchObject({
             dataId: 'primary-nav',
             semanticText: 'Navigation. Name: Primary',
         });
