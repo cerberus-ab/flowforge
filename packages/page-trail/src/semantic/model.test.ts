@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { ContainerPathNode, ContainerTreeNode } from '../types';
 import { containerElement, contentElement, interactiveElement } from '../../test/fixtures';
-import { semModelContainer, semModelContent, semModelInteractive } from './model';
+import { semModelContainerTree, semModelContent, semModelInteractive } from './model';
 
 function pathNode(element: ContainerPathNode['element'], distance = 0): ContainerPathNode {
     return {
@@ -35,7 +35,7 @@ describe('semantic model', () => {
             },
         ];
 
-        expect(semModelContainer(container)).toMatchObject([
+        expect(semModelContainerTree(container)).toMatchObject([
             {
                 element: { dataId: 'main', semanticText: 'Main content' },
                 nodes: [

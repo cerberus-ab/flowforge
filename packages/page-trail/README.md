@@ -6,14 +6,14 @@
 The model is DOM-focused, LLM-independent, and keeps locator data for resolving
 results back to browser elements.
 
-## Structure
+## Format
 
 `PageTrail` is the top-level snapshot object:
 
 ```ts
 interface PageTrail {
     basics: PageBasics;
-    container: ContainerTreeNode[];
+    structure: ContainerTreeNode[];
     content: ContentElement[];
     interactive: InteractiveElement[];
     metadata: CollectionMetadata;
@@ -23,7 +23,7 @@ interface PageTrail {
 `basics` stores page metadata and viewport; `metadata` stores counts, limit
 flags, timestamp, and per-stage timings.
 
-## Container Elements
+## Structure Elements
 
 Container elements are visible semantic wrappers: dialogs, forms, navigation,
 landmarks, sections, widgets, and tables. They are collected as a DOM-ordered
@@ -80,7 +80,7 @@ Semantic helpers are exported from the package root:
 semContentElement(contentElement).text();
 semInteractiveElement(interactiveElement).text();
 semContainerElement(containerElement).text();
-semSamplePageStructure(pageTrail.container);
+semSampleStructure(pageTrail.structure);
 semMarkdown(pageTrail);
 ```
 

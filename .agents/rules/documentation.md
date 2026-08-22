@@ -94,8 +94,8 @@ Target length: 80–100 lines.
 Target length: 80–100 lines.
 
 - Overview
-- Structure (`PageTrail` object shape only)
-- Container elements
+- Format (`PageTrail` object shape only)
+- Structure elements
 - Content elements
 - Interactive elements
 - Context

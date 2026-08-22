@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { ContainerElement, ContainerTreeNode } from '../../types';
 import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
-import { semSamplePageStructure, semSampleHeadings, semSampleInteractions } from './basics';
+import { semSampleStructure, semSampleHeadings, semSampleInteractions, semSampleTexts } from './basics';
 
 describe('semSampleHeadings', () => {
     it('formats headings sorted by importance and limited by headingsLimit', () => {
@@ -36,11 +36,52 @@ describe('semSampleHeadings', () => {
                 ],
                 2,
             ),
-        ).toBe('Heading h1: Welcome | Heading h2: Features');
+        ).toEqual(['Heading h1: Welcome', 'Heading h2: Features']);
     });
 
-    it('returns an empty string when there are no headings', () => {
-        expect(semSampleHeadings([contentElement({ type: 'text', tag: 'p', text: 'Body' })])).toBe('');
+    it('returns an empty array when there are no headings', () => {
+        expect(semSampleHeadings([contentElement({ type: 'text', tag: 'p', text: 'Body' })])).toEqual([]);
+    });
+});
+
+describe('semSampleTexts', () => {
+    it('formats text blocks sorted by importance and limited by limit', () => {
+        expect(
+            semSampleTexts(
+                [
+                    contentElement({
+                        type: 'text',
+                        tag: 'p',
+                        text: 'Secondary text block with enough length.',
+                        importanceScore: { value: 0.6 },
+                    }),
+                    contentElement({
+                        type: 'heading',
+                        tag: 'h1',
+                        text: 'Ignored heading with enough length',
+                        importanceScore: { value: 1 },
+                    }),
+                    contentElement({
+                        type: 'text',
+                        tag: 'p',
+                        text: 'Primary text block with enough length.',
+                        importanceScore: { value: 0.9 },
+                    }),
+                    contentElement({
+                        type: 'text',
+                        tag: 'p',
+                        text: 'Short',
+                        importanceScore: { value: 0.8 },
+                    }),
+                ],
+                20,
+                1,
+            ),
+        ).toEqual(['Text: Primary text block with enough length.']);
+    });
+
+    it('returns an empty array when there are no long enough text blocks', () => {
+        expect(semSampleTexts([contentElement({ type: 'text', tag: 'p', text: 'Short' })], 20)).toEqual([]);
     });
 });
 
@@ -76,10 +117,10 @@ describe('semSampleInteractions', () => {
                 ],
                 2,
             ),
-        ).toBe('Link. Name: Docs. Action: click action | Text input. Name: Search. Action: input text');
+        ).toEqual(['Link. Name: Docs. Action: click action', 'Text input. Name: Search. Action: input text']);
     });
 
-    it('returns an empty string when interactions have no labels or text', () => {
+    it('returns an empty array when interactions have no labels or text', () => {
         expect(
             semSampleInteractions([
                 interactiveElement({
@@ -87,14 +128,14 @@ describe('semSampleInteractions', () => {
                     labels: [],
                 }),
             ]),
-        ).toBe('');
+        ).toEqual([]);
     });
 });
 
-describe('semSampleContainerTree', () => {
+describe('semSampleStructure', () => {
     it('formats sampled containers in tree order limited within each sibling list', () => {
         expect(
-            semSamplePageStructure(
+            semSampleStructure(
                 [
                     containerNode('Sidebar', 0.4, 'sidebar'),
                     containerNode('Main', 0.9, 'main content', [
@@ -117,7 +158,7 @@ describe('semSampleContainerTree', () => {
 
     it('stops after maxDepth', () => {
         expect(
-            semSamplePageStructure(
+            semSampleStructure(
                 [
                     containerNode('Main', 1, 'main content', [
                         containerNode('Included', 1, 'section', [containerNode('Too deep', 1)]),

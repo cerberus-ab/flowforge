@@ -1,16 +1,23 @@
 import type { PageTrail } from '../../types/index.ts';
-import { semSamplePageStructure, semSampleHeadings, semSampleInteractions } from './basics.ts';
-import { semContentElement } from '../element/content.ts';
-import { semInteractiveElement } from '../element/interactive.ts';
+import { semSampleStructure, semSampleHeadings, semSampleInteractions, semSampleTexts } from './basics.ts';
 
 const PLACEHOLDER_NONE = '_None_';
+
+const settings = {
+    SAMPLE_STRUCTURE_MAX_DEPTH: 3,
+    SAMPLE_STRUCTURE_BRANCH_LIMIT: 5,
+    SAMPLE_HEADINGS_LIMIT: 5,
+    SAMPLE_INTERACTIONS_LIMIT: 15,
+    SAMPLE_TEXT_MIN_LENGTH: 30,
+    SAMPLE_TEXT_LIMIT: 15,
+} as const;
 
 function formatOptionalText(text: string): string {
     return text || PLACEHOLDER_NONE;
 }
 
-function formatMarkdownListItem(text: string, offset: number = 0): string {
-    return `${' '.repeat(2 * offset)}- ${text}`;
+function formatMarkdownListItem(text: string, options: { offset?: number; numb?: number } = {}): string {
+    return `${' '.repeat(2 * (options?.offset ?? 0))}${options?.numb !== undefined ? `${options?.numb}.` : '-'} ${text}`;
 }
 
 function formatOptionalMarkdownList(items: string[]): string[] {
@@ -31,7 +38,10 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push('# Semantic view');
     lines.push('');
 
+    // basics
     lines.push('## Page');
+    lines.push('');
+    lines.push('Basic information about the current page.');
     lines.push('');
     lines.push(`- Title: ${pageTrail.basics.title}`);
     lines.push(`- URL: ${pageTrail.basics.url}`);
@@ -43,41 +53,61 @@ export function semMarkdown(pageTrail: PageTrail): string {
     );
     lines.push('');
 
+    // structure
+    lines.push('## Sample structure');
+    lines.push('');
+    lines.push('An outline of the detected page structure.');
+    lines.push('');
+    lines.push(
+        ...formatOptionalMarkdownList(
+            semSampleStructure(
+                pageTrail.structure,
+                settings.SAMPLE_STRUCTURE_MAX_DEPTH,
+                settings.SAMPLE_STRUCTURE_BRANCH_LIMIT,
+            ).map(({ depth, text }) => formatMarkdownListItem(text, { offset: depth })),
+        ),
+    );
+    lines.push('');
+
+    // headings
     lines.push('## Sample headings');
     lines.push('');
-    lines.push(formatOptionalText(semSampleHeadings(pageTrail.content)));
+    lines.push(`Up to ${settings.SAMPLE_HEADINGS_LIMIT} representative headings on the page.`);
+    lines.push('');
+    lines.push(
+        ...formatOptionalMarkdownList(
+            semSampleHeadings(pageTrail.content, settings.SAMPLE_HEADINGS_LIMIT).map((heading, index) =>
+                formatMarkdownListItem(heading, { numb: index + 1 }),
+            ),
+        ),
+    );
     lines.push('');
 
+    // interactions
     lines.push('## Sample interactions');
     lines.push('');
-    lines.push(formatOptionalText(semSampleInteractions(pageTrail.interactive)));
-    lines.push('');
-
-    lines.push('## Sample page structure');
+    lines.push(`Up to ${settings.SAMPLE_INTERACTIONS_LIMIT} representative interactions on the page.`);
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            semSamplePageStructure(pageTrail.container).map(({ depth, text }) => formatMarkdownListItem(text, depth)),
+            semSampleInteractions(pageTrail.interactive, settings.SAMPLE_INTERACTIONS_LIMIT).map((interaction, index) =>
+                formatMarkdownListItem(interaction, { numb: index + 1 }),
+            ),
         ),
     );
     lines.push('');
 
-    lines.push('## Content');
+    // content
+    lines.push('## Meaningful content');
+    lines.push('');
+    lines.push('Some meaningful text blocks sampled from the page.');
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            pageTrail.content.map((el) => semContentElement(el).text()).map((st) => formatMarkdownListItem(st)),
+            semSampleTexts(pageTrail.content, settings.SAMPLE_TEXT_MIN_LENGTH, settings.SAMPLE_TEXT_LIMIT),
         ),
     );
     lines.push('');
-
-    lines.push('## Interactive');
-    lines.push('');
-    lines.push(
-        ...formatOptionalMarkdownList(
-            pageTrail.interactive.map((el) => semInteractiveElement(el).text()).map((st) => formatMarkdownListItem(st)),
-        ),
-    );
 
     return lines.join('\n');
 }

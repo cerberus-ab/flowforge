@@ -185,11 +185,11 @@ describe('PageTrailCollector', () => {
 
         const model = collect();
 
-        expect(model.metadata.containerElements).toBe(2);
-        expect(model.metadata.containerMaxDepth).toBe(2);
+        expect(model.metadata.structureElements).toBe(2);
+        expect(model.metadata.structureMaxDepth).toBe(2);
         expect(model.metadata).not.toHaveProperty('containerElementsTotal');
         expect(model.metadata).not.toHaveProperty('containerElementsLimitReached');
-        expect(model.container[0]).not.toHaveProperty('importanceScore');
+        expect(model.structure[0]).not.toHaveProperty('importanceScore');
     });
 
     it('keeps cssSelector undefined when css selector resolver is not configured', () => {

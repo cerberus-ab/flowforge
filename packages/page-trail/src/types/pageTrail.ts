@@ -68,12 +68,7 @@ export type ContainerElementRole =
     | 'menu';
 
 export type ContainerElementLabelSource =
-    | 'aria-labelledby'
-    | 'aria-label'
-    | 'legend'
-    | 'heading'
-    | 'subheading'
-    | 'title';
+    'aria-labelledby' | 'aria-label' | 'legend' | 'heading' | 'subheading' | 'title';
 
 export interface ContainerElementLabel {
     value: string;
@@ -195,8 +190,8 @@ export interface InteractiveElement extends TargetElement {
 }
 
 export interface CollectionMetadata {
-    containerElements: number;
-    containerMaxDepth: number;
+    structureElements: number;
+    structureMaxDepth: number;
     contentElements: number;
     contentElementsTotal: number;
     contentElementsLimitReached: boolean;
@@ -207,7 +202,7 @@ export interface CollectionMetadata {
     collectedAt: number; // timestamp
     performance: {
         basicsMs: number;
-        containerMs: number;
+        structureMs: number;
         contentMs: number;
         interactiveMs: number;
         totalMs: number;
@@ -223,7 +218,7 @@ export interface CollectionMetadata {
  *
  * It abstracts away raw DOM complexity and provides a structured view of:
  * - page metadata and viewport data (`basics`)
- * - semantic containers tree (`container`)
+ * - semantic containers tree (`structure`)
  * - textual content blocks (`content`)
  * - interactive UI elements (`interactive`)
  * - collection counts, content/interactive limits, timing, and timestamp (`metadata`)
@@ -234,7 +229,7 @@ export interface CollectionMetadata {
  */
 export interface PageTrail {
     basics: PageBasics;
-    container: ContainerTreeNode[];
+    structure: ContainerTreeNode[];
     content: ContentElement[];
     interactive: InteractiveElement[];
     metadata: CollectionMetadata;

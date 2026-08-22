@@ -1,1 +1,1 @@
-export { InspectorPageContainer, InspectorPageContent, InspectorPageInteractive } from './InspectorPageElements.tsx';
+export { InspectorPageStructure, InspectorPageContent, InspectorPageInteractive } from './InspectorPageElements.tsx';

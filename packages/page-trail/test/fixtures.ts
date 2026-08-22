@@ -1,4 +1,4 @@
-import type { BoundingBox, ContainerElement, ContentElement, InteractiveElement } from '../src';
+import type { BoundingBox, ContainerElement, ContentElement, InteractiveElement, PageTrail } from '../src';
 
 export const testBoundingBox: BoundingBox = {
     top: 0,
@@ -92,5 +92,44 @@ export function containerNode(data: ContainerElement, nodes: ContainerNodeFixtur
     return {
         data,
         nodes,
+    };
+}
+
+export function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
+    return {
+        basics: {
+            url: 'https://example.com/sandbox',
+            title: 'FlowForge Sandbox',
+            description: 'Extension sandbox for FlowForge.',
+            language: 'en',
+            viewport: {
+                width: 1280,
+                height: 720,
+                scrollY: 0,
+                scrollHeight: 1440,
+            },
+        },
+        structure: [],
+        content: [],
+        interactive: [],
+        metadata: {
+            structureElements: 0,
+            structureMaxDepth: 0,
+            contentElements: 0,
+            contentElementsTotal: 0,
+            contentElementsLimitReached: false,
+            interactiveElements: 0,
+            interactiveElementsTotal: 0,
+            interactiveElementsLimitReached: false,
+            collectedAt: 0,
+            performance: {
+                basicsMs: 0,
+                structureMs: 0,
+                contentMs: 0,
+                interactiveMs: 0,
+                totalMs: 0,
+            },
+        },
+        ...overrides,
     };
 }

@@ -1,4 +1,4 @@
-import { type PageTrail, semModelContainer, semModelContent, semModelInteractive } from '@flowforge/page-trail';
+import { type PageTrail, semModelContainerTree, semModelContent, semModelInteractive } from '@flowforge/page-trail';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 
 // "importanceScore.value · semanticText"
@@ -19,13 +19,13 @@ function getPageElementSummary(value: unknown): string | undefined {
 
 // Exports
 
-export function InspectorPageContainer({ container }: { container: PageTrail['container']; devMode: boolean }) {
+export function InspectorPageStructure({ structure }: { structure: PageTrail['structure']; devMode: boolean }) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={semModelContainer(container)}
+            value={semModelContainerTree(structure)}
         />
     );
 }

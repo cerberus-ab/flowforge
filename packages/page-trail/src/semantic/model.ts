@@ -54,11 +54,11 @@ function semModelElementContext(context: ElementContext): SemanticElementContext
  *
  * Preserves the tree shape and enriches every container element recursively.
  */
-export function semModelContainer(container: ContainerTreeNode[]): SemanticContainerTreeNode[] {
+export function semModelContainerTree(container: ContainerTreeNode[]): SemanticContainerTreeNode[] {
     return container.map((containerNode) => ({
         ...containerNode,
         element: semModelContainerElement(containerNode.element),
-        nodes: semModelContainer(containerNode.nodes),
+        nodes: semModelContainerTree(containerNode.nodes),
     }));
 }
 

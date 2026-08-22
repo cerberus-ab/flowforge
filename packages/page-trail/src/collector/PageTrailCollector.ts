@@ -54,7 +54,7 @@ export class PageTrailCollector {
         const t1_basics = performance.now();
 
         const containerTree = this.collectContainerTree();
-        const t2_container = performance.now();
+        const t2_structure = performance.now();
 
         const topContentElements = this.collectContentElements(containerTree);
         const t3_content = performance.now();
@@ -64,13 +64,13 @@ export class PageTrailCollector {
 
         return {
             basics,
-            container: containerTree.nodes,
+            structure: containerTree.nodes,
             content: topContentElements.data,
             interactive: topInteractiveElements.data,
 
             metadata: {
-                containerElements: containerTree.elements.length,
-                containerMaxDepth: containerTree.getMathDepth(),
+                structureElements: containerTree.elements.length,
+                structureMaxDepth: containerTree.getMathDepth(),
                 contentElements: topContentElements.data.length,
                 contentElementsTotal: topContentElements.total,
                 contentElementsLimitReached: topContentElements.limitReached,
@@ -81,8 +81,8 @@ export class PageTrailCollector {
                 collectedAt: Date.now(),
                 performance: {
                     basicsMs: Math.round(t1_basics - t0),
-                    containerMs: Math.round(t2_container - t1_basics),
-                    contentMs: Math.round(t3_content - t2_container),
+                    structureMs: Math.round(t2_structure - t1_basics),
+                    contentMs: Math.round(t3_content - t2_structure),
                     interactiveMs: Math.round(t4_interactive - t3_content),
                     totalMs: Math.round(t4_interactive - t0),
                 },

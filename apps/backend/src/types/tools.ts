@@ -28,8 +28,8 @@ export interface ToolGetPageSummaryResultData {
     url: string;
     description: string;
     language: string;
-    sampleHeadings: string;
-    sampleInteractions: string;
+    sampleHeadings: string[];
+    sampleInteractions: string[];
 }
 
 export interface ToolResultElement {

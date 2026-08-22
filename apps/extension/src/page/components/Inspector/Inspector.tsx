@@ -19,13 +19,13 @@ import { Tabs } from '@/shared/components/Tabs';
 import { InspectorPageMetadata } from '@/page/components/Inspector/components/Metadata';
 import { semMarkdown } from '@flowforge/page-trail';
 import {
-    InspectorPageContainer,
+    InspectorPageStructure,
     InspectorPageContent,
     InspectorPageInteractive,
 } from '@/page/components/Inspector/components/Elements';
 
 type InspectorTab = {
-    id: 'basics' | 'container' | 'content' | 'interactive' | 'semanticView' | 'metadata';
+    id: 'basics' | 'structure' | 'content' | 'interactive' | 'markdown' | 'metadata';
     label: string;
     icon: LucideIcon;
     devModeOnly?: boolean;
@@ -33,10 +33,10 @@ type InspectorTab = {
 
 const inspectorTabs: InspectorTab[] = [
     { id: 'basics', label: 'Basics', icon: BadgeInfo },
-    { id: 'container', label: 'Container', icon: ListTree },
+    { id: 'structure', label: 'Structure', icon: ListTree },
     { id: 'content', label: 'Content', icon: BookOpenText },
     { id: 'interactive', label: 'Interactive', icon: MousePointerClick },
-    { id: 'semanticView', label: 'Semantic view', icon: FileText },
+    { id: 'markdown', label: 'Markdown', icon: FileText },
     { id: 'metadata', label: 'Metadata', icon: ChartNoAxesColumn, devModeOnly: true },
 ];
 
@@ -131,12 +131,12 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                     aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
-                    {activeTab === 'container' && <InspectorPageContainer container={pageTrail.container} devMode />}
+                    {activeTab === 'structure' && <InspectorPageStructure structure={pageTrail.structure} devMode />}
                     {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} devMode />}
                     {activeTab === 'interactive' && (
                         <InspectorPageInteractive interactive={pageTrail.interactive} devMode />
                     )}
-                    {activeTab === 'semanticView' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
+                    {activeTab === 'markdown' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
                     {activeTab === 'metadata' && devMode && <JsonViewer value={pageTrail.metadata} sortKeys />}
                 </div>
                 <div className="flowforge-inspector__footer">

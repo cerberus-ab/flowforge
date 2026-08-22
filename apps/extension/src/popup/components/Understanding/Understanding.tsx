@@ -22,13 +22,13 @@ export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
                             Inspect page context
                         </Button>
                     </li>
-                    <li key={'inspect-semanticView'}>
+                    <li key={'inspect-markdown'}>
                         <Button
                             appearance="ghost"
                             size="small"
                             icon={FileText}
                             title="See the page context as Markdown"
-                            onClick={() => onOpenPageInspector('semanticView')}
+                            onClick={() => onOpenPageInspector('markdown')}
                         >
                             .md
                         </Button>
