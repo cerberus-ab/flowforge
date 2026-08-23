@@ -4,6 +4,7 @@ import { ToolFindElement } from './ToolFindElement.ts';
 import { ToolGetPageSummary } from './ToolGetPageSummary.ts';
 import { ToolFindWorkflow } from './ToolFindWorkflow.ts';
 import { ToolSearchInContent } from './ToolSearchInContent.ts';
+import { ToolSuggestActions } from './ToolSuggestActions.ts';
 import { PageContextProvider } from '@/indexer';
 
 export class ToolsRegistry {
@@ -17,6 +18,9 @@ export class ToolsRegistry {
             new ToolGetPageSummary({
                 elementsHeadingsLimit: 5,
                 elementsInteractionsLimit: 10,
+            }),
+            new ToolSuggestActions({
+                elementsInteractiveLimit: 5,
             }),
             new ToolFindWorkflow({
                 retrieveDocumentsLimit: 20,

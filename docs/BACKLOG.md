@@ -34,6 +34,7 @@
 ### Reasoning
 
 - Research OpenAI Agents SDK and Agna framework for agent orchestration
+- Move from intent-routed tools to reasoning primitives for retrieval, ranking, target resolution, and workflow synthesis
 - Use user context and navigation history for prompting
 - Present a page/website UI and meanings graph for reasoning
 
@@ -78,6 +79,7 @@
 ## DX
 
 - Dev/Prod mode
+- Add an agent run inspector for tool calls, intermediate reasoning state, retrieved context, and final output
 - Publish PageTrail as a standalone package
 - Update backend/quick-setup.js
 - Generate CHANGELOG.md

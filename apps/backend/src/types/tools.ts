@@ -17,16 +17,20 @@ export type CallableToolResultData =
     | ToolGetPageSummaryResultData
     | ToolFindElementResultData
     | ToolSearchInContentResultData
-    | ToolFindWorkflowResultData;
+    | ToolFindWorkflowResultData
+    | ToolSuggestActionsResultData;
 
 export type CallableToolResult = CallableToolSuccessResult<CallableToolResultData> | CallableToolFailureResult;
 
 // Tools result data
 
-export interface ToolGetPageSummaryResultData {
+export interface ToolResultPageAbout {
     title: string;
-    url: string;
     description: string;
+}
+
+export interface ToolGetPageSummaryResultData extends ToolResultPageAbout {
+    url: string;
     language: string;
     sampleHeadings: string[];
     sampleInteractions: string[];
@@ -36,6 +40,10 @@ export interface ToolResultElement {
     elementDataId: string;
     elementContext: string[];
     elementCssSelector?: string;
+}
+
+export interface ToolSuggestActionsResultData extends ToolResultPageAbout {
+    actions: ({ semanticDescription: string } & ToolResultElement)[];
 }
 
 export interface ToolFindElementFoundResultData extends ToolResultElement {

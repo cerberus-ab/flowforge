@@ -38,8 +38,8 @@ DESCRIPTION:
 Search the page text for information about a topic.
 
 WHEN TO USE:
-- The user asks about content or information on the page
-- Questions like:
+- Query targets informational text, facts, descriptions, labels, or explanations on the page
+- Examples:
     - "What does it say about X?"
     - "Tell me about X"
     - "Is there information about X?"
@@ -48,12 +48,12 @@ WHAT IT RETURNS:
 - Relevant content fragments from the page
 - Each fragment includes text, elementContext, elementDataId, and optional elementCssSelector
 - text is semantic page text for the matched content fragment
-- elementContext contains semantic container breadcrumbs around the fragment, ordered from broader page area to nearer target area
+- elementContext contains semantic scope breadcrumbs that hint what the fragment is about, ordered from broader page area to nearer target area
 
 IMPORTANT:
 - Results are partial matches, not guaranteed answers
 - You must interpret and combine them into a final answer
-- Use elementContext to describe where the supporting text appears when helpful
+- Use elementContext to describe the supporting text topic or location when helpful
 - If needed, you can follow up with another tool to locate related elements`,
             schema: z.object({
                 query: z.string().describe('Topic to search for'),
