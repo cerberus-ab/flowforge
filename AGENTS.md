@@ -18,10 +18,12 @@ Shared agent guidance lives in `.agents/`.
 
 - `.agents/rules/architecture.md`
 - `.agents/rules/agents.md`
+- `.agents/rules/backlog.md`
 - `.agents/rules/changelog.md`
 - `.agents/rules/code-style.md`
 - `.agents/rules/documentation.md`
 - `.agents/skills/code-review/SKILL.md`
+- `.agents/skills/next-feature/SKILL.md`
 - `.agents/skills/update-changelog/SKILL.md`
 - `.agents/skills/update-docs/SKILL.md`
 

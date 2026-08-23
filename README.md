@@ -92,7 +92,7 @@ Focus areas:
 2. Extend context from single pages to full websites
 3. Build a proper standalone extension distribution
 
-[Backlog](docs/BACKLOG.md) — the full list of features and improvements
+[Backlog](BACKLOG.md) — the full list of features and improvements
 
 ## Documentation
 

@@ -11,12 +11,14 @@
     "build:packages": "npm run build -w @flowforge/page-trail && npm run build -w @flowforge/contract",
     "build": "npm run build:packages && npm run build -w @flowforge/backend && npm run build:chrome -w @flowforge/extension",
     "start": "npm run setup && npm run build && npm run install:chrome -w @flowforge/extension && npm run start -w @flowforge/backend",
+    "prepare": "lefthook install",
     "format": "prettier . --write --cache",
     "format:check": "prettier . --check"
   },
   "author": "Antony Belov <gcerberus.ab@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "lefthook": "^2.1.10",
     "prettier": "^3.8.1"
   }
 }
