@@ -9,7 +9,7 @@ interface UnderstandingProps {
 
 export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
     return (
-        <Card title="Understanding" variant="secondary" transparent twinkle>
+        <Card title="Understanding" variant="secondary" className="flowforge-understanding-container" twinkle>
             <div className="flowforge-understanding-list">
                 <ul>
                     <li key={'inspect-basics'}>

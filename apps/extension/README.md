@@ -34,8 +34,6 @@ npm run sandbox
 3. Click **Load unpacked**
 4. Select `apps/extension/dist/chrome`
 
-Sandbox opens `http://localhost:3007` with demo mode and backend mode.
-
 ## Embed runtime
 
 `build:embed` creates a bundle and declaration file under `dist/embed`:
@@ -55,11 +53,11 @@ await FlowForge.start({ settings: { theme: 'dark' } });
 - `popup/` — user interface and interaction logic
 - `page/` — page overlay, highlighting, wizard, inspector, and collection hooks
 - `background/`, `chrome/`, `embed/` — worker, extension shell, and embed runtime
-- `core/` / `adapters/` — API, storage, locator, root injection, and transport
+- `core/` and `adapters/` — API, storage, locator, root injection, and transport
 
 ## Notes
 
 - Chrome extension requires backend on http://localhost:3477
-- Embed integration supports backend mode and demo mode
+- Sandbox runs on http://localhost:3007 with backend and demo modes
 - Limited by browser security (iframes, cross-origin content)
 - See [Architecture](../../docs/ARCHITECTURE.md) for system design

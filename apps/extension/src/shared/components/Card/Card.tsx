@@ -6,9 +6,9 @@ interface CardProps {
     text?: string;
     variant?: 'primary' | 'secondary';
     direction?: 'none' | 'left';
-    transparent?: boolean;
     twinkle?: boolean;
     error?: boolean;
+    className?: string;
     children?: ComponentChildren;
 }
 
@@ -17,27 +17,27 @@ export function Card({
     text,
     variant = 'primary',
     direction = 'none',
-    transparent = false,
     twinkle = false,
     error = false,
+    className,
     children,
 }: CardProps) {
-    const className = [
+    const classNames = [
         'flowforge-card',
         `flowforge-card--${variant}`,
         direction !== 'none' && `flowforge-card--${direction}`,
-        transparent && 'flowforge-card--transparent',
         twinkle && 'flowforge-stared-twinkle',
         twinkle && `flowforge-stared-twinkle--${variant}`,
+        className,
     ]
         .filter(Boolean)
         .join(' ');
-    const id = useId();
-    const titleId = title ? `flowforge-card-title-${id}` : undefined;
+
+    const titleId = title ? `flowforge-card-title-${useId()}` : undefined;
 
     return (
         <section
-            className={className}
+            className={classNames}
             data-state={error ? 'error' : undefined}
             aria-labelledby={titleId}
             role={error ? 'alert' : undefined}

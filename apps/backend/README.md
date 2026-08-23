@@ -23,6 +23,8 @@ npm start
 npm run dev
 ```
 
+For watch mode, run `npm run dev -w @flowforge/backend` in another terminal.
+
 ## Configuration
 
 Configured via `.env` file:
@@ -38,11 +40,12 @@ See [.env.example](.env.example) for all options.
 
 ## API
 
-- `POST /query` — main agent entry point (question + page data)
-- `POST /search` — semantic search over indexed content
-- `GET /analytics` / `GET /health` — analytics and service status
+- `POST /query` — main agent entry point (`question`, `pageTrail`, `domain`)
+- `POST /search` — semantic search over an indexed `pageUrl`
+- `GET /health` — service status
+- `GET /analytics` — in-memory query analytics
 
-`/query` expects `question`, `pageTrail`, and `domain`; it returns answer, mode, optional topic, matched elements, and execution metadata.
+`/query` returns `{ result, metadata }`. `result` contains answer, mode, optional topic, and matched elements; `metadata` contains model, token usage, and execution time.
 
 ## Notes
 

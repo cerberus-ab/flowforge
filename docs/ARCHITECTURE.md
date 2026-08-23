@@ -40,7 +40,7 @@ Inference layer supporting Ollama or OpenAI models for embeddings and generation
 2. Extension sends `pageTrail + question` to backend (`POST /query`)
 3. Backend indexes the submitted page snapshot
 4. Agent executes with access to tools and vector search
-5. Backend returns structured result (answer + target elements)
+5. Backend returns `QueryResponse` with `result` and execution metadata
 6. Browser runtime highlights elements and displays the response
 
 ### Indexing flow
@@ -80,13 +80,16 @@ Shared request/response contracts live in `@flowforge/contract`; DOM snapshots l
 
 ## Contracts
 
-Extension ↔ backend:
+Browser runtime ↔ backend:
 
 - `POST /query` — submit user question with page data
-- `POST /search` — semantic search over indexed content
-- `GET /analytics` / `GET /health` — analytics and service status
+- `POST /search` — semantic search over an already indexed page URL
+- `GET /health` — service status
+- `GET /analytics` — in-memory query analytics
 
-`POST /query` accepts `question`, `pageTrail`, `domain`, and optional question history. It returns an `AgentResult` with `answer`, `mode`, optional `topic`, and target `elements`.
+`POST /query` accepts `question`, `pageTrail`, `domain`, and optional `userContext.previousQuestions`. It indexes the submitted page before agent execution and returns `{ result, metadata }`.
+
+`result` is an `AgentResult` with `answer`, `mode`, optional `topic`, and target `elements`. `metadata` includes model, token usage, and execution time. `POST /search` accepts `pageUrl`, `query`, and optional `k`, then returns retrieved documents.
 
 Agent tools use structured Zod schemas. Indexer documents are stored per page URL and embedding provider with content text and source element metadata.
 

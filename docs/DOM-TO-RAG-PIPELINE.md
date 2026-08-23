@@ -28,9 +28,7 @@ Elements include:
 
 - Attributes and properties
 - Semantic roles and labels
-- Embedded layout and context:
-    - Section (e.g., header, main, form)
-    - Hierarchical path within the page
+- Embedded layout and context, including section and ancestor path
 - Stable `dataId` and optional CSS selector for browser-side lookup
 
 Each element is assigned an importance score. This layer defines _what exists on the page and how it is structured_.
@@ -73,15 +71,15 @@ Retrieved documents are rescored with semantic similarity and UI-specific signal
 A hybrid scoring function is applied by the agent tools:
 
 ```
-score = semantic similarity + UI importance signals
+score = semanticScore * weight + importanceScore * weight
 ```
 
 Where:
 
-- `semantic_score` reflects how well the document matches the query
-- `importance_score` reflects UI relevance such as visibility, role, position, and interaction potential
+- `semanticScore` reflects how well the document matches the query
+- `importanceScore` reflects UI relevance such as visibility, role, position, and interaction potential
 
-Different tools use different scoring profiles for lookup, answer, and action-oriented requests.
+Lookup, answer, and action-oriented tools use different weights.
 
 ### 5. Resolution to tool results
 

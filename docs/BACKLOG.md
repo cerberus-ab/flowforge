@@ -2,20 +2,22 @@
 
 - Enhance logging (with pino, LangSmith, opentelemetry)
 - Enhance error handling and API validation
+- Improve error handling for element lookup, backend availability, and unavailable page runtime
 - Test coverage (unit/integration, vitest, playwright, promptfoo)
-- Create extendable abstraction over extractors, embeddings, tooling
+- Create extendable abstraction over extractors, selectors, embeddings, tooling
 
 ## Page Trail
 
 - Cache for the collector heavy computes
-- Adjust importance score for headings (h1-h4)
 - Parse structured data (Schema.org, og, x-card, etc.) for basics info
+- Enhance dataId and CSS selector usage for Element locator
 
 ## Backend
 
 ### Models
 
 - Support Anthropic, Ollama Cloud providers
+- Research OpenRouter, Lighter LM, and Cerebras.ai for LLM routing and low-latency inference
 - Research WebLLM in browser: instant summary, intent classification, local reranking, etc.
 - Try open source models: gpt-oss:120b, nemotron-3-super
 
@@ -31,6 +33,7 @@
 
 ### Reasoning
 
+- Research OpenAI Agents SDK and Agna framework for agent orchestration
 - Use user context and navigation history for prompting
 - Present a page/website UI and meanings graph for reasoning
 
@@ -49,6 +52,10 @@
 - Add metrics: tokens usage, latency, errors, etc.
 - Refactor the Server, consider using Fastify instead of Express
 
+### Browser automation
+
+- Research Stagehand for browser action planning and execution
+
 ### Analytics
 
 - Save steps for workflows for more details
@@ -57,8 +64,10 @@
 
 ## Extension
 
-- Support standalone mode, properly
-- Enhance dataId and CSS selector usage for Element locator
+- Support service pages where browser APIs allow content scripts or fallback flows
+- Restore popup/page UI state when reopening the extension
+- Style the wizard to better fit the host website
+- Consider to separate Inspector
 
 ### Page inspector
 
@@ -69,5 +78,6 @@
 ## DX
 
 - Dev/Prod mode
+- Publish PageTrail as a standalone package
 - Update backend/quick-setup.js
 - Generate CHANGELOG.md
