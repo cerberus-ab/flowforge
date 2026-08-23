@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getContainerRole, getInteractiveRole, roleToInteractiveElementType } from './role';
+import { getContainerRole, getInteractiveRole, roleToContainerElementType, roleToInteractiveElementType } from './role';
 
 describe('getContainerRole', () => {
     it('resolves native container roles', () => {
@@ -17,6 +17,18 @@ describe('getContainerRole', () => {
 
     it('returns undefined for unsupported elements', () => {
         expect(roleOfContainer('<span></span>')).toBeUndefined();
+    });
+});
+
+describe('roleToContainerElementType', () => {
+    it('maps container roles to element types', () => {
+        expect(roleToContainerElementType('modal dialog')).toBe('dialog');
+        expect(roleToContainerElementType('main content')).toBe('landmark');
+        expect(roleToContainerElementType('navigation')).toBe('navigation');
+        expect(roleToContainerElementType('form')).toBe('form');
+        expect(roleToContainerElementType('article')).toBe('section');
+        expect(roleToContainerElementType('toolbar')).toBe('widget');
+        expect(roleToContainerElementType('table row')).toBe('table');
     });
 });
 

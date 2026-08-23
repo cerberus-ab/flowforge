@@ -7,7 +7,7 @@ import type { RetrievedDocument } from '@/types';
  * Used when selecting the best matching UI element.
  */
 export function scoreForLookup(document: RetrievedDocument): number {
-    return 0.8 * document.semanticScore + 0.2 * document.metadata.element.importanceScore;
+    return 0.8 * document.semanticScore + 0.2 * document.metadata.element.importanceScore.value;
 }
 
 /**
@@ -17,7 +17,7 @@ export function scoreForLookup(document: RetrievedDocument): number {
  * Used for selecting text blocks that best answer the user query.
  */
 export function scoreForAnswer(document: RetrievedDocument): number {
-    return 0.85 * document.semanticScore + 0.15 * document.metadata.element.importanceScore;
+    return 0.85 * document.semanticScore + 0.15 * document.metadata.element.importanceScore.value;
 }
 
 /**
@@ -27,5 +27,5 @@ export function scoreForAnswer(document: RetrievedDocument): number {
  * require both relevant and actionable UI elements.
  */
 export function scoreForAction(document: RetrievedDocument): number {
-    return 0.7 * document.semanticScore + 0.3 * document.metadata.element.importanceScore;
+    return 0.7 * document.semanticScore + 0.3 * document.metadata.element.importanceScore.value;
 }

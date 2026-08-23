@@ -1,11 +1,15 @@
 /* Button */
 .flowforge-button {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--flowforge-pad-xs);
   padding: var(--flowforge-pad-sm) var(--flowforge-pad-lg);
+  border: 1px solid transparent;
   border-radius: var(--flowforge-pad-xs);
   font: var(--flowforge-text-md);
   cursor: pointer;
-  border: none;
   transition: var(--flowforge-transition-default);
 }
 .flowforge-button--sm {
@@ -21,27 +25,47 @@
 .flowforge-button--wide {
   width: 100%;
 }
-.flowforge-button,
-.flowforge-button--primary {
-  background: var(--flowforge-color-primary);
+.flowforge-button--icon-end {
+  flex-direction: row-reverse;
+}
+.flowforge-button--solid {
   color: var(--flowforge-color-text-on-dark);
 }
-.flowforge-button--secondary {
+.flowforge-button--solid.flowforge-button--primary {
+  background: var(--flowforge-color-primary);
+}
+.flowforge-button--solid.flowforge-button--secondary {
   background: var(--flowforge-color-secondary);
 }
-.flowforge-button:hover,
-.flowforge-button--primary:hover {
+.flowforge-button--solid.flowforge-button--primary:not(:disabled):hover {
   background: var(--flowforge-color-primary-hover);
   transform: translateY(-1px);
 }
-.flowforge-button--secondary:hover {
+.flowforge-button--solid.flowforge-button--secondary:not(:disabled):hover {
   background: var(--flowforge-color-secondary-hover);
+  transform: translateY(-1px);
 }
-.flowforge-button:active {
+.flowforge-button--solid:not(:disabled):active {
   transform: translateY(0);
 }
-.flowforge-button:disabled {
+.flowforge-button--solid:disabled {
   background: var(--flowforge-color-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.flowforge-button--ghost {
+  background: var(--flowforge-color-surface);
+  color: var(--flowforge-color-text-muted);
+}
+.flowforge-button--ghost:not(:disabled):hover {
+  color: var(--flowforge-color-text);
+  border-color: var(--flowforge-color-border);
+}
+.flowforge-button--ghost:focus-visible {
+  outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
+}
+.flowforge-button--ghost:disabled {
+  background: transparent;
   cursor: not-allowed;
   opacity: 0.5;
 }

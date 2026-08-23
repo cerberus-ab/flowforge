@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'preact/hooks';
 import type { TransportService } from '@/adapters/interface';
 import {
     type ExtensionSettings,
-    type ExtensionSettingsTheme,
     type GetSettingsMessage,
     type GetSettingsMessageResponse,
-    isApplySettingsMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
+    isSettingsUpdatedMessage,
+    type Message,
+    type MessageResponse,
 } from '@/types';
 import { config } from '@/config';
 
@@ -15,53 +16,67 @@ interface UseSettingsParams {
     transport: TransportService;
 }
 
-export interface SettingsViewModel extends ExtensionSettings {
+export interface SettingsReadyViewModel extends ExtensionSettings {
+    status: 'ready';
     toggleTheme: () => Promise<void>;
+    setDevMode: (enabled: boolean) => Promise<void>;
 }
 
+export interface SettingsLoadingViewModel {
+    status: 'loading';
+}
+
+export type SettingsViewModel = SettingsLoadingViewModel | SettingsReadyViewModel;
+
 export function useSettings({ transport }: UseSettingsParams): SettingsViewModel {
-    const [settings, setSettings] = useState<ExtensionSettings>(config.defaultSettings);
+    const [settings, setSettings] = useState<ExtensionSettings | null>(null);
 
     // Get settings on mount
     useEffect(() => {
         void (async () => {
-            const response = await transport.sendToBackground<GetSettingsMessage, GetSettingsMessageResponse>({
-                type: 'GET_SETTINGS',
-            });
-            if (response.success) {
-                setSettings(response.data);
+            try {
+                const response = await transport.sendToBackground<GetSettingsMessage, GetSettingsMessageResponse>({
+                    type: 'GET_SETTINGS',
+                });
+                setSettings(response.success ? response.data : config.defaultSettings);
+            } catch {
+                setSettings(config.defaultSettings);
             }
         })();
     }, [transport]);
 
-    // Handle theme toggle
-    const handleToggleTheme = useCallback(async () => {
-        const nextTheme: ExtensionSettingsTheme = settings.theme === 'dark' ? 'light' : 'dark';
-        const response = await transport.sendToBackground<UpdateSettingsMessage, UpdateSettingsMessageResponse>({
-            type: 'UPDATE_SETTINGS',
-            senderId: await transport.getActiveSenderId(),
-            data: {
-                patch: { theme: nextTheme },
-            },
-        });
-        if (response.success) {
-            setSettings(response.data);
-        }
-    }, [settings, transport]);
-
-    // Listen to settings updates from background
     useEffect(() => {
-        return transport.addMessageListener((message) => {
-            if (isApplySettingsMessage(message)) {
-                setSettings(message.data.settings);
+        return transport.addMessageListener((message: Message): MessageResponse | undefined => {
+            if (isSettingsUpdatedMessage(message)) {
+                setSettings(message.data);
                 return { success: true };
             }
             return undefined;
         });
     }, [transport]);
 
+    const handleUpdateSettings = useCallback(
+        async (patch: Partial<ExtensionSettings>) => {
+            const senderId = await transport.getActiveSenderId().catch(() => undefined);
+            const response = await transport.sendToBackground<UpdateSettingsMessage, UpdateSettingsMessageResponse>({
+                type: 'UPDATE_SETTINGS',
+                senderId,
+                data: { patch },
+            });
+            if (response.success) {
+                setSettings(response.data);
+            }
+        },
+        [transport],
+    );
+
+    if (!settings) {
+        return { status: 'loading' };
+    }
     return {
+        status: 'ready',
         ...settings,
-        toggleTheme: handleToggleTheme,
+        toggleTheme: () => handleUpdateSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark' }),
+        setDevMode: (enabled: boolean) => handleUpdateSettings({ devMode: enabled }),
     };
 }

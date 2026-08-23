@@ -6,7 +6,7 @@ import {
     isStartOnboardingMessage,
 } from '@/types';
 import type { Message, StartOnboardingMessageData } from '@/types';
-import { useCallback, useLayoutEffect, useState } from 'preact/hooks';
+import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { findElement, getOrCreateDataId } from '@/core/locator/locate';
 import type { TransportService } from '@/adapters/interface';
 import { constants } from '@/constants';
@@ -23,6 +23,9 @@ function collectPageTrail(): PageTrail {
 
 export interface UsePageOptions {
     transport: TransportService;
+    devMode: boolean;
+    onDevModeChange: (enabled: boolean) => void | Promise<void>;
+    onReady?: () => void;
 }
 
 interface HighlightState {
@@ -51,10 +54,13 @@ export interface WizardViewModel extends WizardState {
 
 interface InspectorState {
     pageTrail: PageTrail;
+    initialTab?: string;
 }
 
 export interface InspectorViewModel extends InspectorState {
     close: () => void;
+    devMode: boolean;
+    onDevModeChange: (enabled: boolean) => void | Promise<void>;
 }
 
 export interface PageViewModel {
@@ -63,10 +69,11 @@ export interface PageViewModel {
     inspector: InspectorViewModel | null;
 }
 
-export function usePage({ transport }: UsePageOptions): PageViewModel {
+export function usePage({ transport, devMode, onDevModeChange, onReady }: UsePageOptions): PageViewModel {
     const [highlights, setHighlights] = useState<HighlightState[]>([]);
     const [wizard, setWizard] = useState<WizardState | null>(null);
     const [inspector, setInspector] = useState<InspectorState | null>(null);
+    const readyRef = useRef(false);
 
     const closeWizard = useCallback(() => {
         setHighlights([]);
@@ -122,8 +129,8 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
     );
 
     // Open inspector
-    const openInspector = useCallback((pageTrail: PageTrail) => {
-        setInspector({ pageTrail });
+    const openInspector = useCallback((pageTrail: PageTrail, initialTab?: string) => {
+        setInspector({ pageTrail, initialTab });
     }, []);
 
     // Handle wizard step change
@@ -165,7 +172,7 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
 
     // Listen to messages from background
     useLayoutEffect(() => {
-        return transport.addMessageListener((message: Message) => {
+        const unsubscribe = transport.addMessageListener((message: Message) => {
             if (isCollectPageTrailMessage(message)) {
                 const pageTrail = collectPageTrail();
                 return { success: true, data: pageTrail };
@@ -184,12 +191,18 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
             }
             if (isOpenInspectorMessage(message)) {
                 const pageTrail = collectPageTrail();
-                openInspector(pageTrail);
+                openInspector(pageTrail, message.data.tab);
                 return { success: true };
             }
             return undefined;
         });
-    }, [transport, startOnboarding, highlightElement, openInspector, clearPage]);
+
+        if (!readyRef.current) {
+            readyRef.current = true;
+            onReady?.();
+        }
+        return unsubscribe;
+    }, [transport, startOnboarding, highlightElement, openInspector, clearPage, onReady]);
 
     return {
         highlights: highlights.map((highlight) => ({
@@ -207,6 +220,8 @@ export function usePage({ transport }: UsePageOptions): PageViewModel {
             ? {
                   ...inspector,
                   close: closeInspector,
+                  devMode,
+                  onDevModeChange,
               }
             : null,
     };

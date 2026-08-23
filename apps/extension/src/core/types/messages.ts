@@ -1,23 +1,18 @@
 import type { AgentResultElement, AgentResultMode, PageTrail, QueryResponse } from '@flowforge/contract';
 import type { ExtensionSettings } from '@/core/types/settings';
 
-type MessageTypeToBackground = 'GET_SETTINGS';
+type MessageTypeToBackground = 'GET_SETTINGS' | 'UPDATE_SETTINGS';
 
 type MessageTypePopupToBackground =
-    | 'POPUP_INITIALISE'
-    | 'ASK_QUESTION'
-    | 'GET_PREV_QUESTIONS'
-    | 'NAVIGATE_TO_ELEMENT'
-    | 'UPDATE_SETTINGS'
-    | 'OPEN_PAGE_INSPECTOR';
+    'POPUP_INITIALISE' | 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT' | 'OPEN_PAGE_INSPECTOR';
 
 type MessageTypeBackgroundToPage =
     | 'COLLECT_PAGE_TRAIL'
     | 'START_ONBOARDING'
     | 'HIGHLIGHT_ELEMENT'
     | 'CLEAR_PAGE'
-    | 'APPLY_SETTINGS'
-    | 'OPEN_INSPECTOR';
+    | 'OPEN_INSPECTOR'
+    | 'SETTINGS_UPDATED';
 
 type MessageType = MessageTypeToBackground | MessageTypePopupToBackground | MessageTypeBackgroundToPage;
 
@@ -36,25 +31,25 @@ export type GetSettingsMessageResponseData = ExtensionSettings;
 
 export type GetSettingsMessageResponse = MessageResponse<GetSettingsMessageResponseData>;
 
-// Popup -> Background
-
-export type PopupInitializeMessage = Message & {
-    type: 'POPUP_INITIALISE';
-    senderId: number;
-};
-
 export type UpdateSettingsMessageData = {
     patch: Partial<ExtensionSettings>;
 };
 
 export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
     type: 'UPDATE_SETTINGS';
-    senderId: number;
+    senderId?: number;
 };
 
 export type UpdateSettingsMessageResponseData = ExtensionSettings;
 
 export type UpdateSettingsMessageResponse = MessageResponse<UpdateSettingsMessageResponseData>;
+
+// Popup -> Background
+
+export type PopupInitializeMessage = Message & {
+    type: 'POPUP_INITIALISE';
+    senderId: number;
+};
 
 export interface AskQuestionMessageData {
     question: string;
@@ -89,19 +84,13 @@ export type NavigateToElementMessage = Message<NavigateToElementMessageData> & {
     senderId: number;
 };
 
-export type OpenPageInspectorMessage = Message & {
-    type: 'OPEN_PAGE_INSPECTOR';
-    senderId: number;
-};
-
-// Background -> Page
-
-export interface ApplySettingsMessageData {
-    settings: ExtensionSettings;
+export interface OpenPageInspectorMessageData {
+    tab?: string;
 }
 
-export type ApplySettingsMessage = Message<ApplySettingsMessageData> & {
-    type: 'APPLY_SETTINGS';
+export type OpenPageInspectorMessage = Message<OpenPageInspectorMessageData> & {
+    type: 'OPEN_PAGE_INSPECTOR';
+    senderId: number;
 };
 
 export type CollectPageTrailMessage = Message & {
@@ -135,8 +124,14 @@ export type HighlightElementMessage = Message<HighlightElementMessageData> & {
     type: 'HIGHLIGHT_ELEMENT';
 };
 
-export type OpenInspectorMessage = Message & {
+export type OpenInspectorMessage = Message<OpenPageInspectorMessageData> & {
     type: 'OPEN_INSPECTOR';
+};
+
+export type SettingsUpdatedMessageData = ExtensionSettings;
+
+export type SettingsUpdatedMessage = Message<SettingsUpdatedMessageData> & {
+    type: 'SETTINGS_UPDATED';
 };
 
 // Type guards
@@ -151,10 +146,6 @@ export function isGetSettingsMessage(message: Message): message is GetSettingsMe
 
 export function isUpdateSettingsMessage(message: Message): message is UpdateSettingsMessage {
     return message.type === 'UPDATE_SETTINGS';
-}
-
-export function isApplySettingsMessage(message: Message): message is ApplySettingsMessage {
-    return message.type === 'APPLY_SETTINGS';
 }
 
 export function isAskQuestionMessage(message: Message): message is AskQuestionMessage {
@@ -191,4 +182,8 @@ export function isNavigateToElementMessage(message: Message): message is Navigat
 
 export function isHighlightElementMessage(message: Message): message is HighlightElementMessage {
     return message.type === 'HIGHLIGHT_ELEMENT';
+}
+
+export function isSettingsUpdatedMessage(message: Message): message is SettingsUpdatedMessage {
+    return message.type === 'SETTINGS_UPDATED';
 }

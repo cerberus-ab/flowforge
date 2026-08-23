@@ -6,7 +6,7 @@ import { Question } from './components/Question';
 import { Loading } from './components/Loading';
 import { Result } from './components/Result';
 import { Examples } from './components/Examples';
-import { Developer } from '@/popup/components/Developer';
+import { Understanding } from '@/popup/components/Understanding';
 import { ButtonText } from '@/shared/components/Button';
 import { Link } from '@/shared/components/Link';
 import { Notice } from '@/shared/components/Notice';
@@ -77,10 +77,13 @@ export function PopupApp({
     );
 
     // Handle open page inspector and close popup
-    const handleOpenPageInspector = useCallback(() => {
-        openPageInspector();
-        onClose?.();
-    }, [openPageInspector, onClose]);
+    const handleOpenPageInspector = useCallback(
+        (tab?: string) => {
+            openPageInspector(tab);
+            onClose?.();
+        },
+        [openPageInspector, onClose],
+    );
 
     const isDialog = variant === 'dialog';
     const Root = isDialog ? 'section' : 'div';
@@ -136,7 +139,7 @@ export function PopupApp({
 
                 <Examples examples={examples} onExampleQuestionSelect={handleApplyExampleQuestion} />
 
-                <Developer onOpenPageInspector={handleOpenPageInspector}></Developer>
+                <Understanding onOpenPageInspector={handleOpenPageInspector}></Understanding>
 
                 <footer className="flowforge-popup__footer">
                     <div className="flowforge-popup__copyright">{copyright}</div>

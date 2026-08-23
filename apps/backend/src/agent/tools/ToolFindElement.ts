@@ -49,13 +49,14 @@ WHEN TO USE:
 
 WHAT IT RETURNS:
 - Best matching element (if any)
-- Description of the element
-- Location context (section, path)
-- CSS selector and dataId
+- semanticDescription: semantic text describing the matched element
+- elementContext: semantic container breadcrumbs around the element, ordered from broader page area to nearer target area
+- elementDataId: primary browser locator
+- elementCssSelector: optional fallback browser locator
 
 IMPORTANT:
 - Returns only the best match, which may be imperfect
-- Use context to decide if it is correct and applicable
+- Use elementContext to decide if it is correct and to describe where it is located
 - If the result seems unclear or incomplete, consider using another tool`,
             schema: z.object({
                 query: z.string().describe('Element to find (e.g., "login button", "search input")'),

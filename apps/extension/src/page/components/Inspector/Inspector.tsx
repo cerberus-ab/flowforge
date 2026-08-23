@@ -1,43 +1,101 @@
 import type { TargetedPointerEvent } from 'preact';
-import { useEffect, useId, useState } from 'preact/hooks';
-import { BadgeInfo, BookOpenText, FileText, MousePointerClick } from 'lucide-preact';
+import { useEffect, useId, useMemo, useState } from 'preact/hooks';
+import {
+    type LucideIcon,
+    BadgeInfo,
+    BookOpenText,
+    ChartNoAxesColumn,
+    FileText,
+    ListTree,
+    MousePointerClick,
+} from 'lucide-preact';
 import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
+import { Switch } from '@/shared/components/Switch';
 import { Tabs } from '@/shared/components/Tabs';
-import { PageMetadata } from '@/page/components/Inspector/components/Metadata';
-import { formatContentElement, formatInteractiveElement, generateSemanticMarkdown } from '@flowforge/page-trail';
+import { Tooltip } from '@/shared/components/Tooltip';
+import { InspectorPageMetadata } from '@/page/components/Inspector/components/Metadata';
+import { semMarkdown } from '@flowforge/page-trail';
+import {
+    InspectorPageStructure,
+    InspectorPageContent,
+    InspectorPageInteractive,
+} from '@/page/components/Inspector/components/Elements';
 
-const inspectorTabs = [
-    { id: 'basics', label: 'Basics', icon: BadgeInfo },
-    { id: 'content', label: 'Content', icon: BookOpenText },
-    { id: 'interactive', label: 'Interactive', icon: MousePointerClick },
-    { id: 'semanticView', label: 'Semantic view', icon: FileText },
-] as const;
+type InspectorTab = {
+    id: 'basics' | 'structure' | 'content' | 'interactive' | 'markdown' | 'metadata';
+    label: string;
+    icon: LucideIcon;
+    tooltip: string;
+    devModeOnly?: boolean;
+};
 
-type InspectorTabId = (typeof inspectorTabs)[number]['id'];
+const inspectorTabs: InspectorTab[] = [
+    {
+        id: 'basics',
+        label: 'Basics',
+        icon: BadgeInfo,
+        tooltip: 'Page URL, title, description, language, and viewport.',
+    },
+    {
+        id: 'structure',
+        label: 'Structure',
+        icon: ListTree,
+        tooltip: 'Detected landmarks, sections, forms, and dialogs as a tree.',
+    },
+    {
+        id: 'content',
+        label: 'Content',
+        icon: BookOpenText,
+        tooltip: 'Top text and heading elements with scores and page context.',
+    },
+    {
+        id: 'interactive',
+        label: 'Interactive',
+        icon: MousePointerClick,
+        tooltip: 'Top buttons, links, inputs, and controls with labels, state, and context.',
+    },
+    {
+        id: 'markdown',
+        label: 'Markdown',
+        icon: FileText,
+        tooltip: 'Human-readable semantic snapshot used for inspection and copy.',
+    },
+    {
+        id: 'metadata',
+        label: 'Metadata',
+        icon: ChartNoAxesColumn,
+        tooltip: 'Collection counts, limit flags, timing, depth, and timestamp.',
+        devModeOnly: true,
+    },
+];
 
-function getSemanticDescription(value: unknown): string | undefined {
-    if (
-        typeof value === 'object' &&
-        value !== null &&
-        'importanceScore' in value &&
-        'semanticDescription' in value &&
-        typeof value.importanceScore === 'number' &&
-        typeof value.semanticDescription === 'string'
-    ) {
-        return `${value.importanceScore.toFixed(2)} · ${value.semanticDescription}`;
-    }
-    return undefined;
+function resolveInspectorTabId(tabs: readonly InspectorTab[], preferredTab?: string): InspectorTab['id'] {
+    const tab = tabs.find((item) => item.id === preferredTab);
+
+    return tab?.id ?? tabs[0]!.id;
 }
 
-export function Inspector({ pageTrail, close }: InspectorViewModel) {
-    const [activeTab, setActiveTab] = useState<InspectorTabId>('basics');
+// Exports
+
+export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChange }: InspectorViewModel) {
+    const availableTabs = useMemo(() => inspectorTabs.filter((tab) => !tab.devModeOnly || devMode), [devMode]);
+    const [activeTab, setActiveTab] = useState<InspectorTab['id']>(() =>
+        resolveInspectorTabId(availableTabs, initialTab),
+    );
     const tabsIdPrefix = `flowforge-inspector-tabs-${useId()}`;
     const getTabId = (id: string) => `${tabsIdPrefix}-tab-${id}`;
     const getPanelId = (id: string) => `${tabsIdPrefix}-panel-${id}`;
+
+    // Reset the active tab
+    useEffect(() => {
+        if (availableTabs.some((tab) => tab.id === activeTab)) return;
+
+        setActiveTab(resolveInspectorTabId(availableTabs, initialTab));
+    }, [activeTab, availableTabs, initialTab]);
 
     // Close on esc
     useEffect(() => {
@@ -83,6 +141,12 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                         </p>
                     </div>
                     <div className="flowforge-inspector__header-ctrl">
+                        <Tooltip
+                            content="Show enriched PageTrail records with raw fields, selectors, scores, and diagnostics."
+                            variant="secondary"
+                        >
+                            <Switch checked={devMode} label="Dev mode" onCheckedChange={onDevModeChange} />
+                        </Tooltip>
                         <Button variant="secondary" size="small" onClick={close}>
                             Close
                         </Button>
@@ -90,9 +154,9 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                 </div>
                 <div className="flowforge-inspector__nav">
                     <Tabs
-                        tabs={inspectorTabs}
+                        tabs={availableTabs}
                         activeId={activeTab}
-                        onChange={(id) => setActiveTab(id as InspectorTabId)}
+                        onChange={(id) => setActiveTab(id as InspectorTab['id'])}
                         getTabId={getTabId}
                         getPanelId={getPanelId}
                         autoFocus
@@ -105,32 +169,18 @@ export function Inspector({ pageTrail, close }: InspectorViewModel) {
                     aria-labelledby={getTabId(activeTab)}
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
-                    {activeTab === 'content' && (
-                        <JsonViewer
-                            getNodeSummary={getSemanticDescription}
-                            rootArrayExpandedItems={1}
-                            sortKeys
-                            value={pageTrail.content.map((contentElement) => ({
-                                ...contentElement,
-                                semanticDescription: formatContentElement(contentElement),
-                            }))}
-                        />
+                    {activeTab === 'structure' && (
+                        <InspectorPageStructure structure={pageTrail.structure} devMode={devMode} />
                     )}
+                    {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} devMode={devMode} />}
                     {activeTab === 'interactive' && (
-                        <JsonViewer
-                            getNodeSummary={getSemanticDescription}
-                            rootArrayExpandedItems={1}
-                            sortKeys
-                            value={pageTrail.interactive.map((interactiveElement) => ({
-                                ...interactiveElement,
-                                semanticDescription: formatInteractiveElement(interactiveElement),
-                            }))}
-                        />
+                        <InspectorPageInteractive interactive={pageTrail.interactive} devMode={devMode} />
                     )}
-                    {activeTab === 'semanticView' && <MarkdownViewer value={generateSemanticMarkdown(pageTrail)} />}
+                    {activeTab === 'markdown' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
+                    {activeTab === 'metadata' && devMode && <JsonViewer value={pageTrail.metadata} sortKeys />}
                 </div>
                 <div className="flowforge-inspector__footer">
-                    <PageMetadata metadata={pageTrail.metadata} />
+                    <InspectorPageMetadata metadata={pageTrail.metadata} devMode={devMode} />
                 </div>
             </div>
         </div>

@@ -1,3 +1,19 @@
+// Generic
+
+export interface TreeNode<E> {
+    element: E;
+    nodes: TreeNode<E>[];
+}
+
+export interface PathNode<E> {
+    element: E;
+    distance: number;
+}
+
+export interface Scoring {
+    value: number; // [0..1]
+}
+
 // Document Basics
 
 export interface Viewport {
@@ -15,7 +31,7 @@ export interface PageBasics {
     viewport: Viewport;
 }
 
-// Element Descriptors
+// Element descriptors
 
 export interface BoundingBox {
     top: number;
@@ -25,6 +41,8 @@ export interface BoundingBox {
     right: number;
     bottom: number;
 }
+
+// Container element and tree
 
 export type ContainerElementRole =
     | 'alert dialog'
@@ -49,26 +67,27 @@ export type ContainerElementRole =
     | 'table row'
     | 'menu';
 
-export interface ElementContext {
-    path: ContainerElementRole[];
-    sectionName?: string;
-}
+export type ContainerElementLabelSource =
+    'aria-labelledby' | 'aria-label' | 'legend' | 'heading' | 'subheading' | 'title';
 
-export type ElementLabelSource =
-    | 'aria-labelledby'
-    | 'aria-label'
-    | 'label-for'
-    | 'label-wrapper'
-    | 'value'
-    | 'placeholder'
-    | 'alt'
-    | 'title'
-    | 'name';
-
-export interface ElementLabel {
+export interface ContainerElementLabel {
     value: string;
-    source: ElementLabelSource;
+    source: ContainerElementLabelSource;
 }
+
+export type ContainerTreeNode = TreeNode<ContainerElement>;
+
+export type ContainerPathNode = PathNode<ContainerElement> & {
+    relevanceScore: Scoring;
+};
+
+export interface ElementContext {
+    path: ContainerPathNode[];
+    breadcrumbs: number[];
+    contextScore: Scoring;
+}
+
+// Interactive element
 
 export type InteractiveElementRole =
     | 'button'
@@ -85,6 +104,22 @@ export type InteractiveElementRole =
     | 'tab'
     | 'menuitem'
     | 'dialog';
+
+export type InteractiveElementLabelSource =
+    | 'aria-labelledby'
+    | 'aria-label'
+    | 'label-for'
+    | 'label-wrapper'
+    | 'value'
+    | 'placeholder'
+    | 'alt'
+    | 'title'
+    | 'name';
+
+export interface InteractiveElementLabel {
+    value: string;
+    source: InteractiveElementLabelSource;
+}
 
 export interface InteractiveElementState {
     disabled?: boolean;
@@ -106,36 +141,48 @@ export interface InteractiveLink {
 
 // Element Types
 
-export type ElementKind = 'content' | 'interactive';
+export type ElementDataId = string;
+
+export type ElementKind = 'container' | 'content' | 'interactive';
+
+export type ContainerElementType = 'dialog' | 'landmark' | 'navigation' | 'form' | 'section' | 'widget' | 'table';
 export type ContentElementType = 'text' | 'heading';
 export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
-export interface ElementIdentifier {
-    dataId: string;
-    cssSelector: string | undefined; // fallback
-}
-
-export interface BaseElement extends ElementIdentifier {
+export interface BaseElement {
     tag: string;
+    dataId: ElementDataId;
+    cssSelector: string | undefined; // fallback
     kind: ElementKind;
-    type: ContentElementType | InteractiveElementType;
-    context: ElementContext;
+    type: ContainerElementType | ContentElementType | InteractiveElementType;
     bbox: BoundingBox;
-    importanceScore: number; // [0..1]
+    meaningScore: Scoring;
 }
 
-export interface ContentElement extends BaseElement {
+export interface ContainerElement extends BaseElement {
+    kind: 'container';
+    type: ContainerElementType;
+    role: ContainerElementRole;
+    labels: ContainerElementLabel[];
+}
+
+export interface TargetElement extends BaseElement {
+    context: ElementContext;
+    importanceScore: Scoring;
+}
+
+export interface ContentElement extends TargetElement {
     kind: 'content';
     type: ContentElementType;
     text: string;
 }
 
-export interface InteractiveElement extends BaseElement {
+export interface InteractiveElement extends TargetElement {
     kind: 'interactive';
     type: InteractiveElementType;
     role: InteractiveElementRole;
     text: string | undefined;
-    labels: ElementLabel[];
+    labels: InteractiveElementLabel[];
     state: InteractiveElementState;
     link: InteractiveLink | undefined; // for links only
     inViewport: boolean;
@@ -143,14 +190,23 @@ export interface InteractiveElement extends BaseElement {
 }
 
 export interface CollectionMetadata {
+    structureElements: number;
+    structureMaxDepth: number;
     contentElements: number;
     contentElementsTotal: number;
     contentElementsLimitReached: boolean;
     interactiveElements: number;
     interactiveElementsTotal: number;
     interactiveElementsLimitReached: boolean;
+    // timings
     collectedAt: number; // timestamp
-    durationMs: number;
+    performance: {
+        basicsMs: number;
+        structureMs: number;
+        contentMs: number;
+        interactiveMs: number;
+        totalMs: number;
+    };
 }
 
 /**
@@ -162,9 +218,10 @@ export interface CollectionMetadata {
  *
  * It abstracts away raw DOM complexity and provides a structured view of:
  * - page metadata and viewport data (`basics`)
+ * - semantic containers tree (`structure`)
  * - textual content blocks (`content`)
  * - interactive UI elements (`interactive`)
- * - collection counts, limits, timing, and timestamp (`metadata`)
+ * - collection counts, content/interactive limits, timing, and timestamp (`metadata`)
  *
  * The model is independent of any specific AI, LLM, embedding, or vector
  * storage implementation and can be reused to generate different semantic
@@ -172,6 +229,7 @@ export interface CollectionMetadata {
  */
 export interface PageTrail {
     basics: PageBasics;
+    structure: ContainerTreeNode[];
     content: ContentElement[];
     interactive: InteractiveElement[];
     metadata: CollectionMetadata;

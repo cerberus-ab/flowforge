@@ -28,15 +28,14 @@ export interface ToolGetPageSummaryResultData {
     url: string;
     description: string;
     language: string;
-    sampleHeadings: string;
-    sampleInteractions: string;
+    sampleHeadings: string[];
+    sampleInteractions: string[];
 }
 
 export interface ToolResultElement {
-    elementPath: string;
-    elementSectionName: string;
     elementDataId: string;
-    elementCssSelector: string;
+    elementContext: string[];
+    elementCssSelector?: string;
 }
 
 export interface ToolFindElementFoundResultData extends ToolResultElement {

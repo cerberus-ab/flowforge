@@ -16,6 +16,7 @@ export interface ShellAppProps {
     transport: TransportService;
     demoProps?: ShellAppDemoProps;
     triggerSize?: TriggerSize;
+    onShellReady?: () => void;
 }
 
 export interface ShellAppRef {
@@ -24,12 +25,12 @@ export interface ShellAppRef {
 }
 
 export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp(
-    { transport, demoProps, triggerSize },
+    { transport, demoProps, triggerSize, onShellReady },
     ref,
 ) {
     const [isOpen, setIsOpen] = useState(false);
     const [initialQuestion, setInitialQuestion] = useState<string>();
-    const { theme, toggleTheme } = useSettings({ transport });
+    const settings = useSettings({ transport });
 
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -95,10 +96,18 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
         };
     }, [isOpen, closePopup]);
 
+    if (settings.status === 'loading') {
+        return null;
+    }
     return (
-        <Main theme={theme}>
+        <Main theme={settings.theme}>
             <div className="flowforge-shell">
-                <PageApp transport={transport} />
+                <PageApp
+                    transport={transport}
+                    devMode={settings.devMode}
+                    onDevModeChange={settings.setDevMode}
+                    onReady={onShellReady}
+                />
                 <Trigger ref={triggerRef} size={triggerSize} isOpen={isOpen} onToggle={togglePopup} />
                 {isOpen && (
                     <div className="flowforge-popup-container" ref={popupRef}>
@@ -106,8 +115,8 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
                             variant="dialog"
                             transport={transport}
                             demoProps={demoProps}
-                            theme={theme}
-                            onToggleTheme={toggleTheme}
+                            theme={settings.theme}
+                            onToggleTheme={settings.toggleTheme}
                             initialQuestion={initialQuestion}
                             onClose={closePopup}
                         />

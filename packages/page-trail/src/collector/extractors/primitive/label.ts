@@ -1,5 +1,15 @@
 import { dedupeBy, normalizeText } from '../../../utils/index.ts';
-import type { ElementLabel } from '../../../types/index.ts';
+import type { ContainerElementLabel, InteractiveElementLabel } from '../../../types/index.ts';
+import { getContainerHeading } from './heading.ts';
+
+// constants
+const LABEL_MAX_LENGTH = 120;
+
+function normaliseLabelText(rawLabel: string): string {
+    return normalizeText(rawLabel, {
+        maxLength: LABEL_MAX_LENGTH,
+    });
+}
 
 /**
  * Resolves the `aria-labelledby` attribute of an element into a normalized label string.
@@ -9,23 +19,73 @@ import type { ElementLabel } from '../../../types/index.ts';
  * joined with a single space.
  *
  * @param el - The DOM element whose `aria-labelledby` attribute should be resolved.
- * @param doc - The document containing the referenced elements.
  * @returns The resolved label text, or `undefined` when the attribute is missing.
  */
-export function getElementAttrAriaLabelledBy(el: Element, doc: Document): string | undefined {
+export function getElementAttrAriaLabelledBy(el: Element): string | undefined {
     const ariaLabelledBy = el.getAttribute('aria-labelledby');
     if (!ariaLabelledBy) return undefined;
 
     return ariaLabelledBy
         .split(/\s+/)
-        .map((id) => doc.getElementById(id)?.textContent)
-        .map((part) => normalizeText(part ?? ''))
+        .map((id) => el.ownerDocument.getElementById(id)?.textContent)
+        .map((part) => normaliseLabelText(part ?? ''))
         .filter(Boolean)
         .join(' ');
 }
 
 /**
- * Extracts human-readable labels for a DOM element from multiple sources.
+ * Extracts human-readable labels for a semantic container.
+ *
+ * Sources are evaluated in priority order:
+ * 1. `aria-labelledby` (resolved to text content)
+ * 2. `aria-label`
+ * 3. direct child `<legend>`
+ * 4. owned strong heading (`h1`-`h4`)
+ * 5. owned subheading (`h5`, `h6`, or ARIA heading)
+ * 6. `title`
+ *
+ * Labels are deduplicated case-insensitively and whitespace is normalized.
+ *
+ * @param el - Target container element.
+ * @returns Array of container labels in priority order, or an empty array when no labels are found.
+ */
+export function getContainerElementLabels(el: Element): ContainerElementLabel[] {
+    const labels: ContainerElementLabel[] = [];
+
+    // 1. aria-labelledby
+    const ariaLabelledBy = getElementAttrAriaLabelledBy(el);
+    if (ariaLabelledBy) {
+        labels.push({ value: ariaLabelledBy, source: 'aria-labelledby' });
+    }
+    // 2. aria-label
+    const ariaLabel = el.getAttribute('aria-label');
+    if (ariaLabel) {
+        labels.push({ value: normaliseLabelText(ariaLabel), source: 'aria-label' });
+    }
+    // 3. legend
+    const legend = Array.from(el.children).find((child) => child.tagName.toLowerCase() === 'legend');
+    if (legend) {
+        labels.push({ value: normaliseLabelText(legend.textContent), source: 'legend' });
+    }
+    // 4,5. heading/subheading
+    const heading = getContainerHeading(el);
+    if (heading) {
+        const source = /^h[1-4]$/i.test(heading.tagName) ? 'heading' : 'subheading';
+        labels.push({ value: normaliseLabelText(heading.textContent), source });
+    }
+    // 6. title
+    const title = el.getAttribute('title');
+    if (title) {
+        labels.push({ value: normaliseLabelText(title), source: 'title' });
+    }
+    return dedupeBy(
+        labels.filter((l) => Boolean(l.value)),
+        (l) => l.value.toLowerCase(),
+    );
+}
+
+/**
+ * Extracts human-readable labels for an interactive element from multiple sources.
  *
  * Sources are evaluated in priority order:
  * 1. `aria-labelledby` (resolved to text content)
@@ -41,69 +101,68 @@ export function getElementAttrAriaLabelledBy(el: Element, doc: Document): string
  * Labels are deduplicated case-insensitively and whitespace is normalized.
  *
  * @param el - Target DOM element.
- * @param doc - Document containing the element.
  * @returns Array of `ElementAttrLabel` in priority order, or an empty array when no label text is found.
  */
-export function getElementLabels(el: Element, doc: Document): ElementLabel[] {
-    const elementLabels: ElementLabel[] = [];
+export function getInteractiveElementLabels(el: Element): InteractiveElementLabel[] {
+    const labels: InteractiveElementLabel[] = [];
 
     // 1. aria-labelledby
-    const ariaLabelledBy = getElementAttrAriaLabelledBy(el, doc);
+    const ariaLabelledBy = getElementAttrAriaLabelledBy(el);
     if (ariaLabelledBy) {
-        elementLabels.push({ value: ariaLabelledBy, source: 'aria-labelledby' });
+        labels.push({ value: ariaLabelledBy, source: 'aria-labelledby' });
     }
     // 2. aria-label
     const ariaLabel = el.getAttribute('aria-label');
     if (ariaLabel) {
-        elementLabels.push({ value: normalizeText(ariaLabel), source: 'aria-label' });
+        labels.push({ value: normaliseLabelText(ariaLabel), source: 'aria-label' });
     }
     // 3. <label for="...">
     if (el.id) {
         const escapedId = typeof CSS !== 'undefined' && typeof CSS.escape === 'function' ? CSS.escape(el.id) : el.id;
 
-        const labelFor = doc.querySelector(`label[for="${escapedId}"]`);
+        const labelFor = el.ownerDocument.querySelector(`label[for="${escapedId}"]`);
         if (labelFor) {
-            elementLabels.push({ value: normalizeText(labelFor.textContent), source: 'label-for' });
+            labels.push({ value: normaliseLabelText(labelFor.textContent), source: 'label-for' });
         }
     }
     // 4. wrapping <label>
     const parentLabel = el.closest?.('label');
     if (parentLabel) {
-        elementLabels.push({ value: normalizeText(parentLabel.textContent), source: 'label-wrapper' });
+        labels.push({ value: normaliseLabelText(parentLabel.textContent), source: 'label-wrapper' });
     }
     // 5. value
     if ('value' in el) {
-        elementLabels.push({
-            value: normalizeText((el as HTMLInputElement | HTMLButtonElement).value),
+        labels.push({
+            value: normaliseLabelText((el as HTMLInputElement | HTMLButtonElement).value),
             source: 'value',
         });
     }
     // 6. placeholder
     if ('placeholder' in el) {
-        elementLabels.push({
-            value: normalizeText((el as HTMLInputElement | HTMLTextAreaElement).placeholder),
+        labels.push({
+            value: normaliseLabelText((el as HTMLInputElement | HTMLTextAreaElement).placeholder),
             source: 'placeholder',
         });
     }
     // 7. alt
     const alt = el.getAttribute('alt');
     if (alt) {
-        elementLabels.push({ value: normalizeText(alt), source: 'alt' });
+        labels.push({ value: normaliseLabelText(alt), source: 'alt' });
     }
     // 8. title
     const title = el.getAttribute('title');
     if (title) {
-        elementLabels.push({ value: normalizeText(title), source: 'title' });
+        labels.push({ value: normaliseLabelText(title), source: 'title' });
     }
     // 9. name
     if ('name' in el) {
-        elementLabels.push({
-            value: normalizeText((el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).name),
+        labels.push({
+            value: normaliseLabelText((el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).name),
             source: 'name',
         });
     }
     return dedupeBy(
-        elementLabels.filter((l) => Boolean(l.value)),
+        labels.filter((l) => Boolean(l.value)),
         (l) => l.value.toLowerCase(),
     );
 }

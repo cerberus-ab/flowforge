@@ -1,4 +1,4 @@
-import type { BoundingBox, ContentElement, InteractiveElement } from '../src';
+import type { BoundingBox, ContainerElement, ContentElement, InteractiveElement, PageTrail } from '../src';
 
 export const testBoundingBox: BoundingBox = {
     top: 0,
@@ -7,6 +7,15 @@ export const testBoundingBox: BoundingBox = {
     height: 20,
     right: 100,
     bottom: 20,
+};
+
+export const testContainerBoundingBox: BoundingBox = {
+    top: 0,
+    left: 0,
+    width: 100,
+    height: 100,
+    right: 100,
+    bottom: 100,
 };
 
 export const testDomRect: DOMRect = {
@@ -24,9 +33,10 @@ export function contentElement(overrides: Partial<ContentElement> = {}): Content
         dataId: 'content-1',
         cssSelector: '#content-1',
         bbox: testBoundingBox,
-        context: { path: [] },
+        meaningScore: { value: 0 },
+        context: { path: [], breadcrumbs: [], contextScore: { value: 0 } },
         text: 'Welcome',
-        importanceScore: 0,
+        importanceScore: { value: 0 },
         ...overrides,
     };
 }
@@ -40,14 +50,86 @@ export function interactiveElement(overrides: Partial<InteractiveElement> = {}):
         dataId: 'button-1',
         cssSelector: '#button-1',
         bbox: { ...testBoundingBox, height: 40, bottom: 40 },
-        context: { path: [] },
+        meaningScore: { value: 0 },
+        context: { path: [], breadcrumbs: [], contextScore: { value: 0 } },
         text: 'Save',
         labels: [],
         state: {},
         link: undefined,
         inViewport: false,
         aboveTheFold: false,
-        importanceScore: 0,
+        importanceScore: { value: 0 },
+        ...overrides,
+    };
+}
+
+export function containerElement(overrides: Partial<ContainerElement> = {}): ContainerElement {
+    const role = overrides.role ?? 'section';
+    const type = overrides.type ?? 'section';
+    const labels = overrides.labels ?? [];
+    const bbox = overrides.bbox ?? testContainerBoundingBox;
+
+    return {
+        kind: 'container',
+        type,
+        role,
+        tag: overrides.tag ?? 'section',
+        dataId: 'container-1',
+        cssSelector: undefined,
+        bbox,
+        labels,
+        meaningScore: { value: 0 },
+        ...overrides,
+    };
+}
+
+export interface ContainerNodeFixture {
+    data: ContainerElement;
+    nodes: ContainerNodeFixture[];
+}
+
+export function containerNode(data: ContainerElement, nodes: ContainerNodeFixture[] = []): ContainerNodeFixture {
+    return {
+        data,
+        nodes,
+    };
+}
+
+export function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
+    return {
+        basics: {
+            url: 'https://example.com/sandbox',
+            title: 'FlowForge Sandbox',
+            description: 'Extension sandbox for FlowForge.',
+            language: 'en',
+            viewport: {
+                width: 1280,
+                height: 720,
+                scrollY: 0,
+                scrollHeight: 1440,
+            },
+        },
+        structure: [],
+        content: [],
+        interactive: [],
+        metadata: {
+            structureElements: 0,
+            structureMaxDepth: 0,
+            contentElements: 0,
+            contentElementsTotal: 0,
+            contentElementsLimitReached: false,
+            interactiveElements: 0,
+            interactiveElementsTotal: 0,
+            interactiveElementsLimitReached: false,
+            collectedAt: 0,
+            performance: {
+                basicsMs: 0,
+                structureMs: 0,
+                contentMs: 0,
+                interactiveMs: 0,
+                totalMs: 0,
+            },
+        },
         ...overrides,
     };
 }

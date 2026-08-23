@@ -2,6 +2,23 @@
 
 All notable changes to the project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- PageTrail `container` elements and `structure` tree for representing page context and layout.
+- Detailed `context.path` data for content and interactive elements, including container relevance and breadcrumb context.
+- Dev mode for Page Inspector with enriched PageTrail records and metadata diagnostics.
+- Tooltips across popup and Inspector controls, replacing native `title` hints.
+
+### Changed
+
+- Reworked PageTrail scoring and semantic formatting around meaning, context relevance, and target importance.
+- Updated backend tools to use detailed PageTrail `context.path` when describing matched elements and content.
+- Expanded PageTrail metadata timings with per-stage collection durations.
+- Improved Markdown output for the Inspector semantic view.
+- Limited extracted label and text values to keep PageTrail records concise.
+
 ## [0.1.5] - 2026-08-16
 
 ### Added

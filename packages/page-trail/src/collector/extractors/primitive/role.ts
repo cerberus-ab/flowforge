@@ -1,4 +1,9 @@
-import type { ContainerElementRole, InteractiveElementRole, InteractiveElementType } from '../../../types/index.ts';
+import type {
+    ContainerElementRole,
+    ContainerElementType,
+    InteractiveElementRole,
+    InteractiveElementType,
+} from '../../../types/index.ts';
 
 // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles
 
@@ -44,6 +49,49 @@ export function getContainerRole(el: Element): ContainerElementRole | undefined 
     if (tag === 'tr' || role === 'row') return 'table row';
 
     return undefined;
+}
+
+/**
+ * Maps a container role to the corresponding extracted container element type.
+ *
+ * Roles are grouped into broader element categories used by search and filtering.
+ *
+ * @param role - Container role to convert.
+ * @returns Matching container element type.
+ */
+export function roleToContainerElementType(role: ContainerElementRole): ContainerElementType | undefined {
+    switch (role) {
+        case 'alert dialog':
+        case 'modal dialog':
+        case 'dialog':
+            return 'dialog';
+        case 'main content':
+        case 'header':
+        case 'footer':
+        case 'sidebar':
+        case 'search':
+            return 'landmark';
+        case 'navigation':
+        case 'menu':
+            return 'navigation';
+        case 'form':
+            return 'form';
+        case 'article':
+        case 'section':
+        case 'region':
+        case 'figure':
+        case 'feed':
+        case 'note':
+            return 'section';
+        case 'tab panel':
+        case 'toolbar':
+            return 'widget';
+        case 'table':
+        case 'table row':
+            return 'table';
+        default:
+            return undefined;
+    }
 }
 
 /**

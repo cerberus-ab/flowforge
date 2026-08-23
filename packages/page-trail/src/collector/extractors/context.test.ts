@@ -1,73 +1,50 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { getElementContext } from './context';
+import { containerElement } from '../../../test/fixtures';
+import type { ContainerPathNode } from '../../types';
+import type { ContainerTree } from './ContainerTree';
+import { extractContentElementContext, extractInteractiveElementContext } from './context';
 
-describe('getElementContext', () => {
-    it('collects semantic container path from nearest ancestors', () => {
-        document.body.innerHTML = `
-            <main>
-                <nav>
-                    <form>
-                        <button>Submit</button>
-                    </form>
-                </nav>
-            </main>
-        `;
+function pathNode(distance: number, relevanceScore: number): ContainerPathNode {
+    return {
+        distance,
+        element: containerElement({ dataId: `container-${distance}` }),
+        relevanceScore: { value: relevanceScore },
+    };
+}
 
-        const button = document.querySelector('button')!;
+describe('context extractors', () => {
+    it('extracts content context from the content target path', () => {
+        const el = document.createElement('p');
+        const path = [pathNode(0, 0.1), pathNode(1, 0.9), pathNode(2, 0.8), pathNode(3, 0.7)];
+        const containerTree = {
+            getContentTargetPath: vi.fn().mockReturnValue(path),
+        } as unknown as ContainerTree;
 
-        expect(getElementContext(button, document).path).toEqual(['form', 'navigation', 'main content']);
+        const context = extractContentElementContext(containerTree, el, { type: 'text' });
+
+        expect(containerTree.getContentTargetPath).toHaveBeenCalledWith(el, { type: 'text' });
+        expect(context).toEqual({
+            path,
+            breadcrumbs: [3, 2, 1],
+            contextScore: { value: 1 - (1 - 0.9 ** 2) * (1 - 0.8 ** 2) * (1 - 0.7 ** 2) },
+        });
     });
 
-    it('deduplicates consecutive container roles', () => {
-        document.body.innerHTML = `
-            <nav>
-                <div role="navigation">
-                    <a href="/docs">Docs</a>
-                </div>
-            </nav>
-        `;
+    it('extracts interactive context from the interactive target path', () => {
+        const el = document.createElement('button');
+        const path = [pathNode(0, 0.6), pathNode(1, 0.5)];
+        const containerTree = {
+            getInteractiveTargetPath: vi.fn().mockReturnValue(path),
+        } as unknown as ContainerTree;
 
-        const link = document.querySelector('a')!;
+        const context = extractInteractiveElementContext(containerTree, el, { role: 'button', type: 'button' });
 
-        expect(getElementContext(link, document).path).toEqual(['navigation']);
-    });
-
-    it('uses aria-labelledby as section name', () => {
-        document.body.innerHTML = `
-            <section aria-labelledby="title">
-                <h2 id="title">Account settings</h2>
-                <button>Save</button>
-            </section>
-        `;
-
-        const button = document.querySelector('button')!;
-
-        expect(getElementContext(button, document).sectionName).toBe('Account settings');
-    });
-
-    it('falls back to headings for section name', () => {
-        document.body.innerHTML = `
-            <section>
-                <h2>Billing details</h2>
-                <button>Update</button>
-            </section>
-        `;
-
-        const button = document.querySelector('button')!;
-
-        expect(getElementContext(button, document).sectionName).toBe('Billing details');
-    });
-
-    it('ignores section names outside length limits', () => {
-        document.body.innerHTML = `
-            <section aria-label="FAQ">
-                <button>Open</button>
-            </section>
-        `;
-
-        const button = document.querySelector('button')!;
-
-        expect(getElementContext(button, document).sectionName).toBeUndefined();
+        expect(containerTree.getInteractiveTargetPath).toHaveBeenCalledWith(el, { role: 'button', type: 'button' });
+        expect(context).toEqual({
+            path,
+            breadcrumbs: [1, 0],
+            contextScore: { value: 1 - (1 - 0.6 ** 2) * (1 - 0.5 ** 2) },
+        });
     });
 });

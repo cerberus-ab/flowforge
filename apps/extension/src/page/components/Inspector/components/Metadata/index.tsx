@@ -1,1 +1,1 @@
-export { PageMetadata } from './PageMetadata';
+export { InspectorPageMetadata } from './InspectorPageMetadata.tsx';

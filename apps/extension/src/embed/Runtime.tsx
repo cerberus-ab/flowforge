@@ -40,7 +40,7 @@ interface MountShellOptions {
 interface RuntimeApi {
     openPopup(question?: string): void;
     closePopup(): void;
-    openPageInspector(): Promise<void>;
+    openPageInspector(tab?: string): Promise<void>;
     destroy(): void;
 }
 
@@ -118,10 +118,11 @@ export class Runtime implements RuntimeApi {
         this.shellRef.current?.close();
     }
 
-    async openPageInspector(): Promise<void> {
+    async openPageInspector(tab?: string): Promise<void> {
         const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
             senderId: await this.transport.getActiveSenderId(),
+            data: { tab },
         };
         await this.transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
     }
@@ -149,6 +150,11 @@ export class Runtime implements RuntimeApi {
     private async mountShell(options: MountShellOptions): Promise<void> {
         const rootInjector = new ShadowRootInjector();
 
+        let resolveShellReady!: () => void;
+        const shellReady = new Promise<void>((resolve) => {
+            resolveShellReady = resolve;
+        });
+
         const doMount = () => {
             const shellRoot = rootInjector.inject(document, embedConstants.SHELL_ROOT_ID, { overlay: true });
             rootInjector.injectStyles(shellRoot, shellStyles);
@@ -158,6 +164,7 @@ export class Runtime implements RuntimeApi {
                     transport={this.transport}
                     triggerSize={options.triggerSize}
                     demoProps={options.demoProps}
+                    onShellReady={resolveShellReady}
                 />,
                 shellRoot.mountPoint,
             );
@@ -175,7 +182,7 @@ export class Runtime implements RuntimeApi {
         } else {
             doMount();
         }
-        await new Promise<void>((resolve) => queueMicrotask(resolve));
+        await shellReady;
     }
 
     private unmountShell(): void {
