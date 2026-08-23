@@ -15,7 +15,7 @@ Basic information about the current page.
 An outline of the detected page structure.
 
 - Main content. Name: Main
-  - Navigation. Name: Tabs
+    - Navigation. Name: Tabs
 
 ## Sample headings
 

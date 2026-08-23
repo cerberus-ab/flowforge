@@ -6,13 +6,16 @@ import { getElementBoundingBox, isAboveTheFold, isElementVisible, isInViewport }
 import { isSensitiveElement } from './primitive/sensitive.ts';
 import { getInteractiveRole, roleToInteractiveElementType } from './primitive/role.ts';
 import { getInteractiveElementLabels } from './primitive/label.ts';
-import { getElementText } from './primitive/text.ts';
 import { getInteractiveElementState } from './primitive/state.ts';
 import { getCssSelector } from './primitive/selector.ts';
 import { getElementLink } from './primitive/link.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
 import { ContainerTree } from './ContainerTree.ts';
 import { extractInteractiveElementContext } from './context.ts';
+import { getElementText } from './primitive/text.ts';
+
+// constants
+const TEXT_CONTENT_MAX_LENGTH = 240;
 
 interface ExtractInteractiveElementsOptions {
     elementsLimit: number;
@@ -58,7 +61,7 @@ export function extractInteractiveElements(
 
         // compute only necessary data for scoring the candidates
         const labels = getInteractiveElementLabels(el);
-        const text = getElementText(el);
+        const text = getElementText(el, { maxLength: TEXT_CONTENT_MAX_LENGTH });
         const state = getInteractiveElementState(el);
         const bbox = getElementBoundingBox(el);
         const meaningScore = scoreInteractiveMeaning({ role, type, labels, text, state, bbox });

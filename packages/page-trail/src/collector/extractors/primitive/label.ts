@@ -2,6 +2,15 @@ import { dedupeBy, normalizeText } from '../../../utils/index.ts';
 import type { ContainerElementLabel, InteractiveElementLabel } from '../../../types/index.ts';
 import { getContainerHeading } from './heading.ts';
 
+// constants
+const LABEL_MAX_LENGTH = 120;
+
+function normaliseLabelText(rawLabel: string): string {
+    return normalizeText(rawLabel, {
+        maxLength: LABEL_MAX_LENGTH,
+    });
+}
+
 /**
  * Resolves the `aria-labelledby` attribute of an element into a normalized label string.
  *
@@ -19,7 +28,7 @@ export function getElementAttrAriaLabelledBy(el: Element): string | undefined {
     return ariaLabelledBy
         .split(/\s+/)
         .map((id) => el.ownerDocument.getElementById(id)?.textContent)
-        .map((part) => normalizeText(part ?? ''))
+        .map((part) => normaliseLabelText(part ?? ''))
         .filter(Boolean)
         .join(' ');
 }
@@ -51,23 +60,23 @@ export function getContainerElementLabels(el: Element): ContainerElementLabel[] 
     // 2. aria-label
     const ariaLabel = el.getAttribute('aria-label');
     if (ariaLabel) {
-        labels.push({ value: normalizeText(ariaLabel), source: 'aria-label' });
+        labels.push({ value: normaliseLabelText(ariaLabel), source: 'aria-label' });
     }
     // 3. legend
     const legend = Array.from(el.children).find((child) => child.tagName.toLowerCase() === 'legend');
     if (legend) {
-        labels.push({ value: normalizeText(legend.textContent), source: 'legend' });
+        labels.push({ value: normaliseLabelText(legend.textContent), source: 'legend' });
     }
     // 4,5. heading/subheading
     const heading = getContainerHeading(el);
     if (heading) {
         const source = /^h[1-4]$/i.test(heading.tagName) ? 'heading' : 'subheading';
-        labels.push({ value: normalizeText(heading.textContent), source });
+        labels.push({ value: normaliseLabelText(heading.textContent), source });
     }
     // 6. title
     const title = el.getAttribute('title');
     if (title) {
-        labels.push({ value: normalizeText(title), source: 'title' });
+        labels.push({ value: normaliseLabelText(title), source: 'title' });
     }
     return dedupeBy(
         labels.filter((l) => Boolean(l.value)),
@@ -105,7 +114,7 @@ export function getInteractiveElementLabels(el: Element): InteractiveElementLabe
     // 2. aria-label
     const ariaLabel = el.getAttribute('aria-label');
     if (ariaLabel) {
-        labels.push({ value: normalizeText(ariaLabel), source: 'aria-label' });
+        labels.push({ value: normaliseLabelText(ariaLabel), source: 'aria-label' });
     }
     // 3. <label for="...">
     if (el.id) {
@@ -113,42 +122,42 @@ export function getInteractiveElementLabels(el: Element): InteractiveElementLabe
 
         const labelFor = el.ownerDocument.querySelector(`label[for="${escapedId}"]`);
         if (labelFor) {
-            labels.push({ value: normalizeText(labelFor.textContent), source: 'label-for' });
+            labels.push({ value: normaliseLabelText(labelFor.textContent), source: 'label-for' });
         }
     }
     // 4. wrapping <label>
     const parentLabel = el.closest?.('label');
     if (parentLabel) {
-        labels.push({ value: normalizeText(parentLabel.textContent), source: 'label-wrapper' });
+        labels.push({ value: normaliseLabelText(parentLabel.textContent), source: 'label-wrapper' });
     }
     // 5. value
     if ('value' in el) {
         labels.push({
-            value: normalizeText((el as HTMLInputElement | HTMLButtonElement).value),
+            value: normaliseLabelText((el as HTMLInputElement | HTMLButtonElement).value),
             source: 'value',
         });
     }
     // 6. placeholder
     if ('placeholder' in el) {
         labels.push({
-            value: normalizeText((el as HTMLInputElement | HTMLTextAreaElement).placeholder),
+            value: normaliseLabelText((el as HTMLInputElement | HTMLTextAreaElement).placeholder),
             source: 'placeholder',
         });
     }
     // 7. alt
     const alt = el.getAttribute('alt');
     if (alt) {
-        labels.push({ value: normalizeText(alt), source: 'alt' });
+        labels.push({ value: normaliseLabelText(alt), source: 'alt' });
     }
     // 8. title
     const title = el.getAttribute('title');
     if (title) {
-        labels.push({ value: normalizeText(title), source: 'title' });
+        labels.push({ value: normaliseLabelText(title), source: 'title' });
     }
     // 9. name
     if ('name' in el) {
         labels.push({
-            value: normalizeText((el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).name),
+            value: normaliseLabelText((el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).name),
             source: 'name',
         });
     }

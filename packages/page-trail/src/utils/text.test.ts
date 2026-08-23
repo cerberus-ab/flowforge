@@ -20,6 +20,14 @@ describe('normalizeText', () => {
     it('returns an empty string for whitespace-only input', () => {
         expect(normalizeText(' \n\t ')).toBe('');
     });
+
+    it('truncates normalized text to the provided maximum length', () => {
+        expect(normalizeText('Hello   world from FlowForge', { maxLength: 12 })).toBe('Hello world');
+    });
+
+    it('cuts at the maximum length when no whitespace exists before the limit', () => {
+        expect(normalizeText('FlowForge', { maxLength: 4 })).toBe('Flow');
+    });
 });
 
 describe('toUpperSnakeCase', () => {

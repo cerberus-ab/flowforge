@@ -3,11 +3,11 @@ import type { ContentElement, Scoring } from '../../types/index.ts';
 import { scoreContentMeaning, scoreTargetImportance } from '../scoring/index.ts';
 import { SELECTOR_CONTENT } from '../selectors.ts';
 import { getElementBoundingBox, isElementVisible } from './primitive/view.ts';
-import { getElementText } from './primitive/text.ts';
 import { getCssSelector } from './primitive/selector.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
 import { ContainerTree } from './ContainerTree.ts';
 import { extractContentElementContext } from './context.ts';
+import { getElementText } from './primitive/text.ts';
 
 // constants
 const CONTENT_MIN_TEXT_LENGTH = 5;

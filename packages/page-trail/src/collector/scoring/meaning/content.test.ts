@@ -32,8 +32,8 @@ describe('scoreContentMeaning', () => {
         );
     });
 
-    it('penalizes empty and whitespace-only text', () => {
-        expect(scoreContentMeaning({ ...baseScoringData, text: ' \n\t ' })).toEqual({
+    it('penalizes empty normalized text', () => {
+        expect(scoreContentMeaning({ ...baseScoringData, text: '' })).toEqual({
             score: -3,
             value: 0.1,
             features: ['TYPE_TEXT_INC_1', 'TEXT_LENGTH_EMPTY_DEC_4'],

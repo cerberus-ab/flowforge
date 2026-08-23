@@ -24,5 +24,4 @@ describe('ElementRegistry', () => {
         expect(registry.register(element)).toBe('section');
         expect(produceDataId).toHaveBeenCalledOnce();
     });
-
 });

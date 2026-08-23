@@ -77,10 +77,13 @@ export function PopupApp({
     );
 
     // Handle open page inspector and close popup
-    const handleOpenPageInspector = useCallback((tab?: string) => {
-        openPageInspector(tab);
-        onClose?.();
-    }, [openPageInspector, onClose]);
+    const handleOpenPageInspector = useCallback(
+        (tab?: string) => {
+            openPageInspector(tab);
+            onClose?.();
+        },
+        [openPageInspector, onClose],
+    );
 
     const isDialog = variant === 'dialog';
     const Root = isDialog ? 'section' : 'div';

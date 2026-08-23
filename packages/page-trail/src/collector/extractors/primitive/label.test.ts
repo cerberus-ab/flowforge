@@ -15,6 +15,21 @@ describe('getElementAttrAriaLabelledBy', () => {
         expect(getElementAttrAriaLabelledBy(button)).toBe('First second label');
     });
 
+    it('limits resolved referenced label text', () => {
+        document.body.innerHTML = `
+            <span id="label">${'Long label text '.repeat(20)}</span>
+            <button aria-labelledby="label"></button>
+        `;
+
+        const button = document.querySelector('button')!;
+        const label = getElementAttrAriaLabelledBy(button);
+
+        expect(label?.length).toBeLessThanOrEqual(120);
+        expect(label).toBe(
+            'Long label text Long label text Long label text Long label text Long label text Long label text Long label text Long',
+        );
+    });
+
     it('returns undefined when the attribute is missing', () => {
         expect(getElementAttrAriaLabelledBy(document.createElement('button'))).toBeUndefined();
     });
@@ -121,5 +136,20 @@ describe('getInteractiveElementLabels', () => {
 
     it('returns an empty array when no labels are found', () => {
         expect(getInteractiveElementLabels(document.createElement('div'))).toEqual([]);
+    });
+
+    it('limits long interactive label values', () => {
+        document.body.innerHTML = `
+            <button aria-label="${'Long button label '.repeat(20)}"></button>
+        `;
+
+        const button = document.querySelector('button')!;
+        const [label] = getInteractiveElementLabels(button);
+
+        expect(label.source).toBe('aria-label');
+        expect(label.value).toBe(
+            'Long button label Long button label Long button label Long button label Long button label Long button label Long button',
+        );
+        expect(label.value.length).toBeLessThanOrEqual(120);
     });
 });

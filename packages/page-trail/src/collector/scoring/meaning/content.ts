@@ -1,5 +1,4 @@
 import type { ContentElementType } from '../../../types/index.ts';
-import { normalizeText } from '../../../utils/index.ts';
 import { ScoringFeat, type ScoringResult } from '../ScoringFeat.ts';
 
 const scoringWeights = {
@@ -30,14 +29,12 @@ const scoringWeights = {
 const scoringFeat = ScoringFeat.create(scoringWeights);
 
 function readTextLengthScoringCategory(text: string): keyof typeof scoringWeights.textLength {
-    const length = normalizeText(text).length;
-
-    if (length === 0) return 'empty';
-    if (length < 20) return 'tooShort';
-    if (length < 60) return 'short';
-    if (length < 100) return 'meaningful';
-    if (length < 300) return 'optimal';
-    if (length <= 600) return 'long';
+    if (text.length === 0) return 'empty';
+    if (text.length < 20) return 'tooShort';
+    if (text.length < 60) return 'short';
+    if (text.length < 100) return 'meaningful';
+    if (text.length < 300) return 'optimal';
+    if (text.length <= 600) return 'long';
     return 'tooLong';
 }
 

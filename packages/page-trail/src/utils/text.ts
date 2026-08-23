@@ -1,15 +1,32 @@
 /**
- * Normalizes text by collapsing consecutive whitespace into a single space
- * and trimming leading/trailing whitespace.
+ * Normalizes text by collapsing consecutive whitespace into a single space,
+ * trimming leading/trailing whitespace, and optionally truncating to a maximum
+ * length.
+ *
+ * Truncation preserves the requested maximum length exactly. When possible, it
+ * cuts at the last whitespace before the limit to avoid splitting words.
  *
  * @param text Input text to normalize.
+ * @param options
+ * @param options.maxLength Maximum length of the normalized text.
  * @returns Normalized text.
  */
-export function normalizeText(text: string) {
-    return text
+export function normalizeText(text: string, options: { maxLength?: number } = {}): string {
+    const normalized = text
         .replace(/\s+/g, ' ')
         .replace(/\s+([.,!?;:])/g, '$1')
         .trim();
+
+    if (options.maxLength === undefined || normalized.length <= options.maxLength) {
+        return normalized;
+    }
+    const sliced = normalized.slice(0, options.maxLength);
+    const lastWhitespaceIndex = sliced.lastIndexOf(' ');
+
+    if (lastWhitespaceIndex > 0) {
+        return sliced.slice(0, lastWhitespaceIndex);
+    }
+    return sliced;
 }
 
 /**

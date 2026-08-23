@@ -1,14 +1,13 @@
 import { normalizeText } from '../../../utils/index.ts';
 
 /**
- * Extracts normalized user-visible text from an element.
+ * Extracts normalized text content from an element.
  *
- * Returns undefined if the element does not contain meaningful text.
+ * Returns an empty string when the element has no text after normalization.
  */
-export function getElementText(el: Element): string | undefined {
+export function getElementText(el: Element, options: { maxLength?: number } = {}): string | undefined {
     const text = el.textContent;
-    if (!text) return undefined;
+    if (text == null) return undefined;
 
-    const normalized = normalizeText(text);
-    return normalized || undefined;
+    return normalizeText(text, options);
 }

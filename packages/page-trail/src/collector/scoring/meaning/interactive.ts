@@ -5,9 +5,9 @@ import type {
     InteractiveElementState,
     InteractiveElementType,
 } from '../../../types/index.ts';
-import { normalizeText } from '../../../utils/index.ts';
 import { ScoringFeat, type ScoringResult } from '../ScoringFeat.ts';
 
+// constants
 const SMALL_INTERACTIVE_AREA = 24 * 24;
 
 const scoringWeights = {
@@ -33,10 +33,14 @@ const scoringWeights = {
         supporting: 1,
     },
     name: {
-        // Explicit labels usually provide the strongest local meaning.
+        // Concise labels usually provide the strongest local meaning.
         strong: 3,
-        // Visible text is useful, but can be less reliable than explicit labels.
-        textOnly: 2,
+        // Valid but longer labels still provide explicit naming signal.
+        weak: 2,
+        // Visible text can name the target, but is less reliable than an explicit label.
+        textOnly: 1,
+        // Long visible text is often wrapper/card content rather than a precise target name.
+        noisyText: -1,
         // Unnamed interactive elements are hard to understand and ground.
         missing: -3,
     },
@@ -83,8 +87,16 @@ function readNameScoringCategory(
     labels: InteractiveElementLabel[],
     text: string | undefined,
 ): keyof typeof scoringWeights.name {
-    if (labels.length > 0) return 'strong';
-    if (normalizeText(text ?? '').length > 0) return 'textOnly';
+    if (labels.some((label) => label.value.length >= 5 && label.value.length <= 80)) {
+        return 'strong';
+    }
+    if (labels.some((label) => label.value.length >= 5)) {
+        return 'weak';
+    }
+    if (text !== undefined) {
+        if (text.length > 160) return 'noisyText';
+        if (text.length >= 5) return 'textOnly';
+    }
     return 'missing';
 }
 

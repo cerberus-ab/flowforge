@@ -126,10 +126,12 @@ export class BackgroundWorker {
         try {
             const updatedSettings = await this.settingsStorage.update(message.data.patch);
             if (message.senderId !== undefined) {
-                void this.transport.sendToPage<SettingsUpdatedMessage>(message.senderId, {
-                    type: 'SETTINGS_UPDATED',
-                    data: updatedSettings,
-                }).catch(() => undefined);
+                void this.transport
+                    .sendToPage<SettingsUpdatedMessage>(message.senderId, {
+                        type: 'SETTINGS_UPDATED',
+                        data: updatedSettings,
+                    })
+                    .catch(() => undefined);
             }
             return { success: true, data: updatedSettings };
         } catch (error) {

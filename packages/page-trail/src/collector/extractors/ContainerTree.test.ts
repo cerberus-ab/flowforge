@@ -297,6 +297,28 @@ describe('ContainerTree', () => {
         expect(path.map((node) => node.element.dataId)).toEqual(['article', 'section', 'main']);
     });
 
+    it('keeps using the extracted container tree after finding the nearest path node', () => {
+        document.body.innerHTML = `
+            <main id="main">
+                <section id="section" aria-label="Section">
+                    <article id="article">
+                        <button id="button">Save</button>
+                    </article>
+                </section>
+            </main>
+        `;
+        markVisible('#main', containerRect);
+        markVisible('#section', containerRect);
+        markVisible('#article', containerRect);
+
+        const tree = createTree();
+        document.querySelector('#main')!.append(document.querySelector('#article')!);
+
+        const path = getPathToRoot(tree, document.querySelector('#button')!);
+
+        expect(path.map((node) => node.element.dataId)).toEqual(['article', 'section', 'main']);
+    });
+
     it('starts from the parent when building a path from an extracted container', () => {
         document.body.innerHTML = `
             <main id="main">

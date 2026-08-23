@@ -7,7 +7,7 @@ const baseScoringData: InteractiveMeaningScoringData = {
     role: 'button',
     type: 'button',
     labels: [],
-    text: 'Save',
+    text: 'Submit',
     state: {},
     bbox: { top: 0, left: 0, width: 100, height: 40, right: 100, bottom: 40 },
 };
@@ -15,9 +15,9 @@ const baseScoringData: InteractiveMeaningScoringData = {
 describe('scoreInteractiveMeaning', () => {
     it('returns raw score, normalized score, and selected features', () => {
         expect(scoreInteractiveMeaning(baseScoringData)).toEqual({
-            score: 9,
-            value: 20 / 22,
-            features: ['TYPE_ACTION_INC_3', 'ROLE_CRITICAL_INC_3', 'NAME_TEXT_ONLY_INC_2', 'USABILITY_USABLE_INC_1'],
+            score: 8,
+            value: 19 / 22,
+            features: ['TYPE_ACTION_INC_3', 'ROLE_CRITICAL_INC_3', 'NAME_TEXT_ONLY_INC_1', 'USABILITY_USABLE_INC_1'],
         });
     });
 
@@ -35,6 +35,30 @@ describe('scoreInteractiveMeaning', () => {
         expect(scoreInteractiveMeaning({ ...baseScoringData, text: undefined }).features).toContain(
             'NAME_MISSING_DEC_3',
         );
+    });
+
+    it('scores valid long labels as weak naming signal', () => {
+        expect(
+            scoreInteractiveMeaning({
+                ...baseScoringData,
+                labels: [
+                    {
+                        source: 'aria-label',
+                        value: 'A longer label that is still valid but not concise enough for a strong name in the scoring model',
+                    },
+                ],
+                text: undefined,
+            }).features,
+        ).toContain('NAME_WEAK_INC_2');
+    });
+
+    it('penalizes long visible text as noisy naming signal when labels are missing', () => {
+        expect(
+            scoreInteractiveMeaning({
+                ...baseScoringData,
+                text: 'Long visible text content. '.repeat(8),
+            }).features,
+        ).toContain('NAME_NOISY_TEXT_DEC_1');
     });
 
     it('scores critical controls above plain links', () => {
@@ -62,7 +86,7 @@ describe('scoreInteractiveMeaning', () => {
                 role: 'combobox',
                 type: 'select',
             }).features,
-        ).toEqual(['TYPE_SELECTION_INC_2', 'ROLE_USER_FLOW_INC_2', 'NAME_TEXT_ONLY_INC_2', 'USABILITY_USABLE_INC_1']);
+        ).toEqual(['TYPE_SELECTION_INC_2', 'ROLE_USER_FLOW_INC_2', 'NAME_TEXT_ONLY_INC_1', 'USABILITY_USABLE_INC_1']);
     });
 
     it('scores state controls as explicit state-change targets', () => {
@@ -75,7 +99,7 @@ describe('scoreInteractiveMeaning', () => {
         ).toEqual([
             'TYPE_SELECTION_INC_2',
             'ROLE_STATE_CONTROL_INC_2',
-            'NAME_TEXT_ONLY_INC_2',
+            'NAME_TEXT_ONLY_INC_1',
             'USABILITY_USABLE_INC_1',
         ]);
     });
@@ -113,17 +137,17 @@ describe('scoreInteractiveMeaning', () => {
             role: 'link',
             type: 'link',
             labels: [],
-            text: 'Docs',
+            text: 'Docs page',
             state: {},
         });
 
         expect(score).toEqual({
-            score: 5,
-            value: 16 / 22,
+            score: 4,
+            value: 15 / 22,
             features: [
                 'TYPE_NAVIGATION_INC_1',
                 'ROLE_NAVIGATION_INC_1',
-                'NAME_TEXT_ONLY_INC_2',
+                'NAME_TEXT_ONLY_INC_1',
                 'USABILITY_USABLE_INC_1',
             ],
         });

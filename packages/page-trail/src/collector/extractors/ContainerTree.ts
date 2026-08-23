@@ -38,6 +38,8 @@ export class ContainerTree {
     private readonly root: Element;
     private readonly elementRegistry: ElementRegistry;
     private readonly nodeByEl = new WeakMap<Element, ContainerTreeNode>();
+    // Internal reverse edges keep the public tree shape acyclic and serializable.
+    private readonly parentByNode = new WeakMap<ContainerTreeNode, ContainerTreeNode>();
 
     readonly elements: ContainerElement[] = [];
     readonly nodes: ContainerTreeNode[] = [];
@@ -125,6 +127,8 @@ export class ContainerTree {
             const parent = this.getParentNode(el);
             if (parent) {
                 parent.nodes.push(node);
+                // Keep the reverse edge in sync with the child attachment.
+                this.parentByNode.set(node, parent);
             } else {
                 this.nodes.push(node);
             }
@@ -151,8 +155,16 @@ export class ContainerTree {
         let current = el.parentElement;
         while (current) {
             const node = this.nodeByEl.get(current);
-            if (node) path.push(node);
-
+            if (node) {
+                path.push(node);
+                // After the nearest container is found, follow tree parents instead of the DOM.
+                let parent = this.parentByNode.get(node);
+                while (parent) {
+                    path.push(parent);
+                    parent = this.parentByNode.get(parent);
+                }
+                return path;
+            }
             if (current === this.root) break;
             current = current.parentElement;
         }
