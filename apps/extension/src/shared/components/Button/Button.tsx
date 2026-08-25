@@ -5,30 +5,23 @@ import { Icon } from '@/shared/components/Icon';
 
 type ButtonOwnProps = {
     size?: 'small' | 'medium' | 'large';
+    variant?: 'primary' | 'secondary';
     icon?: LucideIcon;
     iconPosition?: 'start' | 'end';
     wide?: boolean;
-} & (
-    | {
-          appearance?: 'solid';
-          variant?: 'primary' | 'secondary';
-      }
-    | {
-          appearance: 'ghost';
-          variant?: never;
-      }
-);
+    hollow?: boolean;
+};
 
 type ButtonProps = ComponentProps<'button'> & ButtonOwnProps;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     {
-        appearance = 'solid',
-        variant = 'primary',
         size = 'medium',
+        variant = 'primary',
         icon,
         iconPosition = 'start',
         wide = false,
+        hollow = false,
         className,
         children,
         ...props
@@ -37,12 +30,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 ) {
     const classes = [
         'flowforge-button',
-        `flowforge-button--${appearance}`,
-        appearance === 'solid' && `flowforge-button--${variant}`,
         size === 'small' && 'flowforge-button--sm',
         size === 'large' && 'flowforge-button--lg',
+        `flowforge-button--${variant}`,
         icon && iconPosition === 'end' && 'flowforge-button--icon-end',
         wide && 'flowforge-button--wide',
+        hollow ? 'flowforge-button--hollow' : 'flowforge-button--solid',
         className,
     ]
         .filter(Boolean)

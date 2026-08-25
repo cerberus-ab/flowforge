@@ -53,18 +53,24 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
-.flowforge-button--ghost {
+.flowforge-button--hollow {
   background: var(--flowforge-color-surface);
   color: var(--flowforge-color-text-muted);
-}
-.flowforge-button--ghost:not(:disabled):hover {
-  color: var(--flowforge-color-text);
   border-color: var(--flowforge-color-border);
 }
-.flowforge-button--ghost:focus-visible {
+.flowforge-button--hollow:not(:disabled):hover {
+  color: var(--flowforge-color-text);
+}
+.flowforge-button--hollow.flowforge-button--primary:not(:disabled):hover {
+  border-color: var(--flowforge-color-primary);
+}
+.flowforge-button--hollow.flowforge-button--secondary:not(:disabled):hover {
+  border-color: var(--flowforge-color-secondary);
+}
+.flowforge-button--hollow:focus-visible {
   outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
 }
-.flowforge-button--ghost:disabled {
+.flowforge-button--hollow:disabled {
   background: transparent;
   cursor: not-allowed;
   opacity: 0.5;
