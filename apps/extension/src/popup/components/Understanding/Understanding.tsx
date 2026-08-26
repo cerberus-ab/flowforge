@@ -15,9 +15,10 @@ export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
                     <li key={'inspect-basics'}>
                         <Tooltip content="See what FlowForge understands about this page." variant="secondary">
                             <Button
-                                appearance="ghost"
+                                variant="secondary"
                                 size="small"
                                 icon={ListTree}
+                                hollow
                                 onClick={() => onOpenPageInspector('basics')}
                             >
                                 Inspect page context
@@ -27,9 +28,10 @@ export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
                     <li key={'inspect-markdown'}>
                         <Tooltip content="See the page context as Markdown." variant="secondary">
                             <Button
-                                appearance="ghost"
+                                variant="secondary"
                                 size="small"
                                 icon={FileText}
+                                hollow
                                 onClick={() => onOpenPageInspector('markdown')}
                             >
                                 .md

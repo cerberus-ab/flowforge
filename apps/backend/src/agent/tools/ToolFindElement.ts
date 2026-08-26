@@ -38,11 +38,11 @@ export class ToolFindElement extends AbstractCallableTool {
             name: this.name,
             description: `
 DESCRIPTION:
-Find the most relevant UI element matching a user request.
+Find the most relevant UI element matching a query.
 
 WHEN TO USE:
-- The user is looking for a specific element (button, link, input, control)
-- Questions like:
+- Query targets one specific UI element (button, link, input, control)
+- Examples:
     - "Where is X?"
     - "Find X"
     - "Show me X"
@@ -50,13 +50,13 @@ WHEN TO USE:
 WHAT IT RETURNS:
 - Best matching element (if any)
 - semanticDescription: semantic text describing the matched element
-- elementContext: semantic container breadcrumbs around the element, ordered from broader page area to nearer target area
+- elementContext: semantic scope breadcrumbs that hint what the element is about, ordered from broader page area to nearer target area
 - elementDataId: primary browser locator
 - elementCssSelector: optional fallback browser locator
 
 IMPORTANT:
 - Returns only the best match, which may be imperfect
-- Use elementContext to decide if it is correct and to describe where it is located
+- Use elementContext to decide if it is correct and describe the element's topic or location
 - If the result seems unclear or incomplete, consider using another tool`,
             schema: z.object({
                 query: z.string().describe('Element to find (e.g., "login button", "search input")'),

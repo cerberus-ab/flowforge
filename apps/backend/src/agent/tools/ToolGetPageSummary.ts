@@ -34,9 +34,8 @@ DESCRIPTION:
 Get a high-level overview of the current page.
 
 WHEN TO USE:
-- The user asks general questions about the page
-- You need context before deciding what to do next
-- The request is unclear or ambiguous
+- Query requests a high-level page overview
+- You need fallback page context before selecting a more specific tool
 
 WHAT IT RETURNS:
 - Basic page information (title, description, language)

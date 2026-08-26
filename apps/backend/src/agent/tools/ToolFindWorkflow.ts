@@ -38,8 +38,9 @@ DESCRIPTION:
 Find UI elements that may be used to complete a task.
 
 WHEN TO USE:
-- The user asks how to perform a task
-- Questions like:
+- Query names a specific task, goal, or desired outcome
+- Query asks for next steps toward a named goal
+- Examples:
     - "How do I X?"
     - "Steps to X"
     - "How can I complete X?"
@@ -47,14 +48,14 @@ WHEN TO USE:
 WHAT IT RETURNS:
 - A list of relevant interactive elements (candidates)
 - Each step includes semanticDescription, elementContext, elementDataId, and optional elementCssSelector
-- elementContext contains semantic container breadcrumbs around the element, ordered from broader page area to nearer target area
+- elementContext contains semantic scope breadcrumbs that hint what the element is about, ordered from broader page area to nearer target area
 - elementDataId is the primary browser locator; elementCssSelector is only an optional fallback
 
 IMPORTANT:
 - Results are candidates, not ordered steps
 - Select relevant items and arrange them into a logical sequence
 - Ignore irrelevant or duplicate items
-- Use elementContext to describe where a step is located when it helps the user
+- Use elementContext to describe the step's topic or location when helpful
 - Some steps may be missing
 - Use other tools if needed to clarify or validate steps`,
             schema: z.object({

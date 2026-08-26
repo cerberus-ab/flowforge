@@ -7,7 +7,7 @@
   gap: var(--flowforge-pad-xs);
   margin: 0;
   padding: var(--flowforge-pad-xs) var(--flowforge-pad-sm);
-  border: 1px solid transparent;
+  border: 1px solid var(--flowforge-color-border);
   border-radius: var(--flowforge-pad-xs);
   background: var(--flowforge-color-surface);
   color: var(--flowforge-color-text-muted);
@@ -28,7 +28,7 @@
 }
 .flowforge-switch:not(:disabled):hover {
   color: var(--flowforge-color-text);
-  border-color: var(--flowforge-color-border);
+  border-color: var(--flowforge-color-secondary);
 }
 .flowforge-switch:focus-visible {
   outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);

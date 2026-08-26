@@ -34,6 +34,7 @@
   transition: var(--flowforge-transition-default);
 }
 .flowforge-element-item--chip:hover {
+  color: var(--flowforge-color-text);
   border-color: var(--flowforge-color-primary-hover);
 }
 .flowforge-elements-list--steps {

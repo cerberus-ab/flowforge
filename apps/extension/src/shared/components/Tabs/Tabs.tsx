@@ -29,9 +29,10 @@ const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(function TabButt
         <Button
             ref={ref}
             id={tabId}
-            appearance="ghost"
             size="small"
+            variant="primary"
             icon={tab.icon}
+            hollow
             className="flowforge-tabs__button"
             role="tab"
             aria-selected={active}

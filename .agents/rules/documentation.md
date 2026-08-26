@@ -1,13 +1,11 @@
 # Documentation Rules
 
-Use these rules when creating or updating project documentation.
+Use these rules as the documentation source of truth.
 
 ## Goal
 
-Update documentation based strictly on the current codebase and existing docs.
-
-Rewrite and align documentation. Do not invent or expand it beyond the
-implemented project.
+Keep project documentation accurate, concise, aligned, and limited to the
+implemented codebase.
 
 ## Sources of truth
 
@@ -16,7 +14,7 @@ implemented project.
 
 If something is unclear or missing, omit it.
 
-## Files to update
+## Documentation set
 
 - `README.md`
 - `docs/ARCHITECTURE.md`
