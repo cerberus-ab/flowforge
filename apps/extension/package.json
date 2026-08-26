@@ -11,6 +11,9 @@
   "scripts": {
     "clean": "rm -rf dist/",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "build:chrome": "vite build --config vite.config.chrome.ts",
     "build:embed": "vite build --config vite.config.embed.ts && cp src/embed/flowforge-runtime.d.ts dist/embed/flowforge-runtime.d.ts",
     "build": "npm run clean && npm run typecheck && npm run build:chrome && npm run build:embed",
@@ -47,10 +50,12 @@
     "eslint": "^10.8.1",
     "express": "^5.2.1",
     "globals": "^17.9.0",
+    "happy-dom": "^20.11.2",
     "marked": "^18.0.2",
     "preact": "^10.29.1",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.66.0",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "vitest": "^4.1.11"
   }
 }
