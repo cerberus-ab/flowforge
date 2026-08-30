@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3007;
+const PORT = getPort();
 
 app.use('/assets', express.static(join(__dirname, './assets')));
 app.use('/extension', express.static(join(__dirname, '../dist/embed')));
@@ -52,3 +52,8 @@ function getRuntimeFile() {
 app.listen(PORT, () => {
     console.log(`Sandbox running at http://localhost:${PORT}`);
 });
+
+function getPort() {
+    const portFlag = process.argv.findIndex((arg) => arg === '--port' || arg === '-p');
+    return portFlag === -1 ? 3007 : (process.argv[portFlag + 1] ?? 3007);
+}

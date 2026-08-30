@@ -14,6 +14,8 @@
     "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "build:chrome": "vite build --config vite.config.chrome.ts",
     "build:embed": "vite build --config vite.config.embed.ts && cp src/embed/flowforge-runtime.d.ts dist/embed/flowforge-runtime.d.ts",
     "build": "npm run clean && npm run typecheck && npm run build:chrome && npm run build:embed",
@@ -43,6 +45,7 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.62.1",
     "@preact/preset-vite": "^2.10.5",
     "@testing-library/preact": "^3.2.4",
     "@tsconfig/vite-react": "^8.1.1",

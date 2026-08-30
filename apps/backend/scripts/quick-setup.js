@@ -9,13 +9,13 @@ const examplePath = path.resolve(process.cwd(), '.env.example');
 (async function quickSetup() {
     console.log('Welcome to FlowForge Backend Setup...\n');
 
-    // init .env file or skip setup
+    // init .env file or skip globalSetup
     if (fs.existsSync(envPath)) {
         const answer = await ask('.env already exists. Recreate? (y/N): ');
 
         const shouldRecreate = answer.toLowerCase() === 'y';
         if (!shouldRecreate) {
-            console.log('✓ Skipping setup');
+            console.log('✓ Skipping globalSetup');
             return;
         }
     }

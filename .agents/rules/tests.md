@@ -15,7 +15,7 @@ Use these rules when adding or updating tests.
 ## `packages/page-trail`
 
 - Use Vitest with `happy-dom`; keep tests colocated under `src/**/*.test.ts`.
-- Reuse `test/fixtures.ts` and `test/domUtils.ts` instead of duplicating setup.
+- Reuse `test/fixtures.ts` and `test/domUtils.ts` instead of duplicating globalSetup.
 - Cover behavior across extractors, collector, scoring, semantic formatting, and
   utils.
 - Use Given-When-Then for new or updated tests; migrate touched tests toward it.

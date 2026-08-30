@@ -1,4 +1,4 @@
-import type { PageTrail } from '@flowforge/contract';
+import type { PageTrail, QueryResponse } from '@flowforge/contract';
 import type { ExtensionSettings } from '@/types';
 
 export function createSettingsFixture(overrides: Partial<ExtensionSettings> = {}): ExtensionSettings {
@@ -45,5 +45,27 @@ export function createPageTrailFixture(overrides: Partial<PageTrail> = {}): Page
             },
         },
         ...overrides,
+    };
+}
+
+export function createQueryResponseFixture(overrides: Partial<QueryResponse> = {}): QueryResponse {
+    return {
+        result: {
+            answer: 'Backend response',
+            elements: [],
+            mode: 'direct',
+            topic: null,
+            ...overrides.result,
+        },
+        metadata: {
+            model: 'test-backend',
+            execTimeMs: 0,
+            usage: {
+                inputTokens: 0,
+                outputTokens: 0,
+                totalTokens: 0,
+            },
+            ...overrides.metadata,
+        },
     };
 }
