@@ -21,7 +21,7 @@ export interface ExtensionConfig {
 }
 
 export const config: ExtensionConfig = {
-    serverUrl: 'http://localhost:3477',
+    serverUrl: import.meta.env.VITE_FLOWFORGE_SERVER_URL ?? 'http://localhost:3477',
     maxQuestionLength: 150,
     questionsHistoryLimit: 10,
     exampleQuestions: ['What is this page about?', 'How can I buy this product?', 'Where is a contact information?'],
