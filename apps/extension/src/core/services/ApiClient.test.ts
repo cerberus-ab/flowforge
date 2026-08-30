@@ -2,7 +2,7 @@ import type { AgentResult, QueryRequest } from '@flowforge/contract';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createPageTrailFixture } from '../../../test/fakes/fixtures';
-import { constants } from '@/constants';
+import { constants } from '../constants';
 import { DemoApiClient, HttpApiClient } from './ApiClient';
 
 const result: AgentResult = {
@@ -35,6 +35,7 @@ describe('HttpApiClient', () => {
     });
 
     it('posts query requests and returns the parsed response', async () => {
+        // Given
         const response = {
             result,
             metadata: {
@@ -49,6 +50,7 @@ describe('HttpApiClient', () => {
         };
         vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(response), { status: 200 }));
 
+        // When / Then
         await expect(new HttpApiClient('https://api.example.com').query(request)).resolves.toEqual(response);
 
         expect(fetch).toHaveBeenCalledWith('https://api.example.com/query', {
@@ -62,30 +64,37 @@ describe('HttpApiClient', () => {
     });
 
     it('uses the server error message when a non-ok response contains one', async () => {
+        // Given
         vi.mocked(fetch).mockResolvedValue(
             new Response(JSON.stringify({ message: 'Invalid page trail' }), {
                 status: 400,
             }),
         );
 
+        // When / Then
         await expect(new HttpApiClient('https://api.example.com').query(request)).rejects.toThrow('Invalid page trail');
     });
 
     it('falls back to the response status when a non-ok response has no JSON message', async () => {
+        // Given
         vi.mocked(fetch).mockResolvedValue(new Response('not json', { status: 503 }));
 
+        // When / Then
         await expect(new HttpApiClient('https://api.example.com').query(request)).rejects.toThrow('Server error: 503');
     });
 
     it('converts fetch type errors to an actionable network error', async () => {
+        // Given
         vi.mocked(fetch).mockRejectedValue(new TypeError('Failed to fetch'));
 
+        // When / Then
         await expect(new HttpApiClient('https://api.example.com').query(request)).rejects.toThrow(
             'Network error. Make sure the backend server is running.',
         );
     });
 
     it('converts request aborts to timeout errors', async () => {
+        // Given
         vi.useFakeTimers();
         vi.mocked(fetch).mockImplementation((_url, init) => {
             return new Promise<Response>((_resolve, reject) => {
@@ -95,10 +104,12 @@ describe('HttpApiClient', () => {
             });
         });
 
+        // When
         const pendingQuery = new HttpApiClient('https://api.example.com').query(request);
         const assertion = expect(pendingQuery).rejects.toThrow('Request timeout. Please try again.');
         await vi.advanceTimersByTimeAsync(constants.API_QUERY_TIMEOUT_MS);
 
+        // Then
         await assertion;
         vi.useRealTimers();
     });
@@ -106,6 +117,7 @@ describe('HttpApiClient', () => {
 
 describe('DemoApiClient', () => {
     it('returns a configured demo answer with metadata', async () => {
+        // Given
         const client = new DemoApiClient({
             stubModel: 'demo-test-model',
             stubQA: [
@@ -116,8 +128,10 @@ describe('DemoApiClient', () => {
             ],
         });
 
+        // When
         const response = await client.query(request);
 
+        // Then
         expect(response.result).toEqual(result);
         expect(response.metadata).toMatchObject({
             model: 'demo-test-model',
@@ -131,6 +145,7 @@ describe('DemoApiClient', () => {
     });
 
     it('honors the configured artificial delay', async () => {
+        // Given
         vi.useFakeTimers();
         const client = new DemoApiClient({
             delayMs: 250,
@@ -142,6 +157,7 @@ describe('DemoApiClient', () => {
             ],
         });
 
+        // When
         const pendingQuery = client.query(request);
         await vi.advanceTimersByTimeAsync(249);
         let settled = false;
@@ -149,10 +165,13 @@ describe('DemoApiClient', () => {
             settled = true;
         });
 
+        // Then
         expect(settled).toBe(false);
 
+        // When
         await vi.advanceTimersByTimeAsync(1);
 
+        // Then
         await expect(pendingQuery).resolves.toMatchObject({
             result,
             metadata: {
@@ -162,8 +181,10 @@ describe('DemoApiClient', () => {
     });
 
     it('throws when no demo answer is configured for the question', async () => {
+        // Given
         const client = new DemoApiClient();
 
+        // When / Then
         await expect(client.query(request)).rejects.toThrow(
             'Could not mapped a result for question: How do I open settings?',
         );

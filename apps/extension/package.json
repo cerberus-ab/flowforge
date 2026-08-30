@@ -44,6 +44,7 @@
     "@crxjs/vite-plugin": "^2.4.0",
     "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.5",
+    "@testing-library/preact": "^3.2.4",
     "@tsconfig/vite-react": "^8.1.1",
     "@types/chrome": "^0.1.38",
     "concurrently": "^10.0.4",

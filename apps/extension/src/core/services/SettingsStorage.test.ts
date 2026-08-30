@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { FakeLocalStorage } from '../../../test/fakes/FakeLocalStorage';
-import { constants } from '@/constants';
+import { constants } from '../constants';
 import { SettingsStorage } from './SettingsStorage';
 
 const settingsKey = `${constants.LOCAL_STORAGE_NAMESPACE}_settings`;
@@ -38,6 +38,7 @@ describe('SettingsStorage', () => {
     });
 
     it('merges stored settings over defaults and initial settings', async () => {
+        // Given
         const localStorage = new FakeLocalStorage();
         await localStorage.set(settingsKey, { theme: 'dark' });
         const storage = new SettingsStorage(
@@ -51,6 +52,7 @@ describe('SettingsStorage', () => {
             },
         );
 
+        // When / Then
         await expect(storage.get()).resolves.toEqual({
             theme: 'dark',
             devMode: true,
@@ -58,6 +60,7 @@ describe('SettingsStorage', () => {
     });
 
     it('updates settings by merging the patch with stored values', async () => {
+        // Given
         const localStorage = new FakeLocalStorage();
         await localStorage.set(settingsKey, { theme: 'dark' });
         const storage = new SettingsStorage(localStorage, {
@@ -65,6 +68,7 @@ describe('SettingsStorage', () => {
             devMode: false,
         });
 
+        // When / Then
         await expect(storage.update({ devMode: true })).resolves.toEqual({
             theme: 'dark',
             devMode: true,

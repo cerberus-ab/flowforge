@@ -1,4 +1,13 @@
 import type { PageTrail } from '@flowforge/contract';
+import type { ExtensionSettings } from '@/types';
+
+export function createSettingsFixture(overrides: Partial<ExtensionSettings> = {}): ExtensionSettings {
+    return {
+        theme: 'light',
+        devMode: false,
+        ...overrides,
+    };
+}
 
 export function createPageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
     return {
