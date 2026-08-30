@@ -1,5 +1,5 @@
 import type { Message, MessageResponse } from '@/types';
-import type { TransportService } from '@/adapters/interface';
+import type { TransportService } from '@/adapters/interface.ts';
 
 type Handler = (message: Message) => Promise<MessageResponse> | MessageResponse | undefined;
 

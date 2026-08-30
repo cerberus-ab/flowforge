@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
-import { createPageTrailFixture } from '../../../../test/fakes/fixtures';
+import { createPageTrailFixture } from '../../../../test/fixtures.ts';
 import { Inspector } from './Inspector';
 
 const pageTrail = createPageTrailFixture({

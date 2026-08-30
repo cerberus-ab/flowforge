@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest';
 import type { TransportService } from '@/adapters/interface';
 import { config } from '@/config';
 import type { ExtensionSettings, Message, MessageResponse } from '@/types';
-import { FakeTransportService } from '../../../test/fakes/FakeTransportService';
-import { createSettingsFixture } from '../../../test/fakes/fixtures';
+import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
+import { createSettingsFixture } from '../../../test/fixtures.ts';
 import { useSettings } from './useSettings';
 
 const initialSettings = createSettingsFixture();

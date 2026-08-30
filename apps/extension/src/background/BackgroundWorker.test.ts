@@ -1,10 +1,10 @@
 import type { PageTrail } from '@flowforge/contract';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FakeApiClient, createQueryResponseFixture } from '../../test/fakes/FakeApiClient';
-import { FakeLocalStorage } from '../../test/fakes/FakeLocalStorage';
-import { FakeTransportService } from '../../test/fakes/FakeTransportService';
-import { createPageTrailFixture } from '../../test/fakes/fixtures';
+import { FakeApiClient, createQueryResponseFixture } from '../../test/unit/fakes/FakeApiClient';
+import { FakeLocalStorage } from '../../test/unit/fakes/FakeLocalStorage';
+import { FakeTransportService } from '../../test/unit/fakes/FakeTransportService';
+import { createPageTrailFixture } from '../../test/fixtures.ts';
 import { HistoryStorage } from '../core/services/HistoryStorage';
 import { SettingsStorage } from '../core/services/SettingsStorage';
 import type {

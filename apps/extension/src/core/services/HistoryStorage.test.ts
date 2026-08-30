@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { LocalStorage } from '@/adapters/interface';
-import { FakeLocalStorage } from '../../../test/fakes/FakeLocalStorage';
+import { FakeLocalStorage } from '../../../test/unit/fakes/FakeLocalStorage';
 import { constants } from '../constants';
 import { HistoryStorage } from './HistoryStorage';
 

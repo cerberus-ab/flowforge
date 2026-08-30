@@ -9,7 +9,7 @@ export default defineConfig({
     test: {
         environment: 'happy-dom',
         include: ['src/**/*.{test,spec}.{ts,tsx}'],
-        setupFiles: ['./test/setup.ts'],
+        setupFiles: ['./test/unit/setup.ts'],
         reporters: ['default', 'junit'],
         outputFile: {
             junit: './reports/unit-tests/results/junit.xml',

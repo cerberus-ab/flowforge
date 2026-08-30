@@ -1,4 +1,4 @@
-import type { LocalStorage } from '@/adapters/interface';
+import type { LocalStorage } from '@/adapters/interface.ts';
 
 export class FakeLocalStorage implements LocalStorage {
     private readonly values = new Map<string, unknown>();

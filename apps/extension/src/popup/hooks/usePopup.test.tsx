@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
 import type { Message, MessageResponse } from '@/types';
-import { FakeTransportService } from '../../../test/fakes/FakeTransportService';
+import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';
 
 const resultElement: AgentResultElement = {

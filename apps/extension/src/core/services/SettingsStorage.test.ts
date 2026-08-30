@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { FakeLocalStorage } from '../../../test/fakes/FakeLocalStorage';
+import { FakeLocalStorage } from '../../../test/unit/fakes/FakeLocalStorage';
 import { constants } from '../constants';
 import { SettingsStorage } from './SettingsStorage';
 

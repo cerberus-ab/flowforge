@@ -1,5 +1,5 @@
 import type { QueryRequest, QueryResponse } from '@flowforge/contract';
-import type { ApiClient } from '@/core/services/ApiClient';
+import type { ApiClient } from '@/core/services/ApiClient.ts';
 
 export class FakeApiClient implements ApiClient {
     readonly requests: QueryRequest[] = [];
