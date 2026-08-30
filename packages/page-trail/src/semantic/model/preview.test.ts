@@ -14,6 +14,7 @@ function pathNode(element: ContainerPathNode['element'], distance = 0): Containe
 
 describe('semantic model preview', () => {
     it('creates a compact preview of the container tree', () => {
+        // Given
         const structure: ContainerTreeNode[] = [
             {
                 element: containerElement({
@@ -40,7 +41,11 @@ describe('semantic model preview', () => {
             },
         ];
 
-        expect(semModelPreviewStructure(structure)).toEqual([
+        // When
+        const preview = semModelPreviewStructure(structure);
+
+        // Then
+        expect(preview).toEqual([
             {
                 tag: 'nav',
                 role: 'navigation',
@@ -62,6 +67,7 @@ describe('semantic model preview', () => {
     });
 
     it('creates a compact preview of content elements with breadcrumb context', () => {
+        // Given
         const content = contentElement({
             kind: 'content',
             type: 'heading',
@@ -85,7 +91,11 @@ describe('semantic model preview', () => {
             },
         });
 
-        expect(semModelPreviewContent([content])).toEqual([
+        // When
+        const preview = semModelPreviewContent([content]);
+
+        // Then
+        expect(preview).toEqual([
             {
                 tag: 'h1',
                 text: 'Pricing',
@@ -97,6 +107,7 @@ describe('semantic model preview', () => {
     });
 
     it('creates a compact preview of interactive elements with semantic text and link type', () => {
+        // Given
         const interactive = interactiveElement({
             tag: 'a',
             type: 'link',
@@ -123,7 +134,11 @@ describe('semantic model preview', () => {
             },
         });
 
-        expect(semModelPreviewInteractive([interactive])).toEqual([
+        // When
+        const preview = semModelPreviewInteractive([interactive]);
+
+        // Then
+        expect(preview).toEqual([
             {
                 tag: 'a',
                 role: 'link',

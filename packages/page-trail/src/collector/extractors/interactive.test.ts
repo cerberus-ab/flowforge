@@ -13,6 +13,7 @@ afterEach(() => {
 
 describe('extractInteractiveElements', () => {
     it('extracts visible non-sensitive interactive elements', () => {
+        // Given
         document.body.innerHTML = `
             <main>
                 <button id="save" aria-label="Save changes">💾</button>
@@ -32,6 +33,8 @@ describe('extractInteractiveElements', () => {
 
         const registry = createRegistry();
         const containerTree = ContainerTree.extractFor(window, document, registry);
+
+        // When
         const topElements = extractInteractiveElements(
             window,
             document.body,
@@ -41,6 +44,7 @@ describe('extractInteractiveElements', () => {
             { elementsLimit: 0 },
         );
 
+        // Then
         expect(topElements.data).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
@@ -84,6 +88,7 @@ describe('extractInteractiveElements', () => {
     });
 
     it('applies the element limit after importance scoring', () => {
+        // Given
         document.body.innerHTML = `
             <main>
                 <button id="button">Submit</button>
@@ -96,6 +101,8 @@ describe('extractInteractiveElements', () => {
 
         const registry = createRegistry();
         const containerTree = ContainerTree.extractFor(window, document, registry);
+
+        // When
         const topElements = extractInteractiveElements(
             window,
             document.body,
@@ -105,6 +112,7 @@ describe('extractInteractiveElements', () => {
             { elementsLimit: 1 },
         );
 
+        // Then
         expect(topElements.data).toHaveLength(1);
         expect(topElements.data[0]).toEqual(expect.objectContaining({ dataId: 'button' }));
         expect(topElements.total).toBe(2);

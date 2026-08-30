@@ -10,14 +10,17 @@ afterEach(() => {
 
 describe('PageTrailCollector', () => {
     it('collects page basics', () => {
+        // Given
         document.documentElement.lang = 'en';
         document.head.innerHTML = `<meta name="description" content="Page description" />`;
         document.title = 'Test page';
 
         setViewport({ width: 1024, height: 768, scrollY: 100, scrollHeight: 2000 });
 
+        // When
         const model = collect();
 
+        // Then
         expect(model.basics).toEqual({
             url: 'http://localhost:3000/',
             title: 'Test page',
@@ -35,12 +38,15 @@ describe('PageTrailCollector', () => {
     });
 
     it('normalizes page basics text', () => {
+        // Given
         document.documentElement.lang = ' en ';
         document.head.innerHTML = `<meta name="description" content=" Page   description " />`;
         document.title = ' Test   page ';
 
+        // When
         const model = collect();
 
+        // Then
         expect(model.basics).toEqual(
             expect.objectContaining({
                 title: 'Test page',
@@ -51,6 +57,7 @@ describe('PageTrailCollector', () => {
     });
 
     it('collects visible content elements', () => {
+        // Given
         document.body.innerHTML = `
             <main>
                 <h1 id="title">Welcome</h1>
@@ -62,8 +69,10 @@ describe('PageTrailCollector', () => {
         markVisible('#intro');
         markVisible('#short');
 
+        // When
         const model = collect();
 
+        // Then
         expect(model.content).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
@@ -88,6 +97,7 @@ describe('PageTrailCollector', () => {
     });
 
     it('collects visible interactive elements', () => {
+        // Given
         document.body.innerHTML = `
             <main>
                 <button id="save" aria-label="Save changes">💾</button>
@@ -99,8 +109,10 @@ describe('PageTrailCollector', () => {
         markVisible('#docs');
         markVisible('#email');
 
+        // When
         const model = collect();
 
+        // Then
         expect(model.interactive).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
@@ -135,6 +147,7 @@ describe('PageTrailCollector', () => {
     });
 
     it('skips hidden and sensitive interactive elements', () => {
+        // Given
         document.body.innerHTML = `
             <button id="visible">Visible action</button>
             <button id="hidden">Hidden action</button>
@@ -144,12 +157,15 @@ describe('PageTrailCollector', () => {
         markHidden('#hidden');
         markVisible('#password');
 
+        // When
         const model = collect();
 
+        // Then
         expect(model.interactive.map((el) => el.dataId)).toEqual(['visible']);
     });
 
     it('applies content and interactive limits after scoring', () => {
+        // Given
         document.body.innerHTML = `
             <main>
                 <h1 id="heading">Important heading</h1>
@@ -163,11 +179,13 @@ describe('PageTrailCollector', () => {
         markVisible('#button');
         markVisible('#link');
 
+        // When
         const model = collect({
             contentElementsLimit: 1,
             interactiveElementsLimit: 1,
         });
 
+        // Then
         expect(model.content).toHaveLength(1);
         expect(model.content[0]).toEqual(expect.objectContaining({ dataId: 'heading' }));
         expect(model.interactive).toHaveLength(1);
@@ -175,6 +193,7 @@ describe('PageTrailCollector', () => {
     });
 
     it('reports container metadata without scoring limit totals', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <section id="section"></section>
@@ -183,8 +202,10 @@ describe('PageTrailCollector', () => {
         markVisible('#main');
         markVisible('#section');
 
+        // When
         const model = collect();
 
+        // Then
         expect(model.metadata.structureElements).toBe(2);
         expect(model.metadata.structureMaxDepth).toBe(2);
         expect(model.metadata).not.toHaveProperty('containerElementsTotal');
@@ -193,24 +214,30 @@ describe('PageTrailCollector', () => {
     });
 
     it('keeps cssSelector undefined when css selector resolver is not configured', () => {
+        // Given
         document.body.innerHTML = `<button id="save">Save</button>`;
         markVisible('#save');
 
+        // When
         const model = PageTrailCollector.collectFor(window, document, {
             getElementDataId: (el) => el.id,
         });
 
+        // Then
         expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'save', cssSelector: undefined }));
     });
 
     it('collectFor returns a collected page trail', () => {
+        // Given
         document.body.innerHTML = `<button id="save">Save</button>`;
         markVisible('#save');
 
+        // When
         const model = PageTrailCollector.collectFor(window, document, {
             getElementDataId: (el) => el.id,
         });
 
+        // Then
         expect(model.interactive).toHaveLength(1);
         expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'save' }));
     });

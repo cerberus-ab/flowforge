@@ -4,6 +4,7 @@ import { SELECTOR_CONTAINER, SELECTOR_CONTENT, SELECTOR_HEADING, SELECTOR_INTERA
 
 describe('SELECTOR_HEADING', () => {
     it('matches native and aria headings', () => {
+        // Given
         document.body.innerHTML = `
             <h1 id="h1"></h1>
             <h2 id="h2"></h2>
@@ -15,12 +16,17 @@ describe('SELECTOR_HEADING', () => {
             <p id="paragraph"></p>
         `;
 
-        expect(matchingIds(SELECTOR_HEADING)).toEqual(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'aria-heading']);
+        // When
+        const ids = matchingIds(SELECTOR_HEADING);
+
+        // Then
+        expect(ids).toEqual(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'aria-heading']);
     });
 });
 
 describe('SELECTOR_CONTAINER', () => {
     it('matches native and aria containers supported by getContainerRole', () => {
+        // Given
         document.body.innerHTML = `
             <article id="native-article"></article>
             <aside id="native-aside"></aside>
@@ -59,7 +65,11 @@ describe('SELECTOR_CONTAINER', () => {
             <div role="row" id="aria-row"></div>
         `;
 
-        expect(matchingIds(SELECTOR_CONTAINER)).toEqual([
+        // When
+        const ids = matchingIds(SELECTOR_CONTAINER);
+
+        // Then
+        expect(ids).toEqual([
             'native-article',
             'native-aside',
             'native-dialog',
@@ -96,6 +106,7 @@ describe('SELECTOR_CONTAINER', () => {
     });
 
     it('does not match unsupported aria roles', () => {
+        // Given
         document.body.innerHTML = `
             <div role="button" id="interactive-button"></div>
             <div role="heading" id="heading"></div>
@@ -103,12 +114,17 @@ describe('SELECTOR_CONTAINER', () => {
             <div role="presentation" id="presentation"></div>
         `;
 
-        expect(matchingIds(SELECTOR_CONTAINER)).toEqual([]);
+        // When
+        const ids = matchingIds(SELECTOR_CONTAINER);
+
+        // Then
+        expect(ids).toEqual([]);
     });
 });
 
 describe('SELECTOR_CONTENT', () => {
     it('matches text content candidates', () => {
+        // Given
         document.body.innerHTML = `
             <h1 id="heading"></h1>
             <div role="heading" id="aria-heading"></div>
@@ -119,19 +135,17 @@ describe('SELECTOR_CONTENT', () => {
             <span id="span"></span>
         `;
 
-        expect(matchingIds(SELECTOR_CONTENT)).toEqual([
-            'heading',
-            'aria-heading',
-            'paragraph',
-            'list-item',
-            'quote',
-            'caption',
-        ]);
+        // When
+        const ids = matchingIds(SELECTOR_CONTENT);
+
+        // Then
+        expect(ids).toEqual(['heading', 'aria-heading', 'paragraph', 'list-item', 'quote', 'caption']);
     });
 });
 
 describe('SELECTOR_INTERACTIVE', () => {
     it('matches native and aria interactive candidates scanned by the collector', () => {
+        // Given
         document.body.innerHTML = `
             <button id="button"></button>
             <a href="/docs" id="link"></a>
@@ -150,7 +164,11 @@ describe('SELECTOR_INTERACTIVE', () => {
             <div role="menu" id="aria-menu"></div>
         `;
 
-        expect(matchingIds(SELECTOR_INTERACTIVE)).toEqual([
+        // When
+        const ids = matchingIds(SELECTOR_INTERACTIVE);
+
+        // Then
+        expect(ids).toEqual([
             'button',
             'link',
             'input',

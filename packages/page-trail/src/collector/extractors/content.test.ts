@@ -12,6 +12,7 @@ afterEach(() => {
 
 describe('extractContentElements', () => {
     it('extracts visible content elements after scoring', () => {
+        // Given
         document.body.innerHTML = `
             <main>
                 <h1 id="title">Welcome</h1>
@@ -28,10 +29,13 @@ describe('extractContentElements', () => {
 
         const registry = createRegistry();
         const containerTree = ContainerTree.extractFor(window, document, registry);
+
+        // When
         const topElements = extractContentElements(window, document.body, registry, containerTree, {
             elementsLimit: 0,
         });
 
+        // Then
         expect(topElements.data).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
@@ -62,6 +66,7 @@ describe('extractContentElements', () => {
     });
 
     it('applies the element limit after importance scoring', () => {
+        // Given
         document.body.innerHTML = `
             <main>
                 <h1 id="heading">Important heading</h1>
@@ -74,10 +79,13 @@ describe('extractContentElements', () => {
 
         const registry = createRegistry();
         const containerTree = ContainerTree.extractFor(window, document, registry);
+
+        // When
         const topElements = extractContentElements(window, document.body, registry, containerTree, {
             elementsLimit: 1,
         });
 
+        // Then
         expect(topElements.data).toHaveLength(1);
         expect(topElements.data[0]).toEqual(expect.objectContaining({ dataId: 'heading' }));
         expect(topElements.total).toBe(2);

@@ -4,6 +4,7 @@ import { getContainerHeading } from './heading';
 
 describe('getContainerHeading', () => {
     it('returns the first owned heading', () => {
+        // Given
         document.body.innerHTML = `
             <section>
                 <p>Intro</p>
@@ -12,10 +13,15 @@ describe('getContainerHeading', () => {
             </section>
         `;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBe(document.querySelector('#title'));
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBe(document.querySelector('#title'));
     });
 
     it('returns heading wrapped by non-semantic markup', () => {
+        // Given
         document.body.innerHTML = `
             <section>
                 <div class="section-header">
@@ -24,10 +30,15 @@ describe('getContainerHeading', () => {
             </section>
         `;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBe(document.querySelector('#title'));
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBe(document.querySelector('#title'));
     });
 
     it('returns heading wrapped by a header element', () => {
+        // Given
         document.body.innerHTML = `
             <section>
                 <header>
@@ -36,10 +47,15 @@ describe('getContainerHeading', () => {
             </section>
         `;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBe(document.querySelector('#title'));
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBe(document.querySelector('#title'));
     });
 
     it('ignores headings from nested semantic containers', () => {
+        // Given
         document.body.innerHTML = `
             <section>
                 <section>
@@ -49,10 +65,15 @@ describe('getContainerHeading', () => {
             </section>
         `;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBe(document.querySelector('#title'));
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBe(document.querySelector('#title'));
     });
 
     it('returns undefined when only nested semantic containers have headings', () => {
+        // Given
         document.body.innerHTML = `
             <section>
                 <form>
@@ -61,20 +82,30 @@ describe('getContainerHeading', () => {
             </section>
         `;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBeUndefined();
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBeUndefined();
     });
 
     it('supports ARIA heading role', () => {
+        // Given
         document.body.innerHTML = `
             <section>
                 <div id="title" role="heading">ARIA heading</div>
             </section>
         `;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBe(document.querySelector('#title'));
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBe(document.querySelector('#title'));
     });
 
     it('returns the first owned heading even when it is empty', () => {
+        // Given
         document.body.innerHTML = `
             <section>
                 <h2 id="empty"> </h2>
@@ -82,12 +113,21 @@ describe('getContainerHeading', () => {
             </section>
         `;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBe(document.querySelector('#empty'));
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBe(document.querySelector('#empty'));
     });
 
     it('returns undefined when no heading exists', () => {
+        // Given
         document.body.innerHTML = `<section><p>Content</p></section>`;
 
-        expect(getContainerHeading(document.querySelector('section')!)).toBeUndefined();
+        // When
+        const heading = getContainerHeading(document.querySelector('section')!);
+
+        // Then
+        expect(heading).toBeUndefined();
     });
 });
