@@ -81,7 +81,6 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
             if (e.key === 'Escape') {
                 e.preventDefault();
                 handleFinish();
-                close();
                 return;
             }
         };
