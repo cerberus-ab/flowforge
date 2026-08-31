@@ -22,7 +22,7 @@ export default defineConfig({
     projects: [
         {
             name: 'embed',
-            testMatch: /embed\.spec\.ts/,
+            testMatch: /(?:embed|demo)\.spec\.ts/,
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: SANDBOX_URL,
@@ -38,7 +38,7 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: `VITE_FLOWFORGE_SERVER_URL=${BACKEND_URL} npm run build:embed && npm run sandbox -- --port ${SANDBOX_PORT}`,
+        command: `VITE_FLOWFORGE_SERVER_URL=${BACKEND_URL} npm run build && npm run sandbox -- --port ${SANDBOX_PORT}`,
         url: SANDBOX_URL,
         reuseExistingServer: !process.env.CI,
     },

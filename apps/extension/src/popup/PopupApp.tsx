@@ -95,6 +95,7 @@ export function PopupApp({
             role={isDialog ? 'dialog' : undefined}
             aria-modal={isDialog ? 'false' : undefined}
             aria-labelledby={isDialog ? 'flowforge-popup-title' : undefined}
+            data-testid="flowforge-popup"
         >
             <header className="flowforge-popup__header flowforge-popup__header--parallax">
                 <h2 id={isDialog ? 'flowforge-popup-title' : undefined} className="flowforge-popup__header-title">
@@ -102,7 +103,7 @@ export function PopupApp({
                 </h2>
                 <p className="flowforge-popup__header-subtitle">Web Onboarding Assistant</p>
             </header>
-            <div ref={contentRef} className="flowforge-popup__content">
+            <div ref={contentRef} className="flowforge-popup__content" data-testid="flowforge-popup-content">
                 {demoProps?.enabled && (
                     <Notice
                         type="status"

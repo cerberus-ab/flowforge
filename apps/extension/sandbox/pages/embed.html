@@ -11,11 +11,21 @@
         <main>
             <section id="controls">
                 <p><a href="/">Back to sandbox index</a></p>
-                <h1>Explore Embed Runtime</h1>
+                <h1 data-testid="sandbox-heading">Explore Embed Runtime</h1>
                 <h2>The embed runtime starts automatically on this page</h2>
                 <p>
                     Use this page to verify the normal embedded runtime against the configured backend. For stubbed
                     responses and manual runtime controls, use the <a href="/demo">demo page</a>.
+                </p>
+                <div role="toolbar" data-role="cmd-bar" class="extension-targets">
+                    <button type="button" data-flowforge-id="ff20000001">Open account settings</button>
+                    <button type="button" data-flowforge-id="ff20000002">Review project status</button>
+                    <button type="button" data-flowforge-id="ff20000003">Invite a teammate</button>
+                </div>
+                <p>
+                    See
+                    <a href="./EMBED_EXTENSION.md" data-flowforge-id="ff20000011">Embed runtime docs</a>
+                    for more details.
                 </p>
             </section>
             <section id="readme">%SECTION_README%</section>

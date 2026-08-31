@@ -11,7 +11,7 @@ export function Examples({ examples, onExampleQuestionSelect }: ExamplesProps) {
         return null;
     }
     return (
-        <Card title="Try one of these">
+        <Card title="Try one of these" data-testid="flowforge-examples">
             <div className="flowforge-examples-list">
                 <ul>
                     {examples.map((example, index) => (
@@ -21,6 +21,7 @@ export function Examples({ examples, onExampleQuestionSelect }: ExamplesProps) {
                                 className={`flowforge-example-chip flowforge-example-chip--${
                                     example.type === 'default' ? 'primary' : 'secondary'
                                 }`}
+                                data-testid={`flowforge-example-${index}`}
                                 onClick={() => onExampleQuestionSelect(example.question)}
                             >
                                 {example.question}

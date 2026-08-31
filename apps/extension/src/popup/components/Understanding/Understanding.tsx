@@ -19,6 +19,7 @@ export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
                                 size="small"
                                 icon={ListTree}
                                 hollow
+                                data-testid="flowforge-open-inspector"
                                 onClick={() => onOpenPageInspector('basics')}
                             >
                                 Inspect page context
@@ -32,6 +33,7 @@ export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
                                 size="small"
                                 icon={FileText}
                                 hollow
+                                data-testid="flowforge-open-markdown-inspector"
                                 onClick={() => onOpenPageInspector('markdown')}
                             >
                                 .md

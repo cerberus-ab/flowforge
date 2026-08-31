@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
 import type { QueryResponse } from '@flowforge/contract';
 import { BACKEND_URL } from '../constants.ts';
 
@@ -8,8 +8,8 @@ const corsHeaders = {
     'access-control-allow-origin': '*',
 };
 
-export async function mockQuery(page: Page, response: QueryResponse) {
-    await page.route(`${BACKEND_URL}/query`, async (route) => {
+export async function mockQuery(target: BrowserContext | Page, response: QueryResponse) {
+    await target.route(`${BACKEND_URL}/query`, async (route) => {
         if (route.request().method() === 'OPTIONS') {
             await route.fulfill({
                 status: 204,

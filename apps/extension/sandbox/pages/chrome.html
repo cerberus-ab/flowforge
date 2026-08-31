@@ -11,11 +11,21 @@
         <main>
             <section id="controls">
                 <p><a href="/">Back to sandbox index</a></p>
-                <h1>Explore Chrome Extension</h1>
+                <h1 data-testid="sandbox-heading">Explore Chrome Extension</h1>
                 <h2>Use this page with the unpacked Chrome extension</h2>
                 <p>
                     This page intentionally does not load the embed runtime. It provides stable host-page content and
                     controls for Chrome extension checks.
+                </p>
+                <div role="toolbar" data-role="cmd-bar" class="extension-targets">
+                    <button type="button" data-flowforge-id="ff10000001">Open account settings</button>
+                    <button type="button" data-flowforge-id="ff10000002">Review project status</button>
+                    <button type="button" data-flowforge-id="ff10000003">Invite a teammate</button>
+                </div>
+                <p>
+                    See
+                    <a href="./EMBED_EXTENSION.md" data-flowforge-id="ff10000011">Chrome extension docs</a>
+                    for more details.
                 </p>
             </section>
             <section id="readme">%SECTION_README%</section>

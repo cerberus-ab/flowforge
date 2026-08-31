@@ -11,7 +11,7 @@
         <main>
             <section id="controls">
                 <p><a href="/">Back to sandbox index</a></p>
-                <h1>Explore Embed Demo</h1>
+                <h1 data-testid="sandbox-heading">Explore Embed Demo</h1>
                 <h2>Manage the Runtime on the page</h2>
                 <ul>
                     <li>Click <strong>Start</strong> to launch the extension with a real backend,</li>
@@ -27,12 +27,41 @@
                     </li>
                 </ul>
                 <div role="toolbar" data-role="cmd-bar">
-                    <button type="button" data-role="cmd" data-cmd="start" data-flowforge-id="ff00000001">Start</button>
-                    <button type="button" data-role="cmd" data-cmd="demo" data-flowforge-id="ff00000002">Demo</button>
-                    <button type="button" data-role="cmd" data-cmd="destroy" disabled data-flowforge-id="ff00000003">
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="start"
+                        data-testid="sandbox-start"
+                        data-flowforge-id="ff00000001"
+                    >
+                        Start
+                    </button>
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="demo"
+                        data-testid="sandbox-demo"
+                        data-flowforge-id="ff00000002"
+                    >
+                        Demo
+                    </button>
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="destroy"
+                        data-testid="sandbox-destroy"
+                        disabled
+                        data-flowforge-id="ff00000003"
+                    >
                         Destroy
                     </button>
-                    <button type="button" data-role="cmd" data-cmd="inspector" data-flowforge-id="ff00000004">
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="inspector"
+                        data-testid="sandbox-inspector"
+                        data-flowforge-id="ff00000004"
+                    >
                         Inspector
                     </button>
                 </div>
@@ -97,25 +126,21 @@
                                                     {
                                                         text: 'Click Start to run with real backend',
                                                         dataId: 'ff00000001',
-                                                        selector: '',
                                                         action: 'click',
                                                     },
                                                     {
                                                         text: 'Click Demo to run with mock data',
                                                         dataId: 'ff00000002',
-                                                        selector: '',
                                                         action: 'click',
                                                     },
                                                     {
                                                         text: 'Click Destroy to remove and clean up',
                                                         dataId: 'ff00000003',
-                                                        selector: '',
                                                         action: 'click',
                                                     },
                                                     {
                                                         text: 'Open Embed extension docs for more details',
                                                         dataId: 'ff00000011',
-                                                        selector: '',
                                                         action: 'navigate',
                                                     },
                                                 ],
@@ -131,7 +156,6 @@
                                                     {
                                                         text: 'Open contact email',
                                                         dataId: 'ff00000012',
-                                                        selector: '',
                                                         action: 'navigate',
                                                     },
                                                 ],

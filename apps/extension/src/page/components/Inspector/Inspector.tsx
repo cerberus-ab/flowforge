@@ -123,13 +123,18 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
     };
 
     return (
-        <div className="flowforge-inspector-container" onPointerDown={handleContainerPointerDown}>
+        <div
+            className="flowforge-inspector-container"
+            data-testid="flowforge-inspector-container"
+            onPointerDown={handleContainerPointerDown}
+        >
             <div
                 className="flowforge-inspector"
                 role="dialog"
                 aria-modal="false"
                 aria-labelledby="flowforge-inspector-title"
                 aria-describedby="flowforge-inspector-subtitle"
+                data-testid="flowforge-inspector"
             >
                 <div className="flowforge-inspector__header">
                     <div className="flowforge-inspector__header-main">
@@ -159,6 +164,7 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                         onChange={(id) => setActiveTab(id as InspectorTab['id'])}
                         getTabId={getTabId}
                         getPanelId={getPanelId}
+                        testIdPrefix="flowforge-inspector-tab"
                         autoFocus
                     />
                 </div>
@@ -167,6 +173,7 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                     className="flowforge-inspector__content"
                     role="tabpanel"
                     aria-labelledby={getTabId(activeTab)}
+                    data-testid="flowforge-inspector-panel"
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
                     {activeTab === 'structure' && (

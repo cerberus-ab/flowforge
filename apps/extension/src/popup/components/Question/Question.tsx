@@ -41,13 +41,14 @@ export function Question({
     };
     return (
         <Card title="Ask a question about this page">
-            <form class="flowforge-question-form" onSubmit={handleOnSubmit}>
+            <form class="flowforge-question-form" data-testid="flowforge-question-form" onSubmit={handleOnSubmit}>
                 <textarea
                     ref={textareaRef}
                     name="question"
                     className="flowforge-input-textarea"
                     placeholder={placeholder}
                     aria-label="Your question"
+                    data-testid="flowforge-question-input"
                     rows={4}
                     value={question}
                     onInput={handleOnInput}
@@ -55,7 +56,7 @@ export function Question({
                     readOnly={selectOnly}
                     disabled={disabled}
                 />
-                <Button type="submit" size="large" wide disabled={disabled}>
+                <Button type="submit" size="large" wide disabled={disabled} data-testid="flowforge-question-submit">
                     Ask anything
                 </Button>
             </form>

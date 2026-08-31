@@ -3,6 +3,8 @@
   --sandbox-color-text: #0f172a;
   --sandbox-color-text-on-dark: #e5e7eb;
   --sandbox-color-hover: #cbd5f5;
+  --sandbox-color-secondary: #f97316;
+  --sandbox-color-secondary-hover: #fb923c;
 
   --sandbox-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --sandbox-text-md: 400 14px / 1.4 var(--sandbox-font-family);
@@ -70,4 +72,11 @@ button:disabled {
 }
 button:not(:disabled):hover {
   background-color: var(--sandbox-color-hover);
+}
+.extension-targets button {
+  background-color: var(--sandbox-color-secondary);
+  color: var(--sandbox-color-text-on-dark);
+}
+.extension-targets button:not(:disabled):hover {
+  background-color: var(--sandbox-color-secondary-hover);
 }

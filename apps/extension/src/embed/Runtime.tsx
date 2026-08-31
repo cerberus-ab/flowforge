@@ -157,6 +157,7 @@ export class Runtime implements RuntimeApi {
 
         const doMount = () => {
             const shellRoot = rootInjector.inject(document, embedConstants.SHELL_ROOT_ID, { overlay: true });
+            shellRoot.host.dataset.testid = 'flowforge-shell-root';
             rootInjector.injectStyles(shellRoot, shellStyles);
             render(
                 <ShellApp
