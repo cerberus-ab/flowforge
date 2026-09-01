@@ -1,21 +1,7 @@
 {
-  "extends": ["@tsconfig/vite-react/tsconfig.json"],
-  "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["chrome", "vite/client"],
-    "jsxImportSource": "preact",
-
-    "resolveJsonModule": true,
-    "noImplicitOverride": true,
-    "noUncheckedIndexedAccess": true,
-
-    "paths": {
-      "@/config": ["./src/config.ts"],
-      "@/types": ["./src/core/types/index.ts"],
-      "@/constants": ["./src/core/constants.ts"],
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["src/**/*"],
-  "exclude": ["sandbox", "**/*.test.ts"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.test.json" }
+  ]
 }

@@ -7,6 +7,7 @@ export default defineConfig({
     testDir: './test/e2e',
     outputDir: './reports/e2e-tests/artifacts',
     fullyParallel: false,
+    workers: process.env.CI ? 1 : undefined,
     reporter: [
         ['list'],
         [
