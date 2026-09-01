@@ -14,6 +14,7 @@ function pathNode(element: ContainerPathNode['element'], distance = 0): Containe
 
 describe('semantic model enriched', () => {
     it('adds semantic text to every container tree node', () => {
+        // Given
         const container: ContainerTreeNode[] = [
             {
                 element: containerElement({
@@ -35,7 +36,11 @@ describe('semantic model enriched', () => {
             },
         ];
 
-        expect(semModelEnrichedStructure(container)).toMatchObject([
+        // When
+        const enriched = semModelEnrichedStructure(container);
+
+        // Then
+        expect(enriched).toMatchObject([
             {
                 element: { dataId: 'main', semanticText: 'Main content' },
                 nodes: [
@@ -48,6 +53,7 @@ describe('semantic model enriched', () => {
     });
 
     it('adds semantic text to container elements in content context paths', () => {
+        // Given
         const content = contentElement({
             context: {
                 path: [
@@ -64,13 +70,18 @@ describe('semantic model enriched', () => {
             },
         });
 
-        expect(semModelEnrichedContent([content])[0]!.context.path[0]!.element).toMatchObject({
+        // When
+        const [enriched] = semModelEnrichedContent([content]);
+
+        // Then
+        expect(enriched!.context.path[0]!.element).toMatchObject({
             dataId: 'article',
             semanticText: 'Article. Name: Release notes',
         });
     });
 
     it('adds semantic text to container elements in interactive context paths', () => {
+        // Given
         const interactive = interactiveElement({
             context: {
                 path: [
@@ -88,7 +99,11 @@ describe('semantic model enriched', () => {
             },
         });
 
-        expect(semModelEnrichedInteractive([interactive])[0]!.context.path[0]!.element).toMatchObject({
+        // When
+        const [enriched] = semModelEnrichedInteractive([interactive]);
+
+        // Then
+        expect(enriched!.context.path[0]!.element).toMatchObject({
             dataId: 'primary-nav',
             semanticText: 'Navigation. Name: Primary',
         });

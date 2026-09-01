@@ -25,6 +25,7 @@ afterEach(() => {
 
 describe('ContainerTree', () => {
     it('builds a nested container tree in DOM order', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main" aria-label="Dashboard">
                 <section id="overview" aria-label="Overview">
@@ -38,8 +39,10 @@ describe('ContainerTree', () => {
         markVisible('#feature', containerRect);
         markVisible('#nav', containerRect);
 
+        // When
         const tree = createTree();
 
+        // Then
         expect(toContainerNodeFixture(tree.nodes)).toEqual([
             containerNode(
                 containerElement({
@@ -87,6 +90,7 @@ describe('ContainerTree', () => {
     });
 
     it('attaches supported descendants through unsupported wrapper elements', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <div class="layout">
@@ -97,8 +101,10 @@ describe('ContainerTree', () => {
         markVisible('#main', containerRect);
         markVisible('#wrapped', containerRect);
 
+        // When
         const tree = createTree();
 
+        // Then
         expect(toContainerNodeFixture(tree.nodes)).toEqual([
             containerNode(
                 containerElement({
@@ -124,6 +130,7 @@ describe('ContainerTree', () => {
     });
 
     it('returns top-level nodes when the root is not a supported container', () => {
+        // Given
         document.body.innerHTML = `
             <div id="root">
                 <header id="header"></header>
@@ -133,8 +140,10 @@ describe('ContainerTree', () => {
         markVisible('#header', containerRect);
         markVisible('#main', containerRect);
 
+        // When
         const tree = createTree(document.querySelector('#root')!);
 
+        // Then
         expect(toContainerNodeFixture(tree.nodes)).toEqual([
             containerNode(
                 containerElement({
@@ -158,6 +167,7 @@ describe('ContainerTree', () => {
     });
 
     it('includes supported ARIA containers and skips unsupported roles', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <div id="announcements" role="region" aria-label="Announcements"></div>
@@ -170,8 +180,10 @@ describe('ContainerTree', () => {
         markVisible('#announcements', containerRect);
         markVisible('#toolbar', containerRect);
 
+        // When
         const tree = createTree();
 
+        // Then
         expect(toContainerNodeFixture(tree.nodes)[0]?.nodes).toEqual([
             containerNode(
                 containerElement({
@@ -197,6 +209,7 @@ describe('ContainerTree', () => {
     });
 
     it('builds from document body', () => {
+        // Given
         document.body.innerHTML = `
             <header id="header" aria-label="Site header"></header>
             <main id="main" aria-label="Content"></main>
@@ -204,8 +217,10 @@ describe('ContainerTree', () => {
         markVisible('#header', containerRect);
         markVisible('#main', containerRect);
 
+        // When
         const tree = ContainerTree.extractFor(window, document, createRegistry());
 
+        // Then
         expect(toContainerNodeFixture(tree.nodes)).toEqual([
             containerNode(
                 containerElement({
@@ -229,6 +244,7 @@ describe('ContainerTree', () => {
     });
 
     it('collects visible containers in DOM order with meaning scores', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <section id="section"></section>
@@ -239,8 +255,10 @@ describe('ContainerTree', () => {
         markVisible('#section', containerRect);
         markVisible('#nav', containerRect);
 
+        // When
         const tree = createTree();
 
+        // Then
         expect(tree.elements.map((el) => el.dataId)).toEqual(['main', 'section', 'nav']);
         tree.elements.forEach((el) => {
             expect(el).not.toHaveProperty('importanceScore');
@@ -250,6 +268,7 @@ describe('ContainerTree', () => {
     });
 
     it('adds target-specific relevance scores to container path nodes', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <form id="form" aria-label="Payment">
@@ -261,11 +280,14 @@ describe('ContainerTree', () => {
         markVisible('#form', containerRect);
 
         const tree = createTree();
+
+        // When
         const path = tree.getInteractiveTargetPath(document.querySelector('#button')!, {
             role: 'button',
             type: 'button',
         });
 
+        // Then
         expect(path.map((node) => node.element.dataId)).toEqual(['form', 'main']);
         path.forEach((node) => {
             expect(node.relevanceScore.value).toBeGreaterThanOrEqual(0);
@@ -276,6 +298,7 @@ describe('ContainerTree', () => {
     });
 
     it('builds a container node path from an element to the root in reverse order', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <div class="layout">
@@ -292,12 +315,16 @@ describe('ContainerTree', () => {
         markVisible('#article', containerRect);
 
         const tree = createTree();
+
+        // When
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
+        // Then
         expect(path.map((node) => node.element.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('keeps using the extracted container tree after finding the nearest path node', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <section id="section" aria-label="Section">
@@ -314,12 +341,15 @@ describe('ContainerTree', () => {
         const tree = createTree();
         document.querySelector('#main')!.append(document.querySelector('#article')!);
 
+        // When
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
+        // Then
         expect(path.map((node) => node.element.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('starts from the parent when building a path from an extracted container', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <section id="section"></section>
@@ -330,12 +360,15 @@ describe('ContainerTree', () => {
 
         const tree = createTree();
 
-        expect(getPathToRoot(tree, document.querySelector('#section')!).map((node) => node.element.dataId)).toEqual([
-            'main',
-        ]);
+        // When
+        const path = getPathToRoot(tree, document.querySelector('#section')!);
+
+        // Then
+        expect(path.map((node) => node.element.dataId)).toEqual(['main']);
     });
 
     it('returns an empty container node path for elements outside the tree root', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main"></main>
             <aside id="outside"></aside>
@@ -345,10 +378,15 @@ describe('ContainerTree', () => {
 
         const tree = createTree(document.querySelector('#main')!);
 
-        expect(getPathToRoot(tree, document.querySelector('#outside')!)).toEqual([]);
+        // When
+        const path = getPathToRoot(tree, document.querySelector('#outside')!);
+
+        // Then
+        expect(path).toEqual([]);
     });
 
     it('returns an empty container node path for the tree root itself', () => {
+        // Given
         document.body.innerHTML = `
             <main id="main">
                 <section id="section"></section>
@@ -359,7 +397,11 @@ describe('ContainerTree', () => {
         const root = document.querySelector('#main')!;
         const tree = createTree(root);
 
-        expect(getPathToRoot(tree, root)).toEqual([]);
+        // When
+        const path = getPathToRoot(tree, root);
+
+        // Then
+        expect(path).toEqual([]);
     });
 });
 

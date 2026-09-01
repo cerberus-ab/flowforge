@@ -6,6 +6,7 @@ import { semMarkdown } from './markdown';
 
 describe('semMarkdown', () => {
     it('generates a semantic markdown view for page basics, samples, content, and interactions', () => {
+        // Given
         const pageTrail = pageTrailFixture({
             structure: [containerNode('Main', 'main content', [containerNode('Tabs', 'navigation')])],
             content: [
@@ -39,7 +40,11 @@ describe('semMarkdown', () => {
             ],
         });
 
-        expect(semMarkdown(pageTrail)).toBe(`# Semantic view
+        // When
+        const markdown = semMarkdown(pageTrail);
+
+        // Then
+        expect(markdown).toBe(`# Semantic view
 
 ## Page
 
@@ -80,6 +85,7 @@ Text: Click Start to launch the extension.
     });
 
     it('uses empty markers for missing optional sections', () => {
+        // Given
         const pageTrail = pageTrailFixture({
             basics: {
                 ...pageTrailFixture().basics,
@@ -89,7 +95,11 @@ Text: Click Start to launch the extension.
             interactive: [],
         });
 
-        expect(semMarkdown(pageTrail)).toBe(`# Semantic view
+        // When
+        const markdown = semMarkdown(pageTrail);
+
+        // Then
+        expect(markdown).toBe(`# Semantic view
 
 ## Page
 

@@ -1,7 +1,7 @@
 import { useId } from 'preact/hooks';
-import type { ComponentChildren } from 'preact';
+import type { ComponentChildren, ComponentProps } from 'preact';
 
-interface CardProps {
+type CardProps = ComponentProps<'section'> & {
     title?: string;
     text?: string;
     variant?: 'primary' | 'secondary';
@@ -10,7 +10,7 @@ interface CardProps {
     error?: boolean;
     className?: string;
     children?: ComponentChildren;
-}
+};
 
 export function Card({
     title,
@@ -21,6 +21,7 @@ export function Card({
     error = false,
     className,
     children,
+    ...props
 }: CardProps) {
     const classNames = [
         'flowforge-card',
@@ -41,6 +42,7 @@ export function Card({
             data-state={error ? 'error' : undefined}
             aria-labelledby={titleId}
             role={error ? 'alert' : undefined}
+            {...props}
         >
             {title && (
                 <h3 id={titleId} className="flowforge-card__title">

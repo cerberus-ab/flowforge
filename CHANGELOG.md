@@ -7,6 +7,7 @@ All notable changes to the project will be documented in this file.
 ### Added
 
 - Added the `suggest_actions` tool to suggest top available actions on the page.
+- Added extension test coverage with unit tests, e2e tests, sandbox pages, and CI jobs.
 - Added pre-commit hook, next-feature SKILL.
 
 ## [0.2.0] - 2026-08-23

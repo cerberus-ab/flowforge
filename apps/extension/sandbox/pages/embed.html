@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FlowForge - Embed Runtime Sandbox</title>
+        <link rel="icon" href="/assets/img/icon-sandbox.png" type="image/png" />
+        <link rel="stylesheet" href="/assets/styles/main.css" type="text/css" />
+    </head>
+    <body>
+        <main>
+            <section id="controls">
+                <p><a href="/">Back to sandbox index</a></p>
+                <h1 data-testid="sandbox-heading">Explore Embed Runtime</h1>
+                <h2>The embed runtime starts automatically on this page</h2>
+                <p>
+                    Use this page to verify the normal embedded runtime against the configured backend. For stubbed
+                    responses and manual runtime controls, use the <a href="/demo">demo page</a>.
+                </p>
+                <div role="toolbar" data-role="cmd-bar" class="extension-targets">
+                    <button type="button" data-flowforge-id="ff20000001">Open account settings</button>
+                    <button type="button" data-flowforge-id="ff20000002">Review project status</button>
+                    <button type="button" data-flowforge-id="ff20000003">Invite a teammate</button>
+                </div>
+                <p>
+                    See
+                    <a href="./EMBED_EXTENSION.md" data-flowforge-id="ff20000011">Embed runtime docs</a>
+                    for more details.
+                </p>
+            </section>
+            <section id="readme">%SECTION_README%</section>
+            <section id="contacts">
+                <p>
+                    If anything, you may email
+                    <a href="mailto:flowforge@gmail.com">flowforge@gmail.com</a>
+                </p>
+            </section>
+        </main>
+        <script type="module" src="/extension/%FLOWFORGE_RUNTIME_JS%"></script>
+        <script type="module">
+            (async function main() {
+                try {
+                    const Runtime = await window.loadFlowForge();
+                    await Runtime.start({
+                        settings: {
+                            theme: 'dark',
+                        },
+                    });
+                } catch (err) {
+                    console.error('[Sandbox] Failed to start embed runtime:', err);
+                }
+            })();
+        </script>
+    </body>
+</html>

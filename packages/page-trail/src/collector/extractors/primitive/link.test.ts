@@ -4,9 +4,14 @@ import { getElementLink } from './link';
 
 describe('getElementLink', () => {
     it('classifies same-origin links as internal', () => {
+        // Given
         document.body.innerHTML = `<a href="/settings">Settings</a>`;
 
-        expect(getElementLink(document.querySelector('a')!)).toEqual({
+        // When
+        const link = getElementLink(document.querySelector('a')!);
+
+        // Then
+        expect(link).toEqual({
             type: 'internal',
             href: 'http://localhost:3000/settings',
         });

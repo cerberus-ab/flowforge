@@ -29,6 +29,7 @@ function PageAppRoot({ transport }: { transport: TransportService }) {
 
     const doMount = () => {
         const root = rootInjector.inject(document, chromeConstants.PAGE_ROOT_ID, { overlay: true });
+        root.host.dataset.testid = 'flowforge-chrome-page-root';
         rootInjector.injectStyles(root, styles);
         render(<PageAppRoot transport={transport} />, root.mountPoint);
         console.log('[FlowForge] Content script loaded');

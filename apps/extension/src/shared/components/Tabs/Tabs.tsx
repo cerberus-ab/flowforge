@@ -9,12 +9,13 @@ interface TabButtonProps {
     tab: TabItem;
     tabId: string;
     panelId?: string;
+    testId?: string;
     active: boolean;
     onSelect: () => void;
 }
 
 const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(function TabButton(
-    { tab, tabId, panelId, active, onSelect },
+    { tab, tabId, panelId, testId, active, onSelect },
     ref,
 ) {
     const classes = [
@@ -37,6 +38,7 @@ const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(function TabButt
             role="tab"
             aria-selected={active}
             aria-controls={panelId}
+            data-testid={testId}
             tabIndex={active ? 0 : -1}
             disabled={tab.disabled}
             onClick={onSelect}
@@ -73,9 +75,10 @@ export interface TabsProps {
     autoFocus?: boolean;
     getTabId?: (id: string) => string;
     getPanelId?: (id: string) => string;
+    testIdPrefix?: string;
 }
 
-export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, getPanelId }: TabsProps) {
+export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, getPanelId, testIdPrefix }: TabsProps) {
     const fallbackIdPrefix = `flowforge-tabs-${useId()}`;
     const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
     const activeIndex = tabs.findIndex((tab) => tab.id === activeId);
@@ -133,6 +136,7 @@ export function Tabs({ tabs, activeId, onChange, autoFocus = false, getTabId, ge
                         tab={tab}
                         tabId={resolveTabId(tab.id)}
                         panelId={getPanelId?.(tab.id)}
+                        testId={testIdPrefix ? `${testIdPrefix}-${tab.id}` : undefined}
                         active={isActive}
                         onSelect={() => onChange(tab.id)}
                     />

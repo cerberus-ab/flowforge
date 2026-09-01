@@ -65,7 +65,8 @@
 
 ### DX
 
-- Improve test coverage with unit, integration, Vitest, Playwright, and promptfoo tests.
+- Improve backend, integration, and promptfoo test coverage.
+- Isolate extension e2e build output from the normal `dist` directory.
 - Add development and production modes.
 - Use pnpm for package management instead of npm.
 - Add an agent run inspector for tool calls, intermediate reasoning state, retrieved context, and final output.

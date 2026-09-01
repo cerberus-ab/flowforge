@@ -4,6 +4,7 @@ import { getContainerElementLabels, getElementAttrAriaLabelledBy, getInteractive
 
 describe('getElementAttrAriaLabelledBy', () => {
     it('resolves referenced label text', () => {
+        // Given
         document.body.innerHTML = `
             <span id="first"> First </span>
             <span id="second"> second label </span>
@@ -12,18 +13,26 @@ describe('getElementAttrAriaLabelledBy', () => {
 
         const button = document.querySelector('button')!;
 
-        expect(getElementAttrAriaLabelledBy(button)).toBe('First second label');
+        // When
+        const label = getElementAttrAriaLabelledBy(button);
+
+        // Then
+        expect(label).toBe('First second label');
     });
 
     it('limits resolved referenced label text', () => {
+        // Given
         document.body.innerHTML = `
             <span id="label">${'Long label text '.repeat(20)}</span>
             <button aria-labelledby="label"></button>
         `;
 
         const button = document.querySelector('button')!;
+
+        // When
         const label = getElementAttrAriaLabelledBy(button);
 
+        // Then
         expect(label?.length).toBeLessThanOrEqual(120);
         expect(label).toBe(
             'Long label text Long label text Long label text Long label text Long label text Long label text Long label text Long',
@@ -37,6 +46,7 @@ describe('getElementAttrAriaLabelledBy', () => {
 
 describe('getContainerLabels', () => {
     it('returns labels in priority order', () => {
+        // Given
         document.body.innerHTML = `
             <span id="label">Visible label</span>
             <section
@@ -51,7 +61,11 @@ describe('getContainerLabels', () => {
 
         const section = document.querySelector('section')!;
 
-        expect(getContainerElementLabels(section)).toEqual([
+        // When
+        const labels = getContainerElementLabels(section);
+
+        // Then
+        expect(labels).toEqual([
             { value: 'Visible label', source: 'aria-labelledby' },
             { value: 'Container label', source: 'aria-label' },
             { value: 'Legend label', source: 'legend' },
@@ -61,15 +75,18 @@ describe('getContainerLabels', () => {
     });
 
     it('deduplicates values case-insensitively', () => {
+        // Given
         document.body.innerHTML = `
             <section aria-label="container label">
                 <h2>Container label</h2>
             </section>
         `;
 
-        expect(getContainerElementLabels(document.querySelector('section')!)).toEqual([
-            { value: 'container label', source: 'aria-label' },
-        ]);
+        // When
+        const labels = getContainerElementLabels(document.querySelector('section')!);
+
+        // Then
+        expect(labels).toEqual([{ value: 'container label', source: 'aria-label' }]);
     });
 
     it('returns an empty array when no labels are found', () => {
@@ -77,6 +94,7 @@ describe('getContainerLabels', () => {
     });
 
     it('returns lower-level and ARIA headings as subheading labels', () => {
+        // Given
         document.body.innerHTML = `
             <section id="native">
                 <h5>Native subheading</h5>
@@ -86,17 +104,19 @@ describe('getContainerLabels', () => {
             </section>
         `;
 
-        expect(getContainerElementLabels(document.querySelector('#native')!)).toEqual([
-            { value: 'Native subheading', source: 'subheading' },
-        ]);
-        expect(getContainerElementLabels(document.querySelector('#aria')!)).toEqual([
-            { value: 'ARIA subheading', source: 'subheading' },
-        ]);
+        // When
+        const nativeLabels = getContainerElementLabels(document.querySelector('#native')!);
+        const ariaLabels = getContainerElementLabels(document.querySelector('#aria')!);
+
+        // Then
+        expect(nativeLabels).toEqual([{ value: 'Native subheading', source: 'subheading' }]);
+        expect(ariaLabels).toEqual([{ value: 'ARIA subheading', source: 'subheading' }]);
     });
 });
 
 describe('getInteractiveElementLabels', () => {
     it('returns labels in priority order', () => {
+        // Given
         document.body.innerHTML = `
             <span id="label">Visible label</span>
             <label for="email">Email field</label>
@@ -112,7 +132,11 @@ describe('getInteractiveElementLabels', () => {
 
         const input = document.querySelector('input')!;
 
-        expect(getInteractiveElementLabels(input)).toEqual([
+        // When
+        const labels = getInteractiveElementLabels(input);
+
+        // Then
+        expect(labels).toEqual([
             { value: 'Visible label', source: 'aria-labelledby' },
             { value: 'Email', source: 'aria-label' },
             { value: 'Email field', source: 'label-for' },
@@ -122,6 +146,7 @@ describe('getInteractiveElementLabels', () => {
     });
 
     it('extracts wrapper labels and deduplicates values case-insensitively', () => {
+        // Given
         document.body.innerHTML = `
             <label>
                 Save
@@ -131,7 +156,11 @@ describe('getInteractiveElementLabels', () => {
 
         const button = document.querySelector('button')!;
 
-        expect(getInteractiveElementLabels(button)).toEqual([{ value: 'save', source: 'aria-label' }]);
+        // When
+        const labels = getInteractiveElementLabels(button);
+
+        // Then
+        expect(labels).toEqual([{ value: 'save', source: 'aria-label' }]);
     });
 
     it('returns an empty array when no labels are found', () => {
@@ -139,13 +168,17 @@ describe('getInteractiveElementLabels', () => {
     });
 
     it('limits long interactive label values', () => {
+        // Given
         document.body.innerHTML = `
             <button aria-label="${'Long button label '.repeat(20)}"></button>
         `;
 
         const button = document.querySelector('button')!;
+
+        // When
         const [label] = getInteractiveElementLabels(button);
 
+        // Then
         expect(label.source).toBe('aria-label');
         expect(label.value).toBe(
             'Long button label Long button label Long button label Long button label Long button label Long button label Long button',

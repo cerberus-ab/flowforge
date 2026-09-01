@@ -4,9 +4,14 @@ import { getInteractiveElementState } from './state';
 
 describe('getInteractiveElementState', () => {
     it('extracts native form states', () => {
+        // Given
         document.body.innerHTML = `<input type="checkbox" disabled readonly required checked />`;
 
-        expect(getInteractiveElementState(document.querySelector('input')!)).toEqual({
+        // When
+        const state = getInteractiveElementState(document.querySelector('input')!);
+
+        // Then
+        expect(state).toEqual({
             disabled: true,
             readonly: true,
             required: true,
@@ -15,18 +20,28 @@ describe('getInteractiveElementState', () => {
     });
 
     it('lets aria states override native states', () => {
+        // Given
         document.body.innerHTML = `<button disabled aria-disabled="false" aria-pressed="true"></button>`;
 
-        expect(getInteractiveElementState(document.querySelector('button')!)).toEqual({
+        // When
+        const state = getInteractiveElementState(document.querySelector('button')!);
+
+        // Then
+        expect(state).toEqual({
             disabled: false,
             pressed: true,
         });
     });
 
     it('extracts selected option state', () => {
+        // Given
         document.body.innerHTML = `<select><option selected>One</option></select>`;
 
-        expect(getInteractiveElementState(document.querySelector('option')!)).toEqual({
+        // When
+        const state = getInteractiveElementState(document.querySelector('option')!);
+
+        // Then
+        expect(state).toEqual({
             disabled: false,
             selected: true,
         });

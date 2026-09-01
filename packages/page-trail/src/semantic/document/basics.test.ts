@@ -6,37 +6,39 @@ import { semSampleStructure, semSampleHeadings, semSampleInteractions, semSample
 
 describe('semSampleHeadings', () => {
     it('formats headings sorted by importance and limited by headingsLimit', () => {
-        expect(
-            semSampleHeadings(
-                [
-                    contentElement({
-                        type: 'heading',
-                        tag: 'h2',
-                        text: 'Features',
-                        importanceScore: { value: 0.6 },
-                    }),
-                    contentElement({
-                        type: 'text',
-                        tag: 'p',
-                        text: 'Ignored body copy',
-                        importanceScore: { value: 1 },
-                    }),
-                    contentElement({
-                        type: 'heading',
-                        tag: 'h1',
-                        text: 'Welcome',
-                        importanceScore: { value: 0.9 },
-                    }),
-                    contentElement({
-                        type: 'heading',
-                        tag: 'h3',
-                        text: 'Details',
-                        importanceScore: { value: 0.4 },
-                    }),
-                ],
-                2,
-            ),
-        ).toEqual(['Heading h1: Welcome', 'Heading h2: Features']);
+        // Given
+        const content = [
+            contentElement({
+                type: 'heading',
+                tag: 'h2',
+                text: 'Features',
+                importanceScore: { value: 0.6 },
+            }),
+            contentElement({
+                type: 'text',
+                tag: 'p',
+                text: 'Ignored body copy',
+                importanceScore: { value: 1 },
+            }),
+            contentElement({
+                type: 'heading',
+                tag: 'h1',
+                text: 'Welcome',
+                importanceScore: { value: 0.9 },
+            }),
+            contentElement({
+                type: 'heading',
+                tag: 'h3',
+                text: 'Details',
+                importanceScore: { value: 0.4 },
+            }),
+        ];
+
+        // When
+        const headings = semSampleHeadings(content, 2);
+
+        // Then
+        expect(headings).toEqual(['Heading h1: Welcome', 'Heading h2: Features']);
     });
 
     it('returns an empty array when there are no headings', () => {
@@ -46,38 +48,39 @@ describe('semSampleHeadings', () => {
 
 describe('semSampleTexts', () => {
     it('formats text blocks sorted by importance and limited by limit', () => {
-        expect(
-            semSampleTexts(
-                [
-                    contentElement({
-                        type: 'text',
-                        tag: 'p',
-                        text: 'Secondary text block with enough length.',
-                        importanceScore: { value: 0.6 },
-                    }),
-                    contentElement({
-                        type: 'heading',
-                        tag: 'h1',
-                        text: 'Ignored heading with enough length',
-                        importanceScore: { value: 1 },
-                    }),
-                    contentElement({
-                        type: 'text',
-                        tag: 'p',
-                        text: 'Primary text block with enough length.',
-                        importanceScore: { value: 0.9 },
-                    }),
-                    contentElement({
-                        type: 'text',
-                        tag: 'p',
-                        text: 'Short',
-                        importanceScore: { value: 0.8 },
-                    }),
-                ],
-                20,
-                1,
-            ),
-        ).toEqual(['Text: Primary text block with enough length.']);
+        // Given
+        const content = [
+            contentElement({
+                type: 'text',
+                tag: 'p',
+                text: 'Secondary text block with enough length.',
+                importanceScore: { value: 0.6 },
+            }),
+            contentElement({
+                type: 'heading',
+                tag: 'h1',
+                text: 'Ignored heading with enough length',
+                importanceScore: { value: 1 },
+            }),
+            contentElement({
+                type: 'text',
+                tag: 'p',
+                text: 'Primary text block with enough length.',
+                importanceScore: { value: 0.9 },
+            }),
+            contentElement({
+                type: 'text',
+                tag: 'p',
+                text: 'Short',
+                importanceScore: { value: 0.8 },
+            }),
+        ];
+
+        // When
+        const texts = semSampleTexts(content, 20, 1);
+
+        // Then
+        expect(texts).toEqual(['Text: Primary text block with enough length.']);
     });
 
     it('returns an empty array when there are no long enough text blocks', () => {
@@ -87,37 +90,42 @@ describe('semSampleTexts', () => {
 
 describe('semSampleInteractions', () => {
     it('formats labeled or text interactions sorted by importance and limited by interactionsLimit', () => {
-        expect(
-            semSampleInteractions(
-                [
-                    interactiveElement({
-                        role: 'button',
-                        text: 'Start',
-                        importanceScore: { value: 0.6 },
-                    }),
-                    interactiveElement({
-                        role: 'link',
-                        type: 'link',
-                        text: 'Docs',
-                        importanceScore: { value: 0.9 },
-                    }),
-                    interactiveElement({
-                        role: 'button',
-                        text: undefined,
-                        labels: [],
-                        importanceScore: { value: 1 },
-                    }),
-                    interactiveElement({
-                        role: 'textbox',
-                        type: 'input',
-                        text: undefined,
-                        labels: [{ source: 'aria-label', value: 'Search' }],
-                        importanceScore: { value: 0.8 },
-                    }),
-                ],
-                2,
-            ),
-        ).toEqual(['Link. Name: Docs. Action: click action', 'Text input. Name: Search. Action: input text']);
+        // Given
+        const interactive = [
+            interactiveElement({
+                role: 'button',
+                text: 'Start',
+                importanceScore: { value: 0.6 },
+            }),
+            interactiveElement({
+                role: 'link',
+                type: 'link',
+                text: 'Docs',
+                importanceScore: { value: 0.9 },
+            }),
+            interactiveElement({
+                role: 'button',
+                text: undefined,
+                labels: [],
+                importanceScore: { value: 1 },
+            }),
+            interactiveElement({
+                role: 'textbox',
+                type: 'input',
+                text: undefined,
+                labels: [{ source: 'aria-label', value: 'Search' }],
+                importanceScore: { value: 0.8 },
+            }),
+        ];
+
+        // When
+        const interactions = semSampleInteractions(interactive, 2);
+
+        // Then
+        expect(interactions).toEqual([
+            'Link. Name: Docs. Action: click action',
+            'Text input. Name: Search. Action: input text',
+        ]);
     });
 
     it('returns an empty array when interactions have no labels or text', () => {
@@ -134,21 +142,22 @@ describe('semSampleInteractions', () => {
 
 describe('semSampleStructure', () => {
     it('formats sampled containers in tree order limited within each sibling list', () => {
-        expect(
-            semSampleStructure(
-                [
-                    containerNode('Sidebar', 0.4, 'sidebar'),
-                    containerNode('Main', 0.9, 'main content', [
-                        containerNode('Secondary', 0.5),
-                        containerNode('Primary', 0.8),
-                        containerNode('Ignored', 0.1),
-                    ]),
-                    containerNode('Footer', 0.2, 'footer'),
-                ],
-                2,
-                2,
-            ),
-        ).toEqual([
+        // Given
+        const structure = [
+            containerNode('Sidebar', 0.4, 'sidebar'),
+            containerNode('Main', 0.9, 'main content', [
+                containerNode('Secondary', 0.5),
+                containerNode('Primary', 0.8),
+                containerNode('Ignored', 0.1),
+            ]),
+            containerNode('Footer', 0.2, 'footer'),
+        ];
+
+        // When
+        const sample = semSampleStructure(structure, 2, 2);
+
+        // Then
+        expect(sample).toEqual([
             { depth: 0, text: 'Sidebar. Name: Sidebar' },
             { depth: 0, text: 'Main content. Name: Main' },
             { depth: 1, text: 'Section. Name: Secondary' },

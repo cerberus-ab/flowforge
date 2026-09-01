@@ -81,7 +81,6 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
             if (e.key === 'Escape') {
                 e.preventDefault();
                 handleFinish();
-                close();
                 return;
             }
         };
@@ -120,6 +119,7 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
             aria-labelledby="flowforge-wizard-title"
             aria-roledescription="draggable panel"
             role="region"
+            data-testid="flowforge-wizard"
             style={{
                 right: `${position.right}px`,
                 bottom: `${position.bottom}px`,
@@ -133,7 +133,9 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
             <p className="flowforge-wizard__text">{description}</p>
 
             <div className="flowforge-wizard-controls">
-                <h4 className="flowforge-wizard-controls__title">{wizardStatus}</h4>
+                <h4 className="flowforge-wizard-controls__title" data-testid="flowforge-wizard-status">
+                    {wizardStatus}
+                </h4>
 
                 <div
                     className={`flowforge-wizard-controls-list ${
@@ -144,20 +146,30 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
                 >
                     {isStartScreen ? (
                         <>
-                            <Button onClick={handleStart}>Start onboarding</Button>
-                            <Button variant="secondary" onClick={handleFinish}>
+                            <Button data-testid="flowforge-wizard-start" onClick={handleStart}>
+                                Start onboarding
+                            </Button>
+                            <Button variant="secondary" data-testid="flowforge-wizard-finish" onClick={handleFinish}>
                                 Finish
                             </Button>
                         </>
                     ) : (
                         <>
-                            <Button onClick={handlePrev} disabled={currentStep <= 1}>
+                            <Button
+                                data-testid="flowforge-wizard-prev"
+                                onClick={handlePrev}
+                                disabled={currentStep <= 1}
+                            >
                                 Previous
                             </Button>
-                            <Button onClick={handleNext} disabled={currentStep >= steps.length}>
+                            <Button
+                                data-testid="flowforge-wizard-next"
+                                onClick={handleNext}
+                                disabled={currentStep >= steps.length}
+                            >
                                 Next
                             </Button>
-                            <Button variant="secondary" onClick={handleFinish}>
+                            <Button variant="secondary" data-testid="flowforge-wizard-finish" onClick={handleFinish}>
                                 Finish
                             </Button>
                         </>

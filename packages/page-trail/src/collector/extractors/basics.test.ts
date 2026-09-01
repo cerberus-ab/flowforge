@@ -9,12 +9,17 @@ afterEach(() => {
 
 describe('extractPageBasics', () => {
     it('extracts normalized page metadata and viewport data', () => {
+        // Given
         document.documentElement.lang = ' en ';
         document.head.innerHTML = `<meta name="description" content=" Page   description " />`;
         document.title = ' Test   page ';
         setViewport({ width: 1024, height: 768, scrollY: 100, scrollHeight: 2000 });
 
-        expect(extractPageBasics(window, document)).toEqual({
+        // When
+        const basics = extractPageBasics(window, document);
+
+        // Then
+        expect(basics).toEqual({
             url: 'http://localhost:3000/',
             title: 'Test page',
             description: 'Page description',

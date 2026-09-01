@@ -112,6 +112,7 @@ export function Highlight({ el, element, stepIndex, duration, remove }: Highligh
         <div
             className={overlayClasses}
             aria-hidden="true"
+            data-testid="flowforge-highlight"
             style={{
                 top: `${position.top}px`,
                 left: `${position.left}px`,
@@ -120,7 +121,7 @@ export function Highlight({ el, element, stepIndex, duration, remove }: Highligh
             }}
         >
             <div className="flowforge-highlight__glow" />
-            <div className="flowforge-highlight__ring" />
+            <div className="flowforge-highlight__ring" data-testid="flowforge-highlight-ring" />
 
             {element.text && (
                 <div
@@ -133,6 +134,7 @@ export function Highlight({ el, element, stepIndex, duration, remove }: Highligh
                     ]
                         .filter(Boolean)
                         .join(' ')}
+                    data-testid="flowforge-highlight-label"
                     style={{
                         maxWidth: labelLayout ? `${labelLayout.maxWidth}px` : undefined,
                         top: labelLayout ? `${labelLayout.top}px` : undefined,

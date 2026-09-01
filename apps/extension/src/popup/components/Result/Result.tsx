@@ -11,11 +11,11 @@ interface ResultProps {
 
 export function Result({ result, resultMetadata, error, onNavigateToElement }: ResultProps) {
     if (error) {
-        return <Card title="Couldn't" text={error} direction="left" error></Card>;
+        return <Card title="Couldn't" text={error} direction="left" error data-testid="flowforge-result-error"></Card>;
     }
     if (result) {
         return (
-            <Card title="Figured out" text={result.answer} direction="left">
+            <Card title="Figured out" text={result.answer} direction="left" data-testid="flowforge-result">
                 {result.elements.length > 0 && (
                     <ResultElements
                         elements={result.elements}

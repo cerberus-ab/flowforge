@@ -3,89 +3,15 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>FlowForge — Extension Sandbox</title>
-        <link rel="icon" href="/assets/icon-sandbox.png" type="image/png" />
-        <style>
-            :root {
-                --sandbox-color-bg: #f1f5f9;
-                --sandbox-color-text: #0f172a;
-                --sandbox-color-text-on-dark: #e5e7eb;
-                --sandbox-color-hover: #cbd5f5;
-
-                --sandbox-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                --sandbox-text-md: 400 14px / 1.4 var(--sandbox-font-family);
-                --sandbox-text-h1: 600 18px / 1.2 var(--sandbox-font-family);
-                --sandbox-text-h2: 600 14px / 1.4 var(--sandbox-font-family);
-            }
-            * {
-                box-sizing: border-box;
-            }
-            body {
-                margin: 0;
-                font: var(--sandbox-text-md);
-                background: var(--sandbox-color-bg);
-                color: var(--sandbox-color-text);
-            }
-            section {
-                max-width: 960px;
-                margin: 0 auto;
-                padding: 24px;
-            }
-            section:first-child {
-                padding-top: 48px;
-            }
-            section:last-child {
-                padding-bottom: 80px;
-            }
-            section:not(:last-child) {
-                border-bottom: 1px solid var(--sandbox-color-hover);
-            }
-            section h1 {
-                font: var(--sandbox-text-h1);
-            }
-            section h2 {
-                font: var(--sandbox-text-h2);
-            }
-
-            section pre {
-                background: var(--sandbox-color-text);
-                color: var(--sandbox-color-text-on-dark);
-                padding: 16px;
-                border-radius: 8px;
-                overflow: auto;
-            }
-            section pre code {
-                background: transparent;
-                color: inherit;
-                padding: 0;
-                border-radius: 0;
-            }
-            section :not(pre) > code {
-                background: var(--sandbox-color-hover);
-                padding: 2px 6px;
-                border-radius: 4px;
-            }
-            div[role='toolbar'] {
-                display: flex;
-                gap: 8px;
-            }
-            button {
-                padding: 4px 12px;
-                cursor: pointer;
-            }
-            button:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-            button:not(:disabled):hover {
-                background-color: var(--sandbox-color-hover);
-            }
-        </style>
+        <title>FlowForge - Embed Demo Sandbox</title>
+        <link rel="icon" href="/assets/img/icon-sandbox.png" type="image/png" />
+        <link rel="stylesheet" href="/assets/styles/main.css" type="text/css" />
     </head>
     <body>
-        <div>
+        <main>
             <section id="controls">
-                <h1>Explore Embed</h1>
+                <p><a href="/">Back to sandbox index</a></p>
+                <h1 data-testid="sandbox-heading">Explore Embed Demo</h1>
                 <h2>Manage the Runtime on the page</h2>
                 <ul>
                     <li>Click <strong>Start</strong> to launch the extension with a real backend,</li>
@@ -101,12 +27,41 @@
                     </li>
                 </ul>
                 <div role="toolbar" data-role="cmd-bar">
-                    <button type="button" data-role="cmd" data-cmd="start" data-flowforge-id="ff00000001">Start</button>
-                    <button type="button" data-role="cmd" data-cmd="demo" data-flowforge-id="ff00000002">Demo</button>
-                    <button type="button" data-role="cmd" data-cmd="destroy" disabled data-flowforge-id="ff00000003">
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="start"
+                        data-testid="sandbox-start"
+                        data-flowforge-id="ff00000001"
+                    >
+                        Start
+                    </button>
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="demo"
+                        data-testid="sandbox-demo"
+                        data-flowforge-id="ff00000002"
+                    >
+                        Demo
+                    </button>
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="destroy"
+                        data-testid="sandbox-destroy"
+                        disabled
+                        data-flowforge-id="ff00000003"
+                    >
                         Destroy
                     </button>
-                    <button type="button" data-role="cmd" data-cmd="inspector" data-flowforge-id="ff00000004">
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="inspector"
+                        data-testid="sandbox-inspector"
+                        data-flowforge-id="ff00000004"
+                    >
                         Inspector
                     </button>
                 </div>
@@ -122,7 +77,8 @@
                     <a href="mailto:flowforge@gmail.com" data-flowforge-id="ff00000012">flowforge@gmail.com</a>
                 </p>
             </section>
-        </div>
+        </main>
+        <script type="module" src="/extension/%FLOWFORGE_RUNTIME_JS%"></script>
         <script type="module">
             (function main() {
                 const bar = document.querySelector('[data-role="cmd-bar"]');
@@ -170,25 +126,21 @@
                                                     {
                                                         text: 'Click Start to run with real backend',
                                                         dataId: 'ff00000001',
-                                                        selector: '',
                                                         action: 'click',
                                                     },
                                                     {
                                                         text: 'Click Demo to run with mock data',
                                                         dataId: 'ff00000002',
-                                                        selector: '',
                                                         action: 'click',
                                                     },
                                                     {
                                                         text: 'Click Destroy to remove and clean up',
                                                         dataId: 'ff00000003',
-                                                        selector: '',
                                                         action: 'click',
                                                     },
                                                     {
                                                         text: 'Open Embed extension docs for more details',
                                                         dataId: 'ff00000011',
-                                                        selector: '',
                                                         action: 'navigate',
                                                     },
                                                 ],
@@ -204,7 +156,6 @@
                                                     {
                                                         text: 'Open contact email',
                                                         dataId: 'ff00000012',
-                                                        selector: '',
                                                         action: 'navigate',
                                                     },
                                                 ],
@@ -249,6 +200,5 @@
                 }
             })();
         </script>
-        <script type="module" src="/extension/%FLOWFORGE_RUNTIME_JS%"></script>
     </body>
 </html>

@@ -22,6 +22,7 @@ export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ size = 'me
             aria-haspopup="dialog"
             aria-expanded={isOpen}
             aria-controls="flowforge-popup"
+            data-testid="flowforge-trigger"
             onClick={onToggle}
         >
             ✦ FlowForge
