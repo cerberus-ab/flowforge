@@ -3,14 +3,14 @@ import { Card } from '@/shared/components/Card';
 import { Button } from '@/shared/components/Button';
 import { Tooltip } from '@/shared/components/Tooltip';
 
-interface UnderstandingProps {
+interface AdvancedProps {
     onOpenPageInspector: (tab?: string) => void;
 }
 
-export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
+export function Advanced({ onOpenPageInspector }: AdvancedProps) {
     return (
-        <Card title="Understanding" variant="secondary" className="flowforge-understanding-container" twinkle>
-            <div className="flowforge-understanding-list">
+        <Card title="Advanced" variant="secondary" className="flowforge-advanced-container" twinkle>
+            <div className="flowforge-advanced-list">
                 <ul>
                     <li key={'inspect-basics'}>
                         <Tooltip content="See what FlowForge understands about this page." variant="secondary">
@@ -36,7 +36,7 @@ export function Understanding({ onOpenPageInspector }: UnderstandingProps) {
                                 data-testid="flowforge-open-markdown-inspector"
                                 onClick={() => onOpenPageInspector('markdown')}
                             >
-                                .md
+                                Markdown
                             </Button>
                         </Tooltip>
                     </li>
