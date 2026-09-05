@@ -6,7 +6,7 @@ import { Question } from './components/Question';
 import { Loading } from './components/Loading';
 import { Result } from './components/Result';
 import { Examples } from './components/Examples';
-import { Understanding } from '@/popup/components/Understanding';
+import { Advanced } from '@/popup/components/Advanced';
 import { ButtonText } from '@/shared/components/Button';
 import { Link } from '@/shared/components/Link';
 import { Notice } from '@/shared/components/Notice';
@@ -78,8 +78,8 @@ export function PopupApp({
 
     // Handle open page inspector and close popup
     const handleOpenPageInspector = useCallback(
-        (tab?: string) => {
-            openPageInspector(tab);
+        async (tab?: string) => {
+            await openPageInspector(tab);
             onClose?.();
         },
         [openPageInspector, onClose],
@@ -140,7 +140,7 @@ export function PopupApp({
 
                 <Examples examples={examples} onExampleQuestionSelect={handleApplyExampleQuestion} />
 
-                <Understanding onOpenPageInspector={handleOpenPageInspector}></Understanding>
+                <Advanced onOpenPageInspector={handleOpenPageInspector}></Advanced>
 
                 <footer className="flowforge-popup__footer">
                     <div className="flowforge-popup__copyright">{copyright}</div>

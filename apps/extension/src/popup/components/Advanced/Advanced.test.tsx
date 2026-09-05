@@ -1,17 +1,17 @@
 import { fireEvent, render, screen } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
-import { Understanding } from './Understanding';
+import { Advanced } from './Advanced.tsx';
 
-describe('Understanding', () => {
+describe('Advanced', () => {
     it('opens inspector tabs from its actions', () => {
         // Given
         const onOpenPageInspector = vi.fn();
 
         // When
-        render(<Understanding onOpenPageInspector={onOpenPageInspector} />);
+        render(<Advanced onOpenPageInspector={onOpenPageInspector} />);
         fireEvent.click(screen.getByRole('button', { name: 'Inspect page context' }));
-        fireEvent.click(screen.getByRole('button', { name: '.md' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Markdown' }));
 
         // Then
         expect(onOpenPageInspector).toHaveBeenCalledWith('basics');

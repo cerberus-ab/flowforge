@@ -9,6 +9,12 @@ All notable changes to the project will be documented in this file.
 - Added the `suggest_actions` tool to suggest top available actions on the page.
 - Added extension test coverage with unit tests, e2e tests, sandbox pages, and CI jobs.
 - Added pre-commit hook, next-feature SKILL.
+- Added PageTrail scoring documentation with diagrams and scoring flow details.
+
+### Changed
+
+- Automatic highlighting only for a single direct matched element.
+- Renamed the popup `Understanding` section to `Advanced`.
 
 ## [0.2.0] - 2026-08-23
 

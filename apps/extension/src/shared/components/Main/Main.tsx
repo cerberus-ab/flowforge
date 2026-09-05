@@ -8,7 +8,7 @@ interface MainProps {
 
 export function Main({ theme = 'light', children }: MainProps) {
     return (
-        <div className={`flowforge-main`} data-theme={theme}>
+        <div className="flowforge-main" data-theme={theme}>
             {children}
         </div>
     );

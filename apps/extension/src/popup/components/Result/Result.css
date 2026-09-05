@@ -12,7 +12,7 @@
 .flowforge-elements-list {
   display: flex;
   flex-direction: column;
-  gap: var(--flowforge-pad-sm);
+  gap: var(--flowforge-pad-xs);
 }
 .flowforge-element-item {
   display: block;

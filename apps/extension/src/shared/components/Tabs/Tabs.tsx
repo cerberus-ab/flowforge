@@ -4,6 +4,7 @@ import { useEffect, useId, useRef } from 'preact/hooks';
 import type { LucideIcon } from 'lucide-preact';
 import { Button } from '@/shared/components/Button';
 import { Tooltip } from '@/shared/components/Tooltip';
+import { cx } from '@/shared/utils/cx';
 
 interface TabButtonProps {
     tab: TabItem;
@@ -18,13 +19,11 @@ const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(function TabButt
     { tab, tabId, panelId, testId, active, onSelect },
     ref,
 ) {
-    const classes = [
+    const classes = cx(
         'flowforge-tabs__tab',
         active && 'flowforge-tabs__tab--active',
         tab.disabled && 'flowforge-tabs__tab--disabled',
-    ]
-        .filter(Boolean)
-        .join(' ');
+    );
 
     const button = (
         <Button

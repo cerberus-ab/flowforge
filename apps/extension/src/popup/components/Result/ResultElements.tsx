@@ -1,4 +1,5 @@
 import type { AgentResultElement, AgentResultMode } from '@flowforge/contract';
+import { cx } from '@/shared/utils/cx';
 
 interface ResultElementsProps {
     elements: AgentResultElement[];
@@ -12,11 +13,7 @@ export function ResultElements({ elements, mode, onNavigateToElement }: ResultEl
     return (
         <div className="flowforge-elements" data-testid="flowforge-result-elements">
             <h4 className="flowforge-elements__title">{isSteps ? 'Walkthrough' : 'Relevant findings'}</h4>
-            <div
-                className={
-                    isSteps ? 'flowforge-elements-list flowforge-elements-list--steps' : 'flowforge-elements-list'
-                }
-            >
+            <div className={cx('flowforge-elements-list', isSteps && 'flowforge-elements-list--steps')}>
                 {elements.map((element, i) =>
                     !isSteps ? (
                         <button

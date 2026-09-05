@@ -2,8 +2,8 @@
 
 Architecture source of truth:
 
-- `docs/ARCHITECTURE.md`
-- `docs/DOM-TO-RAG-PIPELINE.md`
+- `docs/architecture.md`
+- `docs/dom-to-rag-pipeline.md`
 
 Read these docs before architectural or DOM-to-RAG pipeline changes.
 

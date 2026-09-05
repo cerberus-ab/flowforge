@@ -81,7 +81,7 @@ test('answers a question through the configured backend', async ({ page }) => {
     await expect(page.getByTestId('flowforge-result')).toContainText('Direct backend response');
 });
 
-test('highlights a direct result element from the popup', async ({ page }) => {
+test('auto-highlights a single direct result element from the backend', async ({ page }) => {
     // Given
     await mockQuery(
         page,
@@ -106,6 +106,49 @@ test('highlights a direct result element from the popup', async ({ page }) => {
     // When
     await page.getByTestId('flowforge-question-input').fill('Where are the docs?');
     await page.getByTestId('flowforge-question-submit').click();
+
+    // Then
+    await expect(page.getByTestId('flowforge-result')).toContainText('Direct backend response');
+    await expect(page.getByTestId('flowforge-highlight-label')).toContainText(directTarget.text);
+    await expectHighlightToCoverTarget(
+        page.getByTestId('flowforge-highlight'),
+        page.locator(`[data-flowforge-id="${directTarget.dataId}"]`),
+    );
+});
+
+test('waits for popup selection before highlighting multiple direct result elements', async ({ page }) => {
+    // Given
+    await mockQuery(
+        page,
+        createQueryResponseFixture({
+            result: {
+                answer: 'Direct backend response',
+                elements: [
+                    {
+                        text: directTarget.text,
+                        dataId: directTarget.dataId,
+                        action: 'navigate',
+                    },
+                    {
+                        text: wizardSteps[0]!.text,
+                        dataId: wizardSteps[0]!.dataId,
+                        action: 'click',
+                    },
+                ],
+                mode: 'direct',
+                topic: null,
+            },
+        }),
+    );
+    await page.goto('/embed');
+    await page.getByTestId('flowforge-trigger').click();
+
+    // When
+    await page.getByTestId('flowforge-question-input').fill('Where are the docs?');
+    await page.getByTestId('flowforge-question-submit').click();
+    await expect(page.getByTestId('flowforge-result')).toContainText('Direct backend response');
+    await expect(page.getByTestId('flowforge-highlight')).toHaveCount(0);
+
     await page.getByTestId(`flowforge-result-element-${directTarget.dataId}`).click();
 
     // Then

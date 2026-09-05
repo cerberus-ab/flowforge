@@ -2,6 +2,7 @@ import type { ComponentProps } from 'preact';
 import { forwardRef } from 'preact/compat';
 import type { LucideIcon } from 'lucide-preact';
 import { Icon } from '@/shared/components/Icon';
+import { cx } from '@/shared/utils/cx';
 
 type ButtonOwnProps = {
     size?: 'small' | 'medium' | 'large';
@@ -28,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     },
     ref,
 ) {
-    const classes = [
+    const classes = cx(
         'flowforge-button',
         size === 'small' && 'flowforge-button--sm',
         size === 'large' && 'flowforge-button--lg',
@@ -36,10 +37,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         icon && iconPosition === 'end' && 'flowforge-button--icon-end',
         wide && 'flowforge-button--wide',
         hollow ? 'flowforge-button--hollow' : 'flowforge-button--solid',
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+        typeof className === 'string' ? className : undefined,
+    );
 
     return (
         <button type="button" ref={ref} className={classes} {...props}>

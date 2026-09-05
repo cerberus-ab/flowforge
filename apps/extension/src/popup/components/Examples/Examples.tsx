@@ -1,5 +1,6 @@
 import type { PopupExampleItem } from '@/popup/utils/data';
 import { Card } from '@/shared/components/Card';
+import { cx } from '@/shared/utils/cx';
 
 interface ExamplesProps {
     examples: PopupExampleItem[];
@@ -18,9 +19,10 @@ export function Examples({ examples, onExampleQuestionSelect }: ExamplesProps) {
                         <li key={index}>
                             <button
                                 type="button"
-                                className={`flowforge-example-chip flowforge-example-chip--${
-                                    example.type === 'default' ? 'primary' : 'secondary'
-                                }`}
+                                className={cx(
+                                    'flowforge-example-chip',
+                                    `flowforge-example-chip--${example.type === 'default' ? 'primary' : 'secondary'}`,
+                                )}
                                 data-testid={`flowforge-example-${index}`}
                                 onClick={() => onExampleQuestionSelect(example.question)}
                             >

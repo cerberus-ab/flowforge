@@ -96,7 +96,7 @@ describe('usePage', () => {
         });
     });
 
-    it('starts direct onboarding by highlighting the first element', async () => {
+    it('starts direct onboarding by highlighting a single element', async () => {
         // Given
         addTargetButton(targetElement);
         const { transport } = renderPage();
@@ -115,6 +115,31 @@ describe('usePage', () => {
         // Then
         await waitFor(() => {
             expect(screen.getByTestId('highlight-text').textContent).toBe('Settings');
+            expect(screen.getByTestId('highlight-count').textContent).toBe('1');
+            expect(screen.getByTestId('wizard-title').textContent).toBe('');
+        });
+    });
+
+    it('does not auto-highlight direct onboarding with multiple elements', async () => {
+        // Given
+        addTargetButton(targetElement);
+        addTargetButton(secondaryElement);
+        const { transport } = renderPage();
+
+        // When
+        await transport.dispatchToBackground({
+            type: 'START_ONBOARDING',
+            data: {
+                title: 'Choose a settings area',
+                description: 'Use one of the highlighted results.',
+                mode: 'direct',
+                elements: [targetElement, secondaryElement],
+            },
+        });
+
+        // Then
+        await waitFor(() => {
+            expect(screen.getByTestId('highlight-count').textContent).toBe('0');
             expect(screen.getByTestId('wizard-title').textContent).toBe('');
         });
     });

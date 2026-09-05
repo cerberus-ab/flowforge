@@ -9,8 +9,6 @@ For more information about the canonical DOM snapshot format, see
 
 ![Pipeline schema](assets/dom-rag-pipeline.webp)
 
----
-
 ## Stages
 
 ### 1. Extraction to structure representation
@@ -31,7 +29,8 @@ Elements include:
 - Embedded layout and context, including section and ancestor path
 - Stable `dataId` and optional CSS selector for browser-side lookup
 
-Each element is assigned an importance score. This layer defines _what exists on the page and how it is structured_.
+PageTrail assigns query-agnostic scoring signals for target selection; see [`PageTrail Scoring`](../packages/page-trail/docs/scoring.md) for details.
+This layer defines _what exists on the page and how it is structured_.
 
 ### 2. Transforming to semantic representation
 
@@ -77,7 +76,7 @@ score = semanticScore * weight + importanceScore * weight
 Where:
 
 - `semanticScore` reflects how well the document matches the query
-- `importanceScore` reflects UI relevance such as visibility, role, position, and interaction potential
+- `importanceScore` carries the query-agnostic PageTrail target selection signal
 
 Lookup, answer, and action-oriented tools use different weights.
 

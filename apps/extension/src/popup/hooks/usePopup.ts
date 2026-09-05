@@ -36,7 +36,7 @@ export interface PopupViewModel {
     askQuestion: () => Promise<void>;
     applyExampleQuestion: (question: string) => void;
     navigateToElement: (element: AgentResultElement) => void;
-    openPageInspector: (tab?: string) => void;
+    openPageInspector: (tab?: string) => Promise<void>;
 }
 
 export function usePopup({ transport, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {

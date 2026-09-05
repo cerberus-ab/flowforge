@@ -1,5 +1,6 @@
 import { useId } from 'preact/hooks';
 import type { ComponentChildren, ComponentProps } from 'preact';
+import { cx } from '@/shared/utils/cx';
 
 type CardProps = ComponentProps<'section'> & {
     title?: string;
@@ -23,16 +24,14 @@ export function Card({
     children,
     ...props
 }: CardProps) {
-    const classNames = [
+    const classNames = cx(
         'flowforge-card',
         `flowforge-card--${variant}`,
         direction !== 'none' && `flowforge-card--${direction}`,
         twinkle && 'flowforge-stared-twinkle',
         twinkle && `flowforge-stared-twinkle--${variant}`,
         className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+    );
 
     const titleId = title ? `flowforge-card-title-${useId()}` : undefined;
 

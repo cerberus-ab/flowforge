@@ -1,5 +1,6 @@
 import type { Ref } from 'preact';
 import { forwardRef } from 'preact/compat';
+import { cx } from '@/shared/utils/cx';
 
 export type TriggerSize = 'medium' | 'large';
 
@@ -11,7 +12,7 @@ interface TriggerProps {
 }
 
 export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ size = 'medium', isOpen, onToggle }, ref) => {
-    const classes = ['flowforge-trigger', size === 'large' && 'flowforge-trigger--lg'].filter(Boolean).join(' ');
+    const classes = cx('flowforge-trigger', size === 'large' && 'flowforge-trigger--lg');
 
     return (
         <button
