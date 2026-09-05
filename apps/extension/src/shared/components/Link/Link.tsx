@@ -1,4 +1,5 @@
 import type { ComponentChildren } from 'preact';
+import { cx } from '@/shared/utils/cx';
 
 interface LinkProps {
     href: string;
@@ -8,7 +9,7 @@ interface LinkProps {
 }
 
 export function Link({ href, variant = 'primary', disabled = false, children }: LinkProps) {
-    const className = ['flowforge-link', `flowforge-link--${variant}`].join(' ');
+    const className = cx('flowforge-link', `flowforge-link--${variant}`);
 
     return (
         <a

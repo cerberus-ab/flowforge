@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'preac
 import { calcLabelLayout, calcElementPosition, isNewPosition, isNewLabelLayout } from '@/page/utils/position';
 import type { HighlightViewModel } from '@/page/hooks/usePage';
 import { constants } from '@/constants';
+import { cx } from '@/shared/utils/cx';
 
 export function Highlight({ el, element, stepIndex, duration, remove }: HighlightViewModel) {
     const [isVisible, setIsVisible] = useState(false);
@@ -100,13 +101,11 @@ export function Highlight({ el, element, stepIndex, duration, remove }: Highligh
 
     if (!position) return null;
 
-    const overlayClasses = [
+    const overlayClasses = cx(
         'flowforge-highlight',
-        isVisible && !isHiding ? 'flowforge-highlight--visible' : null,
-        isHiding ? 'flowforge-highlight--hiding' : null,
-    ]
-        .filter(Boolean)
-        .join(' ');
+        isVisible && !isHiding && 'flowforge-highlight--visible',
+        isHiding && 'flowforge-highlight--hiding',
+    );
 
     return (
         <div
@@ -126,14 +125,12 @@ export function Highlight({ el, element, stepIndex, duration, remove }: Highligh
             {element.text && (
                 <div
                     ref={labelRef}
-                    className={[
+                    className={cx(
                         'flowforge-highlight__label',
-                        labelLayout?.placement === 'top' ? 'flowforge-highlight__label--top' : null,
-                        labelLayout?.placement === 'bottom' ? 'flowforge-highlight__label--bottom' : null,
+                        labelLayout?.placement === 'top' && 'flowforge-highlight__label--top',
+                        labelLayout?.placement === 'bottom' && 'flowforge-highlight__label--bottom',
                         'flowforge-stared-twinkle',
-                    ]
-                        .filter(Boolean)
-                        .join(' ')}
+                    )}
                     data-testid="flowforge-highlight-label"
                     style={{
                         maxWidth: labelLayout ? `${labelLayout.maxWidth}px` : undefined,

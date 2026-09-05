@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { WizardViewModel } from '@/page/hooks/usePage';
 import { getEventTarget } from '@/core/utils/dom';
 import { Button } from '@/shared/components/Button';
+import { cx } from '@/shared/utils/cx';
 
 interface DragState {
     startX: number;
@@ -115,7 +116,7 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
     return (
         <div
             ref={wizardRef}
-            className={`flowforge-wizard ${isDragging ? 'flowforge-wizard--dragging' : ''}`}
+            className={cx('flowforge-wizard', isDragging && 'flowforge-wizard--dragging')}
             aria-labelledby="flowforge-wizard-title"
             aria-roledescription="draggable panel"
             role="region"
@@ -138,11 +139,10 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
                 </h4>
 
                 <div
-                    className={`flowforge-wizard-controls-list ${
-                        isStartScreen
-                            ? 'flowforge-wizard-controls-list--start'
-                            : 'flowforge-wizard-controls-list--steps'
-                    }`}
+                    className={cx(
+                        'flowforge-wizard-controls-list',
+                        `flowforge-wizard-controls-list--${isStartScreen ? 'start' : 'steps'}`,
+                    )}
                 >
                     {isStartScreen ? (
                         <>

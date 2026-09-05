@@ -1,3 +1,5 @@
+import { cx } from '@/shared/utils/cx';
+
 type JsonObject = Record<string, unknown>;
 
 interface JsonViewerProps {
@@ -79,7 +81,7 @@ function JsonPrimitive({ value }: JsonPrimitiveProps) {
     const type = getValueType(value);
 
     return (
-        <span className={`flowforge-json-viewer__primitive flowforge-json-viewer__primitive--${type}`}>
+        <span className={cx('flowforge-json-viewer__primitive', `flowforge-json-viewer__primitive--${type}`)}>
             {formatPrimitive(value)}
         </span>
     );
@@ -119,7 +121,12 @@ function JsonViewerNode({
         <details className="flowforge-json-viewer__node" open={isOpen}>
             <summary className="flowforge-json-viewer__summary">
                 {hasName ? <span className="flowforge-json-viewer__key">{JSON.stringify(name)}: </span> : null}
-                <span className={`flowforge-json-viewer__bracket flowforge-json-viewer__bracket--${collectionType}`}>
+                <span
+                    className={cx(
+                        'flowforge-json-viewer__bracket',
+                        `flowforge-json-viewer__bracket--${collectionType}`,
+                    )}
+                >
                     {isArray ? '[' : '{'}
                 </span>
                 <span className="flowforge-json-viewer__shape">{getShapePreview(value)}</span>
@@ -151,7 +158,12 @@ function JsonViewerNode({
                 </div>
             )}
             <div className="flowforge-json-viewer__row flowforge-json-viewer__closing">
-                <span className={`flowforge-json-viewer__bracket flowforge-json-viewer__bracket--${collectionType}`}>
+                <span
+                    className={cx(
+                        'flowforge-json-viewer__bracket',
+                        `flowforge-json-viewer__bracket--${collectionType}`,
+                    )}
+                >
                     {isArray ? ']' : '}'}
                 </span>
             </div>

@@ -1,6 +1,7 @@
 import { cloneElement, toChildArray } from 'preact';
 import type { ComponentChildren, VNode } from 'preact';
 import { useEffect, useId, useRef, useState } from 'preact/hooks';
+import { cx } from '@/shared/utils/cx';
 
 // constants
 const TOOLTIP_POINTER_OPEN_DELAY_MS = 800;
@@ -82,14 +83,12 @@ export function Tooltip({ variant = 'primary', side = 'top', disabled = false, c
     const [position, setPosition] = useState<{ top: number; left: number }>();
     const childItems = toChildArray(children);
     const onlyChild = childItems.length === 1 ? childItems[0] : undefined;
-    const classes = [
+    const classes = cx(
         'flowforge-tooltip',
         `flowforge-tooltip--${variant}`,
         `flowforge-tooltip--${side}`,
         disabled && 'flowforge-tooltip--disabled',
-    ]
-        .filter(Boolean)
-        .join(' ');
+    );
 
     const triggerProps = isVNode(onlyChild) ? (onlyChild.props as Record<string, unknown>) : undefined;
     const existingDescribedBy =
@@ -97,7 +96,7 @@ export function Tooltip({ variant = 'primary', side = 'top', disabled = false, c
     const trigger =
         !disabled && isVNode(onlyChild)
             ? cloneElement(onlyChild, {
-                  'aria-describedby': [existingDescribedBy, id].filter(Boolean).join(' '),
+                  'aria-describedby': cx(existingDescribedBy, id),
               })
             : children;
 
