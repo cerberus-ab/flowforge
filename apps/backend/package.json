@@ -1,6 +1,6 @@
 {
   "name": "@flowforge/backend",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Backend server for FlowForge browser extension",
   "private": true,
   "main": "dist/server.js",
