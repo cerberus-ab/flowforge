@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/Button';
 import { Tooltip } from '@/shared/components/Tooltip';
 
 interface AdvancedProps {
-    onOpenPageInspector: (tab?: string) => void;
+    onOpenPageInspector: (tab?: string) => void | Promise<void>;
 }
 
 export function Advanced({ onOpenPageInspector }: AdvancedProps) {
@@ -20,7 +20,7 @@ export function Advanced({ onOpenPageInspector }: AdvancedProps) {
                                 icon={ListTree}
                                 hollow
                                 data-testid="flowforge-open-inspector"
-                                onClick={() => onOpenPageInspector('basics')}
+                                onClick={() => void onOpenPageInspector('basics')}
                             >
                                 Inspect page context
                             </Button>
@@ -34,7 +34,7 @@ export function Advanced({ onOpenPageInspector }: AdvancedProps) {
                                 icon={FileText}
                                 hollow
                                 data-testid="flowforge-open-markdown-inspector"
-                                onClick={() => onOpenPageInspector('markdown')}
+                                onClick={() => void onOpenPageInspector('markdown')}
                             >
                                 Markdown
                             </Button>

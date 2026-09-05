@@ -78,8 +78,8 @@ export function PopupApp({
 
     // Handle open page inspector and close popup
     const handleOpenPageInspector = useCallback(
-        (tab?: string) => {
-            openPageInspector(tab);
+        async (tab?: string) => {
+            await openPageInspector(tab);
             onClose?.();
         },
         [openPageInspector, onClose],
