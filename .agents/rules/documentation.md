@@ -17,9 +17,10 @@ If something is unclear or missing, omit it.
 ## Documentation set
 
 - `README.md`
-- `docs/ARCHITECTURE.md`
-- `docs/DOM-TO-RAG-PIPELINE.md`
+- `docs/architecture.md`
+- `docs/dom-to-rag-pipeline.md`
 - `packages/page-trail/README.md`
+- `packages/page-trail/docs/scoring.md`
 - `apps/backend/README.md`
 - `apps/extension/README.md`
 
@@ -33,14 +34,19 @@ If something is unclear or missing, omit it.
 - Keep links valid.
 - Keep commands correct.
 - Keep Markdown clean.
+- Avoid hardcoding numeric constant values from code. Prefer CAPS-style names
+  close to the code symbol, or omit the value when it is not needed.
+- Do not edit diagram source or exported diagram assets during documentation
+  updates unless explicitly requested. Report diagram inconsistencies instead.
 - If content exceeds scope, trim it instead of expanding other docs.
 
 ## Document roles
 
 - `README.md` — entry point: what it is and how to run it.
-- `docs/ARCHITECTURE.md` — high-level system overview.
-- `docs/DOM-TO-RAG-PIPELINE.md` — DOM-to-RAG pipeline description.
+- `docs/architecture.md` — high-level system overview.
+- `docs/dom-to-rag-pipeline.md` — DOM-to-RAG pipeline description.
 - `packages/page-trail/README.md` — canonical DOM representation (`PageTrail`).
+- `packages/page-trail/docs/scoring.md` — PageTrail scoring flow and formulas.
 - `apps/backend/README.md` — backend responsibilities and usage.
 - `apps/extension/README.md` — extension responsibilities and usage.
 
@@ -62,7 +68,7 @@ Target length: 100–120 lines.
 - Documentation
 - License
 
-### `docs/ARCHITECTURE.md`
+### `docs/architecture.md`
 
 Target length: 80–100 lines.
 
@@ -74,7 +80,7 @@ Target length: 80–100 lines.
 - Contracts
 - Constraints
 
-### `docs/DOM-TO-RAG-PIPELINE.md`
+### `docs/dom-to-rag-pipeline.md`
 
 Target length: 80–100 lines.
 
@@ -97,9 +103,20 @@ Target length: 80–100 lines.
 - Content elements
 - Interactive elements
 - Context
-- Scoring (`meaningScore`, `relevanceScore`, `contextScore`, `importanceScore`)
+- Scoring summary with a link to `docs/scoring.md`
 - Format
 - Usage
+
+### `packages/page-trail/docs/scoring.md`
+
+Target length: 70–90 lines.
+
+- Overview
+- Scoring diagram
+- Inputs
+- Meaning
+- Context
+- Importance
 
 ### `apps/backend/README.md`
 

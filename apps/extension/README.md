@@ -60,4 +60,4 @@ await FlowForge.start({ settings: { theme: 'dark' } });
 - Chrome extension requires backend on http://localhost:3477
 - Sandbox runs on http://localhost:3007 with backend and demo modes
 - Limited by browser security (iframes, cross-origin content)
-- See [Architecture](../../docs/ARCHITECTURE.md) for system design
+- See [Architecture](../../docs/architecture.md) for system design

@@ -35,8 +35,8 @@ fallback `cssSelector`, `bbox`, and `meaningScore`.
 ## Content Elements
 
 Content elements are visible headings, paragraphs, list items, blockquotes, and
-figcaptions. Text shorter than five characters is skipped. The default retained
-limit is 250 elements after scoring.
+figcaptions. Text shorter than five characters is skipped. Retained elements
+are selected after scoring.
 
 Each content record includes source text, `tag`, `dataId`, fallback
 `cssSelector`, `bbox`, container `context`, `meaningScore`, and
@@ -46,7 +46,7 @@ Each content record includes source text, `tag`, `dataId`, fallback
 
 Interactive elements are visible buttons, links, inputs, textareas, selects,
 summaries, dialogs, options, and supported ARIA controls. Sensitive fields are
-excluded. The default retained limit is 150 elements after scoring.
+excluded. Retained elements are selected after scoring.
 
 Each interactive record includes `role`, text, labels, state, visibility,
 optional link metadata, `dataId`, fallback `cssSelector`, `bbox`, context, and
@@ -60,17 +60,9 @@ toward the page root. Path nodes include the container, distance, and
 
 ## Scoring
 
-Scores are normalized to `[0..1]`:
-
-- `meaningScore` describes an element by itself. Containers use type, role,
-  labels, and size; content uses type and text length; interactive elements use
-  type, role, name, usability, required state, and size.
-- `relevanceScore` scores one container for one target from container meaning,
-  distance, and target/container fit.
-- `contextScore` aggregates the strongest relevant containers on a target path
-  and stores breadcrumb indexes for semantic context.
-- `importanceScore` ranks content and interactive targets from `meaningScore`
-  plus a context boost; context cannot make a meaningless target important.
+PageTrail computes normalized scores for standalone meaning, container context,
+and query-agnostic target selection. See [Scoring](docs/scoring.md) for the
+scoring flow, formulas, and diagram.
 
 ## Format
 

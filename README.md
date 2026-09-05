@@ -96,8 +96,8 @@ Focus areas:
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md) — system design and component interaction
-- [DOM to RAG pipeline](docs/DOM-TO-RAG-PIPELINE.md) – from DOM to actionable intelligence
+- [Architecture](docs/architecture.md) — system design and component interaction
+- [DOM to RAG pipeline](docs/dom-to-rag-pipeline.md) – from DOM to actionable intelligence
 - [PageTrail](packages/page-trail/README.md) — DOM representation for UI understanding
 - [Backend](apps/backend/README.md) — AI agent backend and RAG pipeline
 - [Extension](apps/extension/README.md) — browser extension and page extraction

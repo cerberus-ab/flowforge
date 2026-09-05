@@ -52,4 +52,4 @@ See [.env.example](.env.example) for all options.
 - Single-page context; no cross-page memory
 - In-memory analytics; resets on restart
 - Requires Ollama or OpenAI API key
-- See [Architecture](../../docs/ARCHITECTURE.md) for system design
+- See [Architecture](../../docs/architecture.md) for system design
