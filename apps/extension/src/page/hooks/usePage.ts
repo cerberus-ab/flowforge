@@ -120,8 +120,8 @@ export function usePage({ transport, devMode, onDevModeChange, onReady }: UsePag
                     currentStep: 0,
                 });
             }
-            // Direct highlight mode
-            else if (data.elements[0]) {
+            // Direct highlight mode if a single element
+            else if (data.elements.length === 1 && data.elements[0]) {
                 highlightElement(data.elements[0]);
             }
         },

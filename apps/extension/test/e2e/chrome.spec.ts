@@ -63,7 +63,7 @@ test('answers a question through the configured backend', async ({ context, exte
     await popup.close();
 });
 
-test('highlights a direct result element from the popup', async ({ context, extensionId, page }) => {
+test('auto-highlights a single direct result element from the backend', async ({ context, extensionId, page }) => {
     // Given
     await page.goto('/chrome');
     await mockQuery(
@@ -88,6 +88,55 @@ test('highlights a direct result element from the popup', async ({ context, exte
     // When
     await popup.getByTestId('flowforge-question-input').fill('Where are the Chrome docs?');
     await popup.getByTestId('flowforge-question-submit').click();
+
+    // Then
+    await expect(popup.getByTestId('flowforge-result')).toContainText('Chrome backend response');
+    await expect(page.getByTestId('flowforge-highlight-label')).toContainText(directTarget.text);
+    await expectHighlightToCoverTarget(
+        page.getByTestId('flowforge-highlight'),
+        page.locator(`[data-flowforge-id="${directTarget.dataId}"]`),
+    );
+
+    await popup.close();
+});
+
+test('waits for popup selection before highlighting multiple direct result elements', async ({
+    context,
+    extensionId,
+    page,
+}) => {
+    // Given
+    await page.goto('/chrome');
+    await mockQuery(
+        context,
+        createQueryResponseFixture({
+            result: {
+                answer: 'Chrome backend response',
+                elements: [
+                    {
+                        text: directTarget.text,
+                        dataId: directTarget.dataId,
+                        action: 'navigate',
+                    },
+                    {
+                        text: wizardSteps[0]!.text,
+                        dataId: wizardSteps[0]!.dataId,
+                        action: 'click',
+                    },
+                ],
+                mode: 'direct',
+                topic: null,
+            },
+        }),
+    );
+    const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+
+    // When
+    await popup.getByTestId('flowforge-question-input').fill('Where are the Chrome docs?');
+    await popup.getByTestId('flowforge-question-submit').click();
+    await expect(popup.getByTestId('flowforge-result')).toContainText('Chrome backend response');
+    await expect(page.getByTestId('flowforge-highlight')).toHaveCount(0);
+
     await popup.getByTestId(`flowforge-result-element-${directTarget.dataId}`).click();
 
     // Then
