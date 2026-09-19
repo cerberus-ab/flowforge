@@ -35,9 +35,9 @@ export abstract class AbstractCallableTool implements CallableTool {
 
     protected getToolResultElement(element: TargetElement): ToolResultElement {
         return {
-            elementDataId: element.dataId,
+            elementDataId: element.locator.dataId,
             elementContext: semElementContextByBreadcrumbs(element.context),
-            elementCssSelector: element.cssSelector,
+            elementCssSelector: element.locator.cssSelector,
         };
     }
 

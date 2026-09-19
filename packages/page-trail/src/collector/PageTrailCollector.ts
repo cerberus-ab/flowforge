@@ -3,6 +3,7 @@ import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '
 import { type TopElements } from './scoring/topEl.ts';
 import { ContainerTree } from './extractors/index.ts';
 import { ElementRegistry } from './ElementRegistry.ts';
+import { ElementLocatorCreator } from './ElementLocatorCreator.ts';
 import { extractContentElements } from './extractors/content.ts';
 import { extractPageBasics } from './extractors/basics.ts';
 import { extractInteractiveElements } from './extractors/index.ts';
@@ -34,6 +35,7 @@ export class PageTrailCollector {
     private readonly document: Document;
     private readonly options: ResolvedCollectorOptions;
     private readonly elementRegistry: ElementRegistry;
+    private readonly elementLocatorCreator: ElementLocatorCreator;
 
     constructor(win: Window, doc: Document, options: CollectorOptions) {
         this.window = win;
@@ -44,7 +46,8 @@ export class PageTrailCollector {
             interactiveElementsLimit: 150,
             ...options,
         };
-        this.elementRegistry = new ElementRegistry(this.options.getElementDataId);
+        this.elementRegistry = new ElementRegistry();
+        this.elementLocatorCreator = new ElementLocatorCreator(this.options.getElementDataId);
     }
 
     collect(): PageTrail {
@@ -102,13 +105,20 @@ export class PageTrailCollector {
     }
 
     private collectContainerTree(): ContainerTree {
-        return ContainerTree.extractFor(this.window, this.document, this.elementRegistry);
+        return ContainerTree.extractFor(this.window, this.document, this.elementRegistry, this.elementLocatorCreator);
     }
 
     private collectContentElements(containerTree: ContainerTree): TopElements<ContentElement> {
-        return extractContentElements(this.window, this.document.body, this.elementRegistry, containerTree, {
-            elementsLimit: this.options.contentElementsLimit,
-        });
+        return extractContentElements(
+            this.window,
+            this.document.body,
+            this.elementRegistry,
+            this.elementLocatorCreator,
+            containerTree,
+            {
+                elementsLimit: this.options.contentElementsLimit,
+            },
+        );
     }
 
     private collectInteractiveElements(
@@ -119,6 +129,7 @@ export class PageTrailCollector {
             this.window,
             this.document.body,
             this.elementRegistry,
+            this.elementLocatorCreator,
             basics,
             containerTree,
             {

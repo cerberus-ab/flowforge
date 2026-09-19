@@ -141,7 +141,13 @@ export interface InteractiveLink {
 
 // Element Types
 
+export type ElementId = number;
 export type ElementDataId = string;
+
+export interface ElementLocator {
+    dataId: ElementDataId;
+    cssSelector: string | undefined; // fallback
+}
 
 export type ElementKind = 'container' | 'content' | 'interactive';
 
@@ -150,9 +156,9 @@ export type ContentElementType = 'text' | 'heading';
 export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
 export interface BaseElement {
+    id: ElementId;
+    locator: ElementLocator;
     tag: string;
-    dataId: ElementDataId;
-    cssSelector: string | undefined; // fallback
     kind: ElementKind;
     type: ContainerElementType | ContentElementType | InteractiveElementType;
     bbox: BoundingBox;

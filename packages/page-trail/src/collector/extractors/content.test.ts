@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markHidden, markVisible, resetDocument } from '../../../test/domUtils';
+import { ElementLocatorCreator } from '../ElementLocatorCreator';
 import { ElementRegistry } from '../ElementRegistry';
 import { ContainerTree } from './ContainerTree';
 import { extractContentElements } from './content';
@@ -28,10 +29,11 @@ describe('extractContentElements', () => {
         markHidden('#hidden');
 
         const registry = createRegistry();
-        const containerTree = ContainerTree.extractFor(window, document, registry);
+        const locatorCreator = new ElementLocatorCreator((el) => el.id);
+        const containerTree = ContainerTree.extractFor(window, document, registry, locatorCreator);
 
         // When
-        const topElements = extractContentElements(window, document.body, registry, containerTree, {
+        const topElements = extractContentElements(window, document.body, registry, locatorCreator, containerTree, {
             elementsLimit: 0,
         });
 
@@ -43,21 +45,19 @@ describe('extractContentElements', () => {
                     type: 'heading',
                     tag: 'h1',
                     text: 'Welcome',
-                    dataId: 'title',
-                    cssSelector: undefined,
+                    locator: { dataId: 'title', cssSelector: undefined },
                 }),
                 expect.objectContaining({
                     kind: 'content',
                     type: 'text',
                     tag: 'p',
                     text: 'Useful paragraph text',
-                    dataId: 'intro',
-                    cssSelector: undefined,
+                    locator: { dataId: 'intro', cssSelector: undefined },
                 }),
             ]),
         );
-        expect(topElements.data.map((el) => el.dataId)).not.toContain('short');
-        expect(topElements.data.map((el) => el.dataId)).not.toContain('hidden');
+        expect(topElements.data.map((el) => el.locator.dataId)).not.toContain('short');
+        expect(topElements.data.map((el) => el.locator.dataId)).not.toContain('hidden');
 
         topElements.data.forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);
@@ -78,21 +78,24 @@ describe('extractContentElements', () => {
         markVisible('#paragraph');
 
         const registry = createRegistry();
-        const containerTree = ContainerTree.extractFor(window, document, registry);
+        const locatorCreator = new ElementLocatorCreator((el) => el.id);
+        const containerTree = ContainerTree.extractFor(window, document, registry, locatorCreator);
 
         // When
-        const topElements = extractContentElements(window, document.body, registry, containerTree, {
+        const topElements = extractContentElements(window, document.body, registry, locatorCreator, containerTree, {
             elementsLimit: 1,
         });
 
         // Then
         expect(topElements.data).toHaveLength(1);
-        expect(topElements.data[0]).toEqual(expect.objectContaining({ dataId: 'heading' }));
+        expect(topElements.data[0]).toEqual(
+            expect.objectContaining({ locator: { dataId: 'heading', cssSelector: undefined } }),
+        );
         expect(topElements.total).toBe(2);
         expect(topElements.limitReached).toBe(true);
     });
 });
 
 function createRegistry() {
-    return new ElementRegistry((el) => el.id);
+    return new ElementRegistry();
 }

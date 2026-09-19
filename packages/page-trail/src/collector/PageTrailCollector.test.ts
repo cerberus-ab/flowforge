@@ -9,6 +9,36 @@ afterEach(() => {
 });
 
 describe('PageTrailCollector', () => {
+    it('shares IDs and locators across representations of the same DOM element', () => {
+        // Given
+        document.body.innerHTML = `<main id="main"><p id="action" role="button">Open settings</p></main>`;
+        markVisible('#main');
+        markVisible('#action');
+        const getElementDataId = vi.fn((el: Element) => `locator-${el.id}`);
+
+        // When
+        const model = collect({ getElementDataId });
+
+        // Then
+        expect(model.structure).toHaveLength(1);
+        expect(model.content).toHaveLength(1);
+        expect(model.interactive).toHaveLength(1);
+        const container = model.structure[0]!.element;
+        const content = model.content[0]!;
+        const interactive = model.interactive[0]!;
+        expect(container.id).toBeTypeOf('number');
+        expect(content.id).toBeTypeOf('number');
+        expect(interactive.id).toBe(content.id);
+        expect(content.id).not.toBe(container.id);
+        expect(content.locator).toEqual({ dataId: 'locator-action', cssSelector: undefined });
+        expect(interactive.locator).toBe(content.locator);
+        expect(content.context.path[0]?.element).toBe(container);
+        expect(interactive.context.path[0]?.element).toBe(container);
+        expect(getElementDataId).toHaveBeenCalledTimes(2);
+        expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#main'));
+        expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#action'));
+    });
+
     it('collects page basics', () => {
         // Given
         document.documentElement.lang = 'en';
@@ -80,20 +110,18 @@ describe('PageTrailCollector', () => {
                     type: 'heading',
                     tag: 'h1',
                     text: 'Welcome',
-                    dataId: 'title',
-                    cssSelector: undefined,
+                    locator: { dataId: 'title', cssSelector: undefined },
                 }),
                 expect.objectContaining({
                     kind: 'content',
                     type: 'text',
                     tag: 'p',
                     text: 'Useful paragraph text',
-                    dataId: 'intro',
-                    cssSelector: undefined,
+                    locator: { dataId: 'intro', cssSelector: undefined },
                 }),
             ]),
         );
-        expect(model.content.some((el) => el.dataId === 'short')).toBeFalsy();
+        expect(model.content.some((el) => el.locator.dataId === 'short')).toBeFalsy();
     });
 
     it('collects visible interactive elements', () => {
@@ -119,16 +147,14 @@ describe('PageTrailCollector', () => {
                     kind: 'interactive',
                     type: 'button',
                     role: 'button',
-                    dataId: 'save',
-                    cssSelector: undefined,
+                    locator: { dataId: 'save', cssSelector: undefined },
                     labels: [{ source: 'aria-label', value: 'Save changes' }],
                 }),
                 expect.objectContaining({
                     kind: 'interactive',
                     type: 'link',
                     role: 'link',
-                    dataId: 'docs',
-                    cssSelector: undefined,
+                    locator: { dataId: 'docs', cssSelector: undefined },
                     link: {
                         type: 'internal',
                         href: 'http://localhost:3000/docs',
@@ -138,8 +164,7 @@ describe('PageTrailCollector', () => {
                     kind: 'interactive',
                     type: 'input',
                     role: 'textbox',
-                    dataId: 'email',
-                    cssSelector: undefined,
+                    locator: { dataId: 'email', cssSelector: undefined },
                     labels: [{ source: 'placeholder', value: 'Email' }],
                 }),
             ]),
@@ -161,7 +186,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.interactive.map((el) => el.dataId)).toEqual(['visible']);
+        expect(model.interactive.map((el) => el.locator.dataId)).toEqual(['visible']);
     });
 
     it('applies content and interactive limits after scoring', () => {
@@ -187,9 +212,13 @@ describe('PageTrailCollector', () => {
 
         // Then
         expect(model.content).toHaveLength(1);
-        expect(model.content[0]).toEqual(expect.objectContaining({ dataId: 'heading' }));
+        expect(model.content[0]).toEqual(
+            expect.objectContaining({ locator: { dataId: 'heading', cssSelector: undefined } }),
+        );
         expect(model.interactive).toHaveLength(1);
-        expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'button' }));
+        expect(model.interactive[0]).toEqual(
+            expect.objectContaining({ locator: { dataId: 'button', cssSelector: undefined } }),
+        );
     });
 
     it('reports container metadata without scoring limit totals', () => {
@@ -213,7 +242,7 @@ describe('PageTrailCollector', () => {
         expect(model.structure[0]).not.toHaveProperty('importanceScore');
     });
 
-    it('keeps cssSelector undefined when css selector resolver is not configured', () => {
+    it('keeps locator cssSelector undefined while CSS selectors are unsupported', () => {
         // Given
         document.body.innerHTML = `<button id="save">Save</button>`;
         markVisible('#save');
@@ -224,7 +253,9 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
-        expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'save', cssSelector: undefined }));
+        expect(model.interactive[0]).toEqual(
+            expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
+        );
     });
 
     it('collectFor returns a collected page trail', () => {
@@ -239,7 +270,9 @@ describe('PageTrailCollector', () => {
 
         // Then
         expect(model.interactive).toHaveLength(1);
-        expect(model.interactive[0]).toEqual(expect.objectContaining({ dataId: 'save' }));
+        expect(model.interactive[0]).toEqual(
+            expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
+        );
     });
 });
 

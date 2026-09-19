@@ -1,23 +1,25 @@
-import type { ElementDataId } from '../types/index.ts';
+import type { ElementId } from '../types/index.ts';
 
+// Contains the map of all used DOM elements
 export class ElementRegistry {
-    private readonly elementByDataId = new Map<ElementDataId, Element>();
-    private dataIdByElement = new WeakMap<Element, ElementDataId>();
+    private nextId = 0;
 
-    constructor(private readonly produceDataId: (el: Element) => ElementDataId) {}
+    private readonly elementById = new Map<ElementId, Element>();
+    private readonly idByElement = new WeakMap<Element, ElementId>();
 
-    register(el: Element): ElementDataId {
-        const existingDataId = this.dataIdByElement.get(el);
-        if (existingDataId) return existingDataId;
+    register(el: Element): ElementId {
+        const existingId = this.idByElement.get(el);
+        if (existingId !== undefined) return existingId;
 
-        const dataId = this.produceDataId(el);
-        this.elementByDataId.set(dataId, el);
-        this.dataIdByElement.set(el, dataId);
+        const id = this.nextId++;
 
-        return dataId;
+        this.elementById.set(id, el);
+        this.idByElement.set(el, id);
+
+        return id;
     }
 
-    get(dataId: ElementDataId): Element | undefined {
-        return this.elementByDataId.get(dataId);
+    get(id: ElementId): Element | undefined {
+        return this.elementById.get(id);
     }
 }

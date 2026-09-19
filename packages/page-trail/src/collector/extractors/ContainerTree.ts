@@ -11,13 +11,13 @@ import { getContainerRole, roleToContainerElementType } from './primitive/role.t
 import { SELECTOR_CONTAINER } from '../selectors.ts';
 import { getElementBoundingBox, isElementVisible } from './primitive/view.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
-import { getCssSelector } from './primitive/selector.ts';
 import {
     scoreContainerMeaning,
     scoreContainerRelevanceForContentTarget,
     scoreContainerRelevanceForInteractiveTarget,
     type ScoringResult,
 } from '../scoring/index.ts';
+import { ElementLocatorCreator } from '../ElementLocatorCreator.ts';
 
 // constants
 const CONTAINER_MIN_AREA = 20 * 20;
@@ -37,6 +37,7 @@ export class ContainerTree {
     private readonly window: Window;
     private readonly root: Element;
     private readonly elementRegistry: ElementRegistry;
+    private readonly elementLocatorCreator: ElementLocatorCreator;
     private readonly nodeByEl = new WeakMap<Element, ContainerTreeNode>();
     // Internal reverse edges keep the public tree shape acyclic and serializable.
     private readonly parentByNode = new WeakMap<ContainerTreeNode, ContainerTreeNode>();
@@ -44,10 +45,16 @@ export class ContainerTree {
     readonly elements: ContainerElement[] = [];
     readonly nodes: ContainerTreeNode[] = [];
 
-    constructor(win: Window, root: Element, elementRegistry: ElementRegistry) {
+    constructor(
+        win: Window,
+        root: Element,
+        elementRegistry: ElementRegistry,
+        elementLocatorCreator: ElementLocatorCreator,
+    ) {
         this.window = win;
         this.root = root;
         this.elementRegistry = elementRegistry;
+        this.elementLocatorCreator = elementLocatorCreator;
 
         this.collectElements();
         this.buildTree();
@@ -56,8 +63,13 @@ export class ContainerTree {
     /**
      * Builds a container tree from the document body.
      */
-    static extractFor(win: Window, doc: Document, elementRegistry: ElementRegistry): ContainerTree {
-        return new ContainerTree(win, doc.body, elementRegistry);
+    static extractFor(
+        win: Window,
+        doc: Document,
+        elementRegistry: ElementRegistry,
+        elementLocatorCreator: ElementLocatorCreator,
+    ): ContainerTree {
+        return new ContainerTree(win, doc.body, elementRegistry, elementLocatorCreator);
     }
 
     /**
@@ -87,8 +99,8 @@ export class ContainerTree {
             const containerElement: ContainerElement = {
                 role,
                 type,
-                dataId: this.elementRegistry.register(el),
-                cssSelector: getCssSelector(el),
+                id: this.elementRegistry.register(el),
+                locator: this.elementLocatorCreator.createFor(el),
                 tag: el.tagName.toLowerCase(),
                 kind: 'container',
                 labels,
@@ -110,7 +122,7 @@ export class ContainerTree {
     private buildTree() {
         // collect node by element map
         this.elements.forEach((containerElement) => {
-            const el = this.elementRegistry.get(containerElement.dataId);
+            const el = this.elementRegistry.get(containerElement.id);
             if (!el) return;
 
             this.nodeByEl.set(el, { element: containerElement, nodes: [] });
@@ -118,7 +130,7 @@ export class ContainerTree {
 
         // connect ancestors though the map
         this.elements.forEach((containerElement) => {
-            const el = this.elementRegistry.get(containerElement.dataId);
+            const el = this.elementRegistry.get(containerElement.id);
             if (!el) return;
 
             const node = this.nodeByEl.get(el);

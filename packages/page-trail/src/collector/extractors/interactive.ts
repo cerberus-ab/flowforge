@@ -7,12 +7,12 @@ import { isSensitiveElement } from './primitive/sensitive.ts';
 import { getInteractiveRole, roleToInteractiveElementType } from './primitive/role.ts';
 import { getInteractiveElementLabels } from './primitive/label.ts';
 import { getInteractiveElementState } from './primitive/state.ts';
-import { getCssSelector } from './primitive/selector.ts';
 import { getElementLink } from './primitive/link.ts';
 import type { ElementRegistry } from '../ElementRegistry.ts';
 import { ContainerTree } from './ContainerTree.ts';
 import { extractInteractiveElementContext } from './context.ts';
 import { getElementText } from './primitive/text.ts';
+import type { ElementLocatorCreator } from '../ElementLocatorCreator.ts';
 
 // constants
 const TEXT_CONTENT_MAX_LENGTH = 240;
@@ -34,6 +34,7 @@ export function extractInteractiveElements(
     win: Window,
     root: Element,
     elementRegistry: ElementRegistry,
+    elementLocatorCreator: ElementLocatorCreator,
     basics: PageBasics,
     containerTree: ContainerTree,
     options: ExtractInteractiveElementsOptions,
@@ -42,7 +43,7 @@ export function extractInteractiveElements(
         el: Element;
         prefilled: Pick<
             InteractiveElement,
-            'role' | 'type' | 'labels' | 'text' | 'state' | 'bbox' | 'meaningScore' | 'context'
+            'id' | 'role' | 'type' | 'labels' | 'text' | 'state' | 'bbox' | 'meaningScore' | 'context'
         >;
         importanceScore: Scoring;
     }[] = [];
@@ -60,6 +61,7 @@ export function extractInteractiveElements(
         if (!type) return;
 
         // compute only necessary data for scoring the candidates
+        const id = elementRegistry.register(el);
         const labels = getInteractiveElementLabels(el);
         const text = getElementText(el, { maxLength: TEXT_CONTENT_MAX_LENGTH });
         const state = getInteractiveElementState(el);
@@ -70,7 +72,7 @@ export function extractInteractiveElements(
 
         candidates.push({
             el,
-            prefilled: { role, type, labels, text, state, bbox, meaningScore, context },
+            prefilled: { id, role, type, labels, text, state, bbox, meaningScore, context },
             importanceScore,
         });
     });
@@ -81,8 +83,7 @@ export function extractInteractiveElements(
         // continue to compute only for selected elements
         ({ el, prefilled, importanceScore }) => ({
             ...prefilled,
-            dataId: elementRegistry.register(el),
-            cssSelector: getCssSelector(el),
+            locator: elementLocatorCreator.createFor(el),
             tag: el.tagName.toLowerCase(),
             kind: 'interactive',
             link: getElementLink(el),

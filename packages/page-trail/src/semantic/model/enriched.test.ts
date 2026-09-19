@@ -18,14 +18,14 @@ describe('semantic model enriched', () => {
         const container: ContainerTreeNode[] = [
             {
                 element: containerElement({
-                    dataId: 'main',
+                    locator: { dataId: 'main', cssSelector: undefined },
                     role: 'main content',
                     type: 'landmark',
                 }),
                 nodes: [
                     {
                         element: containerElement({
-                            dataId: 'checkout',
+                            locator: { dataId: 'checkout', cssSelector: undefined },
                             role: 'form',
                             type: 'form',
                             labels: [{ source: 'legend', value: 'Checkout' }],
@@ -42,10 +42,10 @@ describe('semantic model enriched', () => {
         // Then
         expect(enriched).toMatchObject([
             {
-                element: { dataId: 'main', semanticText: 'Main content' },
+                element: { locator: { dataId: 'main' }, semanticText: 'Main content' },
                 nodes: [
                     {
-                        element: { dataId: 'checkout', semanticText: 'Form. Name: Checkout' },
+                        element: { locator: { dataId: 'checkout' }, semanticText: 'Form. Name: Checkout' },
                     },
                 ],
             },
@@ -59,7 +59,7 @@ describe('semantic model enriched', () => {
                 path: [
                     pathNode(
                         containerElement({
-                            dataId: 'article',
+                            locator: { dataId: 'article', cssSelector: undefined },
                             role: 'article',
                             labels: [{ source: 'heading', value: 'Release notes' }],
                         }),
@@ -75,7 +75,7 @@ describe('semantic model enriched', () => {
 
         // Then
         expect(enriched!.context.path[0]!.element).toMatchObject({
-            dataId: 'article',
+            locator: { dataId: 'article', cssSelector: undefined },
             semanticText: 'Article. Name: Release notes',
         });
     });
@@ -87,7 +87,7 @@ describe('semantic model enriched', () => {
                 path: [
                     pathNode(
                         containerElement({
-                            dataId: 'primary-nav',
+                            locator: { dataId: 'primary-nav', cssSelector: undefined },
                             role: 'navigation',
                             type: 'navigation',
                             labels: [{ source: 'aria-label', value: 'Primary' }],
@@ -104,7 +104,7 @@ describe('semantic model enriched', () => {
 
         // Then
         expect(enriched!.context.path[0]!.element).toMatchObject({
-            dataId: 'primary-nav',
+            locator: { dataId: 'primary-nav', cssSelector: undefined },
             semanticText: 'Navigation. Name: Primary',
         });
     });
