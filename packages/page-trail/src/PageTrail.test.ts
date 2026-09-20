@@ -15,9 +15,14 @@ describe('PageTrail DTO conversion', () => {
                 contextScore: { value: 0.8 },
             },
         });
+        const interactive = interactiveElement({ id: 3 });
         const pageTrail = pageTrailFixture({
-            structure: { targets: [], nodes: [{ container, targets: [content], nodes: [] }] },
-            elements: [container, content],
+            structure: {
+                content: [],
+                interactive: [],
+                nodes: [{ container, content: [content], interactive: [interactive], nodes: [] }],
+            },
+            elements: [container, content, interactive],
         });
 
         // When
@@ -26,8 +31,9 @@ describe('PageTrail DTO conversion', () => {
         // Then
         expect(dto.contextOnly).toBe(false);
         expect(dto.structure).toEqual({
-            targetIds: [],
-            nodes: [{ containerId: 1, targetIds: [2], nodes: [] }],
+            contentIds: [],
+            interactiveIds: [],
+            nodes: [{ containerId: 1, contentIds: [2], interactiveIds: [3], nodes: [] }],
         });
         expect(dto.elements[1]).toMatchObject({
             id: 2,
@@ -49,9 +55,14 @@ describe('PageTrail DTO conversion', () => {
                 contextScore: { value: 0.8 },
             },
         });
+        const interactive = interactiveElement({ id: 3 });
         const dto = pageTrailFixture({
-            structure: { targets: [content], nodes: [{ container, targets: [], nodes: [] }] },
-            elements: [container, content],
+            structure: {
+                content: [content],
+                interactive: [],
+                nodes: [{ container, content: [], interactive: [interactive], nodes: [] }],
+            },
+            elements: [container, content, interactive],
         }).toDto();
 
         // When
@@ -59,10 +70,11 @@ describe('PageTrail DTO conversion', () => {
         const restored = PageTrail.fromDto(serializedDto);
 
         // Then
-        const structureContainer = restored.mapStructure((node) => node.container)[0];
-        const contextContainer = restored.content()[0]!.context.path[0]!.container;
+        const structureContainer = restored.mapStructureContainers((node) => node.container)[0];
+        const contextContainer = restored.getContent()[0]!.context.path[0]!.container;
         expect(contextContainer).toBe(structureContainer);
-        expect(restored.structure.targets[0]).toBe(restored.content()[0]);
+        expect(restored.getStructure().content[0]).toBe(restored.getContent()[0]);
+        expect(restored.getStructure().nodes[0]!.interactive[0]).toBe(restored.getInteractive()[0]);
         expect(restored.toDto()).toEqual(serializedDto);
     });
 
@@ -79,35 +91,55 @@ describe('PageTrail DTO conversion', () => {
 
         // Then
         expect(restored.contextOnly).toBe(true);
-        expect(restored.content()[0]?.locator).toBeUndefined();
+        expect(restored.getContent()[0]?.locator).toBeUndefined();
     });
 
     it('rejects a structure reference to an unknown container', () => {
         // Given
         const dto = pageTrailFixture().toDto();
-        dto.structure = { targetIds: [], nodes: [{ containerId: 42, targetIds: [], nodes: [] }] };
+        dto.structure = {
+            contentIds: [],
+            interactiveIds: [],
+            nodes: [{ containerId: 42, contentIds: [], interactiveIds: [], nodes: [] }],
+        };
 
         // When
         const restore = () => PageTrail.fromDto(dto);
 
         // Then
-        expect(restore).toThrow('PageTrail DTO references unknown container ID: 42');
+        expect(restore).toThrow('PageTrail DTO references unknown element ID: 42');
     });
 
-    it('rejects a structure reference to an unknown target', () => {
+    it('rejects a structure reference to unknown content', () => {
         // Given
         const container = containerElement({ id: 1 });
         const dto = pageTrailFixture({
-            structure: { targets: [], nodes: [{ container, targets: [], nodes: [] }] },
+            structure: {
+                content: [],
+                interactive: [],
+                nodes: [{ container, content: [], interactive: [], nodes: [] }],
+            },
             elements: [container],
         }).toDto();
-        dto.structure.nodes[0]!.targetIds = [42];
+        dto.structure.nodes[0]!.contentIds = [42];
 
         // When
         const restore = () => PageTrail.fromDto(dto);
 
         // Then
-        expect(restore).toThrow('PageTrail DTO references unknown target ID: 42');
+        expect(restore).toThrow('PageTrail DTO references unknown element ID: 42');
+    });
+
+    it('rejects a structure reference to unknown interactive element', () => {
+        // Given
+        const dto = pageTrailFixture().toDto();
+        dto.structure.interactiveIds = [42];
+
+        // When
+        const restore = () => PageTrail.fromDto(dto);
+
+        // Then
+        expect(restore).toThrow('PageTrail DTO references unknown element ID: 42');
     });
 
     it('rejects a context reference to an unknown container', () => {
@@ -129,7 +161,7 @@ describe('PageTrail DTO conversion', () => {
         const restore = () => PageTrail.fromDto(dto);
 
         // Then
-        expect(restore).toThrow('PageTrail DTO references unknown container ID: 42');
+        expect(restore).toThrow('PageTrail DTO references unknown element ID: 42');
     });
 });
 
@@ -141,14 +173,14 @@ describe('PageTrail elements', () => {
         const pageTrail = pageTrailFixture({ elements: [content, interactive] });
 
         // When
-        const firstContent = pageTrail.content();
-        const firstInteractive = pageTrail.interactive();
+        const firstContent = pageTrail.getContent();
+        const firstInteractive = pageTrail.getInteractive();
         firstContent.length = 0;
         firstInteractive.length = 0;
 
         // Then
-        expect(pageTrail.content()).toEqual([content]);
-        expect(pageTrail.interactive()).toEqual([interactive]);
+        expect(pageTrail.getContent()).toEqual([content]);
+        expect(pageTrail.getInteractive()).toEqual([interactive]);
     });
 
     it('returns content elements sorted by descending importance without changing their collected order', () => {
@@ -161,11 +193,11 @@ describe('PageTrail elements', () => {
         const pageTrail = pageTrailFixture({ elements });
 
         // When
-        const sorted = pageTrail.contentByImportanceDesc();
+        const sorted = pageTrail.getContentByImportanceDesc();
 
         // Then
         expect(sorted).toEqual([medium, low]);
-        expect(pageTrail.elements).toEqual(elements);
+        expect(pageTrail.getContent()).toEqual([low, medium]);
     });
 
     it('returns interactive elements sorted by descending importance without changing their collected order', () => {
@@ -177,10 +209,76 @@ describe('PageTrail elements', () => {
         const pageTrail = pageTrailFixture({ elements });
 
         // When
-        const sorted = pageTrail.interactiveByImportanceDesc();
+        const sorted = pageTrail.getInteractiveByImportanceDesc();
 
         // Then
         expect(sorted).toEqual([high, low]);
-        expect(pageTrail.elements).toEqual(elements);
+        expect(pageTrail.getInteractive()).toEqual([low, high]);
+    });
+
+    it('returns a new structure without changing element references', () => {
+        // Given
+        const content = contentElement({ id: 1 });
+        const interactive = interactiveElement({ id: 2 });
+        const container = containerElement({ id: 3 });
+        const pageTrail = pageTrailFixture({
+            structure: {
+                content: [content],
+                interactive: [],
+                nodes: [{ container, content: [], interactive: [interactive], nodes: [] }],
+            },
+        });
+
+        // When
+        const first = pageTrail.getStructure();
+        first.content.length = 0;
+        first.nodes[0]!.interactive.length = 0;
+        first.nodes.length = 0;
+        const second = pageTrail.getStructure();
+
+        // Then
+        expect(second.content).toEqual([content]);
+        expect(second.content[0]).toBe(content);
+        expect(second.nodes[0]!.interactive).toEqual([interactive]);
+        expect(second.nodes[0]!.interactive[0]).toBe(interactive);
+    });
+
+    it('returns a new structure with elements sorted by descending importance at every level', () => {
+        // Given
+        const rootContentLow = contentElement({ id: 1, importanceScore: { value: 0.2 } });
+        const rootContentHigh = contentElement({ id: 2, importanceScore: { value: 0.8 } });
+        const rootInteractiveLow = interactiveElement({ id: 3, importanceScore: { value: 0.1 } });
+        const rootInteractiveHigh = interactiveElement({ id: 4, importanceScore: { value: 0.9 } });
+        const nestedContentLow = contentElement({ id: 5, importanceScore: { value: 0.3 } });
+        const nestedContentHigh = contentElement({ id: 6, importanceScore: { value: 0.7 } });
+        const nestedInteractiveLow = interactiveElement({ id: 7, importanceScore: { value: 0.4 } });
+        const nestedInteractiveHigh = interactiveElement({ id: 8, importanceScore: { value: 0.6 } });
+        const container = containerElement({ id: 9 });
+        const structure = {
+            content: [rootContentLow, rootContentHigh],
+            interactive: [rootInteractiveLow, rootInteractiveHigh],
+            nodes: [
+                {
+                    container,
+                    content: [nestedContentLow, nestedContentHigh],
+                    interactive: [nestedInteractiveLow, nestedInteractiveHigh],
+                    nodes: [],
+                },
+            ],
+        };
+        const pageTrail = pageTrailFixture({ structure });
+        const original = pageTrail.getStructure();
+
+        // When
+        const sorted = pageTrail.getStructureByImportanceDesc();
+
+        // Then
+        expect(sorted.content).toEqual([rootContentHigh, rootContentLow]);
+        expect(sorted.interactive).toEqual([rootInteractiveHigh, rootInteractiveLow]);
+        expect(sorted.nodes[0]!.content).toEqual([nestedContentHigh, nestedContentLow]);
+        expect(sorted.nodes[0]!.interactive).toEqual([nestedInteractiveHigh, nestedInteractiveLow]);
+        expect(pageTrail.getStructure()).toEqual(original);
+        expect(pageTrail.getStructure().content).toEqual([rootContentLow, rootContentHigh]);
+        expect(pageTrail.getStructure().nodes[0]!.content).toEqual([nestedContentLow, nestedContentHigh]);
     });
 });

@@ -177,14 +177,17 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
                     {activeTab === 'structure' && (
-                        <InspectorPageStructure structure={pageTrail.structure} devMode={devMode} />
+                        <InspectorPageStructure
+                            structure={pageTrail.getStructureByImportanceDesc()}
+                            devMode={devMode}
+                        />
                     )}
                     {activeTab === 'content' && (
-                        <InspectorPageContent content={pageTrail.contentByImportanceDesc()} devMode={devMode} />
+                        <InspectorPageContent content={pageTrail.getContentByImportanceDesc()} devMode={devMode} />
                     )}
                     {activeTab === 'interactive' && (
                         <InspectorPageInteractive
-                            interactive={pageTrail.interactiveByImportanceDesc()}
+                            interactive={pageTrail.getInteractiveByImportanceDesc()}
                             devMode={devMode}
                         />
                     )}

@@ -66,7 +66,7 @@ export function semSampleStructure(
     maxDepth = 3,
     branchLimit = 5,
 ): { depth: number; text: string }[] {
-    return pageTrail.mapStructure(
+    return pageTrail.mapStructureContainers(
         (node, depth) => ({
             depth,
             text: semContainerElement(node.container).text(),

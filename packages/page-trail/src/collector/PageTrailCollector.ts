@@ -1,4 +1,11 @@
-import type { ContainerElement, ContentElement, ElementId, InteractiveElement, PageBasics } from '../types/index.ts';
+import type {
+    CollectionMetadata,
+    ContainerElement,
+    ContentElement,
+    ElementId,
+    InteractiveElement,
+    PageBasics,
+} from '../types/index.ts';
 
 import { ContainerTree } from './extractors/index.ts';
 import { ElementLocatorCreator } from './ElementLocatorCreator.ts';
@@ -72,26 +79,34 @@ export class PageTrailCollector {
 
     collect(): PageTrail {
         const t0 = performance.now();
-
+        // collect basics
         const basics = this.collectPageBasics();
         const t1_basics = performance.now();
-
+        // collect containers and build the structure
         const containerElements = this.collectContainerElements();
         const containerTree = new ContainerTree(this.document.body, containerElements);
         const t2_structure = performance.now();
-
+        // collect content elements
         const contentElements = this.collectContentElements(containerTree);
         const t3_content = performance.now();
-
+        // collect interactive elements
         const interactiveElements = this.collectInteractiveElements(basics, containerTree);
         const t4_interactive = performance.now();
-
+        // complete the structure
+        for (const element of contentElements) {
+            containerTree.addTarget(element.data);
+        }
+        for (const element of interactiveElements) {
+            containerTree.addTarget(element.data);
+        }
         const elements = [
             ...containerElements.elements(),
             ...contentElements.elements(),
             ...interactiveElements.elements(),
         ];
-        const metadata = {
+        const t5_complete = performance.now();
+
+        const metadata: CollectionMetadata = {
             version: VERSION,
             // stats
             containerElements: containerElements.length,
@@ -112,7 +127,8 @@ export class PageTrailCollector {
                 structureMs: Math.round(t2_structure - t1_basics),
                 contentMs: Math.round(t3_content - t2_structure),
                 interactiveMs: Math.round(t4_interactive - t3_content),
-                totalMs: Math.round(t4_interactive - t0),
+                completeMs: Math.round(t5_complete - t4_interactive),
+                totalMs: Math.round(t5_complete - t0),
             },
         };
 

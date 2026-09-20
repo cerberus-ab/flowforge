@@ -17,10 +17,14 @@ interface PresentPreviewContainerTreeNode {
     semanticText: string;
     score: number;
     nodes: PresentPreviewContainerTreeNode[];
+    content: PresentPreviewContentElement[];
+    interactive: PresentPreviewInteractiveElement[];
 }
 
-interface PreviewStructure {
+interface PresentPreviewStructure {
     nodes: PresentPreviewContainerTreeNode[];
+    content: PresentPreviewContentElement[];
+    interactive: PresentPreviewInteractiveElement[];
     semanticText: string;
 }
 
@@ -43,47 +47,18 @@ interface PresentPreviewInteractiveElement {
     link?: InteractiveLinkType;
 }
 
-function presentPreviewContainerTree(structure: ContainerTreeNode[]): PresentPreviewContainerTreeNode[] {
-    return structure.map((node) => ({
-        tag: node.container.tag,
-        role: node.container.role,
-        labels: node.container.labels.map((label) => label.value),
-        semanticText: semContainerElement(node.container).text(),
-        score: node.container.meaningScore.value,
-        nodes: presentPreviewContainerTree(node.nodes),
-    }));
-}
-
-// Exports
-
-/**
- * Creates a compact, human-readable JSON preview of the page structure.
- */
-export function presentPreviewStructure(structure: ContainerRootNode): PreviewStructure {
+export function presentPreviewContentElement(element: ContentElement): PresentPreviewContentElement {
     return {
-        semanticText: 'root',
-        nodes: presentPreviewContainerTree(structure.nodes),
-    };
-}
-
-/**
- * Creates a compact, human-readable JSON preview of content elements.
- */
-export function presentPreviewContent(content: ContentElement[]): PresentPreviewContentElement[] {
-    return content.map((element) => ({
         tag: element.tag,
         text: element.text,
         semanticText: semContentElement(element).text(),
         score: element.importanceScore.value,
         context: semElementContextByBreadcrumbs(element.context),
-    }));
+    };
 }
 
-/**
- * Creates a compact, human-readable JSON preview of interactive elements.
- */
-export function presentPreviewInteractive(interactive: InteractiveElement[]): PresentPreviewInteractiveElement[] {
-    return interactive.map((element) => ({
+export function presentPreviewInteractiveElement(element: InteractiveElement): PresentPreviewInteractiveElement {
+    return {
         tag: element.tag,
         role: element.role,
         labels: element.labels.map((label) => label.value),
@@ -92,5 +67,46 @@ export function presentPreviewInteractive(interactive: InteractiveElement[]): Pr
         score: element.importanceScore.value,
         context: semElementContextByBreadcrumbs(element.context),
         link: element.link?.type,
+    };
+}
+
+function presentPreviewContainerTree(containerTree: ContainerTreeNode[]): PresentPreviewContainerTreeNode[] {
+    return containerTree.map((node) => ({
+        tag: node.container.tag,
+        role: node.container.role,
+        labels: node.container.labels.map((label) => label.value),
+        semanticText: semContainerElement(node.container).text(),
+        score: node.container.meaningScore.value,
+        nodes: presentPreviewContainerTree(node.nodes),
+        content: node.content.map(presentPreviewContentElement),
+        interactive: node.interactive.map(presentPreviewInteractiveElement),
     }));
+}
+
+// Exports
+
+/**
+ * Creates a compact, human-readable JSON preview of the page structure.
+ */
+export function presentPreviewStructure(structure: ContainerRootNode): PresentPreviewStructure {
+    return {
+        semanticText: 'root',
+        nodes: presentPreviewContainerTree(structure.nodes),
+        content: structure.content.map(presentPreviewContentElement),
+        interactive: structure.interactive.map(presentPreviewInteractiveElement),
+    };
+}
+
+/**
+ * Creates a compact, human-readable JSON preview of content elements.
+ */
+export function presentPreviewContent(content: ContentElement[]): PresentPreviewContentElement[] {
+    return content.map((element) => presentPreviewContentElement(element));
+}
+
+/**
+ * Creates a compact, human-readable JSON preview of interactive elements.
+ */
+export function presentPreviewInteractive(interactive: InteractiveElement[]): PresentPreviewInteractiveElement[] {
+    return interactive.map((element) => presentPreviewInteractiveElement(element));
 }

@@ -26,8 +26,8 @@ export class PageTrail {
     constructor(
         readonly contextOnly: boolean,
         readonly basics: PageBasics,
-        readonly structure: ContainerRootNode,
-        readonly elements: PageElement[],
+        private readonly structure: ContainerRootNode,
+        private readonly elements: PageElement[],
         readonly metadata: CollectionMetadata,
     ) {}
 
@@ -35,7 +35,7 @@ export class PageTrail {
      * Returns all content elements from the page element collection.
      * Each call returns a new array in the collected order.
      */
-    content(): ContentElement[] {
+    getContent(): ContentElement[] {
         return this.elements.filter((element): element is ContentElement => element.kind === 'content');
     }
 
@@ -43,31 +43,71 @@ export class PageTrail {
      * Returns all interactive elements from the page element collection.
      * Each call returns a new array in the collected order.
      */
-    interactive(): InteractiveElement[] {
+    getInteractive(): InteractiveElement[] {
         return this.elements.filter((element): element is InteractiveElement => element.kind === 'interactive');
+    }
+
+    /**
+     * Returns a new container structure.
+     * Preserves references to its elements.
+     */
+    getStructure(): ContainerRootNode {
+        const mapNode = (node: ContainerTreeNode): ContainerTreeNode => ({
+            ...node,
+            content: [...node.content],
+            interactive: [...node.interactive],
+            nodes: node.nodes.map(mapNode),
+        });
+        return {
+            content: [...this.structure.content],
+            interactive: [...this.structure.interactive],
+            nodes: this.structure.nodes.map(mapNode),
+        };
     }
 
     /**
      * Returns content elements sorted by descending importance score.
      * The original content collection keeps its collected order.
      */
-    contentByImportanceDesc(): ContentElement[] {
-        return this.content().sort(compareByImportanceDesc);
+    getContentByImportanceDesc(): ContentElement[] {
+        return this.getContent().sort(compareByImportanceDesc);
     }
 
     /**
      * Returns interactive elements sorted by descending importance score.
      * The original interactive collection keeps its collected order.
      */
-    interactiveByImportanceDesc(): InteractiveElement[] {
-        return this.interactive().sort(compareByImportanceDesc);
+    getInteractiveByImportanceDesc(): InteractiveElement[] {
+        return this.getInteractive().sort(compareByImportanceDesc);
+    }
+
+    /**
+     * Returns a new container structure with content and interactive elements
+     * sorted by descending importance at every level.
+     */
+    getStructureByImportanceDesc(): ContainerRootNode {
+        const mapNode = (node: ContainerTreeNode): ContainerTreeNode => ({
+            ...node,
+            content: [...node.content].sort(compareByImportanceDesc),
+            interactive: [...node.interactive].sort(compareByImportanceDesc),
+            nodes: node.nodes.map(mapNode),
+        });
+        return {
+            content: [...this.structure.content].sort(compareByImportanceDesc),
+            interactive: [...this.structure.interactive].sort(compareByImportanceDesc),
+            nodes: this.structure.nodes.map(mapNode),
+        };
     }
 
     /**
      * Maps the container tree in depth-first order with optional depth and branch limits.
      * Returns a flat array of mapped values while preserving traversal order.
      */
-    mapStructure<T>(mapper: (node: ContainerTreeNode, depth: number) => T, maxDepth = 3, branchLimit = 5): T[] {
+    mapStructureContainers<T>(
+        mapper: (node: ContainerTreeNode, depth: number) => T,
+        maxDepth = 3,
+        branchLimit = 5,
+    ): T[] {
         const walk = (nodes: ContainerTreeNode[], depth: number): T[] => {
             if (depth > maxDepth) return [];
 
@@ -83,7 +123,8 @@ export class PageTrail {
     toDto(): PageTrailDto {
         const mapNode = (node: ContainerTreeNode): ContainerTreeNodeDto => ({
             containerId: node.container.id,
-            targetIds: node.targets.map((target) => target.id),
+            contentIds: node.content.map((element) => element.id),
+            interactiveIds: node.interactive.map((element) => element.id),
             nodes: node.nodes.map(mapNode),
         });
 
@@ -91,7 +132,8 @@ export class PageTrail {
             contextOnly: this.contextOnly,
             basics: this.basics,
             structure: {
-                targetIds: this.structure.targets.map((target) => target.id),
+                contentIds: this.structure.content.map((element) => element.id),
+                interactiveIds: this.structure.interactive.map((element) => element.id),
                 nodes: this.structure.nodes.map(mapNode),
             },
             elements: this.elements.map((element): PageElementDto => {
@@ -118,50 +160,46 @@ export class PageTrail {
      * Container instances are taken from the DTO element collection.
      */
     static fromDto(dto: PageTrailDto): PageTrail {
-        const containerById = new Map(
-            dto.elements
-                .filter((element): element is ContainerElement => element.kind === 'container')
-                .map((container) => [container.id, container]),
-        );
-        const resolveContainer = (containerId: ElementId): ContainerElement => {
-            const container = containerById.get(containerId);
-            if (!container) throw new Error(`PageTrail DTO references unknown container ID: ${containerId}`);
-            return container;
+        const elementById = new Map<ElementId, PageElement>();
+        for (const element of dto.elements) {
+            if (element.kind === 'container') elementById.set(element.id, element);
+        }
+
+        const resolveElement = <T extends PageElement>(elementId: ElementId): T => {
+            const element = elementById.get(elementId);
+            if (!element) throw new Error(`PageTrail DTO references unknown element ID: ${elementId}`);
+            return element as T;
         };
+
         const elements = dto.elements.map((element): PageElement => {
             if (element.kind === 'container') return element;
 
-            return {
+            const restored: ContentElement | InteractiveElement = {
                 ...element,
                 context: {
                     ...element.context,
                     path: element.context.path.map((node) => ({
-                        container: resolveContainer(node.containerId),
+                        container: resolveElement<ContainerElement>(node.containerId),
                         distance: node.distance,
                         relevanceScore: node.relevanceScore,
                     })),
                 },
             };
+            elementById.set(restored.id, restored);
+            return restored;
         });
-        const targetById = new Map(
-            elements
-                .filter((element): element is ContentElement | InteractiveElement => element.kind !== 'container')
-                .map((target) => [target.id, target]),
-        );
-        const resolveTarget = (targetId: ElementId): ContentElement | InteractiveElement => {
-            const target = targetById.get(targetId);
-            if (!target) throw new Error(`PageTrail DTO references unknown target ID: ${targetId}`);
-            return target;
-        };
+
         const mapNode = (node: ContainerTreeNodeDto): ContainerTreeNode => {
             return {
-                container: resolveContainer(node.containerId),
-                targets: node.targetIds.map(resolveTarget),
+                container: resolveElement<ContainerElement>(node.containerId),
+                content: node.contentIds.map((id) => resolveElement<ContentElement>(id)),
+                interactive: node.interactiveIds.map((id) => resolveElement<InteractiveElement>(id)),
                 nodes: node.nodes.map(mapNode),
             };
         };
         const structure: ContainerRootNode = {
-            targets: dto.structure.targetIds.map(resolveTarget),
+            content: dto.structure.contentIds.map((id) => resolveElement<ContentElement>(id)),
+            interactive: dto.structure.interactiveIds.map((id) => resolveElement<InteractiveElement>(id)),
             nodes: dto.structure.nodes.map(mapNode),
         };
         return new PageTrail(dto.contextOnly, dto.basics, structure, elements, dto.metadata);

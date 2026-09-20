@@ -128,7 +128,7 @@ export function pageTrailFixture(overrides: PageTrailFixtureOptions = {}): PageT
                 scrollHeight: 1440,
             },
         },
-        overrides.structure ?? { targets: [], nodes: [] },
+        overrides.structure ?? { content: [], interactive: [], nodes: [] },
         overrides.elements ?? [],
         overrides.metadata ?? {
             version: '0.1.0',
@@ -149,6 +149,7 @@ export function pageTrailFixture(overrides: PageTrailFixtureOptions = {}): PageT
                 structureMs: 0,
                 contentMs: 0,
                 interactiveMs: 0,
+                completeMs: 0,
                 totalMs: 0,
             },
         },

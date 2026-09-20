@@ -9,7 +9,8 @@ describe('semMarkdown', () => {
         // Given
         const pageTrail = pageTrailFixture({
             structure: {
-                targets: [],
+                content: [],
+                interactive: [],
                 nodes: [containerNode('Main', 'main content', [containerNode('Tabs', 'navigation')])],
             },
             elements: [
@@ -148,7 +149,8 @@ function containerNode(
             role,
             labels: [{ source: 'aria-label', value: name }],
         }),
-        targets: [],
+        content: [],
+        interactive: [],
         nodes,
     };
 }

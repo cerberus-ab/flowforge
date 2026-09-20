@@ -33,7 +33,7 @@ export function InspectorPageStructure({
     structure,
     devMode,
 }: {
-    structure: PageTrail['structure'];
+    structure: ReturnType<PageTrail['getStructure']>;
     devMode: boolean;
 }) {
     return (

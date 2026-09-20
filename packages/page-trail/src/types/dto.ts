@@ -17,7 +17,8 @@ export type CollectionsMetadataDto = CollectionMetadata;
 
 export type ContainerTreeNodeDto = {
     containerId: ElementId;
-    targetIds: ElementId[];
+    contentIds: ElementId[];
+    interactiveIds: ElementId[];
     nodes: ContainerTreeNodeDto[];
 };
 

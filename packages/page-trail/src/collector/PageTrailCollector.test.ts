@@ -20,9 +20,9 @@ describe('PageTrailCollector', () => {
         const model = collect({ getElementDataId });
 
         // Then
-        const containers = model.mapStructure((node) => node.container);
-        const contentElements = model.content();
-        const interactiveElements = model.interactive();
+        const containers = model.mapStructureContainers((node) => node.container);
+        const contentElements = model.getContent();
+        const interactiveElements = model.getInteractive();
         expect(containers).toHaveLength(1);
         expect(contentElements).toHaveLength(1);
         expect(interactiveElements).toHaveLength(1);
@@ -37,6 +37,10 @@ describe('PageTrailCollector', () => {
         expect(interactive.locator).toBe(content.locator);
         expect(content.context.path[0]?.container).toBe(container);
         expect(interactive.context.path[0]?.container).toBe(container);
+        expect(model.getStructure().nodes[0]?.content).toEqual([content]);
+        expect(model.getStructure().nodes[0]?.interactive).toEqual([interactive]);
+        expect(model.getStructure().content).toEqual([]);
+        expect(model.getStructure().interactive).toEqual([]);
         expect(getElementDataId).toHaveBeenCalledTimes(2);
         expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#main'));
         expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#action'));
@@ -106,7 +110,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.content()).toEqual(
+        expect(model.getContent()).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     kind: 'content',
@@ -124,7 +128,7 @@ describe('PageTrailCollector', () => {
                 }),
             ]),
         );
-        expect(model.content().some((el) => el.locator!.dataId === 'short')).toBeFalsy();
+        expect(model.getContent().some((el) => el.locator!.dataId === 'short')).toBeFalsy();
     });
 
     it('collects visible interactive elements', () => {
@@ -144,7 +148,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.interactive()).toEqual(
+        expect(model.getInteractive()).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     kind: 'interactive',
@@ -189,7 +193,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.interactive().map((el) => el.locator!.dataId)).toEqual(['visible']);
+        expect(model.getInteractive().map((el) => el.locator!.dataId)).toEqual(['visible']);
     });
 
     it('applies content and interactive limits after scoring', () => {
@@ -214,12 +218,12 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
-        expect(model.content()).toHaveLength(1);
-        expect(model.content()[0]).toEqual(
+        expect(model.getContent()).toHaveLength(1);
+        expect(model.getContent()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'heading', cssSelector: undefined } }),
         );
-        expect(model.interactive()).toHaveLength(1);
-        expect(model.interactive()[0]).toEqual(
+        expect(model.getInteractive()).toHaveLength(1);
+        expect(model.getInteractive()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'button', cssSelector: undefined } }),
         );
     });
@@ -242,7 +246,7 @@ describe('PageTrailCollector', () => {
         expect(model.metadata.containerElementsMaxDepth).toBe(2);
         expect(model.metadata).not.toHaveProperty('containerElementsTotal');
         expect(model.metadata).not.toHaveProperty('containerElementsLimitReached');
-        expect(model.mapStructure((node) => node.container)[0]).not.toHaveProperty('importanceScore');
+        expect(model.mapStructureContainers((node) => node.container)[0]).not.toHaveProperty('importanceScore');
     });
 
     it('keeps locator cssSelector undefined while CSS selectors are unsupported', () => {
@@ -256,7 +260,7 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
-        expect(model.interactive()[0]).toEqual(
+        expect(model.getInteractive()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
         );
     });
@@ -273,8 +277,8 @@ describe('PageTrailCollector', () => {
 
         // Then
         expect(model.contextOnly).toBe(false);
-        expect(model.interactive()).toHaveLength(1);
-        expect(model.interactive()[0]).toEqual(
+        expect(model.getInteractive()).toHaveLength(1);
+        expect(model.getInteractive()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
         );
     });
@@ -290,8 +294,13 @@ describe('PageTrailCollector', () => {
 
         // Then
         expect(model.contextOnly).toBe(true);
-        expect(model.elements).not.toHaveLength(0);
-        expect(model.elements.every((element) => element.locator === undefined)).toBe(true);
+        const elements = [
+            ...model.mapStructureContainers((node) => node.container),
+            ...model.getContent(),
+            ...model.getInteractive(),
+        ];
+        expect(elements).not.toHaveLength(0);
+        expect(elements.every((element) => element.locator === undefined)).toBe(true);
     });
 });
 

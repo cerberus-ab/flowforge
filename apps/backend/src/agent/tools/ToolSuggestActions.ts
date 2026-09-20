@@ -23,7 +23,7 @@ export class ToolSuggestActions extends AbstractCallableTool {
 
     private collectActions(ctx: PageContextProvider) {
         return ctx.pageTrail
-            .interactiveByImportanceDesc()
+            .getInteractiveByImportanceDesc()
             .filter((element) => this.isUsableAction(element))
             .slice(0, this.elementsInteractiveLimit)
             .map((element) => ({

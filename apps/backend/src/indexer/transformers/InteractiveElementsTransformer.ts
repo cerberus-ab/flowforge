@@ -9,7 +9,7 @@ export class InteractiveElementsTransformer extends AbstractDocumentTransformer 
 
     override async transformFn(pageTrail: PageTrail): Promise<IndexableDocument[]> {
         const docs: IndexableDocument[] = [];
-        for (const el of pageTrail.interactive()) {
+        for (const el of pageTrail.getInteractive()) {
             const content = semInteractiveElement(el).text();
             docs.push(this.createDocument(content, el));
         }

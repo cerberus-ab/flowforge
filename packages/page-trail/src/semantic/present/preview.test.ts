@@ -16,7 +16,8 @@ describe('preview semantic presentation', () => {
     it('creates a compact preview of the container tree', () => {
         // Given
         const structure: ContainerRootNode = {
-            targets: [],
+            content: [],
+            interactive: [],
             nodes: [
                 {
                     container: containerElement({
@@ -28,7 +29,8 @@ describe('preview semantic presentation', () => {
                         labels: [{ source: 'aria-label', value: 'Primary' }],
                         meaningScore: { value: 0.8 },
                     }),
-                    targets: [],
+                    content: [],
+                    interactive: [],
                     nodes: [
                         {
                             container: containerElement({
@@ -37,7 +39,8 @@ describe('preview semantic presentation', () => {
                                 labels: [{ source: 'legend', value: 'Search' }],
                                 meaningScore: { value: 0.7 },
                             }),
-                            targets: [],
+                            content: [],
+                            interactive: [],
                             nodes: [],
                         },
                     ],
@@ -51,6 +54,8 @@ describe('preview semantic presentation', () => {
         // Then
         expect(preview).toEqual({
             semanticText: 'root',
+            content: [],
+            interactive: [],
             nodes: [
                 {
                     tag: 'nav',
@@ -58,6 +63,8 @@ describe('preview semantic presentation', () => {
                     labels: ['Primary'],
                     semanticText: 'Navigation. Name: Primary',
                     score: 0.8,
+                    content: [],
+                    interactive: [],
                     nodes: [
                         {
                             tag: 'form',
@@ -65,6 +72,8 @@ describe('preview semantic presentation', () => {
                             labels: ['Search'],
                             semanticText: 'Form. Name: Search',
                             score: 0.7,
+                            content: [],
+                            interactive: [],
                             nodes: [],
                         },
                     ],

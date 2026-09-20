@@ -65,7 +65,8 @@ export interface ContainerElementLabel {
 
 export interface ContainerTreeNode {
     container: ContainerElement;
-    targets: (ContentElement | InteractiveElement)[];
+    content: ContentElement[];
+    interactive: InteractiveElement[];
     nodes: ContainerTreeNode[];
 }
 
@@ -214,6 +215,7 @@ export interface CollectionMetadata {
         structureMs: number;
         contentMs: number;
         interactiveMs: number;
+        completeMs: number;
         totalMs: number;
     };
 }

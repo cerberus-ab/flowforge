@@ -2,7 +2,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { ContainerElement, ContainerTreeNode } from '../../types';
 import { markVisible, resetDocument } from '../../../test/domUtils';
-import { containerElement, containerNode, type ContainerNodeFixture } from '../../../test/fixtures';
+import {
+    containerElement,
+    containerNode,
+    contentElement,
+    interactiveElement,
+    type ContainerNodeFixture,
+} from '../../../test/fixtures';
 import { ElementLocatorCreator } from '../ElementLocatorCreator';
 import { ContainerTree } from './ContainerTree';
 import { extractContainerElements } from './container';
@@ -397,6 +403,64 @@ describe('ContainerTree', () => {
 
         // Then
         expect(path).toEqual([]);
+    });
+
+    it('adds content and interactive targets to their nearest container node', () => {
+        // Given
+        document.body.innerHTML = `
+            <main id="main">
+                <section id="section">
+                    <p id="content">Useful content</p>
+                </section>
+            </main>
+        `;
+        markVisible('#main', containerRect);
+        markVisible('#section', containerRect);
+
+        const tree = createTree();
+        const mainNode = tree.structure.nodes[0]!;
+        const sectionNode = mainNode.nodes[0]!;
+        const context = {
+            path: [
+                { container: sectionNode.container, distance: 0, relevanceScore: { value: 1 } },
+                { container: mainNode.container, distance: 1, relevanceScore: { value: 0.5 } },
+            ],
+            breadcrumbs: [],
+            contextScore: { value: 1 },
+        };
+        const content = contentElement({ context });
+        const interactive = interactiveElement({ context });
+
+        // When
+        tree.addTarget(content);
+        tree.addTarget(interactive);
+
+        // Then
+        expect(sectionNode.content).toEqual([content]);
+        expect(sectionNode.content[0]).toBe(content);
+        expect(sectionNode.interactive).toEqual([interactive]);
+        expect(sectionNode.interactive[0]).toBe(interactive);
+        expect(mainNode.content).toEqual([]);
+        expect(mainNode.interactive).toEqual([]);
+        expect(tree.structure.content).toEqual([]);
+        expect(tree.structure.interactive).toEqual([]);
+    });
+
+    it('adds content and interactive targets without a container path to the root node', () => {
+        // Given
+        const tree = createTree();
+        const content = contentElement();
+        const interactive = interactiveElement();
+
+        // When
+        tree.addTarget(content);
+        tree.addTarget(interactive);
+
+        // Then
+        expect(tree.structure.content).toEqual([content]);
+        expect(tree.structure.content[0]).toBe(content);
+        expect(tree.structure.interactive).toEqual([interactive]);
+        expect(tree.structure.interactive[0]).toBe(interactive);
     });
 });
 

@@ -1,4 +1,10 @@
-import type { ContainerElement, ContainerRootNode, ContainerTreeNode } from '../../types/index.ts';
+import type {
+    ContainerElement,
+    ContainerRootNode,
+    ContainerTreeNode,
+    ContentElement,
+    InteractiveElement,
+} from '../../types/index.ts';
 import type { ExtractedElements } from './ExtractedElements.ts';
 
 /**
@@ -14,10 +20,12 @@ export class ContainerTree {
     private readonly containers: ExtractedElements<ContainerElement>;
 
     private readonly nodeByEl = new WeakMap<Element, ContainerTreeNode>();
+    private readonly nodeByContainer = new WeakMap<ContainerElement, ContainerTreeNode>();
     private readonly parentByNode = new WeakMap<ContainerTreeNode, ContainerTreeNode>();
 
     readonly structure: ContainerRootNode = {
-        targets: [],
+        content: [],
+        interactive: [],
         nodes: [],
     };
 
@@ -39,11 +47,14 @@ export class ContainerTree {
     private buildTree() {
         // collect node by element map
         for (const container of this.containers) {
-            this.nodeByEl.set(container.el, {
+            const node = {
                 container: container.data,
-                targets: [],
+                content: [],
+                interactive: [],
                 nodes: [],
-            });
+            };
+            this.nodeByEl.set(container.el, node);
+            this.nodeByContainer.set(container.data, node);
         }
         // connect ancestors though the map
         for (const container of this.containers) {
@@ -74,6 +85,7 @@ export class ContainerTree {
         return undefined;
     }
 
+    /** Returns ancestor containers ordered from the nearest container to the tree root. */
     getPathToRoot(el: Element): ContainerElement[] {
         if (!this.root.contains(el)) return [];
 
@@ -97,17 +109,26 @@ export class ContainerTree {
         return path;
     }
 
+    /** Adds a target to its nearest container node or to the structure root. */
+    addTarget(target: ContentElement | InteractiveElement): void {
+        const parent = target.context.path[0];
+        const node = parent ? this.nodeByContainer.get(parent.container) : undefined;
+        const targetContainer = node ?? this.structure;
+
+        if (target.kind === 'content') {
+            targetContainer.content.push(target);
+        } else {
+            targetContainer.interactive.push(target);
+        }
+    }
+
     private getMaxDepthR(nodes: ContainerTreeNode[]): number {
         if (nodes.length === 0) return 0;
 
         return Math.max(...nodes.map((node) => 1 + this.getMaxDepthR(node.nodes)));
     }
 
-    /**
-     * Compute max depth for the collected container tree
-     *
-     * @returns Maximum nested depth across all top-level container nodes.
-     */
+    /** Returns the maximum nested depth across all container nodes. */
     getMaxDepth(): number {
         return this.getMaxDepthR(this.structure.nodes);
     }

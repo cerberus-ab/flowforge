@@ -36,6 +36,7 @@ const pageTrail = createPageTrailFixture({
             structureMs: 2,
             contentMs: 3,
             interactiveMs: 4,
+            completeMs: 0,
             totalMs: 10,
         },
     },

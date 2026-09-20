@@ -16,7 +16,8 @@ describe('enriched semantic presentation', () => {
     it('adds semantic text to every container tree node', () => {
         // Given
         const structure: ContainerRootNode = {
-            targets: [],
+            content: [],
+            interactive: [],
             nodes: [
                 {
                     container: containerElement({
@@ -24,7 +25,8 @@ describe('enriched semantic presentation', () => {
                         role: 'main content',
                         type: 'landmark',
                     }),
-                    targets: [],
+                    content: [],
+                    interactive: [],
                     nodes: [
                         {
                             container: containerElement({
@@ -33,7 +35,8 @@ describe('enriched semantic presentation', () => {
                                 type: 'form',
                                 labels: [{ source: 'legend', value: 'Checkout' }],
                             }),
-                            targets: [],
+                            content: [],
+                            interactive: [],
                             nodes: [],
                         },
                     ],
