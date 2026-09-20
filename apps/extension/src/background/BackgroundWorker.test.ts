@@ -1,10 +1,10 @@
-import type { PageTrail } from '@flowforge/contract';
+import type { PageTrailDto } from '@flowforge/contract';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeApiClient, createQueryResponseFixture } from '../../test/unit/fakes/FakeApiClient';
 import { FakeLocalStorage } from '../../test/unit/fakes/FakeLocalStorage';
 import { FakeTransportService } from '../../test/unit/fakes/FakeTransportService';
-import { createPageTrailFixture } from '../../test/fixtures.ts';
+import { createPageTrailDtoFixture } from '../../test/fixtures.ts';
 import { HistoryStorage } from '../core/services/HistoryStorage';
 import { SettingsStorage } from '../core/services/SettingsStorage';
 import type {
@@ -112,7 +112,7 @@ describe('BackgroundWorker', () => {
                 topic: 'Saving',
             },
         });
-        const pageTrail = createPageTrailFixture({
+        const pageTrailDto = createPageTrailDtoFixture({
             basics: {
                 url: 'https://app.flowforge.test/settings',
                 title: 'Settings page',
@@ -132,7 +132,7 @@ describe('BackgroundWorker', () => {
         await historyStorage.saveQuestion('app.flowforge.test', 'Previous question');
         const transport = createTransport({
             hostname: 'app.flowforge.test',
-            pageTrail,
+            pageTrailDto,
         });
         const worker = createWorker(transport, { apiClient, historyStorage });
 
@@ -165,7 +165,7 @@ describe('BackgroundWorker', () => {
         expect(apiClient.requests).toEqual([
             {
                 question: 'How do I save?',
-                pageTrail,
+                pageTrailDto,
                 domain: 'app.flowforge.test',
                 userContext: {
                     previousQuestions: ['Previous question'],
@@ -274,15 +274,15 @@ function createWorker(
 
 function createTransport({
     hostname = 'localhost',
-    pageTrail = createPageTrailFixture(),
+    pageTrailDto = createPageTrailDtoFixture(),
 }: {
     hostname?: string;
-    pageTrail?: PageTrail;
+    pageTrailDto?: PageTrailDto;
 } = {}) {
     const transport = new FakeTransportService({
         activeSenderId: 7,
         senderHostname: hostname,
     });
-    transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrail });
+    transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
     return transport;
 }

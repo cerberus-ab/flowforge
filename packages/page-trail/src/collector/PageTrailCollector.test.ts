@@ -21,8 +21,8 @@ describe('PageTrailCollector', () => {
 
         // Then
         const containers = model.mapStructure((node) => node.container);
-        const contentElements = model.contentElements();
-        const interactiveElements = model.interactiveElements();
+        const contentElements = model.content;
+        const interactiveElements = model.interactive;
         expect(containers).toHaveLength(1);
         expect(contentElements).toHaveLength(1);
         expect(interactiveElements).toHaveLength(1);
@@ -106,7 +106,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.contentElements()).toEqual(
+        expect(model.content).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     kind: 'content',
@@ -124,7 +124,7 @@ describe('PageTrailCollector', () => {
                 }),
             ]),
         );
-        expect(model.contentElements().some((el) => el.locator.dataId === 'short')).toBeFalsy();
+        expect(model.content.some((el) => el.locator.dataId === 'short')).toBeFalsy();
     });
 
     it('collects visible interactive elements', () => {
@@ -144,7 +144,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.interactiveElements()).toEqual(
+        expect(model.interactive).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     kind: 'interactive',
@@ -189,7 +189,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.interactiveElements().map((el) => el.locator.dataId)).toEqual(['visible']);
+        expect(model.interactive.map((el) => el.locator.dataId)).toEqual(['visible']);
     });
 
     it('applies content and interactive limits after scoring', () => {
@@ -214,12 +214,12 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
-        expect(model.contentElements()).toHaveLength(1);
-        expect(model.contentElements()[0]).toEqual(
+        expect(model.content).toHaveLength(1);
+        expect(model.content[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'heading', cssSelector: undefined } }),
         );
-        expect(model.interactiveElements()).toHaveLength(1);
-        expect(model.interactiveElements()[0]).toEqual(
+        expect(model.interactive).toHaveLength(1);
+        expect(model.interactive[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'button', cssSelector: undefined } }),
         );
     });
@@ -256,7 +256,7 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
-        expect(model.interactiveElements()[0]).toEqual(
+        expect(model.interactive[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
         );
     });
@@ -272,8 +272,8 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
-        expect(model.interactiveElements()).toHaveLength(1);
-        expect(model.interactiveElements()[0]).toEqual(
+        expect(model.interactive).toHaveLength(1);
+        expect(model.interactive[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
         );
     });

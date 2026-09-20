@@ -1,7 +1,7 @@
 import type { AgentResult, QueryRequest } from '@flowforge/contract';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createPageTrailFixture } from '../../../test/fixtures.ts';
+import { createPageTrailDtoFixture } from '../../../test/fixtures.ts';
 import { constants } from '../constants';
 import { DemoApiClient, HttpApiClient } from './ApiClient';
 
@@ -22,7 +22,7 @@ const result: AgentResult = {
 const request: QueryRequest = {
     question: 'How do I open settings?',
     domain: 'example.com',
-    pageTrail: createPageTrailFixture(),
+    pageTrailDto: createPageTrailDtoFixture(),
 };
 
 afterEach(() => {

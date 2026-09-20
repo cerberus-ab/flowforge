@@ -1,4 +1,6 @@
 import {
+    type ContentElement,
+    type InteractiveElement,
     type PageTrail,
     semModelEnrichedContent,
     semModelEnrichedInteractive,
@@ -44,7 +46,7 @@ export function InspectorPageStructure({
     );
 }
 
-export function InspectorPageContent({ content, devMode }: { content: PageTrail['content']; devMode: boolean }) {
+export function InspectorPageContent({ content, devMode }: { content: ContentElement[]; devMode: boolean }) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
@@ -59,7 +61,7 @@ export function InspectorPageInteractive({
     interactive,
     devMode,
 }: {
-    interactive: PageTrail['interactive'];
+    interactive: InteractiveElement[];
     devMode: boolean;
 }) {
     return (

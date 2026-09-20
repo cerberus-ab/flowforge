@@ -1,4 +1,5 @@
-import type { PageTrail, QueryResponse } from '@flowforge/contract';
+import type { PageTrailDto, QueryResponse } from '@flowforge/contract';
+import { PageTrail } from '@flowforge/page-trail';
 import type { ExtensionSettings } from '@/types';
 
 export function createSettingsFixture(overrides: Partial<ExtensionSettings> = {}): ExtensionSettings {
@@ -9,7 +10,7 @@ export function createSettingsFixture(overrides: Partial<ExtensionSettings> = {}
     };
 }
 
-export function createPageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
+export function createPageTrailDtoFixture(overrides: Partial<PageTrailDto> = {}): PageTrailDto {
     return {
         basics: {
             url: 'https://app.flowforge.test',
@@ -24,16 +25,18 @@ export function createPageTrailFixture(overrides: Partial<PageTrail> = {}): Page
             },
         },
         structure: [],
-        content: [],
-        interactive: [],
+        elements: [],
         metadata: {
-            structureElements: 0,
-            structureMaxDepth: 0,
+            containerElements: 0,
+            containerElementsSelected: 0,
+            containerElementsMaxDepth: 0,
             contentElements: 0,
-            contentElementsTotal: 0,
+            contentElementsSelected: 0,
+            contentElementsCandidates: 0,
             contentElementsLimitReached: false,
             interactiveElements: 0,
-            interactiveElementsTotal: 0,
+            interactiveElementsSelected: 0,
+            interactiveElementsCandidates: 0,
             interactiveElementsLimitReached: false,
             collectedAt: 0,
             performance: {
@@ -46,6 +49,10 @@ export function createPageTrailFixture(overrides: Partial<PageTrail> = {}): Page
         },
         ...overrides,
     };
+}
+
+export function createPageTrailFixture(overrides: Partial<PageTrailDto> = {}): PageTrail {
+    return PageTrail.fromDto(createPageTrailDtoFixture(overrides));
 }
 
 export function createQueryResponseFixture(overrides: Partial<QueryResponse> = {}): QueryResponse {

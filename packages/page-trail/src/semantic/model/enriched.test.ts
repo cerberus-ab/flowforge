@@ -42,10 +42,10 @@ describe('semantic model enriched', () => {
         // Then
         expect(enriched).toMatchObject([
             {
-                element: { locator: { dataId: 'main' }, semanticText: 'Main content' },
+                container: { locator: { dataId: 'main' }, semanticText: 'Main content' },
                 nodes: [
                     {
-                        element: { locator: { dataId: 'checkout' }, semanticText: 'Form. Name: Checkout' },
+                        container: { locator: { dataId: 'checkout' }, semanticText: 'Form. Name: Checkout' },
                     },
                 ],
             },
@@ -74,7 +74,7 @@ describe('semantic model enriched', () => {
         const [enriched] = semModelEnrichedContent([content]);
 
         // Then
-        expect(enriched!.context.path[0]!.element).toMatchObject({
+        expect(enriched!.context.path[0]!.container).toMatchObject({
             locator: { dataId: 'article', cssSelector: undefined },
             semanticText: 'Article. Name: Release notes',
         });
@@ -103,7 +103,7 @@ describe('semantic model enriched', () => {
         const [enriched] = semModelEnrichedInteractive([interactive]);
 
         // Then
-        expect(enriched!.context.path[0]!.element).toMatchObject({
+        expect(enriched!.context.path[0]!.container).toMatchObject({
             locator: { dataId: 'primary-nav', cssSelector: undefined },
             semanticText: 'Navigation. Name: Primary',
         });

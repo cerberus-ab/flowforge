@@ -62,7 +62,7 @@ describe('PageTrail DTO conversion', () => {
 
         // Then
         const structureContainer = restored.mapStructure((node) => node.container)[0];
-        const contextContainer = restored.contentElements()[0]!.context.path[0]!.container;
+        const contextContainer = restored.content[0]!.context.path[0]!.container;
         expect(contextContainer).toBe(structureContainer);
         expect(restored.toDto()).toEqual(dto);
     });

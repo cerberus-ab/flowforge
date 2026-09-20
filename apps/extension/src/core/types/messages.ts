@@ -1,4 +1,4 @@
-import type { AgentResultElement, AgentResultMode, PageTrail, QueryResponse } from '@flowforge/contract';
+import type { AgentResultElement, AgentResultMode, PageTrailDto, QueryResponse } from '@flowforge/contract';
 import type { ExtensionSettings } from '@/core/types/settings';
 
 type MessageTypeToBackground = 'GET_SETTINGS' | 'UPDATE_SETTINGS';
@@ -97,7 +97,7 @@ export type CollectPageTrailMessage = Message & {
     type: 'COLLECT_PAGE_TRAIL';
 };
 
-export type CollectPageTrailMessageResponseData = PageTrail;
+export type CollectPageTrailMessageResponseData = PageTrailDto;
 
 export type CollectPageTrailMessageResponse = MessageResponse<CollectPageTrailMessageResponseData>;
 

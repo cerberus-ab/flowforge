@@ -16,8 +16,8 @@ import type { PageElementDto, PageTrailDto } from './types/dto.ts';
  * in the structure and target contexts. Use DTO conversion at serialization boundaries.
  */
 export class PageTrail {
-    private _contentElements?: ContentElement[];
-    private _interactiveElements?: InteractiveElement[];
+    private _content?: ContentElement[];
+    private _interactive?: InteractiveElement[];
 
     /**
      * Creates a runtime page representation from collected elements and their container tree.
@@ -25,8 +25,8 @@ export class PageTrail {
      */
     constructor(
         readonly basics: PageBasics,
-        private readonly structure: ContainerTreeNode[],
-        private readonly elements: PageElement[],
+        readonly structure: ContainerTreeNode[],
+        readonly elements: PageElement[],
         readonly metadata: CollectionMetadata,
     ) {}
 
@@ -34,8 +34,8 @@ export class PageTrail {
      * Returns all content elements from the page element collection.
      * The filtered result is computed once and reused by later calls.
      */
-    contentElements(): ContentElement[] {
-        return (this._contentElements ??= this.elements.filter(
+    get content(): ContentElement[] {
+        return (this._content ??= this.elements.filter(
             (element): element is ContentElement => element.kind === 'content',
         ));
     }
@@ -44,8 +44,8 @@ export class PageTrail {
      * Returns all interactive elements from the page element collection.
      * The filtered result is computed once and reused by later calls.
      */
-    interactiveElements(): InteractiveElement[] {
-        return (this._interactiveElements ??= this.elements.filter(
+    get interactive(): InteractiveElement[] {
+        return (this._interactive ??= this.elements.filter(
             (element): element is InteractiveElement => element.kind === 'interactive',
         ));
     }

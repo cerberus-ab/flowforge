@@ -4,6 +4,7 @@ import type { ErrorResponse } from '@/types';
 import { PageContextProvider, PageIndexer } from '@/indexer';
 import { WebNavigationAgent } from '@/agent';
 import { Analytics } from '@/analytics';
+import { PageTrail } from '@flowforge/page-trail';
 
 interface QueryHandlerDeps {
     indexer: PageIndexer;
@@ -17,7 +18,8 @@ export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDe
         res: Response<QueryResponse | ErrorResponse>,
     ): Promise<void> {
         try {
-            const { question, pageTrail, domain } = req.body;
+            const { question, pageTrailDto, domain } = req.body;
+            const pageTrail = PageTrail.fromDto(pageTrailDto);
 
             if (!question || !pageTrail) {
                 res.status(400).json({

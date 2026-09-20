@@ -11,9 +11,9 @@ import { semContentElement } from '../element/content.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
 
 type EnrichedContainerElement = ContainerElement & { semanticText: string };
-type EnrichedContainerPathNode = Omit<ContainerPathNode, 'element'> & { element: EnrichedContainerElement };
-type EnrichedContainerTreeNode = Omit<ContainerTreeNode, 'element' | 'nodes'> & {
-    element: EnrichedContainerElement;
+type EnrichedContainerPathNode = Omit<ContainerPathNode, 'container'> & { container: EnrichedContainerElement };
+type EnrichedContainerTreeNode = Omit<ContainerTreeNode, 'container' | 'nodes'> & {
+    container: EnrichedContainerElement;
     nodes: EnrichedContainerTreeNode[];
 };
 type EnrichedElementContext = Omit<ElementContext, 'path'> & { path: EnrichedContainerPathNode[] };
@@ -36,7 +36,7 @@ function semModelEnrichedContainerElement(containerElement: ContainerElement): E
 function semModelEnrichedContainerPath(path: ContainerPathNode[]): EnrichedContainerPathNode[] {
     return path.map((pathNode) => ({
         ...pathNode,
-        element: semModelEnrichedContainerElement(pathNode.container),
+        container: semModelEnrichedContainerElement(pathNode.container),
     }));
 }
 
@@ -57,7 +57,7 @@ function semModelEnrichedElementContext(context: ElementContext): EnrichedElemen
 export function semModelEnrichedStructure(container: ContainerTreeNode[]): EnrichedContainerTreeNode[] {
     return container.map((containerNode) => ({
         ...containerNode,
-        element: semModelEnrichedContainerElement(containerNode.container),
+        container: semModelEnrichedContainerElement(containerNode.container),
         nodes: semModelEnrichedStructure(containerNode.nodes),
     }));
 }

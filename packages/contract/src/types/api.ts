@@ -1,4 +1,4 @@
-import type { PageTrail } from '@flowforge/page-trail';
+import type { PageTrailDto } from '@flowforge/page-trail';
 import type { AgentResult, UsageMetadata } from './agentResult.ts';
 
 // POST: /query
@@ -9,7 +9,7 @@ export interface UserContext {
 
 export interface QueryRequest {
     question: string;
-    pageTrail: PageTrail;
+    pageTrailDto: PageTrailDto;
     domain: string;
     userContext?: UserContext;
 }

@@ -10,8 +10,8 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { findElement, getOrCreateDataId } from '@/core/locator/locate';
 import type { TransportService } from '@/adapters/interface';
 import { constants } from '@/constants';
-import type { AgentResultElement, PageTrail } from '@flowforge/contract';
-import { PageTrailCollector } from '@flowforge/page-trail';
+import type { AgentResultElement } from '@flowforge/contract';
+import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
 
 function collectPageTrail(): PageTrail {
     return PageTrailCollector.collectFor(window, document, {
@@ -175,7 +175,7 @@ export function usePage({ transport, devMode, onDevModeChange, onReady }: UsePag
         const unsubscribe = transport.addMessageListener((message: Message) => {
             if (isCollectPageTrailMessage(message)) {
                 const pageTrail = collectPageTrail();
-                return { success: true, data: pageTrail };
+                return { success: true, data: pageTrail.toDto() };
             }
             if (isClearPageMessage(message)) {
                 clearPage();
