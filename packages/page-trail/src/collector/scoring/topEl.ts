@@ -1,4 +1,5 @@
 import type { Scoring } from '../../types/index.ts';
+import { compareByImportanceDesc } from '../../utils/comparator.ts';
 
 export interface TopElements<T> {
     data: T[];
@@ -25,9 +26,7 @@ export function topElements<S extends { importanceScore: Scoring }, T>(
         };
     }
 
-    const top = new Set(
-        [...elements].sort((a, b) => b.importanceScore.value - a.importanceScore.value).slice(0, limit),
-    );
+    const top = new Set([...elements].sort(compareByImportanceDesc).slice(0, limit));
     return {
         data: elements.filter((element) => top.has(element)).map(transform),
         total: elements.length,

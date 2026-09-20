@@ -21,8 +21,8 @@ export class ToolGetPageSummary extends AbstractCallableTool {
             url: ctx.pageTrail.basics.url,
             description: ctx.pageTrail.basics.description,
             language: ctx.pageTrail.basics.language,
-            sampleHeadings: semSampleHeadings(ctx.pageTrail.content, this.elementsHeadingsLimit),
-            sampleInteractions: semSampleInteractions(ctx.pageTrail.interactive, this.elementsInteractionsLimit),
+            sampleHeadings: semSampleHeadings(ctx.pageTrail.content(), this.elementsHeadingsLimit),
+            sampleInteractions: semSampleInteractions(ctx.pageTrail.interactive(), this.elementsInteractionsLimit),
         };
     }
 

@@ -76,7 +76,7 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            semSampleHeadings(pageTrail.content, settings.SAMPLE_HEADINGS_LIMIT).map((heading, index) =>
+            semSampleHeadings(pageTrail.content(), settings.SAMPLE_HEADINGS_LIMIT).map((heading, index) =>
                 formatMarkdownListItem(heading, { numb: index + 1 }),
             ),
         ),
@@ -90,8 +90,8 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            semSampleInteractions(pageTrail.interactive, settings.SAMPLE_INTERACTIONS_LIMIT).map((interaction, index) =>
-                formatMarkdownListItem(interaction, { numb: index + 1 }),
+            semSampleInteractions(pageTrail.interactive(), settings.SAMPLE_INTERACTIONS_LIMIT).map(
+                (interaction, index) => formatMarkdownListItem(interaction, { numb: index + 1 }),
             ),
         ),
     );
@@ -104,7 +104,7 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            semSampleTexts(pageTrail.content, settings.SAMPLE_TEXT_MIN_LENGTH, settings.SAMPLE_TEXT_LIMIT),
+            semSampleTexts(pageTrail.content(), settings.SAMPLE_TEXT_MIN_LENGTH, settings.SAMPLE_TEXT_LIMIT),
         ),
     );
     lines.push('');

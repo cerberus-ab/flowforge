@@ -3,6 +3,7 @@ import { semInteractiveElement } from '../element/interactive.ts';
 import { semContentElement } from '../element/content.ts';
 import { semContainerElement } from '../element/container.ts';
 import type { PageTrail } from '../../PageTrail.ts';
+import { compareByImportanceDesc } from '../../utils/comparator.ts';
 
 // Exports
 
@@ -16,7 +17,7 @@ import type { PageTrail } from '../../PageTrail.ts';
 export function semSampleHeadings(contentElements: ContentElement[], limit = 5): string[] {
     return contentElements
         .filter((element) => element.type === 'heading')
-        .sort((a, b) => b.importanceScore.value - a.importanceScore.value)
+        .sort(compareByImportanceDesc)
         .slice(0, limit)
         .map((element) => semContentElement(element).text());
 }
@@ -32,7 +33,7 @@ export function semSampleHeadings(contentElements: ContentElement[], limit = 5):
 export function semSampleTexts(contentElements: ContentElement[], minLength = 20, limit = 10): string[] {
     return contentElements
         .filter((element) => element.type === 'text' && element.text.length >= minLength)
-        .sort((a, b) => b.importanceScore.value - a.importanceScore.value)
+        .sort(compareByImportanceDesc)
         .slice(0, limit)
         .map((element) => semContentElement(element).text());
 }
@@ -47,7 +48,7 @@ export function semSampleTexts(contentElements: ContentElement[], minLength = 20
 export function semSampleInteractions(interactiveElements: InteractiveElement[], limit = 10): string[] {
     return interactiveElements
         .filter((element) => element.labels.length > 0 || element.text)
-        .sort((a, b) => b.importanceScore.value - a.importanceScore.value)
+        .sort(compareByImportanceDesc)
         .slice(0, limit)
         .map((element) => semInteractiveElement(element).text());
 }

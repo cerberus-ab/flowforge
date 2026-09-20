@@ -3,11 +3,13 @@ import type {
     ContainerElement,
     ContainerTreeNode,
     ContentElement,
+    ElementId,
     InteractiveElement,
     PageBasics,
     PageElement,
 } from './types/index.ts';
 import type { PageElementDto, PageTrailDto } from './types/dto.ts';
+import { compareByImportanceDesc } from './utils/comparator.ts';
 
 /**
  * Runtime representation of a collected web page.
@@ -16,9 +18,6 @@ import type { PageElementDto, PageTrailDto } from './types/dto.ts';
  * in the structure and target contexts. Use DTO conversion at serialization boundaries.
  */
 export class PageTrail {
-    private _content?: ContentElement[];
-    private _interactive?: InteractiveElement[];
-
     /**
      * Creates a runtime page representation from collected elements and their container tree.
      * Container references are expected to point to elements from the supplied collection.
@@ -32,22 +31,34 @@ export class PageTrail {
 
     /**
      * Returns all content elements from the page element collection.
-     * The filtered result is computed once and reused by later calls.
+     * Each call returns a new array in the collected order.
      */
-    get content(): ContentElement[] {
-        return (this._content ??= this.elements.filter(
-            (element): element is ContentElement => element.kind === 'content',
-        ));
+    content(): ContentElement[] {
+        return this.elements.filter((element): element is ContentElement => element.kind === 'content');
     }
 
     /**
      * Returns all interactive elements from the page element collection.
-     * The filtered result is computed once and reused by later calls.
+     * Each call returns a new array in the collected order.
      */
-    get interactive(): InteractiveElement[] {
-        return (this._interactive ??= this.elements.filter(
-            (element): element is InteractiveElement => element.kind === 'interactive',
-        ));
+    interactive(): InteractiveElement[] {
+        return this.elements.filter((element): element is InteractiveElement => element.kind === 'interactive');
+    }
+
+    /**
+     * Returns content elements sorted by descending importance score.
+     * The original content collection keeps its collected order.
+     */
+    contentByImportanceDesc(): ContentElement[] {
+        return this.content().sort(compareByImportanceDesc);
+    }
+
+    /**
+     * Returns interactive elements sorted by descending importance score.
+     * The original interactive collection keeps its collected order.
+     */
+    interactiveByImportanceDesc(): InteractiveElement[] {
+        return this.interactive().sort(compareByImportanceDesc);
     }
 
     /**
@@ -105,9 +116,14 @@ export class PageTrail {
                 .filter((element): element is ContainerElement => element.kind === 'container')
                 .map((container) => [container.id, container]),
         );
+        const resolveContainer = (containerId: ElementId): ContainerElement => {
+            const container = containerById.get(containerId);
+            if (!container) throw new Error(`PageTrail DTO references unknown container ID: ${containerId}`);
+            return container;
+        };
         const structure = dto.structure.map(function mapNode(node): ContainerTreeNode {
             return {
-                container: containerById.get(node.containerId)!,
+                container: resolveContainer(node.containerId),
                 nodes: node.nodes.map(mapNode),
             };
         });
@@ -119,7 +135,7 @@ export class PageTrail {
                 context: {
                     ...element.context,
                     path: element.context.path.map((node) => ({
-                        container: containerById.get(node.containerId)!,
+                        container: resolveContainer(node.containerId),
                         distance: node.distance,
                         relevanceScore: node.relevanceScore,
                     })),

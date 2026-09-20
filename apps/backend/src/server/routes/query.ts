@@ -19,11 +19,20 @@ export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDe
     ): Promise<void> {
         try {
             const { question, pageTrailDto, domain } = req.body;
-            const pageTrail = PageTrail.fromDto(pageTrailDto);
 
-            if (!question || !pageTrail) {
+            if (!question || !pageTrailDto) {
                 res.status(400).json({
-                    error: 'Missing required fields: question, pageTrail',
+                    error: 'Missing required fields: question, pageTrailDto',
+                });
+                return;
+            }
+            let pageTrail: PageTrail;
+            try {
+                pageTrail = PageTrail.fromDto(pageTrailDto);
+            } catch (error) {
+                res.status(400).json({
+                    error: 'Invalid pageTrailDto',
+                    message: error instanceof Error ? error.message : 'Unknown error',
                 });
                 return;
             }
