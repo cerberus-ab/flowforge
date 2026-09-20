@@ -7,7 +7,7 @@ import { scoreTargetContext } from './target';
 function pathNode(distance: number, relevanceScore: number): ContainerPathNode {
     return {
         distance,
-        element: containerElement({ id: distance }),
+        container: containerElement({ id: distance }),
         relevanceScore: { value: relevanceScore },
     };
 }

@@ -2,9 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markHidden, markVisible, resetDocument } from '../../../test/domUtils';
 import { ElementLocatorCreator } from '../ElementLocatorCreator';
-import { ElementRegistry } from '../ElementRegistry';
 import { ContainerTree } from './ContainerTree';
+import { extractContainerElements } from './container';
 import { extractContentElements } from './content';
+import { nextIdGenerator } from '../../utils/nextId';
 
 afterEach(() => {
     resetDocument();
@@ -28,17 +29,17 @@ describe('extractContentElements', () => {
         markVisible('#short');
         markHidden('#hidden');
 
-        const registry = createRegistry();
+        const nextId = nextIdGenerator();
         const locatorCreator = new ElementLocatorCreator((el) => el.id);
-        const containerTree = ContainerTree.extractFor(window, document, registry, locatorCreator);
+        const containerTree = createContainerTree(nextId, locatorCreator);
 
         // When
-        const topElements = extractContentElements(window, document.body, registry, locatorCreator, containerTree, {
+        const extracted = extractContentElements(window, document.body, nextId, locatorCreator, containerTree, {
             elementsLimit: 0,
         });
 
         // Then
-        expect(topElements.data).toEqual(
+        expect(extracted.elements()).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     kind: 'content',
@@ -56,10 +57,10 @@ describe('extractContentElements', () => {
                 }),
             ]),
         );
-        expect(topElements.data.map((el) => el.locator.dataId)).not.toContain('short');
-        expect(topElements.data.map((el) => el.locator.dataId)).not.toContain('hidden');
+        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('short');
+        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('hidden');
 
-        topElements.data.forEach((el) => {
+        extracted.elements().forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);
             expect(el.context.breadcrumbs.length).toBeGreaterThan(0);
         });
@@ -77,25 +78,26 @@ describe('extractContentElements', () => {
         markVisible('#heading');
         markVisible('#paragraph');
 
-        const registry = createRegistry();
+        const nextId = nextIdGenerator();
         const locatorCreator = new ElementLocatorCreator((el) => el.id);
-        const containerTree = ContainerTree.extractFor(window, document, registry, locatorCreator);
+        const containerTree = createContainerTree(nextId, locatorCreator);
 
         // When
-        const topElements = extractContentElements(window, document.body, registry, locatorCreator, containerTree, {
+        const extracted = extractContentElements(window, document.body, nextId, locatorCreator, containerTree, {
             elementsLimit: 1,
         });
 
         // Then
-        expect(topElements.data).toHaveLength(1);
-        expect(topElements.data[0]).toEqual(
+        expect(extracted.elements()).toHaveLength(1);
+        expect(extracted.elements()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'heading', cssSelector: undefined } }),
         );
-        expect(topElements.total).toBe(2);
-        expect(topElements.limitReached).toBe(true);
+        expect(extracted.candidates).toBe(2);
+        expect(extracted.limitReached).toBe(true);
     });
 });
 
-function createRegistry() {
-    return new ElementRegistry();
+function createContainerTree(nextId: () => number, locatorCreator: ElementLocatorCreator) {
+    const containers = extractContainerElements(window, document.body, nextId, locatorCreator);
+    return new ContainerTree(document.body, containers);
 }

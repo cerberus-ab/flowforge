@@ -1,12 +1,14 @@
-import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
+import type { ContainerElement, ContentElement, ElementId, InteractiveElement, PageBasics } from '../types/index.ts';
 
-import { type TopElements } from './scoring/topEl.ts';
 import { ContainerTree } from './extractors/index.ts';
-import { ElementRegistry } from './ElementRegistry.ts';
 import { ElementLocatorCreator } from './ElementLocatorCreator.ts';
 import { extractContentElements } from './extractors/content.ts';
 import { extractPageBasics } from './extractors/basics.ts';
 import { extractInteractiveElements } from './extractors/index.ts';
+import { nextIdGenerator } from '../utils/nextId.ts';
+import type { ExtractedElements } from './extractors/ExtractedElements.ts';
+import { extractContainerElements } from './extractors/container.ts';
+import { PageTrail } from '../PageTrail.ts';
 
 export interface CollectorOptions {
     /** Maximum number of content elements to keep after importance scoring. */
@@ -34,7 +36,7 @@ export class PageTrailCollector {
     private readonly window: Window;
     private readonly document: Document;
     private readonly options: ResolvedCollectorOptions;
-    private readonly elementRegistry: ElementRegistry;
+    private readonly nextId: () => ElementId;
     private readonly elementLocatorCreator: ElementLocatorCreator;
 
     constructor(win: Window, doc: Document, options: CollectorOptions) {
@@ -46,7 +48,7 @@ export class PageTrailCollector {
             interactiveElementsLimit: 150,
             ...options,
         };
-        this.elementRegistry = new ElementRegistry();
+        this.nextId = nextIdGenerator();
         this.elementLocatorCreator = new ElementLocatorCreator(this.options.getElementDataId);
     }
 
@@ -56,41 +58,46 @@ export class PageTrailCollector {
         const basics = this.collectPageBasics();
         const t1_basics = performance.now();
 
-        const containerTree = this.collectContainerTree();
+        const containerElements = this.collectContainerElements();
+        const containerTree = new ContainerTree(this.document.body, containerElements);
         const t2_structure = performance.now();
 
-        const topContentElements = this.collectContentElements(containerTree);
+        const contentElements = this.collectContentElements(containerTree);
         const t3_content = performance.now();
 
-        const topInteractiveElements = this.collectInteractiveElements(basics, containerTree);
+        const interactiveElements = this.collectInteractiveElements(basics, containerTree);
         const t4_interactive = performance.now();
 
-        return {
-            basics,
-            structure: containerTree.nodes,
-            content: topContentElements.data,
-            interactive: topInteractiveElements.data,
-
-            metadata: {
-                structureElements: containerTree.elements.length,
-                structureMaxDepth: containerTree.getMathDepth(),
-                contentElements: topContentElements.data.length,
-                contentElementsTotal: topContentElements.total,
-                contentElementsLimitReached: topContentElements.limitReached,
-                interactiveElements: topInteractiveElements.data.length,
-                interactiveElementsTotal: topInteractiveElements.total,
-                interactiveElementsLimitReached: topInteractiveElements.limitReached,
-                // timings
-                collectedAt: Date.now(),
-                performance: {
-                    basicsMs: Math.round(t1_basics - t0),
-                    structureMs: Math.round(t2_structure - t1_basics),
-                    contentMs: Math.round(t3_content - t2_structure),
-                    interactiveMs: Math.round(t4_interactive - t3_content),
-                    totalMs: Math.round(t4_interactive - t0),
-                },
+        const elements = [
+            ...containerElements.elements(),
+            ...contentElements.elements(),
+            ...interactiveElements.elements(),
+        ];
+        const metadata = {
+            // stats
+            containerElements: containerElements.length,
+            containerElementsSelected: containerElements.selected,
+            containerElementsMaxDepth: containerTree.getMaxDepth(),
+            contentElements: contentElements.length,
+            contentElementsSelected: contentElements.selected,
+            contentElementsCandidates: contentElements.candidates,
+            contentElementsLimitReached: contentElements.limitReached,
+            interactiveElements: interactiveElements.length,
+            interactiveElementsSelected: interactiveElements.selected,
+            interactiveElementsCandidates: interactiveElements.candidates,
+            interactiveElementsLimitReached: interactiveElements.limitReached,
+            // timings
+            collectedAt: Date.now(),
+            performance: {
+                basicsMs: Math.round(t1_basics - t0),
+                structureMs: Math.round(t2_structure - t1_basics),
+                contentMs: Math.round(t3_content - t2_structure),
+                interactiveMs: Math.round(t4_interactive - t3_content),
+                totalMs: Math.round(t4_interactive - t0),
             },
         };
+
+        return new PageTrail(basics, containerTree.structure, elements, metadata);
     }
 
     /**
@@ -104,15 +111,15 @@ export class PageTrailCollector {
         return extractPageBasics(this.window, this.document);
     }
 
-    private collectContainerTree(): ContainerTree {
-        return ContainerTree.extractFor(this.window, this.document, this.elementRegistry, this.elementLocatorCreator);
+    private collectContainerElements(): ExtractedElements<ContainerElement> {
+        return extractContainerElements(this.window, this.document.body, this.nextId, this.elementLocatorCreator);
     }
 
-    private collectContentElements(containerTree: ContainerTree): TopElements<ContentElement> {
+    private collectContentElements(containerTree: ContainerTree): ExtractedElements<ContentElement> {
         return extractContentElements(
             this.window,
             this.document.body,
-            this.elementRegistry,
+            this.nextId,
             this.elementLocatorCreator,
             containerTree,
             {
@@ -124,11 +131,11 @@ export class PageTrailCollector {
     private collectInteractiveElements(
         basics: PageBasics,
         containerTree: ContainerTree,
-    ): TopElements<InteractiveElement> {
+    ): ExtractedElements<InteractiveElement> {
         return extractInteractiveElements(
             this.window,
             this.document.body,
-            this.elementRegistry,
+            this.nextId,
             this.elementLocatorCreator,
             basics,
             containerTree,

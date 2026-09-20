@@ -1,7 +1,8 @@
-import type { ContainerTreeNode, ContentElement, InteractiveElement } from '../../types/index.ts';
+import type { ContentElement, InteractiveElement } from '../../types/index.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
 import { semContentElement } from '../element/content.ts';
 import { semContainerElement } from '../element/container.ts';
+import type { PageTrail } from '../../PageTrail.ts';
 
 // Exports
 
@@ -54,26 +55,22 @@ export function semSampleInteractions(interactiveElements: InteractiveElement[],
 /**
  * Formats a depth-limited sample of the container tree.
  *
- * @param containerTree - Container tree collected from the page
+ * @param pageTrail
  * @param maxDepth - Maximum tree depth to include
  * @param branchLimit - Maximum number of sibling containers to sample per branch
  * @returns Container sample records with depth and semantic text
  */
 export function semSampleStructure(
-    containerTree: ContainerTreeNode[],
+    pageTrail: PageTrail,
     maxDepth = 3,
     branchLimit = 5,
 ): { depth: number; text: string }[] {
-    const walkSample = (nodes: ContainerTreeNode[], level: number): { depth: number; text: string }[] => {
-        if (level > maxDepth) {
-            return [];
-        }
-        return nodes
-            .slice(0, branchLimit)
-            .flatMap((node) => [
-                { depth: level, text: semContainerElement(node.element).text() },
-                ...walkSample(node.nodes, level + 1),
-            ]);
-    };
-    return walkSample(containerTree, 0);
+    return pageTrail.mapStructure(
+        (node, depth) => ({
+            depth,
+            text: semContainerElement(node.container).text(),
+        }),
+        maxDepth,
+        branchLimit,
+    );
 }

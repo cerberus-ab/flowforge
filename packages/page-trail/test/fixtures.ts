@@ -1,4 +1,14 @@
-import type { BoundingBox, ContainerElement, ContentElement, InteractiveElement, PageTrail } from '../src';
+import { PageTrail } from '../src';
+import type {
+    BoundingBox,
+    CollectionMetadata,
+    ContainerElement,
+    ContainerTreeNode,
+    ContentElement,
+    InteractiveElement,
+    PageBasics,
+    PageElement,
+} from '../src';
 
 export const testBoundingBox: BoundingBox = {
     top: 0,
@@ -95,9 +105,16 @@ export function containerNode(data: ContainerElement, nodes: ContainerNodeFixtur
     };
 }
 
-export function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail {
-    return {
-        basics: {
+interface PageTrailFixtureOptions {
+    basics?: PageBasics;
+    structure?: ContainerTreeNode[];
+    elements?: PageElement[];
+    metadata?: CollectionMetadata;
+}
+
+export function pageTrailFixture(overrides: PageTrailFixtureOptions = {}): PageTrail {
+    return new PageTrail(
+        overrides.basics ?? {
             url: 'https://example.com/sandbox',
             title: 'FlowForge Sandbox',
             description: 'Extension sandbox for FlowForge.',
@@ -109,17 +126,19 @@ export function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail 
                 scrollHeight: 1440,
             },
         },
-        structure: [],
-        content: [],
-        interactive: [],
-        metadata: {
-            structureElements: 0,
-            structureMaxDepth: 0,
+        overrides.structure ?? [],
+        overrides.elements ?? [],
+        overrides.metadata ?? {
+            containerElements: 0,
+            containerElementsSelected: 0,
+            containerElementsMaxDepth: 0,
             contentElements: 0,
-            contentElementsTotal: 0,
+            contentElementsSelected: 0,
+            contentElementsCandidates: 0,
             contentElementsLimitReached: false,
             interactiveElements: 0,
-            interactiveElementsTotal: 0,
+            interactiveElementsSelected: 0,
+            interactiveElementsCandidates: 0,
             interactiveElementsLimitReached: false,
             collectedAt: 0,
             performance: {
@@ -130,6 +149,5 @@ export function pageTrailFixture(overrides: Partial<PageTrail> = {}): PageTrail 
                 totalMs: 0,
             },
         },
-        ...overrides,
-    };
+    );
 }

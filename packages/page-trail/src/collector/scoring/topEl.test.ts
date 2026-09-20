@@ -4,14 +4,14 @@ import { contentElement } from '../../../test/fixtures';
 import { topElements } from './topEl';
 
 describe('topElements', () => {
-    it('sorts elements by importance score in descending order', () => {
+    it('returns all elements in their original order when unlimited', () => {
         const low = contentElement({ id: 0, importanceScore: { value: 0.1 } });
         const high = contentElement({ id: 1, importanceScore: { value: 0.9 } });
         const medium = contentElement({ id: 2, importanceScore: { value: 0.5 } });
 
         const result = topElements([low, high, medium], 0, (el) => el);
 
-        expect(result.data.map((el) => el.id)).toEqual([1, 2, 0]);
+        expect(result.data.map((el) => el.id)).toEqual([0, 1, 2]);
     });
 
     it('returns only the requested number of top elements', () => {
@@ -25,7 +25,7 @@ describe('topElements', () => {
             (el) => el,
         );
 
-        expect(result.data.map((el) => el.id)).toEqual([1, 0]);
+        expect(result.data.map((el) => el.id)).toEqual([0, 1]);
         expect(result.total).toBe(3);
         expect(result.limitReached).toBe(true);
     });
@@ -40,7 +40,7 @@ describe('topElements', () => {
             (el) => el,
         );
 
-        expect(result.data.map((el) => el.id)).toEqual([1, 0]);
+        expect(result.data.map((el) => el.id)).toEqual([0, 1]);
         expect(result.total).toBe(2);
         expect(result.limitReached).toBe(false);
     });
@@ -56,7 +56,7 @@ describe('topElements', () => {
             (el) => el.id,
         );
 
-        expect(result.data).toEqual([1, 0]);
+        expect(result.data).toEqual([0, 1]);
         expect(result.total).toBe(3);
         expect(result.limitReached).toBe(true);
     });

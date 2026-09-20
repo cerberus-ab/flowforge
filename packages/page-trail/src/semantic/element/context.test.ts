@@ -15,12 +15,12 @@ describe('semElementContextShort', () => {
                 contextFixture({
                     path: [
                         {
-                            element: containerElement({ role: 'main content' }),
+                            container: containerElement({ role: 'main content' }),
                             distance: 2,
                             relevanceScore: { value: 0.8 },
                         },
                         {
-                            element: containerElement({
+                            container: containerElement({
                                 role: 'section',
                                 labels: [{ source: 'heading', value: 'Pricing' }],
                             }),
@@ -28,7 +28,7 @@ describe('semElementContextShort', () => {
                             relevanceScore: { value: 0.9 },
                         },
                         {
-                            element: containerElement({
+                            container: containerElement({
                                 role: 'form',
                                 labels: [{ source: 'legend', value: 'Checkout' }],
                             }),
@@ -48,7 +48,7 @@ describe('semElementContextShort', () => {
                 contextFixture({
                     path: [
                         {
-                            element: containerElement({
+                            container: containerElement({
                                 role: 'navigation',
                                 labels: [
                                     { source: 'aria-label', value: 'Primary' },
@@ -71,7 +71,7 @@ describe('semElementContextShort', () => {
                 contextFixture({
                     path: [
                         {
-                            element: containerElement({ role: 'footer' }),
+                            container: containerElement({ role: 'footer' }),
                             distance: 0,
                             relevanceScore: { value: 1 },
                         },
@@ -94,12 +94,12 @@ describe('semElementContextPathBreadcrumbs', () => {
                 contextFixture({
                     path: [
                         {
-                            element: containerElement({ role: 'main content' }),
+                            container: containerElement({ role: 'main content' }),
                             distance: 2,
                             relevanceScore: { value: 0.8 },
                         },
                         {
-                            element: containerElement({
+                            container: containerElement({
                                 role: 'section',
                                 labels: [
                                     { source: 'heading', value: 'Pricing' },
@@ -110,7 +110,7 @@ describe('semElementContextPathBreadcrumbs', () => {
                             relevanceScore: { value: 0.9 },
                         },
                         {
-                            element: containerElement({
+                            container: containerElement({
                                 role: 'form',
                                 labels: [{ source: 'legend', value: 'Checkout' }],
                             }),
@@ -130,7 +130,7 @@ describe('semElementContextPathBreadcrumbs', () => {
                 contextFixture({
                     path: [
                         {
-                            element: containerElement({ role: 'footer' }),
+                            container: containerElement({ role: 'footer' }),
                             distance: 0,
                             relevanceScore: { value: 1 },
                         },

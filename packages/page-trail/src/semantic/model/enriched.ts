@@ -36,7 +36,7 @@ function semModelEnrichedContainerElement(containerElement: ContainerElement): E
 function semModelEnrichedContainerPath(path: ContainerPathNode[]): EnrichedContainerPathNode[] {
     return path.map((pathNode) => ({
         ...pathNode,
-        element: semModelEnrichedContainerElement(pathNode.element),
+        element: semModelEnrichedContainerElement(pathNode.container),
     }));
 }
 
@@ -57,7 +57,7 @@ function semModelEnrichedElementContext(context: ElementContext): EnrichedElemen
 export function semModelEnrichedStructure(container: ContainerTreeNode[]): EnrichedContainerTreeNode[] {
     return container.map((containerNode) => ({
         ...containerNode,
-        element: semModelEnrichedContainerElement(containerNode.element),
+        element: semModelEnrichedContainerElement(containerNode.container),
         nodes: semModelEnrichedStructure(containerNode.nodes),
     }));
 }

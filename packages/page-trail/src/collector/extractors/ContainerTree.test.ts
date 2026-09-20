@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { ContainerTreeNode } from '../../types';
+import type { ContainerElement, ContainerTreeNode } from '../../types';
 import { markVisible, resetDocument } from '../../../test/domUtils';
 import { containerElement, containerNode, type ContainerNodeFixture } from '../../../test/fixtures';
 import { ElementLocatorCreator } from '../ElementLocatorCreator';
-import { ElementRegistry } from '../ElementRegistry';
 import { ContainerTree } from './ContainerTree';
+import { extractContainerElements } from './container';
+import { nextIdGenerator } from '../../utils/nextId';
 
 const containerRect = {
     top: 0,
@@ -44,7 +45,7 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
+        expect(toContainerNodeFixture(tree.structure)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'main', cssSelector: undefined },
@@ -106,7 +107,7 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
+        expect(toContainerNodeFixture(tree.structure)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'main', cssSelector: undefined },
@@ -145,7 +146,7 @@ describe('ContainerTree', () => {
         const tree = createTree(document.querySelector('#root')!);
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
+        expect(toContainerNodeFixture(tree.structure)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'header', cssSelector: undefined },
@@ -185,7 +186,7 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)[0]?.nodes).toEqual([
+        expect(toContainerNodeFixture(tree.structure)[0]?.nodes).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'announcements', cssSelector: undefined },
@@ -219,15 +220,10 @@ describe('ContainerTree', () => {
         markVisible('#main', containerRect);
 
         // When
-        const tree = ContainerTree.extractFor(
-            window,
-            document,
-            createRegistry(),
-            new ElementLocatorCreator((el) => el.id),
-        );
+        const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
+        expect(toContainerNodeFixture(tree.structure)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'header', cssSelector: undefined },
@@ -262,18 +258,18 @@ describe('ContainerTree', () => {
         markVisible('#nav', containerRect);
 
         // When
-        const tree = createTree();
+        const containers = createContainers();
 
         // Then
-        expect(tree.elements.map((el) => el.locator.dataId)).toEqual(['main', 'section', 'nav']);
-        tree.elements.forEach((el) => {
+        expect(containers.elements().map((el) => el.locator.dataId)).toEqual(['main', 'section', 'nav']);
+        containers.elements().forEach((el) => {
             expect(el).not.toHaveProperty('importanceScore');
             expect(el.meaningScore.value).toBeGreaterThanOrEqual(0);
             expect(el.meaningScore.value).toBeLessThanOrEqual(1);
         });
     });
 
-    it('adds target-specific relevance scores to container path nodes', () => {
+    it('returns container references from the nearest ancestor to the root', () => {
         // Given
         document.body.innerHTML = `
             <main id="main">
@@ -288,19 +284,12 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // When
-        const path = tree.getInteractiveTargetPath(document.querySelector('#button')!, {
-            role: 'button',
-            type: 'button',
-        });
+        const path = tree.getPathToRoot(document.querySelector('#button')!);
 
         // Then
-        expect(path.map((node) => node.element.locator.dataId)).toEqual(['form', 'main']);
-        path.forEach((node) => {
-            expect(node.relevanceScore.value).toBeGreaterThanOrEqual(0);
-            expect(node.relevanceScore.value).toBeLessThanOrEqual(1);
-            expect(node.relevanceScore).toHaveProperty('features');
-        });
-        expect(path[0]!.relevanceScore.value).toBeGreaterThan(path[1]!.relevanceScore.value);
+        expect(path.map((container) => container.locator.dataId)).toEqual(['form', 'main']);
+        expect(path[0]).toBe(tree.structure[0]!.nodes[0]!.container);
+        expect(path[1]).toBe(tree.structure[0]!.container);
     });
 
     it('builds a container node path from an element to the root in reverse order', () => {
@@ -326,7 +315,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
         // Then
-        expect(path.map((node) => node.element.locator.dataId)).toEqual(['article', 'section', 'main']);
+        expect(path.map((container) => container.locator.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('keeps using the extracted container tree after finding the nearest path node', () => {
@@ -351,7 +340,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
         // Then
-        expect(path.map((node) => node.element.locator.dataId)).toEqual(['article', 'section', 'main']);
+        expect(path.map((container) => container.locator.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('starts from the parent when building a path from an extracted container', () => {
@@ -370,7 +359,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#section')!);
 
         // Then
-        expect(path.map((node) => node.element.locator.dataId)).toEqual(['main']);
+        expect(path.map((container) => container.locator.dataId)).toEqual(['main']);
     });
 
     it('returns an empty container node path for elements outside the tree root', () => {
@@ -412,27 +401,27 @@ describe('ContainerTree', () => {
 });
 
 function createTree(root: Element = document.body) {
-    return new ContainerTree(window, root, createRegistry(), new ElementLocatorCreator((el) => el.id));
+    return new ContainerTree(root, createContainers(root));
 }
 
-function createRegistry() {
-    return new ElementRegistry();
+function createContainers(root: Element = document.body) {
+    return extractContainerElements(window, root, nextIdGenerator(), new ElementLocatorCreator((el) => el.id));
 }
 
-function getPathToRoot(tree: ContainerTree, el: Element): ContainerTreeNode[] {
-    return (tree as unknown as { getPathToRoot(el: Element): ContainerTreeNode[] }).getPathToRoot(el);
+function getPathToRoot(tree: ContainerTree, el: Element): ContainerElement[] {
+    return tree.getPathToRoot(el);
 }
 
 function toContainerNodeFixture(nodes: ContainerTreeNode[]): ContainerNodeFixture[] {
     return nodes.map((node) =>
         containerNode(
             containerElement({
-                locator: node.element.locator,
-                kind: node.element.kind,
-                role: node.element.role,
-                type: node.element.type,
-                tag: node.element.tag,
-                labels: node.element.labels,
+                locator: node.container.locator,
+                kind: node.container.kind,
+                role: node.container.role,
+                type: node.container.type,
+                tag: node.container.tag,
+                labels: node.container.labels,
             }),
             toContainerNodeFixture(node.nodes),
         ),

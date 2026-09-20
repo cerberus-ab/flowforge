@@ -1,20 +1,8 @@
-// Generic
-
-export interface TreeNode<E> {
-    element: E;
-    nodes: TreeNode<E>[];
-}
-
-export interface PathNode<E> {
-    element: E;
-    distance: number;
-}
+// Document Basics
 
 export interface Scoring {
     value: number; // [0..1]
 }
-
-// Document Basics
 
 export interface Viewport {
     width: number;
@@ -75,11 +63,16 @@ export interface ContainerElementLabel {
     source: ContainerElementLabelSource;
 }
 
-export type ContainerTreeNode = TreeNode<ContainerElement>;
+export interface ContainerTreeNode {
+    container: ContainerElement;
+    nodes: ContainerTreeNode[];
+}
 
-export type ContainerPathNode = PathNode<ContainerElement> & {
+export interface ContainerPathNode {
+    container: ContainerElement;
+    distance: number;
     relevanceScore: Scoring;
-};
+}
 
 export interface ElementContext {
     path: ContainerPathNode[];
@@ -195,14 +188,20 @@ export interface InteractiveElement extends TargetElement {
     aboveTheFold: boolean;
 }
 
+export type PageElement = ContainerElement | ContentElement | InteractiveElement;
+
 export interface CollectionMetadata {
-    structureElements: number;
-    structureMaxDepth: number;
+    // stats
+    containerElements: number;
+    containerElementsSelected: number;
+    containerElementsMaxDepth: number;
     contentElements: number;
-    contentElementsTotal: number;
+    contentElementsSelected: number;
+    contentElementsCandidates: number;
     contentElementsLimitReached: boolean;
     interactiveElements: number;
-    interactiveElementsTotal: number;
+    interactiveElementsSelected: number;
+    interactiveElementsCandidates: number;
     interactiveElementsLimitReached: boolean;
     // timings
     collectedAt: number; // timestamp
@@ -213,30 +212,4 @@ export interface CollectionMetadata {
         interactiveMs: number;
         totalMs: number;
     };
-}
-
-/**
- * Canonical, normalized snapshot of a web page.
- *
- * `PageTrail` is derived from the DOM by extractors and acts as the central
- * structure consumed by downstream semantic formatting, indexing, retrieval,
- * and UI guidance stages.
- *
- * It abstracts away raw DOM complexity and provides a structured view of:
- * - page metadata and viewport data (`basics`)
- * - semantic containers tree (`structure`)
- * - textual content blocks (`content`)
- * - interactive UI elements (`interactive`)
- * - collection counts, content/interactive limits, timing, and timestamp (`metadata`)
- *
- * The model is independent of any specific AI, LLM, embedding, or vector
- * storage implementation and can be reused to generate different semantic
- * representations.
- */
-export interface PageTrail {
-    basics: PageBasics;
-    structure: ContainerTreeNode[];
-    content: ContentElement[];
-    interactive: InteractiveElement[];
-    metadata: CollectionMetadata;
 }

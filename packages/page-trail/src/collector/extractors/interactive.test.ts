@@ -2,10 +2,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markHidden, markVisible, resetDocument, setViewport } from '../../../test/domUtils';
 import { ElementLocatorCreator } from '../ElementLocatorCreator';
-import { ElementRegistry } from '../ElementRegistry';
 import { extractPageBasics } from './basics';
 import { ContainerTree } from './ContainerTree';
+import { extractContainerElements } from './container';
 import { extractInteractiveElements } from './interactive';
+import { nextIdGenerator } from '../../utils/nextId';
 
 afterEach(() => {
     resetDocument();
@@ -32,15 +33,15 @@ describe('extractInteractiveElements', () => {
         markVisible('#password');
         setViewport({ width: 1024, height: 768, scrollY: 0, scrollHeight: 2000 });
 
-        const registry = createRegistry();
+        const nextId = nextIdGenerator();
         const locatorCreator = new ElementLocatorCreator((el) => el.id);
-        const containerTree = ContainerTree.extractFor(window, document, registry, locatorCreator);
+        const containerTree = createContainerTree(nextId, locatorCreator);
 
         // When
-        const topElements = extractInteractiveElements(
+        const extracted = extractInteractiveElements(
             window,
             document.body,
-            registry,
+            nextId,
             locatorCreator,
             extractPageBasics(window, document),
             containerTree,
@@ -48,7 +49,7 @@ describe('extractInteractiveElements', () => {
         );
 
         // Then
-        expect(topElements.data).toEqual(
+        expect(extracted.elements()).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     kind: 'interactive',
@@ -78,10 +79,10 @@ describe('extractInteractiveElements', () => {
                 }),
             ]),
         );
-        expect(topElements.data.map((el) => el.locator.dataId)).not.toContain('hidden');
-        expect(topElements.data.map((el) => el.locator.dataId)).not.toContain('password');
+        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('hidden');
+        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('password');
 
-        topElements.data.forEach((el) => {
+        extracted.elements().forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);
             expect(el.context.breadcrumbs.length).toBeGreaterThan(0);
         });
@@ -99,15 +100,15 @@ describe('extractInteractiveElements', () => {
         markVisible('#button');
         markVisible('#link');
 
-        const registry = createRegistry();
+        const nextId = nextIdGenerator();
         const locatorCreator = new ElementLocatorCreator((el) => el.id);
-        const containerTree = ContainerTree.extractFor(window, document, registry, locatorCreator);
+        const containerTree = createContainerTree(nextId, locatorCreator);
 
         // When
-        const topElements = extractInteractiveElements(
+        const extracted = extractInteractiveElements(
             window,
             document.body,
-            registry,
+            nextId,
             locatorCreator,
             extractPageBasics(window, document),
             containerTree,
@@ -115,15 +116,16 @@ describe('extractInteractiveElements', () => {
         );
 
         // Then
-        expect(topElements.data).toHaveLength(1);
-        expect(topElements.data[0]).toEqual(
+        expect(extracted.elements()).toHaveLength(1);
+        expect(extracted.elements()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'button', cssSelector: undefined } }),
         );
-        expect(topElements.total).toBe(2);
-        expect(topElements.limitReached).toBe(true);
+        expect(extracted.candidates).toBe(2);
+        expect(extracted.limitReached).toBe(true);
     });
 });
 
-function createRegistry() {
-    return new ElementRegistry();
+function createContainerTree(nextId: () => number, locatorCreator: ElementLocatorCreator) {
+    const containers = extractContainerElements(window, document.body, nextId, locatorCreator);
+    return new ContainerTree(document.body, containers);
 }

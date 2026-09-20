@@ -26,7 +26,7 @@ export function semElementContextShort(context: ElementContext): string | undefi
         return context.breadcrumbs
             .map((i) => context.path[i])
             .filter(Boolean)
-            .map((node) => node!.element)
+            .map((node) => node!.container)
             .map(semElementContextShortPathContainerElement)
             .join(SEPARATOR_CONTEXT_PATH);
     }
@@ -50,5 +50,5 @@ export function semElementContextByBreadcrumbs(context: ElementContext): string[
     return context.breadcrumbs
         .map((i) => context.path[i])
         .filter(Boolean)
-        .map((node) => semContainerElement(node!.element).text());
+        .map((node) => semContainerElement(node!.container).text());
 }

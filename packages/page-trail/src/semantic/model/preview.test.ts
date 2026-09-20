@@ -4,9 +4,9 @@ import type { ContainerPathNode, ContainerTreeNode } from '../../types';
 import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
 import { semModelPreviewContent, semModelPreviewInteractive, semModelPreviewStructure } from './preview';
 
-function pathNode(element: ContainerPathNode['element'], distance = 0): ContainerPathNode {
+function pathNode(container: ContainerPathNode['container'], distance = 0): ContainerPathNode {
     return {
-        element,
+        container,
         distance,
         relevanceScore: { value: 0.5 },
     };
@@ -17,7 +17,7 @@ describe('semantic model preview', () => {
         // Given
         const structure: ContainerTreeNode[] = [
             {
-                element: containerElement({
+                container: containerElement({
                     kind: 'container',
                     type: 'navigation',
                     tag: 'nav',
@@ -28,7 +28,7 @@ describe('semantic model preview', () => {
                 }),
                 nodes: [
                     {
-                        element: containerElement({
+                        container: containerElement({
                             tag: 'form',
                             role: 'form',
                             labels: [{ source: 'legend', value: 'Search' }],

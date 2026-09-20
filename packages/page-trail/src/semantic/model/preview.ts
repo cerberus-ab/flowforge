@@ -39,11 +39,11 @@ interface ModelPreviewInteractiveElement {
  */
 export function semModelPreviewStructure(structure: ContainerTreeNode[]): ModelPreviewContainerTreeNode[] {
     return structure.map((node) => ({
-        tag: node.element.tag,
-        role: node.element.role,
-        labels: node.element.labels.map((label) => label.value),
-        semanticText: semContainerElement(node.element).text(),
-        score: node.element.meaningScore.value,
+        tag: node.container.tag,
+        role: node.container.role,
+        labels: node.container.labels.map((label) => label.value),
+        semanticText: semContainerElement(node.container).text(),
+        score: node.container.meaningScore.value,
         nodes: semModelPreviewStructure(node.nodes),
     }));
 }

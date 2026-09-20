@@ -4,9 +4,9 @@ import type { ContainerPathNode, ContainerTreeNode } from '../../types';
 import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
 import { semModelEnrichedContent, semModelEnrichedInteractive, semModelEnrichedStructure } from './enriched';
 
-function pathNode(element: ContainerPathNode['element'], distance = 0): ContainerPathNode {
+function pathNode(container: ContainerPathNode['container'], distance = 0): ContainerPathNode {
     return {
-        element,
+        container,
         distance,
         relevanceScore: { value: 0.5 },
     };
@@ -17,14 +17,14 @@ describe('semantic model enriched', () => {
         // Given
         const container: ContainerTreeNode[] = [
             {
-                element: containerElement({
+                container: containerElement({
                     locator: { dataId: 'main', cssSelector: undefined },
                     role: 'main content',
                     type: 'landmark',
                 }),
                 nodes: [
                     {
-                        element: containerElement({
+                        container: containerElement({
                             locator: { dataId: 'checkout', cssSelector: undefined },
                             role: 'form',
                             type: 'form',

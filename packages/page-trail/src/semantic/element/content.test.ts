@@ -28,12 +28,12 @@ describe('semContentElement', () => {
                     context: {
                         path: [
                             {
-                                element: containerElement({ role: 'main content' }),
+                                container: containerElement({ role: 'main content' }),
                                 distance: 2,
                                 relevanceScore: { value: 0.8 },
                             },
                             {
-                                element: containerElement({
+                                container: containerElement({
                                     role: 'section',
                                     labels: [
                                         { source: 'heading', value: 'Checkout' },

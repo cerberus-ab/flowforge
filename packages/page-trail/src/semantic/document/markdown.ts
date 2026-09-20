@@ -1,5 +1,5 @@
-import type { PageTrail } from '../../types/index.ts';
 import { semSampleStructure, semSampleHeadings, semSampleInteractions, semSampleTexts } from './basics.ts';
+import type { PageTrail } from '../../PageTrail.ts';
 
 const PLACEHOLDER_NONE = '_None_';
 
@@ -61,7 +61,7 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push(
         ...formatOptionalMarkdownList(
             semSampleStructure(
-                pageTrail.structure,
+                pageTrail,
                 settings.SAMPLE_STRUCTURE_MAX_DEPTH,
                 settings.SAMPLE_STRUCTURE_BRANCH_LIMIT,
             ).map(({ depth, text }) => formatMarkdownListItem(text, { offset: depth })),
@@ -76,7 +76,7 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            semSampleHeadings(pageTrail.content, settings.SAMPLE_HEADINGS_LIMIT).map((heading, index) =>
+            semSampleHeadings(pageTrail.contentElements(), settings.SAMPLE_HEADINGS_LIMIT).map((heading, index) =>
                 formatMarkdownListItem(heading, { numb: index + 1 }),
             ),
         ),
@@ -90,8 +90,8 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            semSampleInteractions(pageTrail.interactive, settings.SAMPLE_INTERACTIONS_LIMIT).map((interaction, index) =>
-                formatMarkdownListItem(interaction, { numb: index + 1 }),
+            semSampleInteractions(pageTrail.interactiveElements(), settings.SAMPLE_INTERACTIONS_LIMIT).map(
+                (interaction, index) => formatMarkdownListItem(interaction, { numb: index + 1 }),
             ),
         ),
     );
@@ -104,7 +104,7 @@ export function semMarkdown(pageTrail: PageTrail): string {
     lines.push('');
     lines.push(
         ...formatOptionalMarkdownList(
-            semSampleTexts(pageTrail.content, settings.SAMPLE_TEXT_MIN_LENGTH, settings.SAMPLE_TEXT_LIMIT),
+            semSampleTexts(pageTrail.contentElements(), settings.SAMPLE_TEXT_MIN_LENGTH, settings.SAMPLE_TEXT_LIMIT),
         ),
     );
     lines.push('');

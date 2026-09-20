@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ContainerElement, ContainerTreeNode } from '../../types';
-import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
+import { containerElement, contentElement, interactiveElement, pageTrailFixture } from '../../../test/fixtures';
 import { semSampleStructure, semSampleHeadings, semSampleInteractions, semSampleTexts } from './basics';
 
 describe('semSampleHeadings', () => {
@@ -154,7 +154,7 @@ describe('semSampleStructure', () => {
         ];
 
         // When
-        const sample = semSampleStructure(structure, 2, 2);
+        const sample = semSampleStructure(pageTrailFixture({ structure }), 2, 2);
 
         // Then
         expect(sample).toEqual([
@@ -168,11 +168,13 @@ describe('semSampleStructure', () => {
     it('stops after maxDepth', () => {
         expect(
             semSampleStructure(
-                [
-                    containerNode('Main', 1, 'main content', [
-                        containerNode('Included', 1, 'section', [containerNode('Too deep', 1)]),
-                    ]),
-                ],
+                pageTrailFixture({
+                    structure: [
+                        containerNode('Main', 1, 'main content', [
+                            containerNode('Included', 1, 'section', [containerNode('Too deep', 1)]),
+                        ]),
+                    ],
+                }),
                 1,
             ),
         ).toEqual([
@@ -189,7 +191,7 @@ function containerNode(
     nodes: ContainerTreeNode[] = [],
 ): ContainerTreeNode {
     return {
-        element: containerElement({
+        container: containerElement({
             role,
             labels: [{ source: 'aria-label', value: name }],
             meaningScore: { value: meaningScore },

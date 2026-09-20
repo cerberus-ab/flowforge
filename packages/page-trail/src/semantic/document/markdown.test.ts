@@ -9,7 +9,7 @@ describe('semMarkdown', () => {
         // Given
         const pageTrail = pageTrailFixture({
             structure: [containerNode('Main', 'main content', [containerNode('Tabs', 'navigation')])],
-            content: [
+            elements: [
                 contentElement({
                     type: 'heading',
                     tag: 'h1',
@@ -22,8 +22,6 @@ describe('semMarkdown', () => {
                     text: 'Click Start to launch the extension.',
                     importanceScore: { value: 0.4 },
                 }),
-            ],
-            interactive: [
                 interactiveElement({
                     text: 'Start',
                     importanceScore: { value: 0.8 },
@@ -91,8 +89,7 @@ Text: Click Start to launch the extension.
                 ...pageTrailFixture().basics,
                 description: '',
             },
-            content: [],
-            interactive: [],
+            elements: [],
         });
 
         // When
@@ -144,7 +141,7 @@ function containerNode(
     nodes: ContainerTreeNode[] = [],
 ): ContainerTreeNode {
     return {
-        element: containerElement({
+        container: containerElement({
             role,
             labels: [{ source: 'aria-label', value: name }],
         }),
