@@ -2,12 +2,12 @@ import {
     type ContentElement,
     type InteractiveElement,
     type PageTrail,
-    semModelEnrichedContent,
-    semModelEnrichedInteractive,
-    semModelEnrichedStructure,
-    semModelPreviewContent,
-    semModelPreviewInteractive,
-    semModelPreviewStructure,
+    presentEnrichedContent,
+    presentEnrichedInteractive,
+    presentEnrichedStructure,
+    presentPreviewContent,
+    presentPreviewInteractive,
+    presentPreviewStructure,
 } from '@flowforge/page-trail';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 
@@ -41,7 +41,7 @@ export function InspectorPageStructure({
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={devMode ? semModelEnrichedStructure(structure) : semModelPreviewStructure(structure)}
+            value={devMode ? presentEnrichedStructure(structure) : presentPreviewStructure(structure)}
         />
     );
 }
@@ -52,7 +52,7 @@ export function InspectorPageContent({ content, devMode }: { content: ContentEle
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={devMode ? semModelEnrichedContent(content) : semModelPreviewContent(content)}
+            value={devMode ? presentEnrichedContent(content) : presentPreviewContent(content)}
         />
     );
 }
@@ -69,7 +69,7 @@ export function InspectorPageInteractive({
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={devMode ? semModelEnrichedInteractive(interactive) : semModelPreviewInteractive(interactive)}
+            value={devMode ? presentEnrichedInteractive(interactive) : presentPreviewInteractive(interactive)}
         />
     );
 }

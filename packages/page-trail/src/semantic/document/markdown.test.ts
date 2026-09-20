@@ -8,7 +8,10 @@ describe('semMarkdown', () => {
     it('generates a semantic markdown view for page basics, samples, content, and interactions', () => {
         // Given
         const pageTrail = pageTrailFixture({
-            structure: [containerNode('Main', 'main content', [containerNode('Tabs', 'navigation')])],
+            structure: {
+                targets: [],
+                nodes: [containerNode('Main', 'main content', [containerNode('Tabs', 'navigation')])],
+            },
             elements: [
                 contentElement({
                     type: 'heading',
@@ -145,6 +148,7 @@ function containerNode(
             role,
             labels: [{ source: 'aria-label', value: name }],
         }),
+        targets: [],
         nodes,
     };
 }

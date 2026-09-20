@@ -1,19 +1,30 @@
-import type { ContainerTreeNode, ContentElement, InteractiveElement, InteractiveLinkType } from '../../types/index.ts';
+import type {
+    ContainerRootNode,
+    ContainerTreeNode,
+    ContentElement,
+    InteractiveElement,
+    InteractiveLinkType,
+} from '../../types/index.ts';
 import { semContainerElement } from '../element/container.ts';
 import { semContentElement } from '../element/content.ts';
 import { semElementContextByBreadcrumbs } from '../element/context.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
 
-interface ModelPreviewContainerTreeNode {
+interface PresentPreviewContainerTreeNode {
     tag: string;
     role: string;
     labels: string[];
     semanticText: string;
     score: number;
-    nodes: ModelPreviewContainerTreeNode[];
+    nodes: PresentPreviewContainerTreeNode[];
 }
 
-interface ModelPreviewContentElement {
+interface PreviewStructure {
+    nodes: PresentPreviewContainerTreeNode[];
+    semanticText: string;
+}
+
+interface PresentPreviewContentElement {
     tag: string;
     text: string;
     semanticText: string;
@@ -21,7 +32,7 @@ interface ModelPreviewContentElement {
     context: string[];
 }
 
-interface ModelPreviewInteractiveElement {
+interface PresentPreviewInteractiveElement {
     tag: string;
     role: string;
     labels: string[];
@@ -32,26 +43,33 @@ interface ModelPreviewInteractiveElement {
     link?: InteractiveLinkType;
 }
 
-// Exports
-
-/**
- * Creates a compact, human-readable JSON preview of the page structure.
- */
-export function semModelPreviewStructure(structure: ContainerTreeNode[]): ModelPreviewContainerTreeNode[] {
+function presentPreviewContainerTree(structure: ContainerTreeNode[]): PresentPreviewContainerTreeNode[] {
     return structure.map((node) => ({
         tag: node.container.tag,
         role: node.container.role,
         labels: node.container.labels.map((label) => label.value),
         semanticText: semContainerElement(node.container).text(),
         score: node.container.meaningScore.value,
-        nodes: semModelPreviewStructure(node.nodes),
+        nodes: presentPreviewContainerTree(node.nodes),
     }));
+}
+
+// Exports
+
+/**
+ * Creates a compact, human-readable JSON preview of the page structure.
+ */
+export function presentPreviewStructure(structure: ContainerRootNode): PreviewStructure {
+    return {
+        semanticText: 'root',
+        nodes: presentPreviewContainerTree(structure.nodes),
+    };
 }
 
 /**
  * Creates a compact, human-readable JSON preview of content elements.
  */
-export function semModelPreviewContent(content: ContentElement[]): ModelPreviewContentElement[] {
+export function presentPreviewContent(content: ContentElement[]): PresentPreviewContentElement[] {
     return content.map((element) => ({
         tag: element.tag,
         text: element.text,
@@ -64,7 +82,7 @@ export function semModelPreviewContent(content: ContentElement[]): ModelPreviewC
 /**
  * Creates a compact, human-readable JSON preview of interactive elements.
  */
-export function semModelPreviewInteractive(interactive: InteractiveElement[]): ModelPreviewInteractiveElement[] {
+export function presentPreviewInteractive(interactive: InteractiveElement[]): PresentPreviewInteractiveElement[] {
     return interactive.map((element) => ({
         tag: element.tag,
         role: element.role,

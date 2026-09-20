@@ -45,7 +45,7 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.structure)).toEqual([
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'main', cssSelector: undefined },
@@ -107,7 +107,7 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.structure)).toEqual([
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'main', cssSelector: undefined },
@@ -146,7 +146,7 @@ describe('ContainerTree', () => {
         const tree = createTree(document.querySelector('#root')!);
 
         // Then
-        expect(toContainerNodeFixture(tree.structure)).toEqual([
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'header', cssSelector: undefined },
@@ -186,7 +186,7 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.structure)[0]?.nodes).toEqual([
+        expect(toContainerNodeFixture(tree.structure.nodes)[0]?.nodes).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'announcements', cssSelector: undefined },
@@ -223,7 +223,7 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.structure)).toEqual([
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
             containerNode(
                 containerElement({
                     locator: { dataId: 'header', cssSelector: undefined },
@@ -288,8 +288,8 @@ describe('ContainerTree', () => {
 
         // Then
         expect(path.map((container) => container.locator!.dataId)).toEqual(['form', 'main']);
-        expect(path[0]).toBe(tree.structure[0]!.nodes[0]!.container);
-        expect(path[1]).toBe(tree.structure[0]!.container);
+        expect(path[0]).toBe(tree.structure.nodes[0]!.nodes[0]!.container);
+        expect(path[1]).toBe(tree.structure.nodes[0]!.container);
     });
 
     it('builds a container node path from an element to the root in reverse order', () => {

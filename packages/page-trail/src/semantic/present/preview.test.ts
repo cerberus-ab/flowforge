@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ContainerPathNode, ContainerTreeNode } from '../../types';
+import type { ContainerPathNode, ContainerRootNode } from '../../types';
 import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
-import { semModelPreviewContent, semModelPreviewInteractive, semModelPreviewStructure } from './preview';
+import { presentPreviewContent, presentPreviewInteractive, presentPreviewStructure } from './preview';
 
 function pathNode(container: ContainerPathNode['container'], distance = 0): ContainerPathNode {
     return {
@@ -12,57 +12,65 @@ function pathNode(container: ContainerPathNode['container'], distance = 0): Cont
     };
 }
 
-describe('semantic model preview', () => {
+describe('preview semantic presentation', () => {
     it('creates a compact preview of the container tree', () => {
         // Given
-        const structure: ContainerTreeNode[] = [
-            {
-                container: containerElement({
-                    kind: 'container',
-                    type: 'navigation',
-                    tag: 'nav',
-                    locator: { dataId: 'primary-nav', cssSelector: '#primary-nav' },
-                    role: 'navigation',
-                    labels: [{ source: 'aria-label', value: 'Primary' }],
-                    meaningScore: { value: 0.8 },
-                }),
-                nodes: [
-                    {
-                        container: containerElement({
-                            tag: 'form',
-                            role: 'form',
-                            labels: [{ source: 'legend', value: 'Search' }],
-                            meaningScore: { value: 0.7 },
-                        }),
-                        nodes: [],
-                    },
-                ],
-            },
-        ];
+        const structure: ContainerRootNode = {
+            targets: [],
+            nodes: [
+                {
+                    container: containerElement({
+                        kind: 'container',
+                        type: 'navigation',
+                        tag: 'nav',
+                        locator: { dataId: 'primary-nav', cssSelector: '#primary-nav' },
+                        role: 'navigation',
+                        labels: [{ source: 'aria-label', value: 'Primary' }],
+                        meaningScore: { value: 0.8 },
+                    }),
+                    targets: [],
+                    nodes: [
+                        {
+                            container: containerElement({
+                                tag: 'form',
+                                role: 'form',
+                                labels: [{ source: 'legend', value: 'Search' }],
+                                meaningScore: { value: 0.7 },
+                            }),
+                            targets: [],
+                            nodes: [],
+                        },
+                    ],
+                },
+            ],
+        };
 
         // When
-        const preview = semModelPreviewStructure(structure);
+        const preview = presentPreviewStructure(structure);
 
         // Then
-        expect(preview).toEqual([
-            {
-                tag: 'nav',
-                role: 'navigation',
-                labels: ['Primary'],
-                semanticText: 'Navigation. Name: Primary',
-                score: 0.8,
-                nodes: [
-                    {
-                        tag: 'form',
-                        role: 'form',
-                        labels: ['Search'],
-                        semanticText: 'Form. Name: Search',
-                        score: 0.7,
-                        nodes: [],
-                    },
-                ],
-            },
-        ]);
+        expect(preview).toEqual({
+            semanticText: 'root',
+            nodes: [
+                {
+                    tag: 'nav',
+                    role: 'navigation',
+                    labels: ['Primary'],
+                    semanticText: 'Navigation. Name: Primary',
+                    score: 0.8,
+                    nodes: [
+                        {
+                            tag: 'form',
+                            role: 'form',
+                            labels: ['Search'],
+                            semanticText: 'Form. Name: Search',
+                            score: 0.7,
+                            nodes: [],
+                        },
+                    ],
+                },
+            ],
+        });
     });
 
     it('creates a compact preview of content elements with breadcrumb context', () => {
@@ -90,7 +98,7 @@ describe('semantic model preview', () => {
         });
 
         // When
-        const preview = semModelPreviewContent([content]);
+        const preview = presentPreviewContent([content]);
 
         // Then
         expect(preview).toEqual([
@@ -132,7 +140,7 @@ describe('semantic model preview', () => {
         });
 
         // When
-        const preview = semModelPreviewInteractive([interactive]);
+        const preview = presentPreviewInteractive([interactive]);
 
         // Then
         expect(preview).toEqual([

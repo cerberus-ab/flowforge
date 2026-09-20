@@ -154,7 +154,7 @@ describe('semSampleStructure', () => {
         ];
 
         // When
-        const sample = semSampleStructure(pageTrailFixture({ structure }), 2, 2);
+        const sample = semSampleStructure(pageTrailFixture({ structure: { targets: [], nodes: structure } }), 2, 2);
 
         // Then
         expect(sample).toEqual([
@@ -169,11 +169,14 @@ describe('semSampleStructure', () => {
         expect(
             semSampleStructure(
                 pageTrailFixture({
-                    structure: [
-                        containerNode('Main', 1, 'main content', [
-                            containerNode('Included', 1, 'section', [containerNode('Too deep', 1)]),
-                        ]),
-                    ],
+                    structure: {
+                        targets: [],
+                        nodes: [
+                            containerNode('Main', 1, 'main content', [
+                                containerNode('Included', 1, 'section', [containerNode('Too deep', 1)]),
+                            ]),
+                        ],
+                    },
                 }),
                 1,
             ),
@@ -196,6 +199,7 @@ function containerNode(
             labels: [{ source: 'aria-label', value: name }],
             meaningScore: { value: meaningScore },
         }),
+        targets: [],
         nodes,
     };
 }

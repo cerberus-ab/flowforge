@@ -1,6 +1,7 @@
 import type {
     CollectionMetadata,
     ContainerElement,
+    ContainerRootNode,
     ContainerTreeNode,
     ContentElement,
     ElementId,
@@ -8,7 +9,7 @@ import type {
     PageBasics,
     PageElement,
 } from './types/index.ts';
-import type { PageElementDto, PageTrailDto } from './types/dto.ts';
+import type { ContainerTreeNodeDto, PageElementDto, PageTrailDto } from './types/dto.ts';
 import { compareByImportanceDesc } from './utils/comparator.ts';
 
 /**
@@ -25,7 +26,7 @@ export class PageTrail {
     constructor(
         readonly contextOnly: boolean,
         readonly basics: PageBasics,
-        readonly structure: ContainerTreeNode[],
+        readonly structure: ContainerRootNode,
         readonly elements: PageElement[],
         readonly metadata: CollectionMetadata,
     ) {}
@@ -72,7 +73,7 @@ export class PageTrail {
 
             return nodes.slice(0, branchLimit).flatMap((node) => [mapper(node, depth), ...walk(node.nodes, depth + 1)]);
         };
-        return walk(this.structure, 0);
+        return walk(this.structure.nodes, 0);
     }
 
     /**
@@ -80,15 +81,19 @@ export class PageTrail {
      * Page elements and metadata otherwise retain their collected values.
      */
     toDto(): PageTrailDto {
+        const mapNode = (node: ContainerTreeNode): ContainerTreeNodeDto => ({
+            containerId: node.container.id,
+            targetIds: node.targets.map((target) => target.id),
+            nodes: node.nodes.map(mapNode),
+        });
+
         return {
             contextOnly: this.contextOnly,
             basics: this.basics,
-            structure: this.structure.map(function mapNode(node): PageTrailDto['structure'][number] {
-                return {
-                    containerId: node.container.id,
-                    nodes: node.nodes.map(mapNode),
-                };
-            }),
+            structure: {
+                targetIds: this.structure.targets.map((target) => target.id),
+                nodes: this.structure.nodes.map(mapNode),
+            },
             elements: this.elements.map((element): PageElementDto => {
                 if (element.kind === 'container') return element;
 
@@ -123,12 +128,6 @@ export class PageTrail {
             if (!container) throw new Error(`PageTrail DTO references unknown container ID: ${containerId}`);
             return container;
         };
-        const structure = dto.structure.map(function mapNode(node): ContainerTreeNode {
-            return {
-                container: resolveContainer(node.containerId),
-                nodes: node.nodes.map(mapNode),
-            };
-        });
         const elements = dto.elements.map((element): PageElement => {
             if (element.kind === 'container') return element;
 
@@ -144,6 +143,27 @@ export class PageTrail {
                 },
             };
         });
+        const targetById = new Map(
+            elements
+                .filter((element): element is ContentElement | InteractiveElement => element.kind !== 'container')
+                .map((target) => [target.id, target]),
+        );
+        const resolveTarget = (targetId: ElementId): ContentElement | InteractiveElement => {
+            const target = targetById.get(targetId);
+            if (!target) throw new Error(`PageTrail DTO references unknown target ID: ${targetId}`);
+            return target;
+        };
+        const mapNode = (node: ContainerTreeNodeDto): ContainerTreeNode => {
+            return {
+                container: resolveContainer(node.containerId),
+                targets: node.targetIds.map(resolveTarget),
+                nodes: node.nodes.map(mapNode),
+            };
+        };
+        const structure: ContainerRootNode = {
+            targets: dto.structure.targetIds.map(resolveTarget),
+            nodes: dto.structure.nodes.map(mapNode),
+        };
         return new PageTrail(dto.contextOnly, dto.basics, structure, elements, dto.metadata);
     }
 }

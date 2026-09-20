@@ -3,7 +3,7 @@ import type {
     BoundingBox,
     CollectionMetadata,
     ContainerElement,
-    ContainerTreeNode,
+    ContainerRootNode,
     ContentElement,
     InteractiveElement,
     PageBasics,
@@ -108,7 +108,7 @@ export function containerNode(data: ContainerElement, nodes: ContainerNodeFixtur
 interface PageTrailFixtureOptions {
     contextOnly?: boolean;
     basics?: PageBasics;
-    structure?: ContainerTreeNode[];
+    structure?: ContainerRootNode;
     elements?: PageElement[];
     metadata?: CollectionMetadata;
 }
@@ -128,7 +128,7 @@ export function pageTrailFixture(overrides: PageTrailFixtureOptions = {}): PageT
                 scrollHeight: 1440,
             },
         },
-        overrides.structure ?? [],
+        overrides.structure ?? { targets: [], nodes: [] },
         overrides.elements ?? [],
         overrides.metadata ?? {
             version: '0.1.0',

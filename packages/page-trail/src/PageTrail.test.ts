@@ -16,7 +16,7 @@ describe('PageTrail DTO conversion', () => {
             },
         });
         const pageTrail = pageTrailFixture({
-            structure: [{ container, nodes: [] }],
+            structure: { targets: [], nodes: [{ container, targets: [content], nodes: [] }] },
             elements: [container, content],
         });
 
@@ -25,7 +25,10 @@ describe('PageTrail DTO conversion', () => {
 
         // Then
         expect(dto.contextOnly).toBe(false);
-        expect(dto.structure).toEqual([{ containerId: 1, nodes: [] }]);
+        expect(dto.structure).toEqual({
+            targetIds: [],
+            nodes: [{ containerId: 1, targetIds: [2], nodes: [] }],
+        });
         expect(dto.elements[1]).toMatchObject({
             id: 2,
             context: {
@@ -37,25 +40,18 @@ describe('PageTrail DTO conversion', () => {
 
     it('restores shared container references after a JSON roundtrip', () => {
         // Given
+        const container = containerElement({ id: 1 });
+        const content = contentElement({
+            id: 2,
+            context: {
+                path: [{ container, distance: 0, relevanceScore: { value: 0.8 } }],
+                breadcrumbs: [0],
+                contextScore: { value: 0.8 },
+            },
+        });
         const dto = pageTrailFixture({
-            structure: [{ container: containerElement({ id: 1 }), nodes: [] }],
-            elements: [
-                containerElement({ id: 1 }),
-                contentElement({
-                    id: 2,
-                    context: {
-                        path: [
-                            {
-                                container: containerElement({ id: 1 }),
-                                distance: 0,
-                                relevanceScore: { value: 0.8 },
-                            },
-                        ],
-                        breadcrumbs: [0],
-                        contextScore: { value: 0.8 },
-                    },
-                }),
-            ],
+            structure: { targets: [content], nodes: [{ container, targets: [], nodes: [] }] },
+            elements: [container, content],
         }).toDto();
 
         // When
@@ -66,6 +62,7 @@ describe('PageTrail DTO conversion', () => {
         const structureContainer = restored.mapStructure((node) => node.container)[0];
         const contextContainer = restored.content()[0]!.context.path[0]!.container;
         expect(contextContainer).toBe(structureContainer);
+        expect(restored.structure.targets[0]).toBe(restored.content()[0]);
         expect(restored.toDto()).toEqual(serializedDto);
     });
 
@@ -88,13 +85,29 @@ describe('PageTrail DTO conversion', () => {
     it('rejects a structure reference to an unknown container', () => {
         // Given
         const dto = pageTrailFixture().toDto();
-        dto.structure = [{ containerId: 42, nodes: [] }];
+        dto.structure = { targetIds: [], nodes: [{ containerId: 42, targetIds: [], nodes: [] }] };
 
         // When
         const restore = () => PageTrail.fromDto(dto);
 
         // Then
         expect(restore).toThrow('PageTrail DTO references unknown container ID: 42');
+    });
+
+    it('rejects a structure reference to an unknown target', () => {
+        // Given
+        const container = containerElement({ id: 1 });
+        const dto = pageTrailFixture({
+            structure: { targets: [], nodes: [{ container, targets: [], nodes: [] }] },
+            elements: [container],
+        }).toDto();
+        dto.structure.nodes[0]!.targetIds = [42];
+
+        // When
+        const restore = () => PageTrail.fromDto(dto);
+
+        // Then
+        expect(restore).toThrow('PageTrail DTO references unknown target ID: 42');
     });
 
     it('rejects a context reference to an unknown container', () => {

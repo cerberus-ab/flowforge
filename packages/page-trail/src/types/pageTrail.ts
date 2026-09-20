@@ -65,8 +65,11 @@ export interface ContainerElementLabel {
 
 export interface ContainerTreeNode {
     container: ContainerElement;
+    targets: (ContentElement | InteractiveElement)[];
     nodes: ContainerTreeNode[];
 }
+
+export type ContainerRootNode = Omit<ContainerTreeNode, 'container'>;
 
 export interface ContainerPathNode {
     container: ContainerElement;

@@ -17,8 +17,11 @@ export type CollectionsMetadataDto = CollectionMetadata;
 
 export type ContainerTreeNodeDto = {
     containerId: ElementId;
+    targetIds: ElementId[];
     nodes: ContainerTreeNodeDto[];
 };
+
+export type ContainerRootNodeDto = Omit<ContainerTreeNodeDto, 'containerId'>;
 
 export type ContainerPathNodeDto = Omit<ContainerPathNode, 'container'> & {
     containerId: ElementId;
@@ -47,7 +50,7 @@ export type PageElementDto = ContainerElementDto | ContentElementDto | Interacti
 export interface PageTrailDto {
     contextOnly: boolean;
     basics: PageBasicsDto;
-    structure: ContainerTreeNodeDto[];
+    structure: ContainerRootNodeDto;
     elements: PageElementDto[];
     metadata: CollectionsMetadataDto;
 }

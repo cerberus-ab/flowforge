@@ -1,4 +1,4 @@
-import type { ContainerElement, ContainerTreeNode } from '../../types/index.ts';
+import type { ContainerElement, ContainerRootNode, ContainerTreeNode } from '../../types/index.ts';
 import type { ExtractedElements } from './ExtractedElements.ts';
 
 /**
@@ -16,7 +16,10 @@ export class ContainerTree {
     private readonly nodeByEl = new WeakMap<Element, ContainerTreeNode>();
     private readonly parentByNode = new WeakMap<ContainerTreeNode, ContainerTreeNode>();
 
-    readonly structure: ContainerTreeNode[] = [];
+    readonly structure: ContainerRootNode = {
+        targets: [],
+        nodes: [],
+    };
 
     constructor(root: Element, containers: ExtractedElements<ContainerElement>) {
         this.root = root;
@@ -36,7 +39,11 @@ export class ContainerTree {
     private buildTree() {
         // collect node by element map
         for (const container of this.containers) {
-            this.nodeByEl.set(container.el, { container: container.data, nodes: [] });
+            this.nodeByEl.set(container.el, {
+                container: container.data,
+                targets: [],
+                nodes: [],
+            });
         }
         // connect ancestors though the map
         for (const container of this.containers) {
@@ -49,7 +56,7 @@ export class ContainerTree {
                 // keep the reverse edge in sync with the child attachment.
                 this.parentByNode.set(node, parent);
             } else {
-                this.structure.push(node);
+                this.structure.nodes.push(node);
             }
         }
     }
@@ -102,6 +109,6 @@ export class ContainerTree {
      * @returns Maximum nested depth across all top-level container nodes.
      */
     getMaxDepth(): number {
-        return this.getMaxDepthR(this.structure);
+        return this.getMaxDepthR(this.structure.nodes);
     }
 }

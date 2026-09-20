@@ -25,7 +25,7 @@ export function createPageTrailDtoFixture(overrides: Partial<PageTrailDto> = {})
                 scrollHeight: 720,
             },
         },
-        structure: [],
+        structure: { targetIds: [], nodes: [] },
         elements: [],
         metadata: {
             version: '0.1.0',
