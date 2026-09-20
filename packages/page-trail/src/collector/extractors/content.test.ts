@@ -57,8 +57,8 @@ describe('extractContentElements', () => {
                 }),
             ]),
         );
-        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('short');
-        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('hidden');
+        expect(extracted.elements().map((el) => el.locator!.dataId)).not.toContain('short');
+        expect(extracted.elements().map((el) => el.locator!.dataId)).not.toContain('hidden');
 
         extracted.elements().forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);

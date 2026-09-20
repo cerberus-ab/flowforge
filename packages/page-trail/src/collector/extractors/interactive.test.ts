@@ -79,8 +79,8 @@ describe('extractInteractiveElements', () => {
                 }),
             ]),
         );
-        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('hidden');
-        expect(extracted.elements().map((el) => el.locator.dataId)).not.toContain('password');
+        expect(extracted.elements().map((el) => el.locator!.dataId)).not.toContain('hidden');
+        expect(extracted.elements().map((el) => el.locator!.dataId)).not.toContain('password');
 
         extracted.elements().forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);

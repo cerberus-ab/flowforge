@@ -12,6 +12,7 @@ export function createSettingsFixture(overrides: Partial<ExtensionSettings> = {}
 
 export function createPageTrailDtoFixture(overrides: Partial<PageTrailDto> = {}): PageTrailDto {
     return {
+        contextOnly: false,
         basics: {
             url: 'https://app.flowforge.test',
             title: 'Test app',

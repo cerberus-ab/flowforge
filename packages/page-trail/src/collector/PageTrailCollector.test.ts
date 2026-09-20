@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markHidden, markVisible, resetDocument, setViewport } from '../../test/domUtils';
-import { PageTrailCollector } from './PageTrailCollector';
+import { type CollectorOptions, PageTrailCollector } from './PageTrailCollector';
 
 afterEach(() => {
     resetDocument();
@@ -124,7 +124,7 @@ describe('PageTrailCollector', () => {
                 }),
             ]),
         );
-        expect(model.content().some((el) => el.locator.dataId === 'short')).toBeFalsy();
+        expect(model.content().some((el) => el.locator!.dataId === 'short')).toBeFalsy();
     });
 
     it('collects visible interactive elements', () => {
@@ -189,7 +189,7 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.interactive().map((el) => el.locator.dataId)).toEqual(['visible']);
+        expect(model.interactive().map((el) => el.locator!.dataId)).toEqual(['visible']);
     });
 
     it('applies content and interactive limits after scoring', () => {
@@ -272,14 +272,34 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
+        expect(model.contextOnly).toBe(false);
         expect(model.interactive()).toHaveLength(1);
         expect(model.interactive()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
         );
     });
+
+    it('collects context without DOM locators', () => {
+        // Given
+        document.body.innerHTML = `<main id="main"><button id="save">Save</button></main>`;
+        markVisible('#main');
+        markVisible('#save');
+
+        // When
+        const model = PageTrailCollector.collectFor(window, document, { contextOnly: true });
+
+        // Then
+        expect(model.contextOnly).toBe(true);
+        expect(model.elements).not.toHaveLength(0);
+        expect(model.elements.every((element) => element.locator === undefined)).toBe(true);
+    });
 });
 
-function collect(options: Partial<ConstructorParameters<typeof PageTrailCollector>[2]> = {}) {
+type CollectOptions = Partial<
+    Pick<CollectorOptions, 'contentElementsLimit' | 'interactiveElementsLimit' | 'getElementDataId'>
+>;
+
+function collect(options: CollectOptions = {}) {
     return new PageTrailCollector(window, document, {
         getElementDataId: (el) => el.id,
         ...options,

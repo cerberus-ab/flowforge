@@ -28,7 +28,7 @@ export function extractContentElements(
     win: Window,
     root: Element,
     nextId: () => ElementId,
-    elementLocatorCreator: ElementLocatorCreator,
+    elementLocatorCreator: ElementLocatorCreator | undefined,
     containerTree: ContainerTree,
     options: ExtractContentElementsOptions,
 ): ExtractedElements<ContentElement> {
@@ -68,7 +68,7 @@ export function extractContentElements(
             el,
             data: {
                 ...prefilled,
-                locator: elementLocatorCreator.createFor(el),
+                locator: elementLocatorCreator?.createFor(el),
                 tag: el.tagName.toLowerCase(),
                 kind: 'content',
                 bbox: getElementBoundingBox(el),

@@ -11,17 +11,31 @@ import { extractContainerElements } from './extractors/container.ts';
 import { PageTrail } from '../PageTrail.ts';
 import { VERSION } from '../version.ts';
 
-export interface CollectorOptions {
+interface CollectorCommonOptions {
     /** Maximum number of content elements to keep after importance scoring. */
     contentElementsLimit?: number;
     /** Maximum number of interactive elements to keep after importance scoring. */
     interactiveElementsLimit?: number;
-    /** Returns the stable identifier used to link extracted records back to DOM elements. */
-    getElementDataId: (el: Element) => string;
 }
 
-type ResolvedCollectorOptions = Required<Pick<CollectorOptions, 'contentElementsLimit' | 'interactiveElementsLimit'>> &
-    Pick<CollectorOptions, 'getElementDataId'>;
+type CollectorModeOptions =
+    | {
+          /** Collects page context without linking elements back to the DOM. */
+          contextOnly: true;
+          getElementDataId?: never;
+      }
+    | {
+          /** Collects page context with locators that link elements back to the DOM. */
+          contextOnly?: false;
+          getElementDataId: (el: Element) => string;
+      };
+
+export type CollectorOptions = CollectorCommonOptions & CollectorModeOptions;
+
+type ResolvedCollectorModeOptions =
+    { contextOnly: true; getElementDataId?: never } | { contextOnly: false; getElementDataId: (el: Element) => string };
+
+type ResolvedCollectorOptions = Required<CollectorCommonOptions> & ResolvedCollectorModeOptions;
 
 /**
  * Orchestrates PageTrail extraction for a document.
@@ -38,19 +52,22 @@ export class PageTrailCollector {
     private readonly document: Document;
     private readonly options: ResolvedCollectorOptions;
     private readonly nextId: () => ElementId;
-    private readonly elementLocatorCreator: ElementLocatorCreator;
+    private readonly elementLocatorCreator: ElementLocatorCreator | undefined;
 
     constructor(win: Window, doc: Document, options: CollectorOptions) {
         this.window = win;
         this.document = doc;
 
         this.options = {
+            contextOnly: false,
             contentElementsLimit: 250,
             interactiveElementsLimit: 150,
             ...options,
         };
         this.nextId = nextIdGenerator();
-        this.elementLocatorCreator = new ElementLocatorCreator(this.options.getElementDataId);
+        this.elementLocatorCreator = this.options.contextOnly
+            ? undefined
+            : new ElementLocatorCreator(this.options.getElementDataId);
     }
 
     collect(): PageTrail {
@@ -99,7 +116,7 @@ export class PageTrailCollector {
             },
         };
 
-        return new PageTrail(basics, containerTree.structure, elements, metadata);
+        return new PageTrail(this.options.contextOnly, basics, containerTree.structure, elements, metadata);
     }
 
     /**

@@ -36,6 +36,13 @@ export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDe
                 });
                 return;
             }
+            if (pageTrail.contextOnly) {
+                res.status(400).json({
+                    error: 'Invalid pageTrailDto',
+                    message: 'Query does not support a context-only PageTrail',
+                });
+                return;
+            }
             console.log(`[Server] Query: ${domain} / ${question}`);
 
             await indexer.indexPage(pageTrail);

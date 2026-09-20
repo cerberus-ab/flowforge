@@ -261,7 +261,7 @@ describe('ContainerTree', () => {
         const containers = createContainers();
 
         // Then
-        expect(containers.elements().map((el) => el.locator.dataId)).toEqual(['main', 'section', 'nav']);
+        expect(containers.elements().map((el) => el.locator!.dataId)).toEqual(['main', 'section', 'nav']);
         containers.elements().forEach((el) => {
             expect(el).not.toHaveProperty('importanceScore');
             expect(el.meaningScore.value).toBeGreaterThanOrEqual(0);
@@ -287,7 +287,7 @@ describe('ContainerTree', () => {
         const path = tree.getPathToRoot(document.querySelector('#button')!);
 
         // Then
-        expect(path.map((container) => container.locator.dataId)).toEqual(['form', 'main']);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['form', 'main']);
         expect(path[0]).toBe(tree.structure[0]!.nodes[0]!.container);
         expect(path[1]).toBe(tree.structure[0]!.container);
     });
@@ -315,7 +315,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
         // Then
-        expect(path.map((container) => container.locator.dataId)).toEqual(['article', 'section', 'main']);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('keeps using the extracted container tree after finding the nearest path node', () => {
@@ -340,7 +340,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
         // Then
-        expect(path.map((container) => container.locator.dataId)).toEqual(['article', 'section', 'main']);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('starts from the parent when building a path from an extracted container', () => {
@@ -359,7 +359,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#section')!);
 
         // Then
-        expect(path.map((container) => container.locator.dataId)).toEqual(['main']);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['main']);
     });
 
     it('returns an empty container node path for elements outside the tree root', () => {

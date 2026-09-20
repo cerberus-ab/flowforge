@@ -150,7 +150,7 @@ export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
 export interface BaseElement {
     id: ElementId;
-    locator: ElementLocator;
+    locator: ElementLocator | undefined; // contextOnly if undefined
     tag: string;
     kind: ElementKind;
     type: ContainerElementType | ContentElementType | InteractiveElementType;

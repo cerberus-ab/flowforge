@@ -24,6 +24,7 @@ describe('PageTrail DTO conversion', () => {
         const dto = pageTrail.toDto();
 
         // Then
+        expect(dto.contextOnly).toBe(false);
         expect(dto.structure).toEqual([{ containerId: 1, nodes: [] }]);
         expect(dto.elements[1]).toMatchObject({
             id: 2,
@@ -66,6 +67,22 @@ describe('PageTrail DTO conversion', () => {
         const contextContainer = restored.content()[0]!.context.path[0]!.container;
         expect(contextContainer).toBe(structureContainer);
         expect(restored.toDto()).toEqual(serializedDto);
+    });
+
+    it('preserves context-only mode after a JSON roundtrip', () => {
+        // Given
+        const dto = pageTrailFixture({
+            contextOnly: true,
+            elements: [contentElement({ locator: undefined })],
+        }).toDto();
+
+        // When
+        const serializedDto = JSON.parse(JSON.stringify(dto)) as ReturnType<PageTrail['toDto']>;
+        const restored = PageTrail.fromDto(serializedDto);
+
+        // Then
+        expect(restored.contextOnly).toBe(true);
+        expect(restored.content()[0]?.locator).toBeUndefined();
     });
 
     it('rejects a structure reference to an unknown container', () => {

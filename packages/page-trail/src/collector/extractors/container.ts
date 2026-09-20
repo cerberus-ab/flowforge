@@ -22,7 +22,7 @@ export function extractContainerElements(
     win: Window,
     root: Element,
     nextId: () => ElementId,
-    elementLocatorCreator: ElementLocatorCreator,
+    elementLocatorCreator: ElementLocatorCreator | undefined,
 ): ExtractedElements<ContainerElement> {
     const candidates: ExtractedElement<ContainerElement>[] = [];
     const selected = Array.from(root.querySelectorAll(SELECTOR_CONTAINER));
@@ -48,7 +48,7 @@ export function extractContainerElements(
                 role,
                 type,
                 id: nextId(),
-                locator: elementLocatorCreator.createFor(el),
+                locator: elementLocatorCreator?.createFor(el),
                 tag: el.tagName.toLowerCase(),
                 kind: 'container',
                 labels,

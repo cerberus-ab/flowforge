@@ -106,6 +106,7 @@ export function containerNode(data: ContainerElement, nodes: ContainerNodeFixtur
 }
 
 interface PageTrailFixtureOptions {
+    contextOnly?: boolean;
     basics?: PageBasics;
     structure?: ContainerTreeNode[];
     elements?: PageElement[];
@@ -114,6 +115,7 @@ interface PageTrailFixtureOptions {
 
 export function pageTrailFixture(overrides: PageTrailFixtureOptions = {}): PageTrail {
     return new PageTrail(
+        overrides.contextOnly ?? false,
         overrides.basics ?? {
             url: 'https://example.com/sandbox',
             title: 'FlowForge Sandbox',
