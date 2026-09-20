@@ -129,6 +129,7 @@ export function pageTrailFixture(overrides: PageTrailFixtureOptions = {}): PageT
         overrides.structure ?? [],
         overrides.elements ?? [],
         overrides.metadata ?? {
+            version: '0.1.0',
             containerElements: 0,
             containerElementsSelected: 0,
             containerElementsMaxDepth: 0,

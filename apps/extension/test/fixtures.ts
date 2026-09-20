@@ -27,6 +27,7 @@ export function createPageTrailDtoFixture(overrides: Partial<PageTrailDto> = {})
         structure: [],
         elements: [],
         metadata: {
+            version: '0.1.0',
             containerElements: 0,
             containerElementsSelected: 0,
             containerElementsMaxDepth: 0,

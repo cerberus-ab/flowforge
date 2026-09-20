@@ -191,6 +191,7 @@ export interface InteractiveElement extends TargetElement {
 export type PageElement = ContainerElement | ContentElement | InteractiveElement;
 
 export interface CollectionMetadata {
+    version: string;
     // stats
     containerElements: number;
     containerElementsSelected: number;

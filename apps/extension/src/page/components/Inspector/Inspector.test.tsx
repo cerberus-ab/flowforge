@@ -18,6 +18,7 @@ const pageTrail = createPageTrailFixture({
         },
     },
     metadata: {
+        version: '0.1.0',
         containerElements: 1,
         containerElementsSelected: 1,
         containerElementsMaxDepth: 1,

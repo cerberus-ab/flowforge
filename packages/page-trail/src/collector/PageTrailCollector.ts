@@ -9,6 +9,7 @@ import { nextIdGenerator } from '../utils/nextId.ts';
 import type { ExtractedElements } from './extractors/ExtractedElements.ts';
 import { extractContainerElements } from './extractors/container.ts';
 import { PageTrail } from '../PageTrail.ts';
+import { VERSION } from '../version.ts';
 
 export interface CollectorOptions {
     /** Maximum number of content elements to keep after importance scoring. */
@@ -74,6 +75,7 @@ export class PageTrailCollector {
             ...interactiveElements.elements(),
         ];
         const metadata = {
+            version: VERSION,
             // stats
             containerElements: containerElements.length,
             containerElementsSelected: containerElements.selected,
