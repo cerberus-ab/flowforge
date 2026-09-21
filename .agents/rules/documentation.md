@@ -98,13 +98,13 @@ Target length: 80–100 lines.
 Target length: 80–100 lines.
 
 - Overview
-- Format (`PageTrail` object shape only)
+- Format (`PageTrailDto` shape and runtime reference model)
 - Structure elements
 - Content elements
 - Interactive elements
-- Context
+- Context and locators
 - Scoring summary with a link to `docs/scoring.md`
-- Format
+- Runtime API
 - Usage
 
 ### `packages/page-trail/docs/scoring.md`

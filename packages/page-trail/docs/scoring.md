@@ -1,7 +1,7 @@
 # PageTrail Scoring
 
 `@flowforge/page-trail` scoring selects useful DOM targets for the `PageTrail`
-snapshot. It is query-agnostic: the user request is applied later by retrieval
+model. It is query-agnostic: the user request is applied later by retrieval
 and reranking in the DOM-to-RAG pipeline.
 
 ## Overview

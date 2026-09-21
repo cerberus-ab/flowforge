@@ -5,7 +5,7 @@
 ### Models and providers
 
 - Research OpenRouter, Lighter LM, and Cerebras.ai for LLM routing and low-latency inference.
-- Research WebLLM in browser for instant summary, intent classification, local reranking, and related tasks.
+- Research WebLLM for a fully browser-local mode, including summaries, intent classification, reranking, and reasoning without the backend.
 - Try open source models such as gpt-oss:120b and nemotron-3-super.
 
 ### Agent orchestration and reasoning
@@ -26,6 +26,7 @@
 ### Page Trail
 
 - Cache heavy collector computations.
+- Add size metadata and pluggable token estimates to semantic document output.
 - Parse structured data such as Schema.org, Open Graph, and X Card for basic page information.
 - Enhance `dataId` and CSS selector usage for element location.
 - Create extendable abstractions over extractors, selectors, embeddings, and tooling.

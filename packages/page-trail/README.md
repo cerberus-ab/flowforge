@@ -2,61 +2,66 @@
 
 ## Overview
 
-`@flowforge/page-trail` extracts the current document into a typed `PageTrail`.
-The model is DOM-focused, LLM-independent, and keeps locator data for resolving
-results back to browser elements.
+`@flowforge/page-trail` collects a document into a typed page representation.
+It separates the JSON-safe `PageTrailDto` contract from the runtime `PageTrail`
+model used for traversal and semantic formatting.
 
 ## Format
 
-`PageTrail` is the top-level snapshot object:
+`PageTrailDto` is the portable snapshot sent across process boundaries:
 
 ```ts
-interface PageTrail {
-    basics: PageBasics;
-    structure: ContainerTreeNode[];
-    content: ContentElement[];
-    interactive: InteractiveElement[];
-    metadata: CollectionMetadata;
+interface PageTrailDto {
+    contextOnly: boolean;
+    basics: PageBasicsDto;
+    structure: ContainerRootNodeDto;
+    elements: PageElementDto[];
+    metadata: CollectionsMetadataDto;
 }
 ```
 
-`basics` stores page metadata and viewport; `metadata` stores counts, limit
-flags, timestamp, and per-stage timings.
+Every element is stored once in `elements`. Structure edges and target context
+paths refer to those records by numeric element ID. `PageTrail.fromDto()`
+reconnects the IDs into object references; `pageTrail.toDto()` converts the
+runtime model back to its serializable form.
 
-## Structure Elements
+`basics` contains page and viewport data. `metadata` records the package version, collection counts, limits, timestamp, and stage timings.
 
-Container elements are visible semantic wrappers: dialogs, forms, navigation,
-landmarks, sections, widgets, and tables. They are collected as a DOM-ordered
-tree and are not importance-scored or limited.
+## Structure elements
 
-Each container includes `kind`, `type`, `role`, labels, source `tag`, `dataId`,
-fallback `cssSelector`, `bbox`, and `meaningScore`.
+Container elements describe visible semantic wrappers such as dialogs, forms,
+navigation, landmarks, sections, widgets, and tables. The runtime structure is
+a rooted tree whose nodes hold direct references to their container and target
+elements. The DTO represents the same links as `containerId`, `contentIds`, and
+`interactiveIds`.
 
-## Content Elements
+Containers are collected in DOM order and include `kind`, `type`, `role`,
+labels, source `tag`, bounding box, and `meaningScore`.
 
-Content elements are visible headings, paragraphs, list items, blockquotes, and
-figcaptions. Text shorter than five characters is skipped. Retained elements
-are selected after scoring.
+## Content elements
 
-Each content record includes source text, `tag`, `dataId`, fallback
-`cssSelector`, `bbox`, container `context`, `meaningScore`, and
-`importanceScore`.
+Content elements represent visible headings, paragraphs, list items,
+blockquotes, and figcaptions. Retained elements include text, source tag,
+bounding box, container context, `meaningScore`, and `importanceScore`.
 
-## Interactive Elements
+## Interactive elements
 
-Interactive elements are visible buttons, links, inputs, textareas, selects,
-summaries, dialogs, options, and supported ARIA controls. Sensitive fields are
-excluded. Retained elements are selected after scoring.
+Interactive elements represent visible buttons, links, inputs, textareas,
+selects, summaries, dialogs, options, and supported ARIA controls. Sensitive
+fields are excluded. Records include role, text, labels, state, visibility,
+optional link metadata, context, and scores.
 
-Each interactive record includes `role`, text, labels, state, visibility,
-optional link metadata, `dataId`, fallback `cssSelector`, `bbox`, context, and
-scores.
+## Context and locators
 
-## Context
+Target context contains a path from the nearest container toward the page root.
+Runtime path nodes reference container objects; DTO path nodes use container
+IDs. Breadcrumb indexes select the strongest entries from the full path.
 
-Content and interactive targets store a container path from the nearest ancestor
-toward the page root. Path nodes include the container, distance, and
-`relevanceScore`; breadcrumb indexes identify the strongest context entries.
+Element identity and DOM lookup are separate. Every record has a numeric `id`
+for relationships inside one snapshot. A DOM-linked collection also includes a
+`locator` with a caller-provided `dataId` and a CSS selector fallback. In
+context-only mode, locators are omitted and collection does not require DOM
+identifiers.
 
 ## Scoring
 
@@ -64,26 +69,30 @@ PageTrail computes normalized scores for standalone meaning, container context,
 and query-agnostic target selection. See [Scoring](docs/scoring.md) for the
 scoring flow, formulas, and diagram.
 
-## Format
-
-Semantic helpers are exported from the package root:
+## Runtime API
 
 ```ts
-semContentElement(contentElement).text();
-semInteractiveElement(interactiveElement).text();
-semContainerElement(containerElement).text();
-semSampleStructure(pageTrail.structure);
+pageTrail.getContent();
+pageTrail.getInteractive();
+pageTrail.getStructure();
+pageTrail.getContentByImportanceDesc();
+pageTrail.getInteractiveByImportanceDesc();
+pageTrail.getStructureByImportanceDesc();
 semMarkdown(pageTrail);
 ```
 
 ## Usage
 
 ```ts
-import { PageTrailCollector, semMarkdown } from '@flowforge/page-trail';
+import { PageTrail, PageTrailCollector, semMarkdown } from '@flowforge/page-trail';
 
 const pageTrail = PageTrailCollector.collectFor(window, document, {
-    getElementDataId: (el) => getOrCreateDataId(el),
+    getElementDataId: (element) => getOrCreateDataId(element),
 });
 
-const preview = semMarkdown(pageTrail);
+const dto = pageTrail.toDto();
+const restored = PageTrail.fromDto(JSON.parse(JSON.stringify(dto)));
+const preview = semMarkdown(restored);
 ```
+
+For context without DOM resolution, collect with `{ contextOnly: true }`. Tests in consuming packages can reuse fixtures from `@flowforge/page-trail/testing`.
