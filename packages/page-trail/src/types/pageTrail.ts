@@ -198,14 +198,14 @@ export interface CollectionMetadata {
     version: string;
     // stats
     containerElements: number;
-    containerElementsSelected: number;
+    containerElementsMatched: number;
     containerElementsMaxDepth: number;
     contentElements: number;
-    contentElementsSelected: number;
+    contentElementsMatched: number;
     contentElementsCandidates: number;
     contentElementsLimitReached: boolean;
     interactiveElements: number;
-    interactiveElementsSelected: number;
+    interactiveElementsMatched: number;
     interactiveElementsCandidates: number;
     interactiveElementsLimitReached: boolean;
     // timings

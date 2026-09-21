@@ -47,9 +47,9 @@ export function extractInteractiveElements(
         >;
         importanceScore: Scoring;
     }[] = [];
-    const selected = Array.from(root.querySelectorAll(SELECTOR_INTERACTIVE));
+    const matched = Array.from(root.querySelectorAll(SELECTOR_INTERACTIVE));
 
-    selected.forEach((el) => {
+    matched.forEach((el) => {
         // skip hidden elements
         if (!isElementVisible(el, win)) return;
         // skip sensitive elements
@@ -97,5 +97,5 @@ export function extractInteractiveElements(
         }),
     );
 
-    return new ExtractedElements(tops.data, selected.length, candidates.length, tops.limitReached);
+    return new ExtractedElements(tops.data, matched.length, candidates.length, tops.limitReached);
 }

@@ -110,14 +110,14 @@ export class PageTrailCollector {
             version: VERSION,
             // stats
             containerElements: containerElements.length,
-            containerElementsSelected: containerElements.selected,
+            containerElementsMatched: containerElements.matched,
             containerElementsMaxDepth: containerTree.getMaxDepth(),
             contentElements: contentElements.length,
-            contentElementsSelected: contentElements.selected,
+            contentElementsMatched: contentElements.matched,
             contentElementsCandidates: contentElements.candidates,
             contentElementsLimitReached: contentElements.limitReached,
             interactiveElements: interactiveElements.length,
-            interactiveElementsSelected: interactiveElements.selected,
+            interactiveElementsMatched: interactiveElements.matched,
             interactiveElementsCandidates: interactiveElements.candidates,
             interactiveElementsLimitReached: interactiveElements.limitReached,
             // timings

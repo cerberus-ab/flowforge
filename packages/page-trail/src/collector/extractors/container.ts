@@ -25,9 +25,9 @@ export function extractContainerElements(
     elementLocatorCreator: ElementLocatorCreator | undefined,
 ): ExtractedElements<ContainerElement> {
     const candidates: ExtractedElement<ContainerElement>[] = [];
-    const selected = Array.from(root.querySelectorAll(SELECTOR_CONTAINER));
+    const matched = Array.from(root.querySelectorAll(SELECTOR_CONTAINER));
 
-    selected.forEach((el) => {
+    matched.forEach((el) => {
         // skip hidden containers
         if (!isElementVisible(el, win)) return;
         // skip containers with no resolved role
@@ -58,5 +58,5 @@ export function extractContainerElements(
         });
     });
 
-    return new ExtractedElements(candidates, selected.length, candidates.length);
+    return new ExtractedElements(candidates, matched.length, candidates.length);
 }

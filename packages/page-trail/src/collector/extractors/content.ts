@@ -37,9 +37,9 @@ export function extractContentElements(
         prefilled: Pick<ContentElement, 'id' | 'text' | 'type' | 'context' | 'meaningScore'>;
         importanceScore: Scoring;
     }[] = [];
-    const selected = Array.from(root.querySelectorAll(SELECTOR_CONTENT));
+    const matched = Array.from(root.querySelectorAll(SELECTOR_CONTENT));
 
-    selected.forEach((el) => {
+    matched.forEach((el) => {
         // skip hidden text blocks
         if (!isElementVisible(el, win)) return;
         // skip too small text blocks
@@ -77,5 +77,5 @@ export function extractContentElements(
         }),
     );
 
-    return new ExtractedElements(tops.data, selected.length, candidates.length, tops.limitReached);
+    return new ExtractedElements(tops.data, matched.length, candidates.length, tops.limitReached);
 }

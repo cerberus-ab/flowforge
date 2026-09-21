@@ -8,7 +8,7 @@ export interface ExtractedElement<T extends BaseElement> {
 export class ExtractedElements<T extends BaseElement> {
     constructor(
         private readonly data: ExtractedElement<T>[],
-        readonly selected: number,
+        readonly matched: number,
         readonly candidates: number,
         readonly limitReached: boolean = false,
     ) {}
