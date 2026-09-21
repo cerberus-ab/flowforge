@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ElementContext } from '../../types';
-import { containerElement } from '../../../test/fixtures';
+import { createContainerElementFixture } from '../../../test/fixtures';
 import { semElementContextByBreadcrumbs, semElementContextShort } from './context';
 
 describe('semElementContextShort', () => {
@@ -15,12 +15,12 @@ describe('semElementContextShort', () => {
                 contextFixture({
                     path: [
                         {
-                            container: containerElement({ role: 'main content' }),
+                            container: createContainerElementFixture({ role: 'main content' }),
                             distance: 2,
                             relevanceScore: { value: 0.8 },
                         },
                         {
-                            container: containerElement({
+                            container: createContainerElementFixture({
                                 role: 'section',
                                 labels: [{ source: 'heading', value: 'Pricing' }],
                             }),
@@ -28,7 +28,7 @@ describe('semElementContextShort', () => {
                             relevanceScore: { value: 0.9 },
                         },
                         {
-                            container: containerElement({
+                            container: createContainerElementFixture({
                                 role: 'form',
                                 labels: [{ source: 'legend', value: 'Checkout' }],
                             }),
@@ -48,7 +48,7 @@ describe('semElementContextShort', () => {
                 contextFixture({
                     path: [
                         {
-                            container: containerElement({
+                            container: createContainerElementFixture({
                                 role: 'navigation',
                                 labels: [
                                     { source: 'aria-label', value: 'Primary' },
@@ -71,7 +71,7 @@ describe('semElementContextShort', () => {
                 contextFixture({
                     path: [
                         {
-                            container: containerElement({ role: 'footer' }),
+                            container: createContainerElementFixture({ role: 'footer' }),
                             distance: 0,
                             relevanceScore: { value: 1 },
                         },
@@ -94,12 +94,12 @@ describe('semElementContextPathBreadcrumbs', () => {
                 contextFixture({
                     path: [
                         {
-                            container: containerElement({ role: 'main content' }),
+                            container: createContainerElementFixture({ role: 'main content' }),
                             distance: 2,
                             relevanceScore: { value: 0.8 },
                         },
                         {
-                            container: containerElement({
+                            container: createContainerElementFixture({
                                 role: 'section',
                                 labels: [
                                     { source: 'heading', value: 'Pricing' },
@@ -110,7 +110,7 @@ describe('semElementContextPathBreadcrumbs', () => {
                             relevanceScore: { value: 0.9 },
                         },
                         {
-                            container: containerElement({
+                            container: createContainerElementFixture({
                                 role: 'form',
                                 labels: [{ source: 'legend', value: 'Checkout' }],
                             }),
@@ -130,7 +130,7 @@ describe('semElementContextPathBreadcrumbs', () => {
                 contextFixture({
                     path: [
                         {
-                            container: containerElement({ role: 'footer' }),
+                            container: createContainerElementFixture({ role: 'footer' }),
                             distance: 0,
                             relevanceScore: { value: 1 },
                         },

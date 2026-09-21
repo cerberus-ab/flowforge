@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { testDomRect } from '../../../../test/fixtures';
+import { domRectFixture } from '../../../../test/fixtures';
 import { getElementBoundingBox, isAboveTheFold, isElementVisible, isInViewport } from './view';
 
 afterEach(() => {
@@ -39,7 +39,7 @@ describe('isElementVisible', () => {
 describe('getElementBoundingBox', () => {
     it('maps DOMRect values to a bounding box', () => {
         const el = document.createElement('div');
-        vi.spyOn(el, 'getBoundingClientRect').mockReturnValue(testDomRect);
+        vi.spyOn(el, 'getBoundingClientRect').mockReturnValue(domRectFixture);
 
         expect(getElementBoundingBox(el)).toEqual({
             top: 0,

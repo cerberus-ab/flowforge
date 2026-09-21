@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ContainerPathNode, ContainerRootNode } from '../../types';
-import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
+import {
+    createContainerElementFixture,
+    createContentElementFixture,
+    createInteractiveElementFixture,
+} from '../../../test/fixtures';
 import { presentEnrichedContent, presentEnrichedInteractive, presentEnrichedStructure } from './enriched';
 
 function pathNode(container: ContainerPathNode['container'], distance = 0): ContainerPathNode {
@@ -20,7 +24,7 @@ describe('enriched semantic presentation', () => {
             interactive: [],
             nodes: [
                 {
-                    container: containerElement({
+                    container: createContainerElementFixture({
                         locator: { dataId: 'main', cssSelector: undefined },
                         role: 'main content',
                         type: 'landmark',
@@ -29,7 +33,7 @@ describe('enriched semantic presentation', () => {
                     interactive: [],
                     nodes: [
                         {
-                            container: containerElement({
+                            container: createContainerElementFixture({
                                 locator: { dataId: 'checkout', cssSelector: undefined },
                                 role: 'form',
                                 type: 'form',
@@ -65,11 +69,11 @@ describe('enriched semantic presentation', () => {
 
     it('adds semantic text to container elements in content context paths', () => {
         // Given
-        const content = contentElement({
+        const content = createContentElementFixture({
             context: {
                 path: [
                     pathNode(
-                        containerElement({
+                        createContainerElementFixture({
                             locator: { dataId: 'article', cssSelector: undefined },
                             role: 'article',
                             labels: [{ source: 'heading', value: 'Release notes' }],
@@ -93,11 +97,11 @@ describe('enriched semantic presentation', () => {
 
     it('adds semantic text to container elements in interactive context paths', () => {
         // Given
-        const interactive = interactiveElement({
+        const interactive = createInteractiveElementFixture({
             context: {
                 path: [
                     pathNode(
-                        containerElement({
+                        createContainerElementFixture({
                             locator: { dataId: 'primary-nav', cssSelector: undefined },
                             role: 'navigation',
                             type: 'navigation',

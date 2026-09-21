@@ -1,16 +1,6 @@
-import { PageTrail } from '../src';
-import type {
-    BoundingBox,
-    CollectionMetadata,
-    ContainerElement,
-    ContainerRootNode,
-    ContentElement,
-    InteractiveElement,
-    PageBasics,
-    PageElement,
-} from '../src';
+import type { BoundingBox, ContainerElement, ContentElement, InteractiveElement } from '../src';
 
-export const testBoundingBox: BoundingBox = {
+export const boundingBoxFixture: BoundingBox = {
     top: 0,
     left: 0,
     width: 100,
@@ -19,7 +9,7 @@ export const testBoundingBox: BoundingBox = {
     bottom: 20,
 };
 
-export const testContainerBoundingBox: BoundingBox = {
+export const containerBoundingBoxFixture: BoundingBox = {
     top: 0,
     left: 0,
     width: 100,
@@ -28,21 +18,21 @@ export const testContainerBoundingBox: BoundingBox = {
     bottom: 100,
 };
 
-export const testDomRect: DOMRect = {
-    ...testBoundingBox,
-    x: testBoundingBox.left,
-    y: testBoundingBox.top,
+export const domRectFixture: DOMRect = {
+    ...boundingBoxFixture,
+    x: boundingBoxFixture.left,
+    y: boundingBoxFixture.top,
     toJSON: () => {},
 } as DOMRect;
 
-export function contentElement(overrides: Partial<ContentElement> = {}): ContentElement {
+export function createContentElementFixture(overrides: Partial<ContentElement> = {}): ContentElement {
     return {
         kind: 'content',
         type: 'text',
         tag: 'p',
         id: 0,
         locator: { dataId: 'content-1', cssSelector: '#content-1' },
-        bbox: testBoundingBox,
+        bbox: boundingBoxFixture,
         meaningScore: { value: 0 },
         context: { path: [], breadcrumbs: [], contextScore: { value: 0 } },
         text: 'Welcome',
@@ -51,7 +41,7 @@ export function contentElement(overrides: Partial<ContentElement> = {}): Content
     };
 }
 
-export function interactiveElement(overrides: Partial<InteractiveElement> = {}): InteractiveElement {
+export function createInteractiveElementFixture(overrides: Partial<InteractiveElement> = {}): InteractiveElement {
     return {
         kind: 'interactive',
         type: 'button',
@@ -59,7 +49,7 @@ export function interactiveElement(overrides: Partial<InteractiveElement> = {}):
         tag: 'button',
         id: 0,
         locator: { dataId: 'button-1', cssSelector: '#button-1' },
-        bbox: { ...testBoundingBox, height: 40, bottom: 40 },
+        bbox: { ...boundingBoxFixture, height: 40, bottom: 40 },
         meaningScore: { value: 0 },
         context: { path: [], breadcrumbs: [], contextScore: { value: 0 } },
         text: 'Save',
@@ -73,11 +63,11 @@ export function interactiveElement(overrides: Partial<InteractiveElement> = {}):
     };
 }
 
-export function containerElement(overrides: Partial<ContainerElement> = {}): ContainerElement {
+export function createContainerElementFixture(overrides: Partial<ContainerElement> = {}): ContainerElement {
     const role = overrides.role ?? 'section';
     const type = overrides.type ?? 'section';
     const labels = overrides.labels ?? [];
-    const bbox = overrides.bbox ?? testContainerBoundingBox;
+    const bbox = overrides.bbox ?? containerBoundingBoxFixture;
 
     return {
         kind: 'container',
@@ -98,60 +88,12 @@ export interface ContainerNodeFixture {
     nodes: ContainerNodeFixture[];
 }
 
-export function containerNode(data: ContainerElement, nodes: ContainerNodeFixture[] = []): ContainerNodeFixture {
+export function createContainerNodeFixture(
+    data: ContainerElement,
+    nodes: ContainerNodeFixture[] = [],
+): ContainerNodeFixture {
     return {
         data,
         nodes,
     };
-}
-
-interface PageTrailFixtureOptions {
-    contextOnly?: boolean;
-    basics?: PageBasics;
-    structure?: ContainerRootNode;
-    elements?: PageElement[];
-    metadata?: CollectionMetadata;
-}
-
-export function pageTrailFixture(overrides: PageTrailFixtureOptions = {}): PageTrail {
-    return new PageTrail(
-        overrides.contextOnly ?? false,
-        overrides.basics ?? {
-            url: 'https://example.com/sandbox',
-            title: 'FlowForge Sandbox',
-            description: 'Extension sandbox for FlowForge.',
-            language: 'en',
-            viewport: {
-                width: 1280,
-                height: 720,
-                scrollY: 0,
-                scrollHeight: 1440,
-            },
-        },
-        overrides.structure ?? { content: [], interactive: [], nodes: [] },
-        overrides.elements ?? [],
-        overrides.metadata ?? {
-            version: '0.1.0',
-            containerElements: 0,
-            containerElementsMatched: 0,
-            containerElementsMaxDepth: 0,
-            contentElements: 0,
-            contentElementsMatched: 0,
-            contentElementsCandidates: 0,
-            contentElementsLimitReached: false,
-            interactiveElements: 0,
-            interactiveElementsMatched: 0,
-            interactiveElementsCandidates: 0,
-            interactiveElementsLimitReached: false,
-            collectedAt: 0,
-            performance: {
-                basicsMs: 0,
-                structureMs: 0,
-                contentMs: 0,
-                interactiveMs: 0,
-                completeMs: 0,
-                totalMs: 0,
-            },
-        },
-    );
 }

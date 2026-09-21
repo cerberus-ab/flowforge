@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentElement } from '../../../test/fixtures';
+import { createContentElementFixture } from '../../../test/fixtures';
 import { topElements } from './topEl';
 
 describe('topElements', () => {
     it('returns all elements in their original order when unlimited', () => {
-        const low = contentElement({ id: 0, importanceScore: { value: 0.1 } });
-        const high = contentElement({ id: 1, importanceScore: { value: 0.9 } });
-        const medium = contentElement({ id: 2, importanceScore: { value: 0.5 } });
+        const low = createContentElementFixture({ id: 0, importanceScore: { value: 0.1 } });
+        const high = createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } });
+        const medium = createContentElementFixture({ id: 2, importanceScore: { value: 0.5 } });
 
         const result = topElements([low, high, medium], 0, (el) => el);
 
@@ -17,9 +17,9 @@ describe('topElements', () => {
     it('returns only the requested number of top elements', () => {
         const result = topElements(
             [
-                contentElement({ id: 0, importanceScore: { value: 0.7 } }),
-                contentElement({ id: 1, importanceScore: { value: 0.9 } }),
-                contentElement({ id: 2, importanceScore: { value: 0.2 } }),
+                createContentElementFixture({ id: 0, importanceScore: { value: 0.7 } }),
+                createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } }),
+                createContentElementFixture({ id: 2, importanceScore: { value: 0.2 } }),
             ],
             2,
             (el) => el,
@@ -33,8 +33,8 @@ describe('topElements', () => {
     it('does not mark the limit as reached when all elements fit', () => {
         const result = topElements(
             [
-                contentElement({ id: 0, importanceScore: { value: 0.7 } }),
-                contentElement({ id: 1, importanceScore: { value: 0.9 } }),
+                createContentElementFixture({ id: 0, importanceScore: { value: 0.7 } }),
+                createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } }),
             ],
             2,
             (el) => el,
@@ -48,9 +48,9 @@ describe('topElements', () => {
     it('transforms selected elements after sorting and limiting', () => {
         const result = topElements(
             [
-                contentElement({ id: 0, importanceScore: { value: 0.7 } }),
-                contentElement({ id: 1, importanceScore: { value: 0.9 } }),
-                contentElement({ id: 2, importanceScore: { value: 0.2 } }),
+                createContentElementFixture({ id: 0, importanceScore: { value: 0.7 } }),
+                createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } }),
+                createContentElementFixture({ id: 2, importanceScore: { value: 0.2 } }),
             ],
             2,
             (el) => el.id,

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { interactiveElement } from '../../../test/fixtures';
+import { createInteractiveElementFixture } from '../../../test/fixtures';
 import { semInteractiveElement } from './interactive';
 
 describe('semInteractiveElement', () => {
     it('formats button name, state, and visibility without element context', () => {
         expect(
             semInteractiveElement(
-                interactiveElement({
+                createInteractiveElementFixture({
                     labels: [{ source: 'aria-label', value: 'Save changes' }],
                     state: { disabled: true, required: true },
                     aboveTheFold: true,
@@ -21,7 +21,7 @@ describe('semInteractiveElement', () => {
     it('formats links by link type', () => {
         expect(
             semInteractiveElement(
-                interactiveElement({
+                createInteractiveElementFixture({
                     type: 'link',
                     role: 'link',
                     text: 'Docs',
@@ -32,7 +32,7 @@ describe('semInteractiveElement', () => {
     });
 
     it('omits name when no label or text exists', () => {
-        expect(semInteractiveElement(interactiveElement({ text: undefined, labels: [] })).text()).toBe(
+        expect(semInteractiveElement(createInteractiveElementFixture({ text: undefined, labels: [] })).text()).toBe(
             'Button. Action: click action',
         );
     });

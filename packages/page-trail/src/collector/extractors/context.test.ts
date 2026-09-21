@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { containerElement } from '../../../test/fixtures';
+import { createContainerElementFixture } from '../../../test/fixtures';
 import type { ContainerElement } from '../../types';
 import type { ContainerTree } from './ContainerTree';
 import { extractContentElementContext, extractInteractiveElementContext } from './context';
@@ -10,8 +10,8 @@ describe('context extractors', () => {
         // Given
         const el = document.createElement('p');
         const containers: ContainerElement[] = [
-            containerElement({ id: 0, role: 'section' }),
-            containerElement({ id: 1, role: 'main content', type: 'landmark' }),
+            createContainerElementFixture({ id: 0, role: 'section' }),
+            createContainerElementFixture({ id: 1, role: 'main content', type: 'landmark' }),
         ];
         const containerTree = {
             getPathToRoot: vi.fn().mockReturnValue(containers),
@@ -32,8 +32,8 @@ describe('context extractors', () => {
         // Given
         const el = document.createElement('button');
         const containers: ContainerElement[] = [
-            containerElement({ id: 0, role: 'form', type: 'form' }),
-            containerElement({ id: 1, role: 'main content', type: 'landmark' }),
+            createContainerElementFixture({ id: 0, role: 'form', type: 'form' }),
+            createContainerElementFixture({ id: 1, role: 'main content', type: 'landmark' }),
         ];
         const containerTree = {
             getPathToRoot: vi.fn().mockReturnValue(containers),

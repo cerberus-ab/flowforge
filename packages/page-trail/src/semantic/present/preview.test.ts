@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ContainerPathNode, ContainerRootNode } from '../../types';
-import { containerElement, contentElement, interactiveElement } from '../../../test/fixtures';
+import {
+    createContainerElementFixture,
+    createContentElementFixture,
+    createInteractiveElementFixture,
+} from '../../../test/fixtures';
 import { presentPreviewContent, presentPreviewInteractive, presentPreviewStructure } from './preview';
 
 function pathNode(container: ContainerPathNode['container'], distance = 0): ContainerPathNode {
@@ -20,7 +24,7 @@ describe('preview semantic presentation', () => {
             interactive: [],
             nodes: [
                 {
-                    container: containerElement({
+                    container: createContainerElementFixture({
                         kind: 'container',
                         type: 'navigation',
                         tag: 'nav',
@@ -33,7 +37,7 @@ describe('preview semantic presentation', () => {
                     interactive: [],
                     nodes: [
                         {
-                            container: containerElement({
+                            container: createContainerElementFixture({
                                 tag: 'form',
                                 role: 'form',
                                 labels: [{ source: 'legend', value: 'Search' }],
@@ -84,7 +88,7 @@ describe('preview semantic presentation', () => {
 
     it('creates a compact preview of content elements with breadcrumb context', () => {
         // Given
-        const content = contentElement({
+        const content = createContentElementFixture({
             kind: 'content',
             type: 'heading',
             tag: 'h1',
@@ -93,9 +97,9 @@ describe('preview semantic presentation', () => {
             importanceScore: { value: 0.9 },
             context: {
                 path: [
-                    pathNode(containerElement({ role: 'main content' })),
+                    pathNode(createContainerElementFixture({ role: 'main content' })),
                     pathNode(
-                        containerElement({
+                        createContainerElementFixture({
                             role: 'section',
                             labels: [{ source: 'heading', value: 'Plans' }],
                         }),
@@ -123,7 +127,7 @@ describe('preview semantic presentation', () => {
 
     it('creates a compact preview of interactive elements with semantic text and link type', () => {
         // Given
-        const interactive = interactiveElement({
+        const interactive = createInteractiveElementFixture({
             tag: 'a',
             type: 'link',
             role: 'link',
@@ -137,7 +141,7 @@ describe('preview semantic presentation', () => {
             context: {
                 path: [
                     pathNode(
-                        containerElement({
+                        createContainerElementFixture({
                             role: 'navigation',
                             labels: [{ source: 'aria-label', value: 'Primary' }],
                         }),

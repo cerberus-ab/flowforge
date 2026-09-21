@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { containerElement, contentElement, interactiveElement, pageTrailFixture } from '../test/fixtures';
+import {
+    createContainerElementFixture,
+    createContentElementFixture,
+    createInteractiveElementFixture,
+} from '../test/fixtures';
 import { PageTrail } from './PageTrail';
+import { createPageTrailDtoFixture, createPageTrailFixture } from './testing';
 
 describe('PageTrail DTO conversion', () => {
     it('replaces runtime container references with IDs', () => {
         // Given
-        const container = containerElement({ id: 1 });
-        const content = contentElement({
+        const container = createContainerElementFixture({ id: 1 });
+        const content = createContentElementFixture({
             id: 2,
             context: {
                 path: [{ container, distance: 0, relevanceScore: { value: 0.8 } }],
@@ -15,8 +20,8 @@ describe('PageTrail DTO conversion', () => {
                 contextScore: { value: 0.8 },
             },
         });
-        const interactive = interactiveElement({ id: 3 });
-        const pageTrail = pageTrailFixture({
+        const interactive = createInteractiveElementFixture({ id: 3 });
+        const pageTrail = createPageTrailFixture({
             structure: {
                 content: [],
                 interactive: [],
@@ -46,8 +51,8 @@ describe('PageTrail DTO conversion', () => {
 
     it('restores shared container references after a JSON roundtrip', () => {
         // Given
-        const container = containerElement({ id: 1 });
-        const content = contentElement({
+        const container = createContainerElementFixture({ id: 1 });
+        const content = createContentElementFixture({
             id: 2,
             context: {
                 path: [{ container, distance: 0, relevanceScore: { value: 0.8 } }],
@@ -55,8 +60,8 @@ describe('PageTrail DTO conversion', () => {
                 contextScore: { value: 0.8 },
             },
         });
-        const interactive = interactiveElement({ id: 3 });
-        const dto = pageTrailFixture({
+        const interactive = createInteractiveElementFixture({ id: 3 });
+        const dto = createPageTrailFixture({
             structure: {
                 content: [content],
                 interactive: [],
@@ -80,9 +85,9 @@ describe('PageTrail DTO conversion', () => {
 
     it('preserves context-only mode after a JSON roundtrip', () => {
         // Given
-        const dto = pageTrailFixture({
+        const dto = createPageTrailFixture({
             contextOnly: true,
-            elements: [contentElement({ locator: undefined })],
+            elements: [createContentElementFixture({ locator: undefined })],
         }).toDto();
 
         // When
@@ -96,12 +101,11 @@ describe('PageTrail DTO conversion', () => {
 
     it('rejects a structure reference to an unknown container', () => {
         // Given
-        const dto = pageTrailFixture().toDto();
-        dto.structure = {
-            contentIds: [],
-            interactiveIds: [],
-            nodes: [{ containerId: 42, contentIds: [], interactiveIds: [], nodes: [] }],
-        };
+        const dto = createPageTrailDtoFixture({
+            structure: {
+                nodes: [{ containerId: 42, contentIds: [], interactiveIds: [], nodes: [] }],
+            },
+        });
 
         // When
         const restore = () => PageTrail.fromDto(dto);
@@ -112,16 +116,13 @@ describe('PageTrail DTO conversion', () => {
 
     it('rejects a structure reference to unknown content', () => {
         // Given
-        const container = containerElement({ id: 1 });
-        const dto = pageTrailFixture({
+        const container = createContainerElementFixture({ id: 1 });
+        const dto = createPageTrailDtoFixture({
             structure: {
-                content: [],
-                interactive: [],
-                nodes: [{ container, content: [], interactive: [], nodes: [] }],
+                nodes: [{ containerId: 1, contentIds: [42], interactiveIds: [], nodes: [] }],
             },
             elements: [container],
-        }).toDto();
-        dto.structure.nodes[0]!.contentIds = [42];
+        });
 
         // When
         const restore = () => PageTrail.fromDto(dto);
@@ -132,8 +133,7 @@ describe('PageTrail DTO conversion', () => {
 
     it('rejects a structure reference to unknown interactive element', () => {
         // Given
-        const dto = pageTrailFixture().toDto();
-        dto.structure.interactiveIds = [42];
+        const dto = createPageTrailDtoFixture({ structure: { interactiveIds: [42] } });
 
         // When
         const restore = () => PageTrail.fromDto(dto);
@@ -144,10 +144,10 @@ describe('PageTrail DTO conversion', () => {
 
     it('rejects a context reference to an unknown container', () => {
         // Given
-        const unknownContainer = containerElement({ id: 42 });
-        const dto = pageTrailFixture({
+        const unknownContainer = createContainerElementFixture({ id: 42 });
+        const dto = createPageTrailFixture({
             elements: [
-                contentElement({
+                createContentElementFixture({
                     context: {
                         path: [{ container: unknownContainer, distance: 0, relevanceScore: { value: 0.8 } }],
                         breadcrumbs: [0],
@@ -168,9 +168,9 @@ describe('PageTrail DTO conversion', () => {
 describe('PageTrail elements', () => {
     it('returns new content and interactive arrays on every call', () => {
         // Given
-        const content = contentElement({ id: 1 });
-        const interactive = interactiveElement({ id: 2 });
-        const pageTrail = pageTrailFixture({ elements: [content, interactive] });
+        const content = createContentElementFixture({ id: 1 });
+        const interactive = createInteractiveElementFixture({ id: 2 });
+        const pageTrail = createPageTrailFixture({ elements: [content, interactive] });
 
         // When
         const firstContent = pageTrail.getContent();
@@ -185,12 +185,12 @@ describe('PageTrail elements', () => {
 
     it('returns content elements sorted by descending importance without changing their collected order', () => {
         // Given
-        const low = contentElement({ id: 1, importanceScore: { value: 0.2 } });
-        const container = containerElement({ id: 2 });
-        const interactive = interactiveElement({ id: 3, importanceScore: { value: 0.9 } });
-        const medium = contentElement({ id: 4, importanceScore: { value: 0.5 } });
+        const low = createContentElementFixture({ id: 1, importanceScore: { value: 0.2 } });
+        const container = createContainerElementFixture({ id: 2 });
+        const interactive = createInteractiveElementFixture({ id: 3, importanceScore: { value: 0.9 } });
+        const medium = createContentElementFixture({ id: 4, importanceScore: { value: 0.5 } });
         const elements = [low, container, interactive, medium];
-        const pageTrail = pageTrailFixture({ elements });
+        const pageTrail = createPageTrailFixture({ elements });
 
         // When
         const sorted = pageTrail.getContentByImportanceDesc();
@@ -202,11 +202,11 @@ describe('PageTrail elements', () => {
 
     it('returns interactive elements sorted by descending importance without changing their collected order', () => {
         // Given
-        const low = interactiveElement({ id: 1, importanceScore: { value: 0.2 } });
-        const content = contentElement({ id: 2, importanceScore: { value: 1 } });
-        const high = interactiveElement({ id: 3, importanceScore: { value: 0.9 } });
+        const low = createInteractiveElementFixture({ id: 1, importanceScore: { value: 0.2 } });
+        const content = createContentElementFixture({ id: 2, importanceScore: { value: 1 } });
+        const high = createInteractiveElementFixture({ id: 3, importanceScore: { value: 0.9 } });
         const elements = [low, content, high];
-        const pageTrail = pageTrailFixture({ elements });
+        const pageTrail = createPageTrailFixture({ elements });
 
         // When
         const sorted = pageTrail.getInteractiveByImportanceDesc();
@@ -218,10 +218,10 @@ describe('PageTrail elements', () => {
 
     it('returns a new structure without changing element references', () => {
         // Given
-        const content = contentElement({ id: 1 });
-        const interactive = interactiveElement({ id: 2 });
-        const container = containerElement({ id: 3 });
-        const pageTrail = pageTrailFixture({
+        const content = createContentElementFixture({ id: 1 });
+        const interactive = createInteractiveElementFixture({ id: 2 });
+        const container = createContainerElementFixture({ id: 3 });
+        const pageTrail = createPageTrailFixture({
             structure: {
                 content: [content],
                 interactive: [],
@@ -245,15 +245,15 @@ describe('PageTrail elements', () => {
 
     it('returns a new structure with elements sorted by descending importance at every level', () => {
         // Given
-        const rootContentLow = contentElement({ id: 1, importanceScore: { value: 0.2 } });
-        const rootContentHigh = contentElement({ id: 2, importanceScore: { value: 0.8 } });
-        const rootInteractiveLow = interactiveElement({ id: 3, importanceScore: { value: 0.1 } });
-        const rootInteractiveHigh = interactiveElement({ id: 4, importanceScore: { value: 0.9 } });
-        const nestedContentLow = contentElement({ id: 5, importanceScore: { value: 0.3 } });
-        const nestedContentHigh = contentElement({ id: 6, importanceScore: { value: 0.7 } });
-        const nestedInteractiveLow = interactiveElement({ id: 7, importanceScore: { value: 0.4 } });
-        const nestedInteractiveHigh = interactiveElement({ id: 8, importanceScore: { value: 0.6 } });
-        const container = containerElement({ id: 9 });
+        const rootContentLow = createContentElementFixture({ id: 1, importanceScore: { value: 0.2 } });
+        const rootContentHigh = createContentElementFixture({ id: 2, importanceScore: { value: 0.8 } });
+        const rootInteractiveLow = createInteractiveElementFixture({ id: 3, importanceScore: { value: 0.1 } });
+        const rootInteractiveHigh = createInteractiveElementFixture({ id: 4, importanceScore: { value: 0.9 } });
+        const nestedContentLow = createContentElementFixture({ id: 5, importanceScore: { value: 0.3 } });
+        const nestedContentHigh = createContentElementFixture({ id: 6, importanceScore: { value: 0.7 } });
+        const nestedInteractiveLow = createInteractiveElementFixture({ id: 7, importanceScore: { value: 0.4 } });
+        const nestedInteractiveHigh = createInteractiveElementFixture({ id: 8, importanceScore: { value: 0.6 } });
+        const container = createContainerElementFixture({ id: 9 });
         const structure = {
             content: [rootContentLow, rootContentHigh],
             interactive: [rootInteractiveLow, rootInteractiveHigh],
@@ -266,7 +266,7 @@ describe('PageTrail elements', () => {
                 },
             ],
         };
-        const pageTrail = pageTrailFixture({ structure });
+        const pageTrail = createPageTrailFixture({ structure });
         const original = pageTrail.getStructure();
 
         // When

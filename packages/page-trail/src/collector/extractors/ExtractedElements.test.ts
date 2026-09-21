@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentElement } from '../../../test/fixtures';
+import { createContentElementFixture } from '../../../test/fixtures';
 import { ExtractedElements, type ExtractedElement } from './ExtractedElements';
 
-function extractedElement(id: number): ExtractedElement<ReturnType<typeof contentElement>> {
+function extractedElement(id: number): ExtractedElement<ReturnType<typeof createContentElementFixture>> {
     return {
         el: document.createElement('p'),
-        data: contentElement({ id }),
+        data: createContentElementFixture({ id }),
     };
 }
 

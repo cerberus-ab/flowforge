@@ -1,7 +1,7 @@
 import type { AgentResult, QueryRequest } from '@flowforge/contract';
+import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createPageTrailDtoFixture } from '../../../test/fixtures.ts';
 import { constants } from '../constants';
 import { DemoApiClient, HttpApiClient } from './ApiClient';
 

@@ -11,11 +11,12 @@ Use these rules when adding or updating tests.
 - Keep assertions focused on observable behavior, not implementation details.
 - Avoid noisy logs and unhandled async work in passing tests.
 - Keep coverage strong for changed behavior, including edge and negative cases.
+- Do not create local fixtures for PageTrail. Reuse the fixtures provided by `@flowforge/page-trail/testing`.
 
 ## `packages/page-trail`
 
 - Use Vitest with `happy-dom`; keep tests colocated under `src/**/*.test.ts`.
-- Reuse `test/fixtures.ts` and `test/domUtils.ts` instead of duplicating globalSetup.
+- Reuse the package's shared PageTrail fixtures. Use `test/fixtures.ts` for lower-level element and DOM helpers instead of duplicating them.
 - Cover behavior across extractors, collector, scoring, semantic formatting, and utils.
 - Use Given-When-Then for new or updated tests; migrate touched tests toward it.
 - Keep coverage at least at configured thresholds: 80% statements, 70% branches, 80% functions, 80% lines.

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { containerElement } from '../../../../test/fixtures';
+import { createContainerElementFixture } from '../../../../test/fixtures';
 import type { ContainerPathNode } from '../../../types';
 import { scoreTargetContext } from './target';
 
 function pathNode(distance: number, relevanceScore: number): ContainerPathNode {
     return {
         distance,
-        container: containerElement({ id: distance }),
+        container: createContainerElementFixture({ id: distance }),
         relevanceScore: { value: relevanceScore },
     };
 }
