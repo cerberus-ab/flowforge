@@ -177,11 +177,19 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                 >
                     {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
                     {activeTab === 'structure' && (
-                        <InspectorPageStructure structure={pageTrail.structure} devMode={devMode} />
+                        <InspectorPageStructure
+                            structure={pageTrail.getStructureByImportanceDesc()}
+                            devMode={devMode}
+                        />
                     )}
-                    {activeTab === 'content' && <InspectorPageContent content={pageTrail.content} devMode={devMode} />}
+                    {activeTab === 'content' && (
+                        <InspectorPageContent content={pageTrail.getContentByImportanceDesc()} devMode={devMode} />
+                    )}
                     {activeTab === 'interactive' && (
-                        <InspectorPageInteractive interactive={pageTrail.interactive} devMode={devMode} />
+                        <InspectorPageInteractive
+                            interactive={pageTrail.getInteractiveByImportanceDesc()}
+                            devMode={devMode}
+                        />
                     )}
                     {activeTab === 'markdown' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
                     {activeTab === 'metadata' && devMode && <JsonViewer value={pageTrail.metadata} sortKeys />}

@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markHidden, markVisible, resetDocument, setViewport } from '../../../test/domUtils';
-import { ElementRegistry } from '../ElementRegistry';
+import { ElementLocatorCreator } from '../ElementLocatorCreator';
 import { extractPageBasics } from './basics';
 import { ContainerTree } from './ContainerTree';
+import { extractContainerElements } from './container';
 import { extractInteractiveElements } from './interactive';
+import { nextIdGenerator } from '../../utils/nextId';
 
 afterEach(() => {
     resetDocument();
@@ -31,28 +33,29 @@ describe('extractInteractiveElements', () => {
         markVisible('#password');
         setViewport({ width: 1024, height: 768, scrollY: 0, scrollHeight: 2000 });
 
-        const registry = createRegistry();
-        const containerTree = ContainerTree.extractFor(window, document, registry);
+        const nextId = nextIdGenerator();
+        const locatorCreator = new ElementLocatorCreator((el) => el.id);
+        const containerTree = createContainerTree(nextId, locatorCreator);
 
         // When
-        const topElements = extractInteractiveElements(
+        const extracted = extractInteractiveElements(
             window,
             document.body,
-            registry,
+            nextId,
+            locatorCreator,
             extractPageBasics(window, document),
             containerTree,
             { elementsLimit: 0 },
         );
 
         // Then
-        expect(topElements.data).toEqual(
+        expect(extracted.elements()).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     kind: 'interactive',
                     type: 'button',
                     role: 'button',
-                    dataId: 'save',
-                    cssSelector: undefined,
+                    locator: { dataId: 'save', cssSelector: undefined },
                     labels: [{ source: 'aria-label', value: 'Save changes' }],
                     inViewport: true,
                     aboveTheFold: true,
@@ -61,8 +64,7 @@ describe('extractInteractiveElements', () => {
                     kind: 'interactive',
                     type: 'link',
                     role: 'link',
-                    dataId: 'docs',
-                    cssSelector: undefined,
+                    locator: { dataId: 'docs', cssSelector: undefined },
                     link: {
                         type: 'internal',
                         href: 'http://localhost:3000/docs',
@@ -72,16 +74,15 @@ describe('extractInteractiveElements', () => {
                     kind: 'interactive',
                     type: 'input',
                     role: 'textbox',
-                    dataId: 'email',
-                    cssSelector: undefined,
+                    locator: { dataId: 'email', cssSelector: undefined },
                     labels: [{ source: 'placeholder', value: 'Email' }],
                 }),
             ]),
         );
-        expect(topElements.data.map((el) => el.dataId)).not.toContain('hidden');
-        expect(topElements.data.map((el) => el.dataId)).not.toContain('password');
+        expect(extracted.elements().map((el) => el.locator!.dataId)).not.toContain('hidden');
+        expect(extracted.elements().map((el) => el.locator!.dataId)).not.toContain('password');
 
-        topElements.data.forEach((el) => {
+        extracted.elements().forEach((el) => {
             expect(el.context.contextScore.value).toBeGreaterThan(0);
             expect(el.context.breadcrumbs.length).toBeGreaterThan(0);
         });
@@ -99,27 +100,32 @@ describe('extractInteractiveElements', () => {
         markVisible('#button');
         markVisible('#link');
 
-        const registry = createRegistry();
-        const containerTree = ContainerTree.extractFor(window, document, registry);
+        const nextId = nextIdGenerator();
+        const locatorCreator = new ElementLocatorCreator((el) => el.id);
+        const containerTree = createContainerTree(nextId, locatorCreator);
 
         // When
-        const topElements = extractInteractiveElements(
+        const extracted = extractInteractiveElements(
             window,
             document.body,
-            registry,
+            nextId,
+            locatorCreator,
             extractPageBasics(window, document),
             containerTree,
             { elementsLimit: 1 },
         );
 
         // Then
-        expect(topElements.data).toHaveLength(1);
-        expect(topElements.data[0]).toEqual(expect.objectContaining({ dataId: 'button' }));
-        expect(topElements.total).toBe(2);
-        expect(topElements.limitReached).toBe(true);
+        expect(extracted.elements()).toHaveLength(1);
+        expect(extracted.elements()[0]).toEqual(
+            expect.objectContaining({ locator: { dataId: 'button', cssSelector: undefined } }),
+        );
+        expect(extracted.candidates).toBe(2);
+        expect(extracted.limitReached).toBe(true);
     });
 });
 
-function createRegistry() {
-    return new ElementRegistry((el) => el.id);
+function createContainerTree(nextId: () => number, locatorCreator: ElementLocatorCreator) {
+    const containers = extractContainerElements(window, document.body, nextId, locatorCreator);
+    return new ContainerTree(document.body, containers);
 }

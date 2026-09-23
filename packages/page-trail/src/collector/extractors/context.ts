@@ -1,6 +1,13 @@
-import type { ElementContext } from '../../types/index.ts';
-import type { ContainerTree, ContentTargetForPath, InteractiveTargetForPath } from './ContainerTree.ts';
-import { scoreTargetContext } from '../scoring/index.ts';
+import type { ContainerPathNode, ContentElement, ElementContext, InteractiveElement } from '../../types/index.ts';
+import type { ContainerTree } from './ContainerTree.ts';
+import {
+    scoreContainerRelevanceForContentTarget,
+    scoreContainerRelevanceForInteractiveTarget,
+    scoreTargetContext,
+} from '../scoring/index.ts';
+
+export type ContentTargetForPath = Pick<ContentElement, 'type'>;
+export type InteractiveTargetForPath = Pick<InteractiveElement, 'role' | 'type'>;
 
 /**
  * Extracts semantic ancestor context for a content element.
@@ -14,7 +21,17 @@ export function extractContentElementContext(
     el: Element,
     target: ContentTargetForPath,
 ): ElementContext {
-    const path = containerTree.getContentTargetPath(el, target);
+    const path: ContainerPathNode[] = containerTree.getPathToRoot(el).map((container, distance) => ({
+        distance,
+        container: container,
+        relevanceScore: scoreContainerRelevanceForContentTarget({
+            targetType: target.type,
+            containerRole: container.role,
+            containerType: container.type,
+            containerMeaningScore: container.meaningScore.value,
+            distance,
+        }),
+    }));
     const { value, breadcrumbs } = scoreTargetContext({ path });
     return { path, breadcrumbs, contextScore: { value } };
 }
@@ -31,7 +48,18 @@ export function extractInteractiveElementContext(
     el: Element,
     target: InteractiveTargetForPath,
 ): ElementContext {
-    const path = containerTree.getInteractiveTargetPath(el, target);
+    const path: ContainerPathNode[] = containerTree.getPathToRoot(el).map((container, distance) => ({
+        distance,
+        container,
+        relevanceScore: scoreContainerRelevanceForInteractiveTarget({
+            targetRole: target.role,
+            targetType: target.type,
+            containerRole: container.role,
+            containerType: container.type,
+            containerMeaningScore: container.meaningScore.value,
+            distance,
+        }),
+    }));
     const { value, breadcrumbs } = scoreTargetContext({ path });
     return { path, breadcrumbs, contextScore: { value } };
 }

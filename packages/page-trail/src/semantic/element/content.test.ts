@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { containerElement, contentElement } from '../../../test/fixtures';
+import { createContainerElementFixture, createContentElementFixture } from '../../../test/fixtures';
 import { semContentElement } from './content';
 
 describe('semContentElement', () => {
     it('formats heading kind with its heading tag', () => {
         expect(
             semContentElement(
-                contentElement({
+                createContentElementFixture({
                     type: 'heading',
                     tag: 'h1',
                     text: 'Pricing',
@@ -17,23 +17,23 @@ describe('semContentElement', () => {
     });
 
     it('uses text override', () => {
-        expect(semContentElement(contentElement(), 'Hello').text()).toBe('Text: Hello');
+        expect(semContentElement(createContentElementFixture(), 'Hello').text()).toBe('Text: Hello');
     });
 
     it('formats element context with short breadcrumb labels', () => {
         expect(
             semContentElement(
-                contentElement({
+                createContentElementFixture({
                     text: 'Confirm order',
                     context: {
                         path: [
                             {
-                                element: containerElement({ role: 'main content' }),
+                                container: createContainerElementFixture({ role: 'main content' }),
                                 distance: 2,
                                 relevanceScore: { value: 0.8 },
                             },
                             {
-                                element: containerElement({
+                                container: createContainerElementFixture({
                                     role: 'section',
                                     labels: [
                                         { source: 'heading', value: 'Checkout' },

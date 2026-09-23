@@ -1,11 +1,13 @@
 import {
+    type ContentElement,
+    type InteractiveElement,
     type PageTrail,
-    semModelEnrichedContent,
-    semModelEnrichedInteractive,
-    semModelEnrichedStructure,
-    semModelPreviewContent,
-    semModelPreviewInteractive,
-    semModelPreviewStructure,
+    presentEnrichedContent,
+    presentEnrichedInteractive,
+    presentEnrichedStructure,
+    presentPreviewContent,
+    presentPreviewInteractive,
+    presentPreviewStructure,
 } from '@flowforge/page-trail';
 import { JsonViewer } from '@/shared/components/JsonViewer';
 
@@ -31,7 +33,7 @@ export function InspectorPageStructure({
     structure,
     devMode,
 }: {
-    structure: PageTrail['structure'];
+    structure: ReturnType<PageTrail['getStructure']>;
     devMode: boolean;
 }) {
     return (
@@ -39,18 +41,18 @@ export function InspectorPageStructure({
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={devMode ? semModelEnrichedStructure(structure) : semModelPreviewStructure(structure)}
+            value={devMode ? presentEnrichedStructure(structure) : presentPreviewStructure(structure)}
         />
     );
 }
 
-export function InspectorPageContent({ content, devMode }: { content: PageTrail['content']; devMode: boolean }) {
+export function InspectorPageContent({ content, devMode }: { content: ContentElement[]; devMode: boolean }) {
     return (
         <JsonViewer
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={devMode ? semModelEnrichedContent(content) : semModelPreviewContent(content)}
+            value={devMode ? presentEnrichedContent(content) : presentPreviewContent(content)}
         />
     );
 }
@@ -59,7 +61,7 @@ export function InspectorPageInteractive({
     interactive,
     devMode,
 }: {
-    interactive: PageTrail['interactive'];
+    interactive: InteractiveElement[];
     devMode: boolean;
 }) {
     return (
@@ -67,7 +69,7 @@ export function InspectorPageInteractive({
             getNodeSummary={getPageElementSummary}
             rootArrayExpandedItems={1}
             sortKeys
-            value={devMode ? semModelEnrichedInteractive(interactive) : semModelPreviewInteractive(interactive)}
+            value={devMode ? presentEnrichedInteractive(interactive) : presentPreviewInteractive(interactive)}
         />
     );
 }

@@ -9,6 +9,7 @@
     "noUncheckedIndexedAccess": true,
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
+    "resolveJsonModule": true,
 
     "declaration": true,
     "declarationMap": true,

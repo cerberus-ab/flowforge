@@ -1,10 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { ContainerTreeNode } from '../../types';
+import type { ContainerElement, ContainerTreeNode } from '../../types';
 import { markVisible, resetDocument } from '../../../test/domUtils';
-import { containerElement, containerNode, type ContainerNodeFixture } from '../../../test/fixtures';
-import { ElementRegistry } from '../ElementRegistry';
+import {
+    createContainerElementFixture,
+    createContainerNodeFixture,
+    createContentElementFixture,
+    createInteractiveElementFixture,
+    type ContainerNodeFixture,
+} from '../../../test/fixtures';
+import { ElementLocatorCreator } from '../ElementLocatorCreator';
 import { ContainerTree } from './ContainerTree';
+import { extractContainerElements } from './container';
+import { nextIdGenerator } from '../../utils/nextId';
 
 const containerRect = {
     top: 0,
@@ -43,28 +51,28 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
-            containerNode(
-                containerElement({
-                    dataId: 'main',
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'main', cssSelector: undefined },
                     role: 'main content',
                     type: 'landmark',
                     tag: 'main',
                     labels: [{ source: 'aria-label', value: 'Dashboard' }],
                 }),
                 [
-                    containerNode(
-                        containerElement({
-                            dataId: 'overview',
+                    createContainerNodeFixture(
+                        createContainerElementFixture({
+                            locator: { dataId: 'overview', cssSelector: undefined },
                             role: 'section',
                             type: 'section',
                             tag: 'section',
                             labels: [{ source: 'aria-label', value: 'Overview' }],
                         }),
                         [
-                            containerNode(
-                                containerElement({
-                                    dataId: 'feature',
+                            createContainerNodeFixture(
+                                createContainerElementFixture({
+                                    locator: { dataId: 'feature', cssSelector: undefined },
                                     role: 'article',
                                     type: 'section',
                                     tag: 'article',
@@ -74,9 +82,9 @@ describe('ContainerTree', () => {
                             ),
                         ],
                     ),
-                    containerNode(
-                        containerElement({
-                            dataId: 'nav',
+                    createContainerNodeFixture(
+                        createContainerElementFixture({
+                            locator: { dataId: 'nav', cssSelector: undefined },
                             role: 'navigation',
                             type: 'navigation',
                             tag: 'nav',
@@ -105,19 +113,19 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
-            containerNode(
-                containerElement({
-                    dataId: 'main',
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'main', cssSelector: undefined },
                     role: 'main content',
                     type: 'landmark',
                     tag: 'main',
                     labels: [],
                 }),
                 [
-                    containerNode(
-                        containerElement({
-                            dataId: 'wrapped',
+                    createContainerNodeFixture(
+                        createContainerElementFixture({
+                            locator: { dataId: 'wrapped', cssSelector: undefined },
                             role: 'section',
                             type: 'section',
                             tag: 'section',
@@ -144,19 +152,19 @@ describe('ContainerTree', () => {
         const tree = createTree(document.querySelector('#root')!);
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
-            containerNode(
-                containerElement({
-                    dataId: 'header',
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'header', cssSelector: undefined },
                     role: 'header',
                     type: 'landmark',
                     tag: 'header',
                     labels: [],
                 }),
             ),
-            containerNode(
-                containerElement({
-                    dataId: 'main',
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'main', cssSelector: undefined },
                     role: 'main content',
                     type: 'landmark',
                     tag: 'main',
@@ -184,10 +192,10 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)[0]?.nodes).toEqual([
-            containerNode(
-                containerElement({
-                    dataId: 'announcements',
+        expect(toContainerNodeFixture(tree.structure.nodes)[0]?.nodes).toEqual([
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'announcements', cssSelector: undefined },
                     role: 'region',
                     type: 'section',
                     tag: 'div',
@@ -195,9 +203,9 @@ describe('ContainerTree', () => {
                 }),
                 [],
             ),
-            containerNode(
-                containerElement({
-                    dataId: 'toolbar',
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'toolbar', cssSelector: undefined },
                     role: 'toolbar',
                     type: 'widget',
                     tag: 'div',
@@ -218,22 +226,22 @@ describe('ContainerTree', () => {
         markVisible('#main', containerRect);
 
         // When
-        const tree = ContainerTree.extractFor(window, document, createRegistry());
+        const tree = createTree();
 
         // Then
-        expect(toContainerNodeFixture(tree.nodes)).toEqual([
-            containerNode(
-                containerElement({
-                    dataId: 'header',
+        expect(toContainerNodeFixture(tree.structure.nodes)).toEqual([
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'header', cssSelector: undefined },
                     role: 'header',
                     type: 'landmark',
                     tag: 'header',
                     labels: [{ source: 'aria-label', value: 'Site header' }],
                 }),
             ),
-            containerNode(
-                containerElement({
-                    dataId: 'main',
+            createContainerNodeFixture(
+                createContainerElementFixture({
+                    locator: { dataId: 'main', cssSelector: undefined },
                     role: 'main content',
                     type: 'landmark',
                     tag: 'main',
@@ -256,18 +264,18 @@ describe('ContainerTree', () => {
         markVisible('#nav', containerRect);
 
         // When
-        const tree = createTree();
+        const containers = createContainers();
 
         // Then
-        expect(tree.elements.map((el) => el.dataId)).toEqual(['main', 'section', 'nav']);
-        tree.elements.forEach((el) => {
+        expect(containers.elements().map((el) => el.locator!.dataId)).toEqual(['main', 'section', 'nav']);
+        containers.elements().forEach((el) => {
             expect(el).not.toHaveProperty('importanceScore');
             expect(el.meaningScore.value).toBeGreaterThanOrEqual(0);
             expect(el.meaningScore.value).toBeLessThanOrEqual(1);
         });
     });
 
-    it('adds target-specific relevance scores to container path nodes', () => {
+    it('returns container references from the nearest ancestor to the root', () => {
         // Given
         document.body.innerHTML = `
             <main id="main">
@@ -282,19 +290,12 @@ describe('ContainerTree', () => {
         const tree = createTree();
 
         // When
-        const path = tree.getInteractiveTargetPath(document.querySelector('#button')!, {
-            role: 'button',
-            type: 'button',
-        });
+        const path = tree.getPathToRoot(document.querySelector('#button')!);
 
         // Then
-        expect(path.map((node) => node.element.dataId)).toEqual(['form', 'main']);
-        path.forEach((node) => {
-            expect(node.relevanceScore.value).toBeGreaterThanOrEqual(0);
-            expect(node.relevanceScore.value).toBeLessThanOrEqual(1);
-            expect(node.relevanceScore).toHaveProperty('features');
-        });
-        expect(path[0]!.relevanceScore.value).toBeGreaterThan(path[1]!.relevanceScore.value);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['form', 'main']);
+        expect(path[0]).toBe(tree.structure.nodes[0]!.nodes[0]!.container);
+        expect(path[1]).toBe(tree.structure.nodes[0]!.container);
     });
 
     it('builds a container node path from an element to the root in reverse order', () => {
@@ -320,7 +321,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
         // Then
-        expect(path.map((node) => node.element.dataId)).toEqual(['article', 'section', 'main']);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('keeps using the extracted container tree after finding the nearest path node', () => {
@@ -345,7 +346,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#button')!);
 
         // Then
-        expect(path.map((node) => node.element.dataId)).toEqual(['article', 'section', 'main']);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['article', 'section', 'main']);
     });
 
     it('starts from the parent when building a path from an extracted container', () => {
@@ -364,7 +365,7 @@ describe('ContainerTree', () => {
         const path = getPathToRoot(tree, document.querySelector('#section')!);
 
         // Then
-        expect(path.map((node) => node.element.dataId)).toEqual(['main']);
+        expect(path.map((container) => container.locator!.dataId)).toEqual(['main']);
     });
 
     it('returns an empty container node path for elements outside the tree root', () => {
@@ -403,30 +404,88 @@ describe('ContainerTree', () => {
         // Then
         expect(path).toEqual([]);
     });
+
+    it('adds content and interactive targets to their nearest container node', () => {
+        // Given
+        document.body.innerHTML = `
+            <main id="main">
+                <section id="section">
+                    <p id="content">Useful content</p>
+                </section>
+            </main>
+        `;
+        markVisible('#main', containerRect);
+        markVisible('#section', containerRect);
+
+        const tree = createTree();
+        const mainNode = tree.structure.nodes[0]!;
+        const sectionNode = mainNode.nodes[0]!;
+        const context = {
+            path: [
+                { container: sectionNode.container, distance: 0, relevanceScore: { value: 1 } },
+                { container: mainNode.container, distance: 1, relevanceScore: { value: 0.5 } },
+            ],
+            breadcrumbs: [],
+            contextScore: { value: 1 },
+        };
+        const content = createContentElementFixture({ context });
+        const interactive = createInteractiveElementFixture({ context });
+
+        // When
+        tree.addTarget(content);
+        tree.addTarget(interactive);
+
+        // Then
+        expect(sectionNode.content).toEqual([content]);
+        expect(sectionNode.content[0]).toBe(content);
+        expect(sectionNode.interactive).toEqual([interactive]);
+        expect(sectionNode.interactive[0]).toBe(interactive);
+        expect(mainNode.content).toEqual([]);
+        expect(mainNode.interactive).toEqual([]);
+        expect(tree.structure.content).toEqual([]);
+        expect(tree.structure.interactive).toEqual([]);
+    });
+
+    it('adds content and interactive targets without a container path to the root node', () => {
+        // Given
+        const tree = createTree();
+        const content = createContentElementFixture();
+        const interactive = createInteractiveElementFixture();
+
+        // When
+        tree.addTarget(content);
+        tree.addTarget(interactive);
+
+        // Then
+        expect(tree.structure.content).toEqual([content]);
+        expect(tree.structure.content[0]).toBe(content);
+        expect(tree.structure.interactive).toEqual([interactive]);
+        expect(tree.structure.interactive[0]).toBe(interactive);
+    });
 });
 
 function createTree(root: Element = document.body) {
-    return new ContainerTree(window, root, createRegistry());
+    return new ContainerTree(root, createContainers(root));
 }
 
-function createRegistry() {
-    return new ElementRegistry((el) => el.id);
+function createContainers(root: Element = document.body) {
+    return extractContainerElements(window, root, nextIdGenerator(), new ElementLocatorCreator((el) => el.id));
 }
 
-function getPathToRoot(tree: ContainerTree, el: Element): ContainerTreeNode[] {
-    return (tree as unknown as { getPathToRoot(el: Element): ContainerTreeNode[] }).getPathToRoot(el);
+function getPathToRoot(tree: ContainerTree, el: Element): ContainerElement[] {
+    return tree.getPathToRoot(el);
 }
 
 function toContainerNodeFixture(nodes: ContainerTreeNode[]): ContainerNodeFixture[] {
     return nodes.map((node) =>
-        containerNode(
-            containerElement({
-                dataId: node.element.dataId,
-                kind: node.element.kind,
-                role: node.element.role,
-                type: node.element.type,
-                tag: node.element.tag,
-                labels: node.element.labels,
+        createContainerNodeFixture(
+            createContainerElementFixture({
+                locator: node.container.locator,
+                kind: node.container.kind,
+                role: node.container.role,
+                type: node.container.type,
+                tag: node.container.tag,
+                labels: node.container.labels,
             }),
             toContainerNodeFixture(node.nodes),
         ),

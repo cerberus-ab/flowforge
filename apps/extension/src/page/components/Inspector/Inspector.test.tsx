@@ -1,37 +1,17 @@
+import { createPageTrailFixture } from '@flowforge/page-trail/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
-import { createPageTrailFixture } from '../../../../test/fixtures.ts';
 import { Inspector } from './Inspector';
 
 const pageTrail = createPageTrailFixture({
     basics: {
-        url: 'https://app.flowforge.test/settings',
         title: 'Settings page',
-        description: 'Account settings',
-        language: 'en',
-        viewport: {
-            width: 1280,
-            height: 720,
-            scrollY: 0,
-            scrollHeight: 720,
-        },
     },
     metadata: {
-        structureElements: 1,
-        structureMaxDepth: 1,
         contentElements: 2,
-        contentElementsTotal: 2,
-        contentElementsLimitReached: false,
         interactiveElements: 3,
-        interactiveElementsTotal: 3,
-        interactiveElementsLimitReached: false,
-        collectedAt: 0,
         performance: {
-            basicsMs: 1,
-            structureMs: 2,
-            contentMs: 3,
-            interactiveMs: 4,
             totalMs: 10,
         },
     },

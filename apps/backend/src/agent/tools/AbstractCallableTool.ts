@@ -34,10 +34,12 @@ export abstract class AbstractCallableTool implements CallableTool {
     }
 
     protected getToolResultElement(element: TargetElement): ToolResultElement {
+        if (!element.locator) throw new Error('Target element has no DOM locator');
+
         return {
-            elementDataId: element.dataId,
+            elementDataId: element.locator.dataId,
             elementContext: semElementContextByBreadcrumbs(element.context),
-            elementCssSelector: element.cssSelector,
+            elementCssSelector: element.locator.cssSelector,
         };
     }
 

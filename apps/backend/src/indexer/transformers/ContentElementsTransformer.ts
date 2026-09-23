@@ -30,7 +30,7 @@ export class ContentElementsTransformer extends AbstractDocumentTransformer {
     override async transformFn(pageTrail: PageTrail): Promise<IndexableDocument[]> {
         const docs: IndexableDocument[] = [];
 
-        for (const el of pageTrail.content) {
+        for (const el of pageTrail.getContent()) {
             const contentTemplate = this.createContentTemplate(el);
             const templatedChunkSize =
                 this.chunkSize - contentTemplate.length + CONTENT_TEMPLATE_TEXT_PLACEHOLDER.length;

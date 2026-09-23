@@ -40,12 +40,12 @@ See [.env.example](.env.example) for all options.
 
 ## API
 
-- `POST /query` — main agent entry point (`question`, `pageTrail`, `domain`)
+- `POST /query` — main agent entry point (`question`, `pageTrailDto`, `domain`)
 - `POST /search` — semantic search over an indexed `pageUrl`
 - `GET /health` — service status
 - `GET /analytics` — in-memory query analytics
 
-`/query` returns `{ result, metadata }`. `result` contains answer, mode, optional topic, and matched elements; `metadata` contains model, token usage, and execution time.
+`/query` resolves the DTO relationships into a runtime `PageTrail` and rejects unknown references or context-only snapshots because agent results require DOM locators. It returns `{ result, metadata }`: `result` contains answer, mode, optional topic, and matched elements; `metadata` contains model, token usage, and execution time.
 
 ## Notes
 

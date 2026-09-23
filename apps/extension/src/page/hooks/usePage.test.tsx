@@ -1,4 +1,4 @@
-import type { AgentResultElement, PageTrail } from '@flowforge/contract';
+import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -72,8 +72,9 @@ describe('usePage', () => {
         // Then
         expect(onReady).toHaveBeenCalledTimes(1);
         expect(response.success).toBe(true);
-        expect((response as MessageResponse<PageTrail> & { success: true }).data.basics.title).toBe('FlowForge Page');
-        expect((response as MessageResponse<PageTrail> & { success: true }).data.interactive.length).toBeGreaterThan(0);
+        const pageTrailDto = (response as MessageResponse<PageTrailDto> & { success: true }).data;
+        expect(pageTrailDto.basics.title).toBe('FlowForge Page');
+        expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
     });
 
     it('shows a direct highlight for target messages', async () => {

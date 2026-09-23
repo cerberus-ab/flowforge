@@ -1,35 +1,42 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ContainerElement, ContainerTreeNode } from '../../types';
-import { containerElement, contentElement, interactiveElement, pageTrailFixture } from '../../../test/fixtures';
+import {
+    createContainerElementFixture,
+    createContentElementFixture,
+    createInteractiveElementFixture,
+} from '../../../test/fixtures';
+import { createPageTrailFixture } from '../../testing';
 import { semMarkdown } from './markdown';
 
 describe('semMarkdown', () => {
     it('generates a semantic markdown view for page basics, samples, content, and interactions', () => {
         // Given
-        const pageTrail = pageTrailFixture({
-            structure: [containerNode('Main', 'main content', [containerNode('Tabs', 'navigation')])],
-            content: [
-                contentElement({
+        const pageTrail = createPageTrailFixture({
+            structure: {
+                content: [],
+                interactive: [],
+                nodes: [containerNode('Main', 'main content', [containerNode('Tabs', 'navigation')])],
+            },
+            elements: [
+                createContentElementFixture({
                     type: 'heading',
                     tag: 'h1',
                     text: 'Explore Embed',
                     importanceScore: { value: 0.9 },
                 }),
-                contentElement({
+                createContentElementFixture({
                     type: 'text',
                     tag: 'p',
                     text: 'Click Start to launch the extension.',
                     importanceScore: { value: 0.4 },
                 }),
-            ],
-            interactive: [
-                interactiveElement({
+                createInteractiveElementFixture({
                     text: 'Start',
                     importanceScore: { value: 0.8 },
                     aboveTheFold: true,
                 }),
-                interactiveElement({
+                createInteractiveElementFixture({
                     type: 'link',
                     role: 'link',
                     text: 'Docs',
@@ -86,13 +93,12 @@ Text: Click Start to launch the extension.
 
     it('uses empty markers for missing optional sections', () => {
         // Given
-        const pageTrail = pageTrailFixture({
+        const pageTrail = createPageTrailFixture({
             basics: {
-                ...pageTrailFixture().basics,
+                ...createPageTrailFixture().basics,
                 description: '',
             },
-            content: [],
-            interactive: [],
+            elements: [],
         });
 
         // When
@@ -144,10 +150,12 @@ function containerNode(
     nodes: ContainerTreeNode[] = [],
 ): ContainerTreeNode {
     return {
-        element: containerElement({
+        container: createContainerElementFixture({
             role,
             labels: [{ source: 'aria-label', value: name }],
         }),
+        content: [],
+        interactive: [],
         nodes,
     };
 }

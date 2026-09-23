@@ -13,7 +13,8 @@ For more information about the canonical DOM snapshot format, see
 
 ### 1. Extraction to structure representation
 
-The browser runtime parses the DOM into a structured `PageTrail`.
+The browser runtime parses the DOM into a runtime `PageTrail`, serializes it as
+`PageTrailDto`, and the backend reconnects its ID relationships.
 
 Includes:
 
@@ -27,10 +28,13 @@ Elements include:
 - Attributes and properties
 - Semantic roles and labels
 - Embedded layout and context, including section and ancestor path
-- Stable `dataId` and optional CSS selector for browser-side lookup
+- Numeric snapshot identity for relationships inside PageTrail
+- Optional locator with a stable `dataId` and CSS selector fallback for browser-side lookup
+
+The DTO stores each element once. Tree and context links use IDs that the runtime
+model resolves into shared references. Context-only collection omits locators.
 
 PageTrail assigns query-agnostic scoring signals for target selection; see [`PageTrail Scoring`](../packages/page-trail/docs/scoring.md) for details.
-This layer defines _what exists on the page and how it is structured_.
 
 ### 2. Transforming to semantic representation
 
@@ -42,13 +46,11 @@ Includes:
 - Semantic formatting (constructing descriptions using element attributes, roles, labels, and context)
 - Metadata enrichment:
     - Context (section, path)
-    - Element references (selector, dataId)
+    - Optional locator data (`dataId` and CSS selector)
     - Importance signals
 - Separation into:
     - Content documents (informational text)
     - Interactive documents (actionable UI elements)
-
-This layer defines _what the page means and how it can be retrieved by AI_.
 
 ### 3. Indexing / retrieval
 
@@ -60,8 +62,6 @@ Includes:
 - Storing them in LanceDB under a dataset derived from provider + page URL
 - Retrieving top-k relevant documents for a given query
 - Optional filtering by document type (`content` or `interactive`)
-
-This layer provides context-aware access to relevant UI information.
 
 ### 4. Reranking
 
@@ -91,10 +91,8 @@ Includes:
 
 Produces:
 
-- Element references (selector, dataId)
+- DOM locator data when the submitted PageTrail is not context-only
 - User-facing descriptions
 - Action hints (`click`, `input`, `select`, `navigate`, `highlight`)
 
 The final backend response is validated as an `AgentResult`; invalid `dataId` values are filtered before response.
-
-This stage bridges retrieval and real UI interaction by turning data into executable guidance.

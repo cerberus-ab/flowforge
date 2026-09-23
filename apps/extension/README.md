@@ -6,8 +6,8 @@ Chrome extension and embeddable browser runtime that handle UI interaction, page
 
 ## Responsibilities
 
-- Extract page structure (`PageTrail`)
-- Send user queries and page context to backend
+- Extract a runtime `PageTrail` with DOM locators
+- Send its serialized `PageTrailDto` with user queries to the backend
 - Render answers, highlights, wizard steps, and Inspector UI
 - Route messages between popup, page runtime, and backend
 - Store settings and per-domain question history locally

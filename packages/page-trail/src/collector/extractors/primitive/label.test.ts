@@ -176,7 +176,7 @@ describe('getInteractiveElementLabels', () => {
         const button = document.querySelector('button')!;
 
         // When
-        const [label] = getInteractiveElementLabels(button);
+        const label = getInteractiveElementLabels(button)[0]!;
 
         // Then
         expect(label.source).toBe('aria-label');

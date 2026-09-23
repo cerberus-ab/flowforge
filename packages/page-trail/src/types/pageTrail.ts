@@ -1,20 +1,8 @@
-// Generic
-
-export interface TreeNode<E> {
-    element: E;
-    nodes: TreeNode<E>[];
-}
-
-export interface PathNode<E> {
-    element: E;
-    distance: number;
-}
+// Document Basics
 
 export interface Scoring {
     value: number; // [0..1]
 }
-
-// Document Basics
 
 export interface Viewport {
     width: number;
@@ -75,11 +63,20 @@ export interface ContainerElementLabel {
     source: ContainerElementLabelSource;
 }
 
-export type ContainerTreeNode = TreeNode<ContainerElement>;
+export interface ContainerTreeNode {
+    container: ContainerElement;
+    content: ContentElement[];
+    interactive: InteractiveElement[];
+    nodes: ContainerTreeNode[];
+}
 
-export type ContainerPathNode = PathNode<ContainerElement> & {
+export type ContainerRootNode = Omit<ContainerTreeNode, 'container'>;
+
+export interface ContainerPathNode {
+    container: ContainerElement;
+    distance: number;
     relevanceScore: Scoring;
-};
+}
 
 export interface ElementContext {
     path: ContainerPathNode[];
@@ -141,7 +138,13 @@ export interface InteractiveLink {
 
 // Element Types
 
+export type ElementId = number;
 export type ElementDataId = string;
+
+export interface ElementLocator {
+    dataId: ElementDataId;
+    cssSelector: string | undefined; // fallback
+}
 
 export type ElementKind = 'container' | 'content' | 'interactive';
 
@@ -150,9 +153,9 @@ export type ContentElementType = 'text' | 'heading';
 export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
 export interface BaseElement {
+    id: ElementId;
+    locator: ElementLocator | undefined; // contextOnly if undefined
     tag: string;
-    dataId: ElementDataId;
-    cssSelector: string | undefined; // fallback
     kind: ElementKind;
     type: ContainerElementType | ContentElementType | InteractiveElementType;
     bbox: BoundingBox;
@@ -189,14 +192,21 @@ export interface InteractiveElement extends TargetElement {
     aboveTheFold: boolean;
 }
 
+export type PageElement = ContainerElement | ContentElement | InteractiveElement;
+
 export interface CollectionMetadata {
-    structureElements: number;
-    structureMaxDepth: number;
+    version: string;
+    // stats
+    containerElements: number;
+    containerElementsMatched: number;
+    containerElementsMaxDepth: number;
     contentElements: number;
-    contentElementsTotal: number;
+    contentElementsMatched: number;
+    contentElementsCandidates: number;
     contentElementsLimitReached: boolean;
     interactiveElements: number;
-    interactiveElementsTotal: number;
+    interactiveElementsMatched: number;
+    interactiveElementsCandidates: number;
     interactiveElementsLimitReached: boolean;
     // timings
     collectedAt: number; // timestamp
@@ -205,32 +215,7 @@ export interface CollectionMetadata {
         structureMs: number;
         contentMs: number;
         interactiveMs: number;
+        completeMs: number;
         totalMs: number;
     };
-}
-
-/**
- * Canonical, normalized snapshot of a web page.
- *
- * `PageTrail` is derived from the DOM by extractors and acts as the central
- * structure consumed by downstream semantic formatting, indexing, retrieval,
- * and UI guidance stages.
- *
- * It abstracts away raw DOM complexity and provides a structured view of:
- * - page metadata and viewport data (`basics`)
- * - semantic containers tree (`structure`)
- * - textual content blocks (`content`)
- * - interactive UI elements (`interactive`)
- * - collection counts, content/interactive limits, timing, and timestamp (`metadata`)
- *
- * The model is independent of any specific AI, LLM, embedding, or vector
- * storage implementation and can be reused to generate different semantic
- * representations.
- */
-export interface PageTrail {
-    basics: PageBasics;
-    structure: ContainerTreeNode[];
-    content: ContentElement[];
-    interactive: InteractiveElement[];
-    metadata: CollectionMetadata;
 }

@@ -1,5 +1,5 @@
-import { topElements, type TopElements } from '../scoring/topEl.ts';
-import type { InteractiveElement, PageBasics, Scoring } from '../../types/index.ts';
+import { topElements } from '../scoring/topEl.ts';
+import type { ElementId, InteractiveElement, PageBasics, Scoring } from '../../types/index.ts';
 import { scoreInteractiveMeaning, scoreTargetImportance } from '../scoring/index.ts';
 import { SELECTOR_INTERACTIVE } from '../selectors.ts';
 import { getElementBoundingBox, isAboveTheFold, isElementVisible, isInViewport } from './primitive/view.ts';
@@ -7,12 +7,12 @@ import { isSensitiveElement } from './primitive/sensitive.ts';
 import { getInteractiveRole, roleToInteractiveElementType } from './primitive/role.ts';
 import { getInteractiveElementLabels } from './primitive/label.ts';
 import { getInteractiveElementState } from './primitive/state.ts';
-import { getCssSelector } from './primitive/selector.ts';
 import { getElementLink } from './primitive/link.ts';
-import type { ElementRegistry } from '../ElementRegistry.ts';
 import { ContainerTree } from './ContainerTree.ts';
 import { extractInteractiveElementContext } from './context.ts';
 import { getElementText } from './primitive/text.ts';
+import type { ElementLocatorCreator } from '../ElementLocatorCreator.ts';
+import { type ExtractedElement, ExtractedElements } from './ExtractedElements.ts';
 
 // constants
 const TEXT_CONTENT_MAX_LENGTH = 240;
@@ -28,26 +28,28 @@ interface ExtractInteractiveElementsOptions {
  * hidden or unsupported nodes, and returns structured metadata including
  * locator info, role, type, text, labels, state, and link target.
  *
- * @returns {TopElements<InteractiveElement>} A container of extracted interactive elements.
+ * @returns {ExtractedElements<InteractiveElement>} A container of extracted interactive elements.
  */
 export function extractInteractiveElements(
     win: Window,
     root: Element,
-    elementRegistry: ElementRegistry,
+    nextId: () => ElementId,
+    elementLocatorCreator: ElementLocatorCreator | undefined,
     basics: PageBasics,
     containerTree: ContainerTree,
     options: ExtractInteractiveElementsOptions,
-): TopElements<InteractiveElement> {
+): ExtractedElements<InteractiveElement> {
     const candidates: {
         el: Element;
         prefilled: Pick<
             InteractiveElement,
-            'role' | 'type' | 'labels' | 'text' | 'state' | 'bbox' | 'meaningScore' | 'context'
+            'id' | 'role' | 'type' | 'labels' | 'text' | 'state' | 'bbox' | 'meaningScore' | 'context'
         >;
         importanceScore: Scoring;
     }[] = [];
+    const matched = Array.from(root.querySelectorAll(SELECTOR_INTERACTIVE));
 
-    Array.from(root.querySelectorAll(SELECTOR_INTERACTIVE)).forEach((el) => {
+    matched.forEach((el) => {
         // skip hidden elements
         if (!isElementVisible(el, win)) return;
         // skip sensitive elements
@@ -60,6 +62,7 @@ export function extractInteractiveElements(
         if (!type) return;
 
         // compute only necessary data for scoring the candidates
+        const id = nextId();
         const labels = getInteractiveElementLabels(el);
         const text = getElementText(el, { maxLength: TEXT_CONTENT_MAX_LENGTH });
         const state = getInteractiveElementState(el);
@@ -70,25 +73,29 @@ export function extractInteractiveElements(
 
         candidates.push({
             el,
-            prefilled: { role, type, labels, text, state, bbox, meaningScore, context },
+            prefilled: { id, role, type, labels, text, state, bbox, meaningScore, context },
             importanceScore,
         });
     });
 
-    return topElements(
+    const tops = topElements(
         candidates,
         options.elementsLimit,
         // continue to compute only for selected elements
-        ({ el, prefilled, importanceScore }) => ({
-            ...prefilled,
-            dataId: elementRegistry.register(el),
-            cssSelector: getCssSelector(el),
-            tag: el.tagName.toLowerCase(),
-            kind: 'interactive',
-            link: getElementLink(el),
-            inViewport: isInViewport(prefilled.bbox, basics.viewport),
-            aboveTheFold: isAboveTheFold(prefilled.bbox, basics.viewport),
-            importanceScore,
+        ({ el, prefilled, importanceScore }): ExtractedElement<InteractiveElement> => ({
+            el,
+            data: {
+                ...prefilled,
+                locator: elementLocatorCreator?.createFor(el),
+                tag: el.tagName.toLowerCase(),
+                kind: 'interactive',
+                link: getElementLink(el),
+                inViewport: isInViewport(prefilled.bbox, basics.viewport),
+                aboveTheFold: isAboveTheFold(prefilled.bbox, basics.viewport),
+                importanceScore,
+            },
         }),
     );
+
+    return new ExtractedElements(tops.data, matched.length, candidates.length, tops.limitReached);
 }

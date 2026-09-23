@@ -22,9 +22,9 @@ export class ToolSuggestActions extends AbstractCallableTool {
     }
 
     private collectActions(ctx: PageContextProvider) {
-        return [...ctx.pageTrail.interactive]
+        return ctx.pageTrail
+            .getInteractiveByImportanceDesc()
             .filter((element) => this.isUsableAction(element))
-            .sort((a, b) => b.importanceScore.value - a.importanceScore.value)
             .slice(0, this.elementsInteractiveLimit)
             .map((element) => ({
                 semanticDescription: semInteractiveElement(element).text(),

@@ -1,23 +1,48 @@
-import type { ContentElement, InteractiveElement, PageBasics, PageTrail } from '../types/index.ts';
+import type {
+    CollectionMetadata,
+    ContainerElement,
+    ContentElement,
+    ElementId,
+    InteractiveElement,
+    PageBasics,
+} from '../types/index.ts';
 
-import { type TopElements } from './scoring/topEl.ts';
 import { ContainerTree } from './extractors/index.ts';
-import { ElementRegistry } from './ElementRegistry.ts';
+import { ElementLocatorCreator } from './ElementLocatorCreator.ts';
 import { extractContentElements } from './extractors/content.ts';
 import { extractPageBasics } from './extractors/basics.ts';
 import { extractInteractiveElements } from './extractors/index.ts';
+import { nextIdGenerator } from '../utils/nextId.ts';
+import type { ExtractedElements } from './extractors/ExtractedElements.ts';
+import { extractContainerElements } from './extractors/container.ts';
+import { PageTrail } from '../PageTrail.ts';
+import { VERSION } from '../version.ts';
 
-export interface CollectorOptions {
+interface CollectorCommonOptions {
     /** Maximum number of content elements to keep after importance scoring. */
     contentElementsLimit?: number;
     /** Maximum number of interactive elements to keep after importance scoring. */
     interactiveElementsLimit?: number;
-    /** Returns the stable identifier used to link extracted records back to DOM elements. */
-    getElementDataId: (el: Element) => string;
 }
 
-type ResolvedCollectorOptions = Required<Pick<CollectorOptions, 'contentElementsLimit' | 'interactiveElementsLimit'>> &
-    Pick<CollectorOptions, 'getElementDataId'>;
+type CollectorModeOptions =
+    | {
+          /** Collects page context without linking elements back to the DOM. */
+          contextOnly: true;
+          getElementDataId?: never;
+      }
+    | {
+          /** Collects page context with locators that link elements back to the DOM. */
+          contextOnly?: false;
+          getElementDataId: (el: Element) => string;
+      };
+
+export type CollectorOptions = CollectorCommonOptions & CollectorModeOptions;
+
+type ResolvedCollectorModeOptions =
+    { contextOnly: true; getElementDataId?: never } | { contextOnly: false; getElementDataId: (el: Element) => string };
+
+type ResolvedCollectorOptions = Required<CollectorCommonOptions> & ResolvedCollectorModeOptions;
 
 /**
  * Orchestrates PageTrail extraction for a document.
@@ -33,61 +58,81 @@ export class PageTrailCollector {
     private readonly window: Window;
     private readonly document: Document;
     private readonly options: ResolvedCollectorOptions;
-    private readonly elementRegistry: ElementRegistry;
+    private readonly nextId: () => ElementId;
+    private readonly elementLocatorCreator: ElementLocatorCreator | undefined;
 
     constructor(win: Window, doc: Document, options: CollectorOptions) {
         this.window = win;
         this.document = doc;
 
         this.options = {
+            contextOnly: false,
             contentElementsLimit: 250,
             interactiveElementsLimit: 150,
             ...options,
         };
-        this.elementRegistry = new ElementRegistry(this.options.getElementDataId);
+        this.nextId = nextIdGenerator();
+        this.elementLocatorCreator = this.options.contextOnly
+            ? undefined
+            : new ElementLocatorCreator(this.options.getElementDataId);
     }
 
     collect(): PageTrail {
         const t0 = performance.now();
-
+        // collect basics
         const basics = this.collectPageBasics();
         const t1_basics = performance.now();
-
-        const containerTree = this.collectContainerTree();
+        // collect containers and build the structure
+        const containerElements = this.collectContainerElements();
+        const containerTree = new ContainerTree(this.document.body, containerElements);
         const t2_structure = performance.now();
-
-        const topContentElements = this.collectContentElements(containerTree);
+        // collect content elements
+        const contentElements = this.collectContentElements(containerTree);
         const t3_content = performance.now();
-
-        const topInteractiveElements = this.collectInteractiveElements(basics, containerTree);
+        // collect interactive elements
+        const interactiveElements = this.collectInteractiveElements(basics, containerTree);
         const t4_interactive = performance.now();
+        // complete the structure
+        for (const element of contentElements) {
+            containerTree.addTarget(element.data);
+        }
+        for (const element of interactiveElements) {
+            containerTree.addTarget(element.data);
+        }
+        const elements = [
+            ...containerElements.elements(),
+            ...contentElements.elements(),
+            ...interactiveElements.elements(),
+        ];
+        const t5_complete = performance.now();
 
-        return {
-            basics,
-            structure: containerTree.nodes,
-            content: topContentElements.data,
-            interactive: topInteractiveElements.data,
-
-            metadata: {
-                structureElements: containerTree.elements.length,
-                structureMaxDepth: containerTree.getMathDepth(),
-                contentElements: topContentElements.data.length,
-                contentElementsTotal: topContentElements.total,
-                contentElementsLimitReached: topContentElements.limitReached,
-                interactiveElements: topInteractiveElements.data.length,
-                interactiveElementsTotal: topInteractiveElements.total,
-                interactiveElementsLimitReached: topInteractiveElements.limitReached,
-                // timings
-                collectedAt: Date.now(),
-                performance: {
-                    basicsMs: Math.round(t1_basics - t0),
-                    structureMs: Math.round(t2_structure - t1_basics),
-                    contentMs: Math.round(t3_content - t2_structure),
-                    interactiveMs: Math.round(t4_interactive - t3_content),
-                    totalMs: Math.round(t4_interactive - t0),
-                },
+        const metadata: CollectionMetadata = {
+            version: VERSION,
+            // stats
+            containerElements: containerElements.length,
+            containerElementsMatched: containerElements.matched,
+            containerElementsMaxDepth: containerTree.getMaxDepth(),
+            contentElements: contentElements.length,
+            contentElementsMatched: contentElements.matched,
+            contentElementsCandidates: contentElements.candidates,
+            contentElementsLimitReached: contentElements.limitReached,
+            interactiveElements: interactiveElements.length,
+            interactiveElementsMatched: interactiveElements.matched,
+            interactiveElementsCandidates: interactiveElements.candidates,
+            interactiveElementsLimitReached: interactiveElements.limitReached,
+            // timings
+            collectedAt: Date.now(),
+            performance: {
+                basicsMs: Math.round(t1_basics - t0),
+                structureMs: Math.round(t2_structure - t1_basics),
+                contentMs: Math.round(t3_content - t2_structure),
+                interactiveMs: Math.round(t4_interactive - t3_content),
+                completeMs: Math.round(t5_complete - t4_interactive),
+                totalMs: Math.round(t5_complete - t0),
             },
         };
+
+        return new PageTrail(this.options.contextOnly, basics, containerTree.structure, elements, metadata);
     }
 
     /**
@@ -101,24 +146,32 @@ export class PageTrailCollector {
         return extractPageBasics(this.window, this.document);
     }
 
-    private collectContainerTree(): ContainerTree {
-        return ContainerTree.extractFor(this.window, this.document, this.elementRegistry);
+    private collectContainerElements(): ExtractedElements<ContainerElement> {
+        return extractContainerElements(this.window, this.document.body, this.nextId, this.elementLocatorCreator);
     }
 
-    private collectContentElements(containerTree: ContainerTree): TopElements<ContentElement> {
-        return extractContentElements(this.window, this.document.body, this.elementRegistry, containerTree, {
-            elementsLimit: this.options.contentElementsLimit,
-        });
+    private collectContentElements(containerTree: ContainerTree): ExtractedElements<ContentElement> {
+        return extractContentElements(
+            this.window,
+            this.document.body,
+            this.nextId,
+            this.elementLocatorCreator,
+            containerTree,
+            {
+                elementsLimit: this.options.contentElementsLimit,
+            },
+        );
     }
 
     private collectInteractiveElements(
         basics: PageBasics,
         containerTree: ContainerTree,
-    ): TopElements<InteractiveElement> {
+    ): ExtractedElements<InteractiveElement> {
         return extractInteractiveElements(
             this.window,
             this.document.body,
-            this.elementRegistry,
+            this.nextId,
+            this.elementLocatorCreator,
             basics,
             containerTree,
             {

@@ -1,7 +1,9 @@
-import type { ContainerTreeNode, ContentElement, InteractiveElement } from '../../types/index.ts';
+import type { ContentElement, InteractiveElement } from '../../types/index.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
 import { semContentElement } from '../element/content.ts';
 import { semContainerElement } from '../element/container.ts';
+import type { PageTrail } from '../../PageTrail.ts';
+import { compareByImportanceDesc } from '../../utils/comparator.ts';
 
 // Exports
 
@@ -15,7 +17,7 @@ import { semContainerElement } from '../element/container.ts';
 export function semSampleHeadings(contentElements: ContentElement[], limit = 5): string[] {
     return contentElements
         .filter((element) => element.type === 'heading')
-        .sort((a, b) => b.importanceScore.value - a.importanceScore.value)
+        .sort(compareByImportanceDesc)
         .slice(0, limit)
         .map((element) => semContentElement(element).text());
 }
@@ -31,7 +33,7 @@ export function semSampleHeadings(contentElements: ContentElement[], limit = 5):
 export function semSampleTexts(contentElements: ContentElement[], minLength = 20, limit = 10): string[] {
     return contentElements
         .filter((element) => element.type === 'text' && element.text.length >= minLength)
-        .sort((a, b) => b.importanceScore.value - a.importanceScore.value)
+        .sort(compareByImportanceDesc)
         .slice(0, limit)
         .map((element) => semContentElement(element).text());
 }
@@ -46,7 +48,7 @@ export function semSampleTexts(contentElements: ContentElement[], minLength = 20
 export function semSampleInteractions(interactiveElements: InteractiveElement[], limit = 10): string[] {
     return interactiveElements
         .filter((element) => element.labels.length > 0 || element.text)
-        .sort((a, b) => b.importanceScore.value - a.importanceScore.value)
+        .sort(compareByImportanceDesc)
         .slice(0, limit)
         .map((element) => semInteractiveElement(element).text());
 }
@@ -54,26 +56,22 @@ export function semSampleInteractions(interactiveElements: InteractiveElement[],
 /**
  * Formats a depth-limited sample of the container tree.
  *
- * @param containerTree - Container tree collected from the page
+ * @param pageTrail
  * @param maxDepth - Maximum tree depth to include
  * @param branchLimit - Maximum number of sibling containers to sample per branch
  * @returns Container sample records with depth and semantic text
  */
 export function semSampleStructure(
-    containerTree: ContainerTreeNode[],
+    pageTrail: PageTrail,
     maxDepth = 3,
     branchLimit = 5,
 ): { depth: number; text: string }[] {
-    const walkSample = (nodes: ContainerTreeNode[], level: number): { depth: number; text: string }[] => {
-        if (level > maxDepth) {
-            return [];
-        }
-        return nodes
-            .slice(0, branchLimit)
-            .flatMap((node) => [
-                { depth: level, text: semContainerElement(node.element).text() },
-                ...walkSample(node.nodes, level + 1),
-            ]);
-    };
-    return walkSample(containerTree, 0);
+    return pageTrail.mapStructureContainers(
+        (node, depth) => ({
+            depth,
+            text: semContainerElement(node.container).text(),
+        }),
+        maxDepth,
+        branchLimit,
+    );
 }

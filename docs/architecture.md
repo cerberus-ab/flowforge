@@ -37,15 +37,15 @@ Inference layer supporting Ollama or OpenAI models for embeddings and generation
 ### Query flow
 
 1. User asks a question in the extension popup or embed shell
-2. Extension sends `pageTrail + question` to backend (`POST /query`)
-3. Backend indexes the submitted page snapshot
+2. Extension serializes the runtime model and sends `pageTrailDto + question` to backend (`POST /query`)
+3. Backend restores `PageTrail` from the DTO and indexes the submitted page snapshot
 4. Agent executes with access to tools and vector search
 5. Backend returns `QueryResponse` with `result` and execution metadata
 6. Browser runtime highlights elements and displays the response
 
 ### Indexing flow
 
-1. Browser runtime extracts page structure (`basics`, `content`, `interactive`, `metadata`)
+1. Browser runtime extracts a `PageTrail` with basics, a container structure, elements, and metadata
 2. Backend splits data into documents with metadata
 3. Embeddings are generated via LLM provider
 4. Documents stored in vector database (LanceDB)
@@ -54,8 +54,8 @@ Inference layer supporting Ollama or OpenAI models for embeddings and generation
 
 High-level overview of the DOM-to-RAG pipeline:
 
-1. **Extraction** — DOM → structured `PageTrail` (content + interactive elements + context)
-2. **Transformation** — `PageTrail` → semantic `IndexableDocuments` with metadata
+1. **Extraction** — DOM → runtime `PageTrail` → serializable `PageTrailDto`
+2. **Transformation** — restored `PageTrail` → semantic `IndexableDocuments` with metadata
 3. **Indexing** — Documents → embeddings → vector storage (LanceDB)
 4. **Retrieval** — Query → Top-K relevant documents via semantic search
 5. **Reranking** — Hybrid scoring (semantic + importance signals)
@@ -87,7 +87,7 @@ Browser runtime ↔ backend:
 - `GET /health` — service status
 - `GET /analytics` — in-memory query analytics
 
-`POST /query` accepts `question`, `pageTrail`, `domain`, and optional `userContext.previousQuestions`. It indexes the submitted page before agent execution and returns `{ result, metadata }`.
+`POST /query` accepts `question`, `pageTrailDto`, `domain`, and optional `userContext.previousQuestions`. It rejects invalid references and context-only snapshots because query results must resolve back to DOM elements. The backend restores the runtime model, indexes the submitted page, and returns `{ result, metadata }`.
 
 `result` is an `AgentResult` with `answer`, `mode`, optional `topic`, and target `elements`. `metadata` includes model, token usage, and execution time. `POST /search` accepts `pageUrl`, `query`, and optional `k`, then returns retrieved documents.
 
@@ -95,8 +95,6 @@ Agent tools use structured Zod schemas. Indexer documents are stored per page UR
 
 ## Constraints
 
-**Single-page context**
-No cross-page DOM memory. Each query operates on the submitted page snapshot. The extension keeps short per-domain question history.
+**Single-page context:** No cross-page DOM memory. Each query operates on the submitted page snapshot. The extension keeps short per-domain question history.
 
-**Local backend**
-Designed for single-user local deployment. No authentication or multi-tenancy.
+**Local backend:** Designed for single-user local deployment. No authentication or multi-tenancy.

@@ -4,6 +4,7 @@ import type { ErrorResponse } from '@/types';
 import { PageContextProvider, PageIndexer } from '@/indexer';
 import { WebNavigationAgent } from '@/agent';
 import { Analytics } from '@/analytics';
+import { PageTrail } from '@flowforge/page-trail';
 
 interface QueryHandlerDeps {
     indexer: PageIndexer;
@@ -17,11 +18,28 @@ export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDe
         res: Response<QueryResponse | ErrorResponse>,
     ): Promise<void> {
         try {
-            const { question, pageTrail, domain } = req.body;
+            const { question, pageTrailDto, domain } = req.body;
 
-            if (!question || !pageTrail) {
+            if (!question || !pageTrailDto) {
                 res.status(400).json({
-                    error: 'Missing required fields: question, pageTrail',
+                    error: 'Missing required fields: question, pageTrailDto',
+                });
+                return;
+            }
+            let pageTrail: PageTrail;
+            try {
+                pageTrail = PageTrail.fromDto(pageTrailDto);
+            } catch (error) {
+                res.status(400).json({
+                    error: 'Invalid pageTrailDto',
+                    message: error instanceof Error ? error.message : 'Unknown error',
+                });
+                return;
+            }
+            if (pageTrail.contextOnly) {
+                res.status(400).json({
+                    error: 'Invalid pageTrailDto',
+                    message: 'Query does not support a context-only PageTrail',
                 });
                 return;
             }

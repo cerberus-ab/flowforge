@@ -168,13 +168,13 @@ export class BackgroundWorker {
             }
             console.log('[Background] Collected page trail:', pageTrailResponse);
 
-            const pageTrail = pageTrailResponse.data;
+            const pageTrailDto = pageTrailResponse.data;
             const domain = await this.transport.getSenderHostname(message.senderId);
 
             // Send it to the backend server
             const requestData: QueryRequest = {
                 question: message.data.question,
-                pageTrail: pageTrail,
+                pageTrailDto,
                 domain,
                 userContext: {
                     previousQuestions: await this.historyStorage.getPreviousQuestions(domain),

@@ -1,4 +1,5 @@
 import type { Scoring } from '../../types/index.ts';
+import { compareByImportanceDesc } from '../../utils/comparator.ts';
 
 export interface TopElements<T> {
     data: T[];
@@ -7,8 +8,8 @@ export interface TopElements<T> {
 }
 
 /**
- * Sorts elements by importance score in descending order and returns
- * the highest-ranked elements up to the specified limit.
+ * Selects the highest-ranked elements by importance score up to the specified limit,
+ * while preserving their original order.
  *
  * A limit of `0` returns all elements without truncation.
  */
@@ -17,18 +18,18 @@ export function topElements<S extends { importanceScore: Scoring }, T>(
     limit: number,
     transform: (element: S) => T,
 ): TopElements<T> {
-    const sorted = [...elements].sort((a, b) => b.importanceScore.value - a.importanceScore.value);
-
-    if (limit === 0) {
+    if (limit === 0 || elements.length <= limit) {
         return {
-            data: sorted.map(transform),
-            total: sorted.length,
+            data: elements.map(transform),
+            total: elements.length,
             limitReached: false,
         };
     }
+
+    const top = new Set([...elements].sort(compareByImportanceDesc).slice(0, limit));
     return {
-        data: sorted.slice(0, limit).map(transform),
-        total: sorted.length,
-        limitReached: sorted.length > limit,
+        data: elements.filter((element) => top.has(element)).map(transform),
+        total: elements.length,
+        limitReached: true,
     };
 }

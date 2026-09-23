@@ -1,4 +1,5 @@
 import type { ContainerPathNode } from '../../../types/index.ts';
+import { compareByRelevanceDesc } from '../../../utils/comparator.ts';
 
 // constants
 const NO_CONTEXT_SCORING_VALUE = 0;
@@ -40,7 +41,7 @@ export function scoreTargetContext(scoringData: { path: ContainerPathNode[] }): 
 
     const topN = scoringData.path
         .map((node, i) => ({ relevanceScore: node.relevanceScore, i }))
-        .sort((a, b) => b.relevanceScore.value - a.relevanceScore.value)
+        .sort(compareByRelevanceDesc)
         .slice(0, MAX_BREADCRUMBS_LENGTH);
 
     const value = 1 - topN.reduce((product, n) => product * (1 - n.relevanceScore.value ** 2), 1);

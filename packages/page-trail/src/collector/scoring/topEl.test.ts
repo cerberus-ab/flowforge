@@ -1,31 +1,31 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentElement } from '../../../test/fixtures';
+import { createContentElementFixture } from '../../../test/fixtures';
 import { topElements } from './topEl';
 
 describe('topElements', () => {
-    it('sorts elements by importance score in descending order', () => {
-        const low = contentElement({ dataId: 'low', importanceScore: { value: 0.1 } });
-        const high = contentElement({ dataId: 'high', importanceScore: { value: 0.9 } });
-        const medium = contentElement({ dataId: 'medium', importanceScore: { value: 0.5 } });
+    it('returns all elements in their original order when unlimited', () => {
+        const low = createContentElementFixture({ id: 0, importanceScore: { value: 0.1 } });
+        const high = createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } });
+        const medium = createContentElementFixture({ id: 2, importanceScore: { value: 0.5 } });
 
         const result = topElements([low, high, medium], 0, (el) => el);
 
-        expect(result.data.map((el) => el.dataId)).toEqual(['high', 'medium', 'low']);
+        expect(result.data.map((el) => el.id)).toEqual([0, 1, 2]);
     });
 
     it('returns only the requested number of top elements', () => {
         const result = topElements(
             [
-                contentElement({ dataId: 'first', importanceScore: { value: 0.7 } }),
-                contentElement({ dataId: 'second', importanceScore: { value: 0.9 } }),
-                contentElement({ dataId: 'third', importanceScore: { value: 0.2 } }),
+                createContentElementFixture({ id: 0, importanceScore: { value: 0.7 } }),
+                createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } }),
+                createContentElementFixture({ id: 2, importanceScore: { value: 0.2 } }),
             ],
             2,
             (el) => el,
         );
 
-        expect(result.data.map((el) => el.dataId)).toEqual(['second', 'first']);
+        expect(result.data.map((el) => el.id)).toEqual([0, 1]);
         expect(result.total).toBe(3);
         expect(result.limitReached).toBe(true);
     });
@@ -33,14 +33,14 @@ describe('topElements', () => {
     it('does not mark the limit as reached when all elements fit', () => {
         const result = topElements(
             [
-                contentElement({ dataId: 'first', importanceScore: { value: 0.7 } }),
-                contentElement({ dataId: 'second', importanceScore: { value: 0.9 } }),
+                createContentElementFixture({ id: 0, importanceScore: { value: 0.7 } }),
+                createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } }),
             ],
             2,
             (el) => el,
         );
 
-        expect(result.data.map((el) => el.dataId)).toEqual(['second', 'first']);
+        expect(result.data.map((el) => el.id)).toEqual([0, 1]);
         expect(result.total).toBe(2);
         expect(result.limitReached).toBe(false);
     });
@@ -48,15 +48,15 @@ describe('topElements', () => {
     it('transforms selected elements after sorting and limiting', () => {
         const result = topElements(
             [
-                contentElement({ dataId: 'first', importanceScore: { value: 0.7 } }),
-                contentElement({ dataId: 'second', importanceScore: { value: 0.9 } }),
-                contentElement({ dataId: 'third', importanceScore: { value: 0.2 } }),
+                createContentElementFixture({ id: 0, importanceScore: { value: 0.7 } }),
+                createContentElementFixture({ id: 1, importanceScore: { value: 0.9 } }),
+                createContentElementFixture({ id: 2, importanceScore: { value: 0.2 } }),
             ],
             2,
-            (el) => el.dataId,
+            (el) => el.id,
         );
 
-        expect(result.data).toEqual(['second', 'first']);
+        expect(result.data).toEqual([0, 1]);
         expect(result.total).toBe(3);
         expect(result.limitReached).toBe(true);
     });

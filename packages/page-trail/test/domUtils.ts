@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import { testDomRect } from './fixtures';
+import { domRectFixture } from './fixtures';
 
 export function resetDocument() {
     document.head.innerHTML = '';
@@ -9,7 +9,7 @@ export function resetDocument() {
     document.documentElement.lang = '';
 }
 
-export function markVisible(selector: string, rect: DOMRect = testDomRect) {
+export function markVisible(selector: string, rect: DOMRect = domRectFixture) {
     const el = document.querySelector(selector)!;
 
     Object.defineProperty(el, 'offsetParent', {
