@@ -1,7 +1,7 @@
 import type { ContentElement, InteractiveElement } from '../../types/index.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
 import { semContentElement } from '../element/content.ts';
-import { semContainerElement } from '../element/container.ts';
+import { semContainerRootNode, semContainerTreeNode } from '../element/container.ts';
 import type { PageTrail } from '../../PageTrail.ts';
 import { compareByImportanceDesc } from '../../utils/comparator.ts';
 
@@ -54,10 +54,10 @@ export function semSampleInteractions(interactiveElements: InteractiveElement[],
 }
 
 /**
- * Formats a depth-limited sample of the container tree.
+ * Formats a depth-limited sample of the structure root and its container nodes.
  *
- * @param pageTrail
- * @param maxDepth - Maximum tree depth to include
+ * @param pageTrail - Page trail to sample
+ * @param maxDepth - Maximum tree depth to include, with the root at depth zero
  * @param branchLimit - Maximum number of sibling containers to sample per branch
  * @returns Container sample records with depth and semantic text
  */
@@ -66,10 +66,10 @@ export function semSampleStructure(
     maxDepth = 3,
     branchLimit = 5,
 ): { depth: number; text: string }[] {
-    return pageTrail.mapStructureContainers(
+    return pageTrail.mapStructureTree(
         (node, depth) => ({
             depth,
-            text: semContainerElement(node.container).text(),
+            text: ('container' in node ? semContainerTreeNode(node) : semContainerRootNode(node)).text(),
         }),
         maxDepth,
         branchLimit,

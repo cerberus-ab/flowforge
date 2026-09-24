@@ -100,20 +100,24 @@ export class PageTrail {
     }
 
     /**
-     * Maps the container tree in depth-first order with optional depth and branch limits.
-     * Returns a flat array of mapped values while preserving traversal order.
+     * Maps the structure root and its container nodes in depth-first order.
+     * The root has depth zero and is always included; depth and branch limits
+     * apply to descendant container nodes.
      */
-    mapStructureContainers<T>(
-        mapper: (node: ContainerTreeNode, depth: number) => T,
+    mapStructureTree<T>(
+        mapper: (node: ContainerRootNode | ContainerTreeNode, depth: number) => T,
         maxDepth = 3,
         branchLimit = 5,
     ): T[] {
+        const data = [mapper(this.structure, 0)];
+
         const walk = (nodes: ContainerTreeNode[], depth: number): T[] => {
             if (depth > maxDepth) return [];
 
             return nodes.slice(0, branchLimit).flatMap((node) => [mapper(node, depth), ...walk(node.nodes, depth + 1)]);
         };
-        return walk(this.structure.nodes, 0);
+        data.push(...walk(this.structure.nodes, 1));
+        return data;
     }
 
     /**

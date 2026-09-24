@@ -10,7 +10,7 @@ import { createPageTrailFixture } from '../../testing';
 import { semMarkdown } from './markdown';
 
 describe('semMarkdown', () => {
-    it('generates a semantic markdown view for page basics, samples, content, and interactions', () => {
+    it('generates a semantic markdown view for page basics, structure, content, and interactions', () => {
         // Given
         const pageTrail = createPageTrailFixture({
             structure: {
@@ -53,7 +53,7 @@ describe('semMarkdown', () => {
         // Then
         expect(markdown).toBe(`# Semantic view
 
-## Page
+## Basics
 
 Basic information about the current page.
 
@@ -63,31 +63,26 @@ Basic information about the current page.
 - Language: en
 - Viewport: 1280x720, scroll 0/1440
 
-## Sample structure
+## Structure
 
 An outline of the detected page structure.
 
-- Main content. Name: Main
-  - Navigation. Name: Tabs
+- Root
+  - Main content. Name: Main
+    - Navigation. Name: Tabs
 
-## Sample headings
-
-Up to 5 representative headings on the page.
-
-1. Heading h1: Explore Embed
-
-## Sample interactions
+## Interactions
 
 Up to 15 representative interactions on the page.
 
 1. Button. Name: Start. Action: click action. State: visible on initial screen
 2. Internal link. Name: Docs. Action: click action. State: currently visible
 
-## Meaningful content
+## Content
 
-Some meaningful text blocks sampled from the page.
+Some meaningful content blocks sampled from the page.
 
-Text: Click Start to launch the extension.
+- Text: Click Start to launch the extension.
 `);
     });
 
@@ -107,39 +102,33 @@ Text: Click Start to launch the extension.
         // Then
         expect(markdown).toBe(`# Semantic view
 
-## Page
+## Basics
 
 Basic information about the current page.
 
 - Title: FlowForge Sandbox
 - URL: https://example.com/sandbox
-- Description: _None_
+- Description: none
 - Language: en
 - Viewport: 1280x720, scroll 0/1440
 
-## Sample structure
+## Structure
 
 An outline of the detected page structure.
 
-_None_
+- Root
 
-## Sample headings
-
-Up to 5 representative headings on the page.
-
-_None_
-
-## Sample interactions
+## Interactions
 
 Up to 15 representative interactions on the page.
 
-_None_
+none
 
-## Meaningful content
+## Content
 
-Some meaningful text blocks sampled from the page.
+Some meaningful content blocks sampled from the page.
 
-_None_
+none
 `);
     });
 });

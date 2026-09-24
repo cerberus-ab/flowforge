@@ -26,6 +26,7 @@
 ### Page Trail
 
 - Cache heavy collector computations.
+- Make `h1..4` headings participate more actively in the page structure.
 - Add size metadata and pluggable token estimates to semantic document output.
 - Parse structured data such as Schema.org, Open Graph, and X Card for basic page information.
 - Enhance `dataId` and CSS selector usage for element location.

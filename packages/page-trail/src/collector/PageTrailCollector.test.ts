@@ -20,7 +20,7 @@ describe('PageTrailCollector', () => {
         const model = collect({ getElementDataId });
 
         // Then
-        const containers = model.mapStructureContainers((node) => node.container);
+        const containers = model.mapStructureTree((node) => ('container' in node ? [node.container] : [])).flat();
         const contentElements = model.getContent();
         const interactiveElements = model.getInteractive();
         expect(containers).toHaveLength(1);
@@ -246,7 +246,9 @@ describe('PageTrailCollector', () => {
         expect(model.metadata.containerElementsMaxDepth).toBe(2);
         expect(model.metadata).not.toHaveProperty('containerElementsTotal');
         expect(model.metadata).not.toHaveProperty('containerElementsLimitReached');
-        expect(model.mapStructureContainers((node) => node.container)[0]).not.toHaveProperty('importanceScore');
+        expect(
+            model.mapStructureTree((node) => ('container' in node ? node.container : undefined))[1],
+        ).not.toHaveProperty('importanceScore');
     });
 
     it('keeps locator cssSelector undefined while CSS selectors are unsupported', () => {
@@ -295,7 +297,7 @@ describe('PageTrailCollector', () => {
         // Then
         expect(model.contextOnly).toBe(true);
         const elements = [
-            ...model.mapStructureContainers((node) => node.container),
+            ...model.mapStructureTree((node) => ('container' in node ? [node.container] : [])).flat(),
             ...model.getContent(),
             ...model.getInteractive(),
         ];

@@ -59,11 +59,21 @@ describe('SemRecord', () => {
         expect(record.text()).toBe('Text input. State: required, currently visible');
     });
 
+    it('renders unique contained element summaries', () => {
+        const record = SemRecord.builder()
+            .withDescriptor('root')
+            .withContains(['2 content(s)', '1 interactive(s)', '2 content(s)'])
+            .build();
+
+        expect(record.text()).toBe('Root. Contains: 2 content(s), 1 interactive(s)');
+    });
+
     it('omits undefined optional values', () => {
         const record = SemRecord.builder()
             .withDescriptor('main content')
             .withPayload(undefined)
             .withContext(undefined)
+            .withContains([])
             .build();
 
         expect(record.text()).toBe('Main content');

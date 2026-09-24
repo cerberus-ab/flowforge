@@ -169,10 +169,11 @@ describe('semSampleStructure', () => {
 
         // Then
         expect(sample).toEqual([
-            { depth: 0, text: 'Sidebar. Name: Sidebar' },
-            { depth: 0, text: 'Main content. Name: Main' },
-            { depth: 1, text: 'Section. Name: Secondary' },
-            { depth: 1, text: 'Section. Name: Primary' },
+            { depth: 0, text: 'Root' },
+            { depth: 1, text: 'Sidebar. Name: Sidebar' },
+            { depth: 1, text: 'Main content. Name: Main' },
+            { depth: 2, text: 'Section. Name: Secondary' },
+            { depth: 2, text: 'Section. Name: Primary' },
         ]);
     });
 
@@ -193,8 +194,8 @@ describe('semSampleStructure', () => {
                 1,
             ),
         ).toEqual([
-            { depth: 0, text: 'Main content. Name: Main' },
-            { depth: 1, text: 'Section. Name: Included' },
+            { depth: 0, text: 'Root' },
+            { depth: 1, text: 'Main content. Name: Main' },
         ]);
     });
 });
