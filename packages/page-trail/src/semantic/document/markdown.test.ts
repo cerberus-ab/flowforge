@@ -10,7 +10,7 @@ import { createPageTrailFixture } from '../../testing';
 import { semMarkdown } from './markdown';
 
 describe('semMarkdown', () => {
-    it('generates a semantic markdown view for page basics, structure, content, and interactions', () => {
+    it('generates Markdown page context with basics, structure, content, and interactions', () => {
         // Given
         const pageTrail = createPageTrailFixture({
             structure: {
@@ -51,7 +51,9 @@ describe('semMarkdown', () => {
         const markdown = semMarkdown(pageTrail);
 
         // Then
-        expect(markdown).toBe(`# Semantic view
+        expect(markdown).toBe(`# Page context
+
+A semantic overview of page basics, structure, key interactions, and meaningful content.
 
 ## Basics
 
@@ -71,16 +73,16 @@ An outline of the detected page structure.
   - Main content. Name: Main
     - Navigation. Name: Tabs
 
-## Interactions
+## Interactive
 
-Up to 15 representative interactions on the page.
+Key interactions sampled from the page.
 
 1. Button. Name: Start. Action: click action. State: visible on initial screen
 2. Internal link. Name: Docs. Action: click action. State: currently visible
 
 ## Content
 
-Some meaningful content blocks sampled from the page.
+Meaningful content blocks sampled from the page.
 
 - Text: Click Start to launch the extension.
 `);
@@ -100,7 +102,9 @@ Some meaningful content blocks sampled from the page.
         const markdown = semMarkdown(pageTrail);
 
         // Then
-        expect(markdown).toBe(`# Semantic view
+        expect(markdown).toBe(`# Page context
+
+A semantic overview of page basics, structure, key interactions, and meaningful content.
 
 ## Basics
 
@@ -118,17 +122,39 @@ An outline of the detected page structure.
 
 - Root
 
-## Interactions
+## Interactive
 
-Up to 15 representative interactions on the page.
+Key interactions sampled from the page.
 
 none
 
 ## Content
 
-Some meaningful content blocks sampled from the page.
+Meaningful content blocks sampled from the page.
 
 none
+`);
+    });
+
+    it('summarizes and renders only selected blocks', () => {
+        // Given
+        const pageTrail = createPageTrailFixture();
+
+        // When
+        const markdown = semMarkdown(pageTrail, { blocks: ['structure', 'interactive'] });
+
+        // Then
+        expect(markdown).toContain('A semantic overview of structure and key interactions.');
+        expect(markdown).toContain('## Structure');
+        expect(markdown).toContain('## Interactive');
+        expect(markdown).not.toContain('## Basics');
+        expect(markdown).not.toContain('## Content');
+    });
+
+    it('handles an empty block selection', () => {
+        expect(semMarkdown(createPageTrailFixture(), { blocks: [] })).toBe(`# Page context
+
+No semantic sections selected.
 `);
     });
 });
