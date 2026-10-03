@@ -194,9 +194,14 @@ export interface InteractiveElement extends TargetElement {
 
 export type PageElement = ContainerElement | ContentElement | InteractiveElement;
 
-export interface CollectionMetadata {
-    version: string;
-    // stats
+// collection metadata
+
+export interface PageMetadata {
+    innerTextLength: number;
+    outerHtmlLength: number;
+}
+
+export interface ElementsMetadata {
     containerElements: number;
     containerElementsMatched: number;
     containerElementsMaxDepth: number;
@@ -208,14 +213,19 @@ export interface CollectionMetadata {
     interactiveElementsMatched: number;
     interactiveElementsCandidates: number;
     interactiveElementsLimitReached: boolean;
-    // timings
+}
+
+export interface PerformanceMetadata {
+    basicsMs: number;
+    structureMs: number;
+    contentMs: number;
+    interactiveMs: number;
+    completeMs: number;
+    totalMs: number;
+}
+
+export interface CollectionMetadata extends PageMetadata, ElementsMetadata {
+    version: string;
     collectedAt: number; // timestamp
-    performance: {
-        basicsMs: number;
-        structureMs: number;
-        contentMs: number;
-        interactiveMs: number;
-        completeMs: number;
-        totalMs: number;
-    };
+    performance: PerformanceMetadata;
 }

@@ -1,6 +1,7 @@
-import { semSampleStructure, semSampleInteractions, semSampleTexts } from './basics.ts';
 import type { PageTrail } from '../../PageTrail.ts';
+import { semSampleInteractions, semSampleStructure, semSampleTexts } from '../document/basics.ts';
 import { placeholder } from '../constants.ts';
+import type { MarkdownOptionBlock, ResolvedMarkdownOptions } from './options.ts';
 
 function formatOptionalText(text: string): string {
     return text || placeholder.NONE;
@@ -14,9 +15,7 @@ function formatOptionalMarkdownList(items: string[]): string[] {
     return items.length > 0 ? items : [placeholder.NONE];
 }
 
-// Renderers
-
-type MarkdownBlockRenderer = (pageTrail: PageTrail, options: ResolvedMarkdownOptions) => string[];
+type MarkdownLinesRenderer = (pageTrail: PageTrail, options: ResolvedMarkdownOptions) => string[];
 
 // summary
 function semMarkdownSummary(options: ResolvedMarkdownOptions): string {
@@ -34,8 +33,19 @@ function semMarkdownSummary(options: ResolvedMarkdownOptions): string {
     return `A semantic overview of ${items.slice(0, -1).join(', ')}, and ${items.at(-1)}.`;
 }
 
+// header
+const renderMarkdownHeader: MarkdownLinesRenderer = (pageTrail, options) => {
+    const lines: string[] = [];
+
+    lines.push('# Page context');
+    lines.push('');
+    lines.push(semMarkdownSummary(options));
+    lines.push('');
+    return lines;
+};
+
 // basics
-const semMarkdownBasics: MarkdownBlockRenderer = (pageTrail) => {
+const renderMarkdownBasics: MarkdownLinesRenderer = (pageTrail) => {
     const lines = [];
     lines.push('## Basics');
     lines.push('');
@@ -56,7 +66,7 @@ const semMarkdownBasics: MarkdownBlockRenderer = (pageTrail) => {
 };
 
 // structure
-const semMarkdownStructure: MarkdownBlockRenderer = (pageTrail, options) => {
+const renderMarkdownStructure: MarkdownLinesRenderer = (pageTrail, options) => {
     const lines = [];
     lines.push('## Structure');
     lines.push('');
@@ -76,7 +86,7 @@ const semMarkdownStructure: MarkdownBlockRenderer = (pageTrail, options) => {
 };
 
 // interactive
-const semMarkdownInteractive: MarkdownBlockRenderer = (pageTrail, options) => {
+const renderMarkdownInteractive: MarkdownLinesRenderer = (pageTrail, options) => {
     const lines = [];
     lines.push('## Interactive');
     lines.push('');
@@ -94,7 +104,7 @@ const semMarkdownInteractive: MarkdownBlockRenderer = (pageTrail, options) => {
 };
 
 // content
-const semMarkdownContent: MarkdownBlockRenderer = (pageTrail, options) => {
+const renderMarkdownContent: MarkdownLinesRenderer = (pageTrail, options) => {
     const lines = [];
     lines.push('## Content');
     lines.push('');
@@ -113,94 +123,19 @@ const semMarkdownContent: MarkdownBlockRenderer = (pageTrail, options) => {
     return lines;
 };
 
-// Exports & options
-
-// default list and sequence of blocks
-const MARKDOWN_OPTION_BLOCKS = ['basics', 'structure', 'interactive', 'content'] as const;
-
-export type MarkdownOptionBlock = (typeof MARKDOWN_OPTION_BLOCKS)[number];
-
-const MARKDOWN_BLOCK_RENDERERS: Record<MarkdownOptionBlock, MarkdownBlockRenderer> = {
-    basics: semMarkdownBasics,
-    structure: semMarkdownStructure,
-    interactive: semMarkdownInteractive,
-    content: semMarkdownContent,
+const MARKDOWN_BLOCK_RENDERERS: Record<MarkdownOptionBlock, MarkdownLinesRenderer> = {
+    basics: renderMarkdownBasics,
+    structure: renderMarkdownStructure,
+    interactive: renderMarkdownInteractive,
+    content: renderMarkdownContent,
 };
 
-export type MarkdownOptionDetailLevel = 'compact' | 'standard' | 'full';
+// Exports
 
-interface MarkdownDetailSettings {
-    structureMaxDepth: number;
-    structureBranchLimit: number;
-    interactiveLimit: number;
-    contentTextLimit: number;
-    contentTextMinLength: number;
-}
-
-const MARKDOWN_DETAIL_SETTINGS: Record<MarkdownOptionDetailLevel, MarkdownDetailSettings> = {
-    compact: {
-        structureMaxDepth: 2,
-        structureBranchLimit: 3,
-        interactiveLimit: 5,
-        contentTextLimit: 5,
-        contentTextMinLength: 30,
-    },
-    standard: {
-        structureMaxDepth: 3,
-        structureBranchLimit: 5,
-        interactiveLimit: 15,
-        contentTextLimit: 15,
-        contentTextMinLength: 30,
-    },
-    full: {
-        structureMaxDepth: Number.POSITIVE_INFINITY,
-        structureBranchLimit: Number.POSITIVE_INFINITY,
-        interactiveLimit: Number.POSITIVE_INFINITY,
-        contentTextLimit: Number.POSITIVE_INFINITY,
-        contentTextMinLength: 30,
-    },
-};
-
-export interface MarkdownOptions {
-    detailLevel?: MarkdownOptionDetailLevel;
-    blocks?: MarkdownOptionBlock[];
-}
-
-interface ResolvedMarkdownOptions {
-    detailLevel: MarkdownOptionDetailLevel;
-    blocks: MarkdownOptionBlock[];
-    detailSettings: MarkdownDetailSettings;
-}
-
-function resolveMarkdownOptions(options: MarkdownOptions): ResolvedMarkdownOptions {
-    const detail = options.detailLevel ?? 'standard';
-    const blocks = [...(options.blocks ?? MARKDOWN_OPTION_BLOCKS)];
-    const detailSettings = MARKDOWN_DETAIL_SETTINGS[detail];
-
-    return { detailLevel: detail, blocks, detailSettings };
-}
-
-/**
- * Generates a human-readable Markdown page context from a `PageTrail`.
- *
- * Renders the selected context blocks in their configured order and applies
- * the requested detail level to structure, interaction, and content samples.
- *
- * @param pageTrail - Collected page context to render
- * @param options - Optional detail level and ordered context blocks
- * @returns Markdown document headed by "Page context"
- */
-export function semMarkdown(pageTrail: PageTrail, options: MarkdownOptions = {}): string {
-    const resolvedOptions = resolveMarkdownOptions(options);
+export function renderMarkdown(pageTrail: PageTrail, options: ResolvedMarkdownOptions): string {
     const lines: string[] = [];
+    lines.push(...renderMarkdownHeader(pageTrail, options));
+    lines.push(...options.blocks.flatMap((block) => MARKDOWN_BLOCK_RENDERERS[block](pageTrail, options)));
 
-    lines.push('# Page context');
-    lines.push('');
-    lines.push(semMarkdownSummary(resolvedOptions));
-    lines.push('');
-
-    lines.push(
-        ...resolvedOptions.blocks.flatMap((block) => MARKDOWN_BLOCK_RENDERERS[block](pageTrail, resolvedOptions)),
-    );
     return lines.join('\n');
 }

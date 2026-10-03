@@ -74,6 +74,18 @@ describe('PageTrailCollector', () => {
         expect(model.metadata.performance.totalMs).toBeTypeOf('number');
     });
 
+    it('collects page text and HTML lengths in metadata', () => {
+        // Given
+        document.body.innerHTML = '<main>Visible page text</main>';
+
+        // When
+        const model = collect();
+
+        // Then
+        expect(model.metadata.innerTextLength).toBe(document.body.innerText.length);
+        expect(model.metadata.outerHtmlLength).toBe(document.documentElement.outerHTML.length);
+    });
+
     it('normalizes page basics text', () => {
         // Given
         document.documentElement.lang = ' en ';

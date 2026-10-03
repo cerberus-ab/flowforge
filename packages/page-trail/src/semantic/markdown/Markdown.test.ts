@@ -5,12 +5,12 @@ import {
     createContainerElementFixture,
     createContentElementFixture,
     createInteractiveElementFixture,
-} from '../../../test/fixtures';
+} from '../../../test/fixtures.ts';
 import { createPageTrailFixture } from '../../testing';
-import { semMarkdown } from './markdown';
+import { Markdown } from './Markdown.ts';
 
-describe('semMarkdown', () => {
-    it('generates Markdown page context with basics, structure, content, and interactions', () => {
+describe('Markdown', () => {
+    it('renders the selected PageTrail context as Markdown', () => {
         // Given
         const pageTrail = createPageTrailFixture({
             structure: {
@@ -48,10 +48,10 @@ describe('semMarkdown', () => {
         });
 
         // When
-        const markdown = semMarkdown(pageTrail);
+        const markdown = Markdown.from(pageTrail);
 
         // Then
-        expect(markdown).toBe(`# Page context
+        expect(markdown.toString()).toBe(`# Page context
 
 A semantic overview of page basics, structure, key interactions, and meaningful content.
 
@@ -88,60 +88,12 @@ Meaningful content blocks sampled from the page.
 `);
     });
 
-    it('uses empty markers for missing optional sections', () => {
-        // Given
-        const pageTrail = createPageTrailFixture({
-            basics: {
-                ...createPageTrailFixture().basics,
-                description: '',
-            },
-            elements: [],
-        });
-
-        // When
-        const markdown = semMarkdown(pageTrail);
-
-        // Then
-        expect(markdown).toBe(`# Page context
-
-A semantic overview of page basics, structure, key interactions, and meaningful content.
-
-## Basics
-
-Basic information about the current page.
-
-- Title: FlowForge Sandbox
-- URL: https://example.com/sandbox
-- Description: none
-- Language: en
-- Viewport: 1280x720, scroll 0/1440
-
-## Structure
-
-An outline of the detected page structure.
-
-- Root
-
-## Interactive
-
-Key interactions sampled from the page.
-
-none
-
-## Content
-
-Meaningful content blocks sampled from the page.
-
-none
-`);
-    });
-
-    it('summarizes and renders only selected blocks', () => {
+    it('renders only requested blocks', () => {
         // Given
         const pageTrail = createPageTrailFixture();
 
         // When
-        const markdown = semMarkdown(pageTrail, { blocks: ['structure', 'interactive'] });
+        const markdown = Markdown.from(pageTrail, { blocks: ['structure', 'interactive'] }).toString();
 
         // Then
         expect(markdown).toContain('A semantic overview of structure and key interactions.');
@@ -151,11 +103,30 @@ none
         expect(markdown).not.toContain('## Content');
     });
 
-    it('handles an empty block selection', () => {
-        expect(semMarkdown(createPageTrailFixture(), { blocks: [] })).toBe(`# Page context
+    it('renders a summary when no blocks are selected', () => {
+        // Given / When
+        const markdown = Markdown.from(createPageTrailFixture(), { blocks: [] });
 
-No semantic sections selected.
-`);
+        // Then
+        expect(markdown.toString()).toBe('# Page context\n\nNo semantic sections selected.\n');
+    });
+
+    it('reports the rendered Markdown length', () => {
+        // Given
+        const markdown = Markdown.from(createPageTrailFixture());
+
+        // Then
+        expect(markdown.length).toBe(markdown.toString().length);
+    });
+
+    it('estimates tokens from the rendered Markdown content', () => {
+        // Given
+        const markdown = Markdown.from(createPageTrailFixture());
+
+        // Then
+        expect(markdown.estimatedTokenCount()).toBe(
+            Math.ceil(new TextEncoder().encode(markdown.toString()).length / 4),
+        );
     });
 });
 

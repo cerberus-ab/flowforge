@@ -2,7 +2,7 @@ import {
     type MarkdownOptionBlock,
     type MarkdownOptionDetailLevel,
     type PageTrail,
-    semMarkdown,
+    Markdown,
 } from '@flowforge/page-trail';
 import { useMemo, useState } from 'preact/hooks';
 import { InspectorPage } from './InspectorPage';
@@ -43,7 +43,10 @@ const markdownDetailTooltip = markdownDetailLevels.map(({ label, desc }) => `${l
 export function InspectorPageMarkdown({ pageTrail }: { pageTrail: PageTrail }) {
     const [detailLevel, setDetailLevel] = useState<MarkdownOptionDetailLevel>('standard');
     const [blocks, setBlocks] = useState<MarkdownOptionBlock[]>(() => markdownBlocks.map(({ value }) => value));
-    const markdown = useMemo(() => semMarkdown(pageTrail, { detailLevel, blocks }), [pageTrail, detailLevel, blocks]);
+    const markdown = useMemo(
+        () => Markdown.from(pageTrail, { detailLevel, blocks }).toString(),
+        [pageTrail, detailLevel, blocks],
+    );
 
     const setBlockEnabled = (block: MarkdownOptionBlock, enabled: boolean) => {
         setBlocks((current) =>

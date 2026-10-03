@@ -57,6 +57,8 @@ export function createCollectionMetadataFixture(
 ): CollectionMetadata {
     return {
         version: VERSION,
+        innerTextLength: 0,
+        outerHtmlLength: 0,
         containerElements: 0,
         containerElementsMatched: 0,
         containerElementsMaxDepth: 0,
