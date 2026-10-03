@@ -1,6 +1,8 @@
 import {
+    type CollectionMetadata,
     type ContentElement,
     type InteractiveElement,
+    type PageBasics,
     type PageTrail,
     presentEnrichedContent,
     presentEnrichedInteractive,
@@ -10,6 +12,7 @@ import {
     presentPreviewStructure,
 } from '@flowforge/page-trail';
 import { JsonViewer } from '@/shared/components/JsonViewer';
+import { InspectorPage } from './InspectorPage';
 
 // "importanceScore.value · semanticText"
 function getPageElementSummary(value: unknown): string | undefined {
@@ -29,6 +32,14 @@ function getPageElementSummary(value: unknown): string | undefined {
 
 // Exports
 
+export function InspectorPageBasics({ basics }: { basics: PageBasics }) {
+    return (
+        <InspectorPage>
+            <JsonViewer value={basics} sortKeys />
+        </InspectorPage>
+    );
+}
+
 export function InspectorPageStructure({
     structure,
     devMode,
@@ -37,23 +48,27 @@ export function InspectorPageStructure({
     devMode: boolean;
 }) {
     return (
-        <JsonViewer
-            getNodeSummary={getPageElementSummary}
-            rootArrayExpandedItems={1}
-            sortKeys
-            value={devMode ? presentEnrichedStructure(structure) : presentPreviewStructure(structure)}
-        />
+        <InspectorPage>
+            <JsonViewer
+                getNodeSummary={getPageElementSummary}
+                rootArrayExpandedItems={1}
+                sortKeys
+                value={devMode ? presentEnrichedStructure(structure) : presentPreviewStructure(structure)}
+            />
+        </InspectorPage>
     );
 }
 
 export function InspectorPageContent({ content, devMode }: { content: ContentElement[]; devMode: boolean }) {
     return (
-        <JsonViewer
-            getNodeSummary={getPageElementSummary}
-            rootArrayExpandedItems={1}
-            sortKeys
-            value={devMode ? presentEnrichedContent(content) : presentPreviewContent(content)}
-        />
+        <InspectorPage>
+            <JsonViewer
+                getNodeSummary={getPageElementSummary}
+                rootArrayExpandedItems={1}
+                sortKeys
+                value={devMode ? presentEnrichedContent(content) : presentPreviewContent(content)}
+            />
+        </InspectorPage>
     );
 }
 
@@ -65,11 +80,21 @@ export function InspectorPageInteractive({
     devMode: boolean;
 }) {
     return (
-        <JsonViewer
-            getNodeSummary={getPageElementSummary}
-            rootArrayExpandedItems={1}
-            sortKeys
-            value={devMode ? presentEnrichedInteractive(interactive) : presentPreviewInteractive(interactive)}
-        />
+        <InspectorPage>
+            <JsonViewer
+                getNodeSummary={getPageElementSummary}
+                rootArrayExpandedItems={1}
+                sortKeys
+                value={devMode ? presentEnrichedInteractive(interactive) : presentPreviewInteractive(interactive)}
+            />
+        </InspectorPage>
+    );
+}
+
+export function InspectorPageMetadata({ metadata }: { metadata: CollectionMetadata }) {
+    return (
+        <InspectorPage>
+            <JsonViewer value={metadata} sortKeys />
+        </InspectorPage>
     );
 }

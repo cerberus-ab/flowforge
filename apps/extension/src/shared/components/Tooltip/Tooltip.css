@@ -13,7 +13,7 @@
   padding: var(--flowforge-pad-xs) var(--flowforge-pad-sm);
   border-radius: var(--flowforge-pad-xs);
   font: var(--flowforge-text-xs);
-  white-space: normal;
+  white-space: pre-line;
   text-align: left;
   opacity: 0;
   visibility: hidden;

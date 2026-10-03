@@ -15,6 +15,11 @@
   cursor: pointer;
   transition: var(--flowforge-transition-default);
 }
+.flowforge-switch--wide {
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
 .flowforge-switch__copy {
   display: inline-flex;
   flex-direction: column;
@@ -28,10 +33,18 @@
 }
 .flowforge-switch:not(:disabled):hover {
   color: var(--flowforge-color-text);
+}
+.flowforge-switch--primary:not(:disabled):hover {
+  border-color: var(--flowforge-color-primary);
+}
+.flowforge-switch--secondary:not(:disabled):hover {
   border-color: var(--flowforge-color-secondary);
 }
-.flowforge-switch:focus-visible {
+.flowforge-switch--primary:focus-visible {
   outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
+}
+.flowforge-switch--secondary:focus-visible {
+  outline: 2px solid rgba(var(--flowforge-rgb-secondary), 0.45);
 }
 .flowforge-switch:disabled {
   cursor: not-allowed;
@@ -63,8 +76,13 @@
   box-shadow: 0 1px 3px rgba(var(--flowforge-rgb-shadow), 0.24);
   transition: transform 0.2s ease;
 }
-.flowforge-switch[aria-checked='true'] .flowforge-switch__control {
-  background: currentColor;
+.flowforge-switch--primary[aria-checked='true'] .flowforge-switch__control {
+  border-color: var(--flowforge-color-primary);
+  background: var(--flowforge-color-primary);
+}
+.flowforge-switch--secondary[aria-checked='true'] .flowforge-switch__control {
+  border-color: var(--flowforge-color-secondary);
+  background: var(--flowforge-color-secondary);
 }
 .flowforge-switch[aria-checked='true'] .flowforge-switch__thumb {
   transform: translateX(12px);

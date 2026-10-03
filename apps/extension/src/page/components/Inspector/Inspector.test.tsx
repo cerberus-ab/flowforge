@@ -91,4 +91,27 @@ describe('Inspector', () => {
         // Then
         expect(close).toHaveBeenCalledTimes(3);
     });
+
+    it('configures the Markdown preview with blocks and detail level', () => {
+        // Given
+        renderInspector({ initialTab: 'markdown' });
+
+        // Then
+        const detailLevel = screen.getByLabelText('Detail level') as HTMLSelectElement;
+        const basics = screen.getByRole('switch', { name: 'Basics' });
+        const markdownViewer = screen.getByTestId('flowforge-markdown-viewer');
+        expect(detailLevel.value).toBe('standard');
+        expect(basics.getAttribute('aria-checked')).toBe('true');
+        expect(basics.classList.contains('flowforge-switch--wide')).toBe(true);
+        expect(markdownViewer.textContent).toContain('## Basics');
+
+        // When
+        fireEvent.click(basics);
+        fireEvent.change(detailLevel, { target: { value: 'compact' } });
+
+        // Then
+        expect(basics.getAttribute('aria-checked')).toBe('false');
+        expect(detailLevel.value).toBe('compact');
+        expect(markdownViewer.textContent).not.toContain('## Basics');
+    });
 });

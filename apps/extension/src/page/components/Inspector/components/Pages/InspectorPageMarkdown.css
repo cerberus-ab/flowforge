@@ -1,0 +1,56 @@
+@import '../../constants.css';
+
+/* Inspector markdown page */
+.flowforge-inspector-page-markdown {
+  display: grid;
+  grid-template-columns: var(--flowforge-inspector-aside-width) minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.flowforge-inspector-page-markdown__aside {
+  min-width: 0;
+  padding: var(--flowforge-pad-lg);
+  border-right: 1px solid var(--flowforge-color-border);
+  background-color: var(--flowforge-color-bg);
+}
+.flowforge-inspector-page-markdown__content {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--flowforge-pad-lg);
+}
+.flowforge-inspector-page-markdown__content::-webkit-scrollbar {
+  width: var(--flowforge-pad-xs);
+}
+.flowforge-inspector-page-markdown__content::-webkit-scrollbar-thumb {
+  background: rgba(var(--flowforge-rgb-primary), 0.5);
+  border-radius: 999px;
+}
+
+.flowforge-inspector-page-markdown__title {
+  padding: 0;
+  color: var(--flowforge-color-text);
+  font: var(--flowforge-text-h4);
+  margin: 0 0 var(--flowforge-pad-lg);
+}
+.flowforge-inspector-page-markdown__detail-select {
+  display: flex;
+  flex-direction: column;
+}
+.flowforge-inspector-page-markdown__blocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flowforge-pad-xs);
+  margin: var(--flowforge-pad-xl) 0 0;
+  padding: 0;
+  border: 0;
+}
+.flowforge-inspector-page-markdown__label {
+  padding: 0;
+  display: block;
+  margin-bottom: var(--flowforge-pad-xs);
+  color: var(--flowforge-color-text-muted);
+  font: var(--flowforge-text-sm);
+}

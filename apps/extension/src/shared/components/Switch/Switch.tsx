@@ -1,16 +1,27 @@
 import type { ComponentProps } from 'preact';
 import { useId } from 'preact/hooks';
+import { cx } from '@/shared/utils/cx';
 
 interface SwitchProps extends Omit<
     ComponentProps<'button'>,
     'aria-checked' | 'children' | 'className' | 'onChange' | 'onClick' | 'role'
 > {
     checked: boolean;
+    wide?: boolean;
+    variant?: 'primary' | 'secondary';
     label: string;
     onCheckedChange: (checked: boolean) => void | Promise<void>;
 }
 
-export function Switch({ checked, label, onCheckedChange, disabled, ...props }: SwitchProps) {
+export function Switch({
+    checked,
+    wide,
+    variant = 'primary',
+    label,
+    onCheckedChange,
+    disabled,
+    ...props
+}: SwitchProps) {
     const labelId = `flowforge-switch-label-${useId()}`;
 
     return (
@@ -19,7 +30,7 @@ export function Switch({ checked, label, onCheckedChange, disabled, ...props }: 
             role="switch"
             aria-checked={checked}
             aria-labelledby={labelId}
-            className="flowforge-switch"
+            className={cx('flowforge-switch', `flowforge-switch--${variant}`, wide && 'flowforge-switch--wide')}
             disabled={disabled}
             onClick={() => onCheckedChange(!checked)}
             {...props}

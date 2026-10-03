@@ -5,9 +5,9 @@ const limitTooltip = 'Only a limited number of top candidates by importance are 
 
 // Exports
 
-export function InspectorPageMetadata({ metadata }: { metadata: CollectionMetadata; devMode: boolean }) {
+export function InspectorLineMetadata({ metadata }: { metadata: CollectionMetadata }) {
     return (
-        <div className="flowforge-inspector-page-metadata">
+        <div className="flowforge-inspector-line-metadata">
             Selected{' '}
             {metadata.contentElementsLimitReached ? (
                 <>

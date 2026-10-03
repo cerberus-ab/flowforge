@@ -127,7 +127,7 @@ const MARKDOWN_BLOCK_RENDERERS: Record<MarkdownOptionBlock, MarkdownBlockRendere
     content: semMarkdownContent,
 };
 
-export type MarkdownOptionDetail = 'compact' | 'standard' | 'full';
+export type MarkdownOptionDetailLevel = 'compact' | 'standard' | 'full';
 
 interface MarkdownDetailSettings {
     structureMaxDepth: number;
@@ -137,7 +137,7 @@ interface MarkdownDetailSettings {
     contentTextMinLength: number;
 }
 
-const MARKDOWN_DETAIL_SETTINGS: Record<MarkdownOptionDetail, MarkdownDetailSettings> = {
+const MARKDOWN_DETAIL_SETTINGS: Record<MarkdownOptionDetailLevel, MarkdownDetailSettings> = {
     compact: {
         structureMaxDepth: 2,
         structureBranchLimit: 3,
@@ -162,22 +162,22 @@ const MARKDOWN_DETAIL_SETTINGS: Record<MarkdownOptionDetail, MarkdownDetailSetti
 };
 
 export interface MarkdownOptions {
-    detail?: MarkdownOptionDetail;
+    detailLevel?: MarkdownOptionDetailLevel;
     blocks?: MarkdownOptionBlock[];
 }
 
 interface ResolvedMarkdownOptions {
-    detail: MarkdownOptionDetail;
+    detailLevel: MarkdownOptionDetailLevel;
     blocks: MarkdownOptionBlock[];
     detailSettings: MarkdownDetailSettings;
 }
 
 function resolveMarkdownOptions(options: MarkdownOptions): ResolvedMarkdownOptions {
-    const detail = options.detail ?? 'standard';
+    const detail = options.detailLevel ?? 'standard';
     const blocks = [...(options.blocks ?? MARKDOWN_OPTION_BLOCKS)];
     const detailSettings = MARKDOWN_DETAIL_SETTINGS[detail];
 
-    return { detail, blocks, detailSettings };
+    return { detailLevel: detail, blocks, detailSettings };
 }
 
 /**
