@@ -181,6 +181,34 @@ test('opens the Markdown inspector tab from the popup', async ({ context, extens
     await popup.close();
 });
 
+test('uses the Markdown inspector controls and shows size stats', async ({ context, extensionId, page }) => {
+    // Given
+    await page.goto('/chrome');
+    const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await popup.getByTestId('flowforge-open-markdown-inspector').click();
+    const markdown = page.getByTestId('flowforge-markdown-viewer');
+    const detailLevel = page.getByTestId('flowforge-markdown-detail-level');
+    const basics = page.getByTestId('flowforge-markdown-block-basics');
+
+    // Then
+    await expect(markdown).toContainText('## Basics');
+    await expect(page.getByTestId('flowforge-markdown-stat-html')).toBeVisible();
+    await expect(page.getByTestId('flowforge-markdown-stat-text')).toBeVisible();
+    await expect(page.getByTestId('flowforge-markdown-stat-markdown')).toBeVisible();
+    await expect(page.getByTestId('flowforge-markdown-stat-tokens')).toContainText(/~\d+/);
+
+    // When
+    await detailLevel.selectOption('compact');
+    await basics.click();
+
+    // Then
+    await expect(detailLevel).toHaveValue('compact');
+    await expect(basics).toHaveAttribute('aria-checked', 'false');
+    await expect(markdown).not.toContainText('## Basics');
+
+    await popup.close();
+});
+
 test('clears page state when the popup opens', async ({ context, extensionId, page }) => {
     // Given
     await page.goto('/chrome');

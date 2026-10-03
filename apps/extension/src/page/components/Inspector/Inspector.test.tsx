@@ -104,6 +104,16 @@ describe('Inspector', () => {
         expect(basics.getAttribute('aria-checked')).toBe('true');
         expect(basics.classList.contains('flowforge-switch--wide')).toBe(true);
         expect(markdownViewer.textContent).toContain('## Basics');
+        expect(screen.getByText(/Compact: A short overview with the most important page details\./)).toBeTruthy();
+        expect(screen.getByText('The page title, URL, description, language, and current viewport.')).toBeTruthy();
+
+        const tokenStat = screen.getByTestId('flowforge-markdown-stat-tokens');
+        expect(tokenStat.textContent).toContain('Estimated tokens');
+        expect(tokenStat.textContent).toMatch(/~\d+/);
+        expect(tokenStat.querySelector('.flowforge-inspector-page-markdown__size-track')?.className).toContain(
+            '--transparent',
+        );
+        expect(screen.getByText('Size by characters')).toBeTruthy();
 
         // When
         fireEvent.click(basics);

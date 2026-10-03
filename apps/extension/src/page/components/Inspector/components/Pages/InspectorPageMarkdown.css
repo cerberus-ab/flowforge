@@ -9,6 +9,9 @@
   min-height: 0;
 }
 .flowforge-inspector-page-markdown__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flowforge-pad-xl);
   min-width: 0;
   padding: var(--flowforge-pad-lg);
   border-right: 1px solid var(--flowforge-color-border);
@@ -29,28 +32,72 @@
   border-radius: 999px;
 }
 
+.flowforge-inspector-page-markdown__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flowforge-pad-md);
+}
 .flowforge-inspector-page-markdown__title {
+  margin: 0;
   padding: 0;
   color: var(--flowforge-color-text);
   font: var(--flowforge-text-h4);
-  margin: 0 0 var(--flowforge-pad-lg);
-}
-.flowforge-inspector-page-markdown__detail-select {
-  display: flex;
-  flex-direction: column;
-}
-.flowforge-inspector-page-markdown__blocks {
-  display: flex;
-  flex-direction: column;
-  gap: var(--flowforge-pad-xs);
-  margin: var(--flowforge-pad-xl) 0 0;
-  padding: 0;
-  border: 0;
 }
 .flowforge-inspector-page-markdown__label {
   padding: 0;
   display: block;
-  margin-bottom: var(--flowforge-pad-xs);
+  margin: 0 0 var(--flowforge-pad-sm);
   color: var(--flowforge-color-text-muted);
   font: var(--flowforge-text-sm);
+}
+
+.flowforge-inspector-page-markdown__detail-select {
+  display: flex;
+  flex-direction: column;
+}
+.flowforge-inspector-page-markdown__blocks,
+.flowforge-inspector-page-markdown__sizes {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.flowforge-inspector-page-markdown__block-list,
+.flowforge-inspector-page-markdown__size-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flowforge-pad-xs);
+}
+.flowforge-inspector-page-markdown__size-list {
+  gap: var(--flowforge-pad-sm);
+}
+.flowforge-inspector-page-markdown__size {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flowforge-pad-xs);
+}
+.flowforge-inspector-page-markdown__size-label {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--flowforge-pad-xs);
+  color: var(--flowforge-color-text-muted);
+  font: var(--flowforge-text-xs);
+}
+.flowforge-inspector-page-markdown__size-track {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--flowforge-color-border);
+}
+.flowforge-inspector-page-markdown__size-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--flowforge-color-text-muted);
+}
+.flowforge-inspector-page-markdown__size-fill--primary {
+  background: var(--flowforge-color-primary);
+}
+.flowforge-inspector-page-markdown__size-fill--transparent {
+  background: var(--flowforge-color-border);
 }
