@@ -4,6 +4,8 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-04
+
 ### Added
 
 - Added Markdown Inspector controls for detail level, content blocks and with page sizes.
