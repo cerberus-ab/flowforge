@@ -10,6 +10,10 @@ All notable changes to the project will be documented in this file.
 - Added separate `PageTrailDto` and runtime `PageTrail` models with ID-backed relationships and optional DOM locators.
 - Added context-only collection, complete element structure, version metadata, and reusable PageTrail test fixtures.
 
+### Changed
+
+- Updated npm dependencies across all workspaces. Added update-deps SKILL.
+
 ## [0.2.1] - 2026-09-05
 
 ### Added

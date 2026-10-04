@@ -9,7 +9,10 @@ export interface SelectOption<V extends string> {
     disabled?: boolean;
 }
 
-interface SelectProps<V extends string> extends Omit<ComponentProps<'select'>, 'children' | 'onChange' | 'value'> {
+interface SelectProps<V extends string> extends Omit<
+    ComponentProps<'select'>,
+    'children' | 'onChange' | 'role' | 'value'
+> {
     options: readonly SelectOption<V>[];
     value: V;
     variant?: 'primary' | 'secondary';
