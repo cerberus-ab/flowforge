@@ -1,6 +1,6 @@
 import { chromium, expect, test as base, type BrowserContext, type Page } from '@playwright/test';
 
-const extensionPath = new URL('../../../dist/chrome', import.meta.url).pathname;
+const extensionPath = new URL('../../../dist/chrome/assistant', import.meta.url).pathname;
 
 export const test = base.extend<{ context: BrowserContext; extensionId: string; page: Page }>({
     context: async ({ baseURL }, use, testInfo) => {
