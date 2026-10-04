@@ -143,9 +143,11 @@ export function PopupApp({
                 <Advanced onOpenPageInspector={handleOpenPageInspector}></Advanced>
 
                 <footer className="flowforge-popup__footer">
-                    <div className="flowforge-popup__copyright">{copyright}</div>
-                    <Link href={github}>Star me</Link>
-                    <ButtonText onClick={onToggleTheme}>{theme === 'light' ? 'Dark' : 'Light'} theme</ButtonText>
+                    <div className="flowforge-popup__footer-copyright">{copyright}</div>
+                    <div className="flowforge-popup__footer-actions">
+                        <Link href={github}>Star me</Link>
+                        <ButtonText onClick={onToggleTheme}>{theme === 'light' ? 'Dark' : 'Light'} theme</ButtonText>
+                    </div>
                 </footer>
             </div>
         </Root>

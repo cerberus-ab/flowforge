@@ -1,11 +1,3 @@
-@import '../shared/index.css';
-
-@import './components/Question/Question.css';
-@import './components/Loading/Loading.css';
-@import './components/Result/Result.css';
-@import './components/Examples/Examples.css';
-@import 'components/Advanced/Advanced.css';
-
 /* Popup */
 .flowforge-popup {
   --flowforge-popup-width: 400px;
@@ -106,14 +98,24 @@
 }
 .flowforge-popup__footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   padding-top: var(--flowforge-pad-sm);
   margin-top: auto;
   font: var(--flowforge-text-xs);
-  gap: var(--flowforge-pad-md);
+  column-gap: var(--flowforge-pad-sm);
+  row-gap: 2px;
 }
-.flowforge-popup__copyright {
+.flowforge-popup__footer > * {
+  flex-shrink: 0;
+  max-width: 100%;
+}
+.flowforge-popup__footer-copyright {
   color: var(--flowforge-color-text-muted);
   opacity: 0.8;
-  flex-wrap: wrap;
+}
+.flowforge-popup__footer-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--flowforge-pad-sm);
 }

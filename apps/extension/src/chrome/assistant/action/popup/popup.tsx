@@ -1,6 +1,6 @@
 import { render } from 'preact';
 
-import '@/popup/popup.css';
+import '@/popup/index.css';
 
 import { PopupApp } from '@/popup/PopupApp';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';

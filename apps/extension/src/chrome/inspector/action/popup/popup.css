@@ -1,0 +1,29 @@
+@import '../../../../shared/index.css';
+
+@import '../../../../popup/popup.css';
+
+@import './components/Opener/Opener.css';
+
+/* Inspector popup */
+.flowforge-popup--inspector {
+  --flowforge-pi-popup-width: 320px;
+  --flowforge-pi-popup-height: 440px;
+  --flowforge-pi-popup-header-height: 80px;
+}
+.flowforge-popup--inspector {
+  width: var(--flowforge-pi-popup-width);
+  height: var(--flowforge-pi-popup-height);
+}
+.flowforge-popup--inspector .flowforge-popup__header {
+  background:
+    url('../../../../shared/img/footer-bg-sm.webp') right bottom no-repeat,
+    linear-gradient(
+      135deg,
+      var(--flowforge-color-secondary) 0%,
+      var(--flowforge-color-secondary-hover) 100%
+    );
+}
+.flowforge-popup--inspector .flowforge-popup__content::-webkit-scrollbar-thumb {
+  background: rgba(var(--flowforge-rgb-secondary), 0.5);
+  border-radius: 999px;
+}

@@ -1,0 +1,8 @@
+@import '../../../shared/index.css';
+
+@import '../../../page/page.css';
+@import '../../../page/components/Inspector/Inspector.css';
+
+/* Inspector page */
+.flowforge-page--inspector {
+}

@@ -1,8 +1,9 @@
 @import '../../shared/index.css';
 
-@import '../../page/page.css';
+@import '../../popup/index.css';
+@import '../../page/index.css';
+
 @import '../components/Trigger/Trigger.css';
-@import '../../popup/popup.css';
 
 .flowforge-shell .flowforge-page {
   z-index: 1;

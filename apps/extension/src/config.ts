@@ -14,6 +14,8 @@ export interface ExtensionConfig {
     version: string;
     // Copyright information
     copyright: string;
+    // Website
+    website: string;
     // Github repository
     github: string;
     // Default settings
@@ -27,6 +29,7 @@ export const config: ExtensionConfig = {
     exampleQuestions: ['What is this page about?', 'How can I buy this product?', 'Where is a contact information?'],
     version: pkg.version,
     copyright: `FlowForge ${pkg.version} ✦ 2026 Antony Belov`,
+    website: 'https://useflowforge.app/',
     github: 'https://github.com/cerberus-ab/flowforge',
     defaultSettings: {
         theme: 'light',

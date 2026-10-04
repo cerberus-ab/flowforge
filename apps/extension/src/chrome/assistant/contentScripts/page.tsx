@@ -1,6 +1,6 @@
 import { render } from 'preact';
 
-import styles from '@/page/page.css?inline';
+import styles from '@/page/index.css?inline';
 
 import { PageApp } from '@/page/PageApp';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';

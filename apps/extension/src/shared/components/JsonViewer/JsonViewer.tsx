@@ -138,9 +138,10 @@ function JsonViewerNode({
                 <div className="flowforge-json-viewer__children">
                     {entries.map(([entryName, entryValue], entryIndex) => {
                         const childInitialOpen =
-                            depth === 0 && isArray && rootArrayExpandedItems !== undefined
-                                ? entryIndex < rootArrayExpandedItems
-                                : undefined;
+                            depth === 0 &&
+                            isArray &&
+                            rootArrayExpandedItems !== undefined &&
+                            entryIndex < rootArrayExpandedItems;
 
                         return (
                             <JsonViewerNode

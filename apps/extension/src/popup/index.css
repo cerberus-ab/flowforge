@@ -1,0 +1,8 @@
+@import '../shared/index.css';
+
+@import './popup.css';
+@import './components/Question/Question.css';
+@import './components/Loading/Loading.css';
+@import './components/Result/Result.css';
+@import './components/Examples/Examples.css';
+@import './components/Advanced/Advanced.css';
