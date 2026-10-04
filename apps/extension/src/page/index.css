@@ -1,0 +1,6 @@
+@import '../shared/index.css';
+
+@import './page.css';
+@import './components/Highlight/Highlight.css';
+@import './components/Wizard/Wizard.css';
+@import './components/Inspector/Inspector.css';

@@ -19,12 +19,6 @@ export default defineManifest({
             run_at: 'document_idle',
         },
     ],
-    web_accessible_resources: [
-        {
-            resources: [],
-            matches: ['<all_urls>'],
-        },
-    ],
     action: {
         default_popup: 'action/popup/index.html',
         default_icon: 'action/icon.png',

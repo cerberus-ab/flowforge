@@ -51,7 +51,6 @@ export function InspectorPageStructure({
         <InspectorPage>
             <JsonViewer
                 getNodeSummary={getPageElementSummary}
-                rootArrayExpandedItems={1}
                 sortKeys
                 value={devMode ? presentEnrichedStructure(structure) : presentPreviewStructure(structure)}
             />

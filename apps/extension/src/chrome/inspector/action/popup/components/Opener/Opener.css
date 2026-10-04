@@ -1,0 +1,21 @@
+/* Inspector opener */
+.flowforge-inspector-opener {
+}
+.flowforge-inspector-opener__description {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flowforge-pad-sm);
+  font: var(--flowforge-text-sm);
+}
+.flowforge-inspector-opener__description ul {
+  padding-left: var(--flowforge-pad-xl);
+  color: var(--flowforge-color-text-muted);
+}
+.flowforge-inspector-opener__description li + li {
+  margin-top: 0;
+}
+.flowforge-inspector-opener__note {
+  font: var(--flowforge-text-xs);
+  color: var(--flowforge-color-text-muted);
+  text-align: right;
+}
