@@ -9,6 +9,7 @@ import { semContainerElement } from '../element/container.ts';
 import { semContentElement } from '../element/content.ts';
 import { semElementContextByBreadcrumbs } from '../element/context.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
+import { placeholder } from '../constants.ts';
 
 interface PresentPreviewContainerTreeNode {
     tag: string;
@@ -90,7 +91,7 @@ function presentPreviewContainerTree(containerTree: ContainerTreeNode[]): Presen
  */
 export function presentPreviewStructure(structure: ContainerRootNode): PresentPreviewStructure {
     return {
-        semanticText: 'root',
+        semanticText: placeholder.ROOT,
         nodes: presentPreviewContainerTree(structure.nodes),
         content: structure.content.map(presentPreviewContentElement),
         interactive: structure.interactive.map(presentPreviewInteractiveElement),

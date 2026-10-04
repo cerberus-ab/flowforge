@@ -1,0 +1,47 @@
+/* Select */
+.flowforge-select-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.flowforge-select {
+  appearance: none;
+  width: 100%;
+  padding-block: var(--flowforge-pad-xs);
+  padding-inline: var(--flowforge-pad-sm)
+    calc(var(--flowforge-icon-size-sm) + var(--flowforge-pad-md) + var(--flowforge-pad-md));
+  border: 1px solid var(--flowforge-color-border);
+  border-radius: var(--flowforge-pad-xs);
+  background-color: var(--flowforge-color-surface);
+  color: var(--flowforge-color-text);
+  font: var(--flowforge-text-sm);
+  cursor: pointer;
+  transition: var(--flowforge-transition-default);
+}
+.flowforge-select-icon {
+  position: absolute;
+  top: 50%;
+  right: var(--flowforge-pad-md);
+  color: var(--flowforge-color-text-muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.flowforge-select--primary:not(:disabled):hover {
+  border-color: var(--flowforge-color-primary);
+}
+.flowforge-select--secondary:not(:disabled):hover {
+  border-color: var(--flowforge-color-secondary);
+}
+.flowforge-select--primary:focus-visible {
+  outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
+}
+.flowforge-select--secondary:focus-visible {
+  outline: 2px solid rgba(var(--flowforge-rgb-secondary), 0.45);
+}
+.flowforge-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.flowforge-select:disabled + .flowforge-select-icon {
+  opacity: 0.5;
+}

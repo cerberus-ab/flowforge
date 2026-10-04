@@ -192,6 +192,5 @@ export class Runtime implements RuntimeApi {
             this.shellRoot.destroy();
             this.shellRoot = undefined;
         }
-        this.shellRef.current = null;
     }
 }

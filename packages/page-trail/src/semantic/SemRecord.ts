@@ -12,6 +12,7 @@ class SemRecordBuilder {
             action?: string;
             state?: Set<string>;
             context?: string;
+            contains?: Set<string>;
         }> = {},
     ) {}
 
@@ -43,14 +44,6 @@ class SemRecordBuilder {
         return this;
     }
 
-    addLabel(label: string): SemRecordBuilder {
-        if (this.data.labels === undefined) {
-            this.data.labels = new Set();
-        }
-        this.data.labels.add(label);
-        return this;
-    }
-
     withAction(action: string | undefined): SemRecordBuilder {
         this.data.action = action;
         return this;
@@ -58,6 +51,11 @@ class SemRecordBuilder {
 
     withContext(context: string | undefined): SemRecordBuilder {
         this.data.context = context;
+        return this;
+    }
+
+    withContains(contains: string[]): SemRecordBuilder {
+        this.data.contains = contains.length > 0 ? new Set(contains) : undefined;
         return this;
     }
 
@@ -77,6 +75,7 @@ class SemRecordBuilder {
             this.data.action,
             this.data.state !== undefined ? Array.from(this.data.state) : undefined,
             this.data.context,
+            this.data.contains !== undefined ? Array.from(this.data.contains) : undefined,
         );
     }
 }
@@ -91,6 +90,7 @@ export class SemRecord {
         private readonly action?: string,
         private readonly state?: string[],
         private readonly context?: string,
+        private readonly contains?: string[],
     ) {}
 
     // subject is descriptor + payload
@@ -121,6 +121,10 @@ export class SemRecord {
         // optional context
         if (this.context !== undefined) {
             parts.push(`Context: ${this.context}`);
+        }
+        // optional contains
+        if (this.contains !== undefined && this.contains.length > 0) {
+            parts.push(`Contains: ${this.contains.join(SEPARATOR_VALUES)}`);
         }
         return parts.join(SEPARATOR_PARTS);
     }

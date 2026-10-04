@@ -78,7 +78,7 @@ export function Tooltip({ variant = 'primary', side = 'top', disabled = false, c
     const id = `flowforge-tooltip-${useId()}`;
     const wrapperRef = useRef<HTMLSpanElement>(null);
     const contentRef = useRef<HTMLSpanElement>(null);
-    const pointerOpenTimerRef = useRef<number>();
+    const pointerOpenTimerRef = useRef<number | undefined>(undefined);
     const [open, setOpen] = useState(false);
     const [position, setPosition] = useState<{ top: number; left: number }>();
     const childItems = toChildArray(children);

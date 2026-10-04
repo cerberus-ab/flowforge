@@ -5,12 +5,12 @@ import {
     createContainerElementFixture,
     createContentElementFixture,
     createInteractiveElementFixture,
-} from '../../../test/fixtures';
+} from '../../../test/fixtures.ts';
 import { createPageTrailFixture } from '../../testing';
-import { semMarkdown } from './markdown';
+import { Markdown } from './Markdown.ts';
 
-describe('semMarkdown', () => {
-    it('generates a semantic markdown view for page basics, samples, content, and interactions', () => {
+describe('Markdown', () => {
+    it('renders the selected PageTrail context as Markdown', () => {
         // Given
         const pageTrail = createPageTrailFixture({
             structure: {
@@ -48,12 +48,14 @@ describe('semMarkdown', () => {
         });
 
         // When
-        const markdown = semMarkdown(pageTrail);
+        const markdown = Markdown.from(pageTrail);
 
         // Then
-        expect(markdown).toBe(`# Semantic view
+        expect(markdown.toString()).toBe(`# Page context
 
-## Page
+A semantic overview of page basics, structure, key interactions, and meaningful content.
+
+## Basics
 
 Basic information about the current page.
 
@@ -63,84 +65,68 @@ Basic information about the current page.
 - Language: en
 - Viewport: 1280x720, scroll 0/1440
 
-## Sample structure
+## Structure
 
 An outline of the detected page structure.
 
-- Main content. Name: Main
-  - Navigation. Name: Tabs
+- Root
+  - Main content. Name: Main
+    - Navigation. Name: Tabs
 
-## Sample headings
+## Interactive
 
-Up to 5 representative headings on the page.
-
-1. Heading h1: Explore Embed
-
-## Sample interactions
-
-Up to 15 representative interactions on the page.
+Key interactions sampled from the page.
 
 1. Button. Name: Start. Action: click action. State: visible on initial screen
 2. Internal link. Name: Docs. Action: click action. State: currently visible
 
-## Meaningful content
+## Content
 
-Some meaningful text blocks sampled from the page.
+Meaningful content blocks sampled from the page.
 
-Text: Click Start to launch the extension.
+- Text: Click Start to launch the extension.
 `);
     });
 
-    it('uses empty markers for missing optional sections', () => {
+    it('renders only requested blocks', () => {
         // Given
-        const pageTrail = createPageTrailFixture({
-            basics: {
-                ...createPageTrailFixture().basics,
-                description: '',
-            },
-            elements: [],
-        });
+        const pageTrail = createPageTrailFixture();
 
         // When
-        const markdown = semMarkdown(pageTrail);
+        const markdown = Markdown.from(pageTrail, { blocks: ['structure', 'interactive'] }).toString();
 
         // Then
-        expect(markdown).toBe(`# Semantic view
+        expect(markdown).toContain('A semantic overview of structure and key interactions.');
+        expect(markdown).toContain('## Structure');
+        expect(markdown).toContain('## Interactive');
+        expect(markdown).not.toContain('## Basics');
+        expect(markdown).not.toContain('## Content');
+    });
 
-## Page
+    it('renders a summary when no blocks are selected', () => {
+        // Given / When
+        const markdown = Markdown.from(createPageTrailFixture(), { blocks: [] });
 
-Basic information about the current page.
+        // Then
+        expect(markdown.toString()).toBe('# Page context\n\nNo semantic sections selected.\n');
+    });
 
-- Title: FlowForge Sandbox
-- URL: https://example.com/sandbox
-- Description: _None_
-- Language: en
-- Viewport: 1280x720, scroll 0/1440
+    it('reports the rendered Markdown length', () => {
+        // Given
+        const markdown = Markdown.from(createPageTrailFixture());
 
-## Sample structure
+        // Then
+        expect(markdown.length).toBe(markdown.toString().length);
+    });
 
-An outline of the detected page structure.
+    it('estimates tokens from the rendered Markdown content', () => {
+        // Given
+        const markdown = Markdown.from(createPageTrailFixture());
 
-_None_
-
-## Sample headings
-
-Up to 5 representative headings on the page.
-
-_None_
-
-## Sample interactions
-
-Up to 15 representative interactions on the page.
-
-_None_
-
-## Meaningful content
-
-Some meaningful text blocks sampled from the page.
-
-_None_
-`);
+        // Then
+        expect(markdown.estimatedTokenCount()).toBe(
+            Math.ceil(new TextEncoder().encode(markdown.toString()).length / 4),
+        );
     });
 });
 

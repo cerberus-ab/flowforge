@@ -12,18 +12,18 @@ import {
 import { getEventTarget } from '@/core/utils/dom';
 import type { InspectorViewModel } from '@/page/hooks/usePage';
 import { Button } from '@/shared/components/Button';
-import { JsonViewer } from '@/shared/components/JsonViewer';
-import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
 import { Switch } from '@/shared/components/Switch';
 import { Tabs } from '@/shared/components/Tabs';
 import { Tooltip } from '@/shared/components/Tooltip';
-import { InspectorPageMetadata } from '@/page/components/Inspector/components/Metadata';
-import { semMarkdown } from '@flowforge/page-trail';
+import { InspectorLineMetadata } from '@/page/components/Inspector/components/Metadata';
 import {
     InspectorPageStructure,
     InspectorPageContent,
     InspectorPageInteractive,
-} from '@/page/components/Inspector/components/Elements';
+    InspectorPageMarkdown,
+    InspectorPageBasics,
+    InspectorPageMetadata,
+} from '@/page/components/Inspector/components/Pages';
 
 type InspectorTab = {
     id: 'basics' | 'structure' | 'content' | 'interactive' | 'markdown' | 'metadata';
@@ -150,7 +150,12 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                             content="Show enriched PageTrail records with raw fields, selectors, scores, and diagnostics."
                             variant="secondary"
                         >
-                            <Switch checked={devMode} label="Dev mode" onCheckedChange={onDevModeChange} />
+                            <Switch
+                                checked={devMode}
+                                label="Dev mode"
+                                variant="secondary"
+                                onCheckedChange={onDevModeChange}
+                            />
                         </Tooltip>
                         <Button variant="secondary" size="small" onClick={close}>
                             Close
@@ -175,7 +180,7 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                     aria-labelledby={getTabId(activeTab)}
                     data-testid="flowforge-inspector-panel"
                 >
-                    {activeTab === 'basics' && <JsonViewer value={pageTrail.basics} sortKeys />}
+                    {activeTab === 'basics' && <InspectorPageBasics basics={pageTrail.basics} />}
                     {activeTab === 'structure' && (
                         <InspectorPageStructure
                             structure={pageTrail.getStructureByImportanceDesc()}
@@ -191,11 +196,11 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                             devMode={devMode}
                         />
                     )}
-                    {activeTab === 'markdown' && <MarkdownViewer value={semMarkdown(pageTrail)} />}
-                    {activeTab === 'metadata' && devMode && <JsonViewer value={pageTrail.metadata} sortKeys />}
+                    {activeTab === 'markdown' && <InspectorPageMarkdown pageTrail={pageTrail} />}
+                    {activeTab === 'metadata' && devMode && <InspectorPageMetadata metadata={pageTrail.metadata} />}
                 </div>
                 <div className="flowforge-inspector__footer">
-                    <InspectorPageMetadata metadata={pageTrail.metadata} devMode={devMode} />
+                    <InspectorLineMetadata metadata={pageTrail.metadata} />
                 </div>
             </div>
         </div>

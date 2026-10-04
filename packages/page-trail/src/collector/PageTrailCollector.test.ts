@@ -20,7 +20,7 @@ describe('PageTrailCollector', () => {
         const model = collect({ getElementDataId });
 
         // Then
-        const containers = model.mapStructureContainers((node) => node.container);
+        const containers = model.mapStructureTree((node) => ('container' in node ? [node.container] : [])).flat();
         const contentElements = model.getContent();
         const interactiveElements = model.getInteractive();
         expect(containers).toHaveLength(1);
@@ -72,6 +72,18 @@ describe('PageTrailCollector', () => {
         });
         expect(model.metadata.collectedAt).toBeTypeOf('number');
         expect(model.metadata.performance.totalMs).toBeTypeOf('number');
+    });
+
+    it('collects page text and HTML lengths in metadata', () => {
+        // Given
+        document.body.innerHTML = '<main>Visible page text</main>';
+
+        // When
+        const model = collect();
+
+        // Then
+        expect(model.metadata.innerTextLength).toBe(document.body.innerText.length);
+        expect(model.metadata.outerHtmlLength).toBe(document.documentElement.outerHTML.length);
     });
 
     it('normalizes page basics text', () => {
@@ -246,7 +258,9 @@ describe('PageTrailCollector', () => {
         expect(model.metadata.containerElementsMaxDepth).toBe(2);
         expect(model.metadata).not.toHaveProperty('containerElementsTotal');
         expect(model.metadata).not.toHaveProperty('containerElementsLimitReached');
-        expect(model.mapStructureContainers((node) => node.container)[0]).not.toHaveProperty('importanceScore');
+        expect(
+            model.mapStructureTree((node) => ('container' in node ? node.container : undefined))[1],
+        ).not.toHaveProperty('importanceScore');
     });
 
     it('keeps locator cssSelector undefined while CSS selectors are unsupported', () => {
@@ -295,7 +309,7 @@ describe('PageTrailCollector', () => {
         // Then
         expect(model.contextOnly).toBe(true);
         const elements = [
-            ...model.mapStructureContainers((node) => node.container),
+            ...model.mapStructureTree((node) => ('container' in node ? [node.container] : [])).flat(),
             ...model.getContent(),
             ...model.getInteractive(),
         ];

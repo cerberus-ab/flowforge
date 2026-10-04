@@ -19,14 +19,14 @@
   },
   "dependencies": {
     "@flowforge/page-trail": "*",
-    "zod": "^4.3.6"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@tsconfig/node22": "^22.0.5",
-    "eslint": "^10.8.1",
-    "globals": "^17.9.0",
+    "@tsconfig/node22": "^22.0.6",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
     "typescript": "^6.0.2",
-    "typescript-eslint": "^8.66.0"
+    "typescript-eslint": "^8.71.0"
   }
 }

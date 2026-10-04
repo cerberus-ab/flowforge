@@ -1,0 +1,5 @@
+/* Inspector line metadata */
+.flowforge-inspector-line-metadata {
+  font: var(--flowforge-text-monospace-xs);
+  color: var(--flowforge-color-muted);
+}

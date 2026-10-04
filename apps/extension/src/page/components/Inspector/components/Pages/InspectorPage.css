@@ -1,0 +1,20 @@
+/* Inspector page */
+.flowforge-inspector-page {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+.flowforge-inspector-page--padded {
+  padding: var(--flowforge-pad-lg);
+}
+.flowforge-inspector-page--scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.flowforge-inspector-page--scroll::-webkit-scrollbar {
+  width: var(--flowforge-pad-xs);
+}
+.flowforge-inspector-page--scroll::-webkit-scrollbar-thumb {
+  background: rgba(var(--flowforge-rgb-primary), 0.5);
+  border-radius: 999px;
+}

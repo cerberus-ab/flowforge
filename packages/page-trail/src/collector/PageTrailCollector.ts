@@ -5,6 +5,7 @@ import type {
     ElementId,
     InteractiveElement,
     PageBasics,
+    PageMetadata,
 } from '../types/index.ts';
 
 import { ContainerTree } from './extractors/index.ts';
@@ -17,6 +18,7 @@ import type { ExtractedElements } from './extractors/ExtractedElements.ts';
 import { extractContainerElements } from './extractors/container.ts';
 import { PageTrail } from '../PageTrail.ts';
 import { VERSION } from '../version.ts';
+import { extractPageMetadata } from './extractors/metadata.ts';
 
 interface CollectorCommonOptions {
     /** Maximum number of content elements to keep after importance scoring. */
@@ -79,8 +81,9 @@ export class PageTrailCollector {
 
     collect(): PageTrail {
         const t0 = performance.now();
-        // collect basics
-        const basics = this.collectPageBasics();
+        // collect metadata and basics
+        const pageMetadata = this.collectPageMetadata();
+        const pageBasics = this.collectPageBasics();
         const t1_basics = performance.now();
         // collect containers and build the structure
         const containerElements = this.collectContainerElements();
@@ -90,7 +93,7 @@ export class PageTrailCollector {
         const contentElements = this.collectContentElements(containerTree);
         const t3_content = performance.now();
         // collect interactive elements
-        const interactiveElements = this.collectInteractiveElements(basics, containerTree);
+        const interactiveElements = this.collectInteractiveElements(pageBasics, containerTree);
         const t4_interactive = performance.now();
         // complete the structure
         for (const element of contentElements) {
@@ -108,7 +111,8 @@ export class PageTrailCollector {
 
         const metadata: CollectionMetadata = {
             version: VERSION,
-            // stats
+            ...pageMetadata,
+            // elements
             containerElements: containerElements.length,
             containerElementsMatched: containerElements.matched,
             containerElementsMaxDepth: containerTree.getMaxDepth(),
@@ -132,7 +136,7 @@ export class PageTrailCollector {
             },
         };
 
-        return new PageTrail(this.options.contextOnly, basics, containerTree.structure, elements, metadata);
+        return new PageTrail(this.options.contextOnly, pageBasics, containerTree.structure, elements, metadata);
     }
 
     /**
@@ -140,6 +144,10 @@ export class PageTrailCollector {
      */
     static collectFor(win: Window, doc: Document, options: CollectorOptions): PageTrail {
         return new PageTrailCollector(win, doc, options).collect();
+    }
+
+    private collectPageMetadata(): PageMetadata {
+        return extractPageMetadata(this.document);
     }
 
     private collectPageBasics(): PageBasics {

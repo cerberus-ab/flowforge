@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { createContainerElementFixture } from '../../../test/fixtures';
-import { semContainerElement } from './container';
+import {
+    createContainerElementFixture,
+    createContentElementFixture,
+    createInteractiveElementFixture,
+} from '../../../test/fixtures';
+import { semContainerElement, semContainerRootNode, semContainerTreeNode } from './container';
 
 describe('semContainerElement', () => {
     it('formats container role and labels without element context', () => {
@@ -36,5 +40,29 @@ describe('semContainerElement', () => {
                 }),
             ).text(),
         ).toBe('Section. Name: Checkout');
+    });
+});
+
+describe('semContainerTreeNode', () => {
+    it('formats the container and direct element counts', () => {
+        const node = {
+            container: createContainerElementFixture({
+                role: 'main content',
+                labels: [{ source: 'aria-label' as const, value: 'Products' }],
+            }),
+            content: [createContentElementFixture(), createContentElementFixture()],
+            interactive: [createInteractiveElementFixture()],
+            nodes: [],
+        };
+
+        expect(semContainerTreeNode(node).text()).toBe(
+            'Main content. Name: Products. Contains: 2 content(s), 1 interaction(s)',
+        );
+    });
+});
+
+describe('semContainerRootNode', () => {
+    it('formats the root and omits empty element counts', () => {
+        expect(semContainerRootNode({ content: [], interactive: [], nodes: [] }).text()).toBe('Root');
     });
 });

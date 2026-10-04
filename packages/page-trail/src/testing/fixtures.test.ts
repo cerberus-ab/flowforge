@@ -14,6 +14,8 @@ describe('PageTrail test fixtures', () => {
                 viewport: { width: 1440 },
             },
             metadata: {
+                innerTextLength: 120,
+                outerHtmlLength: 450,
                 contentElements: 2,
                 performance: { totalMs: 10 },
             },
@@ -30,6 +32,8 @@ describe('PageTrail test fixtures', () => {
         expect(dto.metadata).toEqual(
             expect.objectContaining({
                 version: VERSION,
+                innerTextLength: 120,
+                outerHtmlLength: 450,
                 contentElements: 2,
                 interactiveElements: 0,
                 performance: expect.objectContaining({ basicsMs: 0, totalMs: 10 }),

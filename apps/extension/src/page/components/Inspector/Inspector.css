@@ -1,7 +1,10 @@
+@import './constants.css';
+
+@import './components/Pages/InspectorPage.css';
+@import './components/Pages/InspectorPageMarkdown.css';
+@import './components/Metadata/InspectorLineMetadata.css';
+
 /* Inspector */
-.flowforge-inspector {
-  --flowforge-inspector-max-width: 1080px;
-}
 .flowforge-inspector-container {
   position: fixed;
   inset: 0;
@@ -92,16 +95,9 @@
 .flowforge-inspector__content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: var(--flowforge-pad-lg);
-}
-.flowforge-inspector__content::-webkit-scrollbar {
-  width: var(--flowforge-pad-xs);
-}
-.flowforge-inspector__content::-webkit-scrollbar-thumb {
-  background: rgba(var(--flowforge-rgb-primary), 0.5);
-  border-radius: 999px;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
 }
 
 /* Footer */
@@ -125,8 +121,4 @@
     rgba(var(--flowforge-rgb-shadow), 0.4)
   );
   pointer-events: none;
-}
-.flowforge-inspector-page-metadata {
-  font: var(--flowforge-text-monospace-xs);
-  color: var(--flowforge-color-muted);
 }

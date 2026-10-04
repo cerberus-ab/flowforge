@@ -10,6 +10,7 @@ import type {
 import { semContainerElement } from '../element/container.ts';
 import { semContentElement } from '../element/content.ts';
 import { semInteractiveElement } from '../element/interactive.ts';
+import { placeholder } from '../constants.ts';
 
 type PresentEnrichedContainerElement = ContainerElement & { semanticText: string };
 type PresentEnrichedContainerPathNode = Omit<ContainerPathNode, 'container'> & {
@@ -71,7 +72,7 @@ function presentEnrichedContainerTree(container: ContainerTreeNode[]): PresentEn
  */
 export function presentEnrichedStructure(structure: ContainerRootNode): PresentEnrichedStructure {
     return {
-        semanticText: 'root',
+        semanticText: placeholder.ROOT,
         nodes: presentEnrichedContainerTree(structure.nodes),
     };
 }

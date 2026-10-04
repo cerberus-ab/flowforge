@@ -22,6 +22,7 @@ describe('PageTrail DTO conversion', () => {
         });
         const interactive = createInteractiveElementFixture({ id: 3 });
         const pageTrail = createPageTrailFixture({
+            metadata: { innerTextLength: 120, outerHtmlLength: 450 },
             structure: {
                 content: [],
                 interactive: [],
@@ -47,6 +48,7 @@ describe('PageTrail DTO conversion', () => {
             },
         });
         expect(dto.elements[1]).not.toHaveProperty('context.path.0.container');
+        expect(dto.metadata).toMatchObject({ innerTextLength: 120, outerHtmlLength: 450 });
     });
 
     it('restores shared container references after a JSON roundtrip', () => {
@@ -75,7 +77,9 @@ describe('PageTrail DTO conversion', () => {
         const restored = PageTrail.fromDto(serializedDto);
 
         // Then
-        const structureContainer = restored.mapStructureContainers((node) => node.container)[0];
+        const structureContainer = restored.mapStructureTree((node) =>
+            'container' in node ? node.container : undefined,
+        )[1];
         const contextContainer = restored.getContent()[0]!.context.path[0]!.container;
         expect(contextContainer).toBe(structureContainer);
         expect(restored.getStructure().content[0]).toBe(restored.getContent()[0]);
@@ -97,6 +101,22 @@ describe('PageTrail DTO conversion', () => {
         // Then
         expect(restored.contextOnly).toBe(true);
         expect(restored.getContent()[0]?.locator).toBeUndefined();
+    });
+
+    it('preserves page size metadata after a JSON roundtrip', () => {
+        // Given
+        const dto = createPageTrailFixture({
+            metadata: { innerTextLength: 120, outerHtmlLength: 450 },
+        }).toDto();
+        const serializedDto = JSON.parse(JSON.stringify(dto)) as ReturnType<PageTrail['toDto']>;
+
+        // When
+        const restored = PageTrail.fromDto(serializedDto);
+
+        // Then
+        expect(restored.metadata.innerTextLength).toBe(120);
+        expect(restored.metadata.outerHtmlLength).toBe(450);
+        expect(restored.toDto().metadata).toEqual(serializedDto.metadata);
     });
 
     it('rejects a structure reference to an unknown container', () => {
@@ -280,5 +300,80 @@ describe('PageTrail elements', () => {
         expect(pageTrail.getStructure()).toEqual(original);
         expect(pageTrail.getStructure().content).toEqual([rootContentLow, rootContentHigh]);
         expect(pageTrail.getStructure().nodes[0]!.content).toEqual([nestedContentLow, nestedContentHigh]);
+    });
+});
+
+describe('PageTrail structure traversal', () => {
+    it('maps the root and container nodes in depth-first order', () => {
+        // Given
+        const first = createContainerElementFixture({ id: 1 });
+        const nested = createContainerElementFixture({ id: 2 });
+        const second = createContainerElementFixture({ id: 3 });
+        const pageTrail = createPageTrailFixture({
+            structure: {
+                content: [],
+                interactive: [],
+                nodes: [
+                    {
+                        container: first,
+                        content: [],
+                        interactive: [],
+                        nodes: [{ container: nested, content: [], interactive: [], nodes: [] }],
+                    },
+                    { container: second, content: [], interactive: [], nodes: [] },
+                ],
+            },
+        });
+
+        // When
+        const mapped = pageTrail.mapStructureTree((node, depth) => ({
+            id: 'container' in node ? node.container.id : 'root',
+            depth,
+        }));
+
+        // Then
+        expect(mapped).toEqual([
+            { id: 'root', depth: 0 },
+            { id: 1, depth: 1 },
+            { id: 2, depth: 2 },
+            { id: 3, depth: 1 },
+        ]);
+    });
+
+    it('limits descendant depth and sibling branches while retaining the root', () => {
+        // Given
+        const pageTrail = createPageTrailFixture({
+            structure: {
+                content: [],
+                interactive: [],
+                nodes: [
+                    {
+                        container: createContainerElementFixture({ id: 1 }),
+                        content: [],
+                        interactive: [],
+                        nodes: [
+                            {
+                                container: createContainerElementFixture({ id: 2 }),
+                                content: [],
+                                interactive: [],
+                                nodes: [],
+                            },
+                        ],
+                    },
+                    {
+                        container: createContainerElementFixture({ id: 3 }),
+                        content: [],
+                        interactive: [],
+                        nodes: [],
+                    },
+                ],
+            },
+        });
+
+        // When
+        const mapped = pageTrail.mapStructureTree((node) => ('container' in node ? node.container.id : 'root'), 1, 1);
+
+        // Then
+        expect(mapped).toEqual(['root', 1]);
     });
 });

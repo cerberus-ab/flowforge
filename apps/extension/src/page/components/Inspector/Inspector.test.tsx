@@ -91,4 +91,37 @@ describe('Inspector', () => {
         // Then
         expect(close).toHaveBeenCalledTimes(3);
     });
+
+    it('configures the Markdown preview with blocks and detail level', () => {
+        // Given
+        renderInspector({ initialTab: 'markdown' });
+
+        // Then
+        const detailLevel = screen.getByLabelText('Detail level') as HTMLSelectElement;
+        const basics = screen.getByRole('switch', { name: 'Basics' });
+        const markdownViewer = screen.getByTestId('flowforge-markdown-viewer');
+        expect(detailLevel.value).toBe('standard');
+        expect(basics.getAttribute('aria-checked')).toBe('true');
+        expect(basics.classList.contains('flowforge-switch--wide')).toBe(true);
+        expect(markdownViewer.textContent).toContain('## Basics');
+        expect(screen.getByText(/Compact: A short overview with the most important page details\./)).toBeTruthy();
+        expect(screen.getByText('The page title, URL, description, language, and current viewport.')).toBeTruthy();
+
+        const tokenStat = screen.getByTestId('flowforge-markdown-stat-tokens');
+        expect(tokenStat.textContent).toContain('Estimated tokens');
+        expect(tokenStat.textContent).toMatch(/~\d+/);
+        expect(tokenStat.querySelector('.flowforge-inspector-page-markdown__size-track')?.className).toContain(
+            '--transparent',
+        );
+        expect(screen.getByText('Size by characters')).toBeTruthy();
+
+        // When
+        fireEvent.click(basics);
+        fireEvent.change(detailLevel, { target: { value: 'compact' } });
+
+        // Then
+        expect(basics.getAttribute('aria-checked')).toBe('false');
+        expect(detailLevel.value).toBe('compact');
+        expect(markdownViewer.textContent).not.toContain('## Basics');
+    });
 });
