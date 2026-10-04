@@ -8,7 +8,7 @@ Chrome extension and embeddable browser runtime that handle UI interaction, page
 
 - Extract a runtime `PageTrail` with DOM locators
 - Send its serialized `PageTrailDto` with user queries to the backend
-- Render answers, highlights, wizard steps, and Inspector UI
+- Render answers, highlights, wizard steps, and Inspector UI, including Markdown settings and size stats
 - Route messages between popup, page runtime, and backend
 - Store settings and per-domain question history locally
 

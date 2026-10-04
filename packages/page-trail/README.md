@@ -78,13 +78,13 @@ pageTrail.getStructure();
 pageTrail.getContentByImportanceDesc();
 pageTrail.getInteractiveByImportanceDesc();
 pageTrail.getStructureByImportanceDesc();
-semMarkdown(pageTrail);
+Markdown.from(pageTrail, options);
 ```
 
 ## Usage
 
 ```ts
-import { PageTrail, PageTrailCollector, semMarkdown } from '@flowforge/page-trail';
+import { Markdown, PageTrail, PageTrailCollector } from '@flowforge/page-trail';
 
 const pageTrail = PageTrailCollector.collectFor(window, document, {
     getElementDataId: (element) => getOrCreateDataId(element),
@@ -92,7 +92,9 @@ const pageTrail = PageTrailCollector.collectFor(window, document, {
 
 const dto = pageTrail.toDto();
 const restored = PageTrail.fromDto(JSON.parse(JSON.stringify(dto)));
-const preview = semMarkdown(restored);
+
+const markdown = Markdown.from(restored, { detailLevel: 'standard', blocks: ['basics', 'content'] });
+const preview = markdown.toString();
 ```
 
 For context without DOM resolution, collect with `{ contextOnly: true }`. Tests in consuming packages can reuse fixtures from `@flowforge/page-trail/testing`.
