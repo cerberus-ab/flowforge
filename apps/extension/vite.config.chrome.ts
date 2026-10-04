@@ -2,10 +2,10 @@ import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import { crx } from '@crxjs/vite-plugin';
 // @ts-expect-error an explicit extension for Vite import
-import manifest from './src/chrome/manifest.config.ts';
+import manifest from './src/chrome/assistant/manifest.config.ts';
 
 export default defineConfig({
-    root: 'src/chrome',
+    root: 'src/chrome/assistant',
     resolve: {
         tsconfigPaths: true,
     },
@@ -19,7 +19,7 @@ export default defineConfig({
         target: 'esnext',
         sourcemap: true,
         modulePreload: false,
-        outDir: '../../dist/chrome',
+        outDir: '../../../dist/chrome/assistant',
         emptyOutDir: true,
     },
 });

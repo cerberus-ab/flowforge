@@ -5,7 +5,7 @@ import styles from '@/page/page.css?inline';
 import { PageApp } from '@/page/PageApp';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
 import { ShadowRootInjector } from '@/core/services/RootInjector';
-import { chromeConstants } from '@/chrome/constants';
+import { chromeConstants } from '@/chrome/assistant/constants';
 import { Main } from '@/shared/components/Main';
 import { useSettings } from '@/shared/hooks/useSettings';
 import type { TransportService } from '@/adapters/interface';

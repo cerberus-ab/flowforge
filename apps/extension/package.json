@@ -3,7 +3,7 @@
   "version": "0.2.2",
   "description": "Browser extension for AI-powered web application onboarding",
   "private": true,
-  "main": "dist/chrome/action/popup/index.html",
+  "main": "dist/chrome/assistant/action/popup/index.html",
   "type": "module",
   "engines": {
     "node": ">=22"
