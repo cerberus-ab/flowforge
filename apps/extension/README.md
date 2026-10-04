@@ -23,9 +23,9 @@ npm run sandbox
 
 ## Builds
 
-- `npm run build:chrome` — Chrome extension
+- `npm run build:chrome` — assistant and Inspector Chrome extensions
 - `npm run build:embed` — embeddable runtime
-- `npm run build` — both builds
+- `npm run build` — all builds
 
 ## Load in Chrome
 
