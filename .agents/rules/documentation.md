@@ -48,7 +48,7 @@ If something is unclear or missing, omit it.
 - `packages/page-trail/README.md` — canonical DOM representation (`PageTrail`).
 - `packages/page-trail/docs/scoring.md` — PageTrail scoring flow and formulas.
 - `apps/backend/README.md` — backend responsibilities and usage.
-- `apps/extension/README.md` — extension responsibilities and usage.
+- `apps/extension/README.md` — Assistant, Page Inspector, and embed runtime usage.
 
 ## Target structure
 
@@ -64,6 +64,7 @@ Target length: 100–120 lines.
 - Quick start
 - Usage
 - Security
+- Page Inspector
 - Roadmap
 - Documentation
 - License
@@ -132,11 +133,14 @@ Target length: 50–60 lines.
 
 ### `apps/extension/README.md`
 
-Target length: 50–60 lines.
+Target length: 70–90 lines.
 
 - Purpose
 - Responsibilities
 - Run
+- Builds
 - Load in Chrome
+- Embed runtime
+- Page Inspector
 - Key parts
 - Notes

@@ -3,8 +3,9 @@
 ## Overview
 
 FlowForge is a Web Onboarding Assistant that provides contextual UI guidance in
-web applications. It is an npm workspace project with a browser extension,
-backend, and shared packages.
+web applications. It is an npm workspace project with an Assistant browser
+extension, a standalone Page Inspector Chrome extension, backend, and shared
+packages.
 
 ## Precedence
 

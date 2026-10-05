@@ -34,7 +34,8 @@ Use these rules when adding or updating tests.
 - Use Playwright for e2e tests under `test/e2e`.
 - Use the extension sandbox pages as the tested site for e2e coverage.
 - Use `data-testid` locators for extension UI in Playwright tests. Avoid text, role, CSS, and structural locators unless there is no stable test id.
-- Keep Chrome and embed e2e tests aligned because they cover the same product behavior with different runtime setup.
+- Keep Assistant Chrome and embed e2e tests aligned where they cover the same behavior with different runtime setup.
+- Keep Inspector Chrome e2e coverage small and avoid duplicating detailed Assistant scenarios.
 - For shared Chrome/embed e2e behavior, prefer similarly written explicit tests over over-engineered shared runners. The setup may differ; the scenario shape should stay the same.
 
 ## `apps/backend`

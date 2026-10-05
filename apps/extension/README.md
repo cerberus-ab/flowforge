@@ -2,62 +2,70 @@
 
 ## Purpose
 
-Chrome extension and embeddable browser runtime that handle UI interaction, page data extraction, and visual guidance based on backend responses.
+Browser runtimes for the FlowForge Assistant, its embedded delivery, and an additional Page Inspector Chrome extension.
 
 ## Responsibilities
 
-- Extract a runtime `PageTrail` with DOM locators
-- Send its serialized `PageTrailDto` with user queries to the backend
-- Render answers, highlights, wizard steps, and Inspector UI, including Markdown settings and size stats
+- Collect a runtime `PageTrail` from the current page
+- Send Assistant questions and `PageTrailDto` data to the backend
+- Render answers, highlights, wizard steps, and Inspector views
 - Route messages between popup, page runtime, and backend
-- Store settings and per-domain question history locally
+- Store settings and per-domain Assistant history locally
 
 ## Run
 
+From the repository root:
+
 ```bash
-npm i
-npm run build
-npm run dev
-npm run sandbox
+npm install
+npm run build -w @flowforge/extension
+npm run dev -w @flowforge/extension
+npm run sandbox -w @flowforge/extension
 ```
 
 ## Builds
 
-- `npm run build:chrome` — assistant and Inspector Chrome extensions
-- `npm run build:embed` — embeddable runtime
-- `npm run build` — all builds
+- `build:chrome:assistant` → `dist/chrome/assistant`
+- `build:chrome:inspector` → `dist/chrome/inspector`
+- `build:chrome` — both Chrome extensions
+- `build:embed` → `dist/embed`
+- `build` — all extension builds
+
+Development commands are `dev:chrome:assistant`, `dev:chrome:inspector`, and `dev:embed`.
 
 ## Load in Chrome
 
-1. Open `chrome://extensions/`
-2. Enable **Developer mode**
-3. Click **Load unpacked**
-4. Select `apps/extension/dist/chrome/assistant`
+1. Build the required Chrome extension.
+2. Open `chrome://extensions/`.
+3. Enable **Developer mode**.
+4. Select **Load unpacked**.
+5. Select `apps/extension/dist/chrome/assistant` or `apps/extension/dist/chrome/inspector`.
+
+The Assistant requires the backend at `http://localhost:3477`.
 
 ## Embed runtime
 
-`build:embed` creates a bundle and declaration file under `dist/embed`:
+`build:embed` creates the bundle and declarations under `dist/embed`. `Runtime.start()` uses the backend, while `Runtime.demo()` uses predefined responses. Runtime instances expose popup, Inspector, and lifecycle methods.
 
-- `Runtime.start()` — uses the local backend
-- `Runtime.demo()` — uses predefined demo Q&A responses
-- `openPopup()`, `closePopup()`, `openPageInspector()`, `destroy()` on runtime instances
-
-Initial settings can be passed to `Runtime.start()` or `Runtime.demo()`:
+Initial settings can be passed when starting the runtime:
 
 ```ts
 await FlowForge.start({ settings: { theme: 'dark' } });
 ```
 
+## Page Inspector
+
+Page Inspector displays the current page's `PageTrail` locally and does not require the backend.
+
 ## Key parts
 
-- `popup/` — user interface and interaction logic
-- `page/` — page overlay, highlighting, wizard, inspector, and collection hooks
-- `background/`, `chrome/`, `embed/` — worker, extension shell, and embed runtime
-- `core/` and `adapters/` — API, storage, locator, root injection, and transport
+- `src/chrome/` — Assistant and Page Inspector manifests and entry points
+- `src/popup/`, `src/page/`, `src/background/` — shared UI and message handling
+- `src/embed/` — embedded runtime
+- `src/core/`, `src/adapters/` — services and runtime boundaries
 
 ## Notes
 
-- Chrome extension requires backend on http://localhost:3477
-- Sandbox runs on http://localhost:3007 with backend and demo modes
-- Limited by browser security (iframes, cross-origin content)
-- See [Architecture](../../docs/architecture.md) for system design
+- Sandbox runs at `http://localhost:3007` with backend and demo modes.
+- Browser security limits access to restricted pages and cross-origin frames.
+- See [Architecture](../../docs/architecture.md) for system design.

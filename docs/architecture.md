@@ -4,6 +4,8 @@
 
 FlowForge is a client–server system that connects user intent to UI-level actions. A Chrome extension or embeddable runtime handles page/UI work; the backend runs the AI agent and RAG pipeline.
 
+Browser runtimes represent page context as [`PageTrail`](../packages/page-trail/README.md), the shared canonical DOM representation.
+
 ![Architecture overview](assets/architecture-overview.webp)
 
 ## Components
@@ -52,7 +54,7 @@ Inference layer supporting Ollama or OpenAI models for embeddings and generation
 
 ## Pipeline
 
-High-level overview of the DOM-to-RAG pipeline:
+High-level overview of the [DOM-to-RAG pipeline](dom-to-rag-pipeline.md):
 
 1. **Extraction** — DOM → runtime `PageTrail` → serializable `PageTrailDto`
 2. **Transformation** — restored `PageTrail` → semantic `IndexableDocuments` with metadata

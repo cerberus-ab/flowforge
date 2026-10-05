@@ -84,13 +84,23 @@ This installs dependencies, builds backend and extension, guides Chrome installa
 
 Note: As an early-stage MVP, security is evolving and not yet production-ready.
 
+## Page Inspector
+
+The project also includes a standalone Chrome extension for inspecting the current web page locally, without a backend.
+
+<p align="left">
+  <img src="./docs/assets/use-cases-pi.webp" width="960" />
+</p>
+
+When using **Load unpacked**, select `apps/extension/dist/chrome/inspector`.
+
 ## Roadmap
 
 Focus areas:
 
 1. Improve the core engine: extractors, embeddings, reasoning, and tools
 2. Extend context from single pages to full websites
-3. Build a proper standalone extension distribution
+3. Improve browser runtime and extension distribution
 
 [Backlog](BACKLOG.md) — the full list of features and improvements
 
