@@ -21,9 +21,17 @@ export default defineManifest({
     ],
     action: {
         default_popup: 'action/popup/index.html',
-        default_icon: 'action/icon.png',
+        default_icon: {
+            16: 'action/icon-16.png',
+            32: 'action/icon-32.png',
+            48: 'action/icon-48.png',
+            128: 'action/icon-128.png',
+        },
     },
     icons: {
-        128: 'action/icon.png',
+        16: 'action/icon-16.png',
+        32: 'action/icon-32.png',
+        48: 'action/icon-48.png',
+        128: 'action/icon-128.png',
     },
 });
