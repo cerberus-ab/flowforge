@@ -8,7 +8,7 @@ import { chromeConstants } from '@/chrome/inspector/constants';
 import type { TransportService } from '@/adapters/interface';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
-import { useInspectorPage } from '@/chrome/inspector/contentScripts/hooks/useInspectorPage.ts';
+import { useInspectorPage } from '@/chrome/inspector/contentScripts/hooks/useInspectorPage';
 import { Inspector } from '@/page/components/Inspector';
 
 interface InspectorPageAppProps {

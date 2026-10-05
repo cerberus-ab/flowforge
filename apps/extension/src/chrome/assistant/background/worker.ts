@@ -4,7 +4,7 @@ import { HistoryStorage } from '@/core/services/HistoryStorage';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
 import { ChromeLocalStorage } from '@/adapters/chrome/ChromeLocalStorage';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
-import { BackgroundWorker } from '@/background/BackgroundWorker.ts';
+import { BackgroundWorker } from '@/background/BackgroundWorker';
 
 (function main() {
     const transport = new ChromeTransportService();

@@ -16,7 +16,7 @@ export default defineManifest({
         {
             matches: ['<all_urls>'],
             js: ['contentScripts/page.tsx'],
-            run_at: 'document_idle',
+            run_at: 'document_end',
         },
     ],
     action: {

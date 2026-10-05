@@ -23,6 +23,7 @@ test('starts the embedded runtime automatically', async ({ page }) => {
 
     // Then
     await expect(shellRoot).toBeAttached();
+    await expect(shellRoot).toHaveAttribute('id', 'flowforge-embed-shell-root');
     await expect.poll(() => shellRoot.evaluate((root) => Boolean(root.shadowRoot))).toBe(true);
     await expect(page.getByTestId('flowforge-trigger')).toBeVisible();
 });

@@ -4,6 +4,10 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Fixed enriched presentation for structure in Page inspector.
+
 ## [0.2.2] - 2026-10-04
 
 ### Added

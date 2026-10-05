@@ -17,6 +17,46 @@ function pathNode(container: ContainerPathNode['container'], distance = 0): Cont
 }
 
 describe('enriched semantic presentation', () => {
+    it('adds semantic text to root content and interactive elements', () => {
+        // Given
+        const content = createContentElementFixture({
+            text: 'Welcome',
+            context: {
+                path: [pathNode(createContainerElementFixture({ role: 'main content' }))],
+                breadcrumbs: [0],
+                contextScore: { value: 0.5 },
+            },
+        });
+        const interactive = createInteractiveElementFixture({
+            text: 'Save changes',
+        });
+        const structure: ContainerRootNode = {
+            content: [content],
+            interactive: [interactive],
+            nodes: [],
+        };
+
+        // When
+        const enriched = presentEnrichedStructure(structure);
+
+        // Then
+        expect(enriched.content).toMatchObject([
+            {
+                text: 'Welcome',
+                semanticText: 'Text: Welcome. Context: main content',
+                context: {
+                    path: [{ container: { semanticText: 'Main content' } }],
+                },
+            },
+        ]);
+        expect(enriched.interactive).toMatchObject([
+            {
+                text: 'Save changes',
+                semanticText: 'Button. Name: Save changes. Action: click action',
+            },
+        ]);
+    });
+
     it('adds semantic text to every container tree node', () => {
         // Given
         const structure: ContainerRootNode = {

@@ -8,6 +8,7 @@ export default defineConfig({
     },
     test: {
         environment: 'happy-dom',
+        pool: 'vmThreads',
         include: ['src/**/*.{test,spec}.{ts,tsx}'],
         setupFiles: ['./test/unit/setup.ts'],
         reporters: ['default', 'junit'],

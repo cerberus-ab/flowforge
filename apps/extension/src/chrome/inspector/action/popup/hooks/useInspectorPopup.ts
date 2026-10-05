@@ -1,7 +1,7 @@
 import { config } from '@/config';
 import { useCallback, useEffect } from 'preact/hooks';
 import type { MessageResponse, OpenPageInspectorMessage, PopupInitializeMessage } from '@/types';
-import type { TransportService } from '@/adapters/interface.ts';
+import type { TransportService } from '@/adapters/interface';
 
 export interface UseInspectorPopupOptions {
     transport: TransportService;

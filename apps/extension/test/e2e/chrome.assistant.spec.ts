@@ -1,7 +1,9 @@
-import { expect, openExtensionPopup, test } from './fixtures/chromeExtension';
+import { expect, extensionPaths, openExtensionPopup, test } from './fixtures/chromeExtension';
 import { createQueryResponseFixture } from '../fixtures';
 import { mockQuery } from './fakes/mockQuery';
 import { expectHighlightToCoverTarget } from './utils';
+
+test.use({ extensionPath: extensionPaths.assistant });
 
 const directTarget = {
     dataId: 'ff10000011',
@@ -21,6 +23,7 @@ test('injects the Chrome content script into the sandbox page', async ({ page })
 
     // Then
     await expect(pageRoot).toBeAttached();
+    await expect(pageRoot).toHaveAttribute('id', 'flowforge-chrome-page-root');
     await expect.poll(() => pageRoot.evaluate((root) => Boolean(root.shadowRoot))).toBe(true);
     await expect(page.getByTestId('flowforge-page')).toBeAttached();
 });
@@ -30,6 +33,7 @@ test('opens the Chrome extension popup page', async ({ context, extensionId }) =
     const popup = await openExtensionPopup(context, extensionId);
 
     // Then
+    await expect(popup.locator('#flowforge-chrome-popup-root')).toHaveAttribute('id', 'flowforge-chrome-popup-root');
     await expect(popup.getByTestId('flowforge-popup')).toBeVisible();
     await expect(popup.getByTestId('flowforge-question-input')).toBeVisible();
     await expect(popup.getByTestId('flowforge-question-submit')).toBeVisible();

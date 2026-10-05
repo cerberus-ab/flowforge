@@ -22,6 +22,8 @@ type PresentEnrichedContainerTreeNode = Omit<ContainerTreeNode, 'container' | 'n
 };
 type PresentEnrichedStructure = {
     nodes: PresentEnrichedContainerTreeNode[];
+    content: PresentEnrichedContentElement[];
+    interactive: PresentEnrichedInteractiveElement[];
     semanticText: string;
 };
 type PresentEnrichedElementContext = Omit<ElementContext, 'path'> & { path: PresentEnrichedContainerPathNode[] };
@@ -55,6 +57,22 @@ function presentEnrichedElementContext(context: ElementContext): PresentEnriched
     };
 }
 
+function presentEnrichedElementContent(element: ContentElement): PresentEnrichedContentElement {
+    return {
+        ...element,
+        context: presentEnrichedElementContext(element.context),
+        semanticText: semContentElement(element).text(),
+    };
+}
+
+function presentEnrichedElementInteractive(element: InteractiveElement): PresentEnrichedInteractiveElement {
+    return {
+        ...element,
+        context: presentEnrichedElementContext(element.context),
+        semanticText: semInteractiveElement(element).text(),
+    };
+}
+
 function presentEnrichedContainerTree(container: ContainerTreeNode[]): PresentEnrichedContainerTreeNode[] {
     return container.map((containerNode) => ({
         ...containerNode,
@@ -74,6 +92,8 @@ export function presentEnrichedStructure(structure: ContainerRootNode): PresentE
     return {
         semanticText: placeholder.ROOT,
         nodes: presentEnrichedContainerTree(structure.nodes),
+        content: structure.content.map(presentEnrichedElementContent),
+        interactive: structure.interactive.map(presentEnrichedElementInteractive),
     };
 }
 
@@ -84,11 +104,7 @@ export function presentEnrichedStructure(structure: ContainerRootNode): PresentE
  * enriched with the container semantic text used to describe its surroundings.
  */
 export function presentEnrichedContent(content: ContentElement[]): PresentEnrichedContentElement[] {
-    return content.map((contentElement) => ({
-        ...contentElement,
-        context: presentEnrichedElementContext(contentElement.context),
-        semanticText: semContentElement(contentElement).text(),
-    }));
+    return content.map(presentEnrichedElementContent);
 }
 
 /**
@@ -98,9 +114,5 @@ export function presentEnrichedContent(content: ContentElement[]): PresentEnrich
  * is enriched so callers can render the element with readable context.
  */
 export function presentEnrichedInteractive(interactive: InteractiveElement[]): PresentEnrichedInteractiveElement[] {
-    return interactive.map((interactiveElement) => ({
-        ...interactiveElement,
-        context: presentEnrichedElementContext(interactiveElement.context),
-        semanticText: semInteractiveElement(interactiveElement).text(),
-    }));
+    return interactive.map(presentEnrichedElementInteractive);
 }
