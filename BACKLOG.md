@@ -42,6 +42,7 @@
 - Add page inspector loading state.
 - Add lazy rendering in `JsonViewer`.
 - Provide history data about page usage.
+- Evaluate Chrome Side Panel (`chrome.sidePanel`) as the UI surface for the Inspector.
 
 ### Backend
 

@@ -9,11 +9,11 @@ interface OpenerProps {
 
 export function Opener({ website, onOpenPageInspector }: OpenerProps) {
     return (
-        <Card title="Explore page context" variant="secondary" className="flowforge-inspector-opener">
+        <Card title="Inspect page context" variant="secondary" className="flowforge-inspector-opener">
             <div className="flowforge-inspector-opener__description">
                 <p>See what the current page contains and how it is organized.</p>
                 <ul>
-                    <li>Browse the page structure</li>
+                    <li>Explore the page structure</li>
                     <li>Review content and interactive elements</li>
                     <li>Preview the page as Markdown</li>
                 </ul>

@@ -102,12 +102,12 @@ export function presentPreviewStructure(structure: ContainerRootNode): PresentPr
  * Creates a compact, human-readable JSON preview of content elements.
  */
 export function presentPreviewContent(content: ContentElement[]): PresentPreviewContentElement[] {
-    return content.map((element) => presentPreviewContentElement(element));
+    return content.map(presentPreviewContentElement);
 }
 
 /**
  * Creates a compact, human-readable JSON preview of interactive elements.
  */
 export function presentPreviewInteractive(interactive: InteractiveElement[]): PresentPreviewInteractiveElement[] {
-    return interactive.map((element) => presentPreviewInteractiveElement(element));
+    return interactive.map(presentPreviewInteractiveElement);
 }

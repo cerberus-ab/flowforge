@@ -1,1 +1,1 @@
-export { Advanced } from './Advanced.tsx';
+export { Advanced } from './Advanced';

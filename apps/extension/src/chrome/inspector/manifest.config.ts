@@ -6,7 +6,7 @@ export default defineManifest({
     name: 'FlowForge — Page Inspector',
     version: pkg.version,
     description:
-        'Page Inspector helps you explore the structure, content, and interactive elements of the current web page.',
+        'Page Inspector helps to explore the structure, content, and interactive elements of the current web page.',
     permissions: ['activeTab', 'storage', 'scripting'],
     host_permissions: ['<all_urls>'],
     background: {
@@ -17,7 +17,7 @@ export default defineManifest({
         {
             matches: ['<all_urls>'],
             js: ['contentScripts/page.tsx'],
-            run_at: 'document_idle',
+            run_at: 'document_end',
         },
     ],
     action: {

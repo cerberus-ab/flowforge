@@ -2,7 +2,7 @@ import { config } from '@/config';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
 import { ChromeLocalStorage } from '@/adapters/chrome/ChromeLocalStorage';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
-import { InspectorBackgroundWorker } from './InspectorBackgroundWorker.ts';
+import { InspectorBackgroundWorker } from './InspectorBackgroundWorker';
 
 (function main() {
     const transport = new ChromeTransportService();

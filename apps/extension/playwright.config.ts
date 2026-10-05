@@ -31,7 +31,7 @@ export default defineConfig({
         },
         {
             name: 'chrome',
-            testMatch: /chrome\.spec\.ts/,
+            testMatch: /chrome\.(?:\w+\.)?spec\.ts/,
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: SANDBOX_URL,

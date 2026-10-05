@@ -22,7 +22,7 @@ export function Advanced({ onOpenPageInspector }: AdvancedProps) {
                                 data-testid="flowforge-open-inspector"
                                 onClick={() => void onOpenPageInspector('basics')}
                             >
-                                Explore page context
+                                Inspect page context
                             </Button>
                         </Tooltip>
                     </li>

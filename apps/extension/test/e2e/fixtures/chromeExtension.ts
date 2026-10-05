@@ -1,9 +1,15 @@
 import { chromium, expect, test as base, type BrowserContext, type Page } from '@playwright/test';
 
-const extensionPath = new URL('../../../dist/chrome/assistant', import.meta.url).pathname;
+export const extensionPaths = {
+    assistant: new URL('../../../dist/chrome/assistant', import.meta.url).pathname,
+    inspector: new URL('../../../dist/chrome/inspector', import.meta.url).pathname,
+};
 
-export const test = base.extend<{ context: BrowserContext; extensionId: string; page: Page }>({
-    context: async ({ baseURL }, use, testInfo) => {
+export const test = base.extend<{ context: BrowserContext; extensionId: string; page: Page; extensionPath: string }>({
+    extensionPath: ['', { option: true }],
+
+    context: async ({ baseURL, extensionPath }, use, testInfo) => {
+        if (!extensionPath) throw new Error('An extensionPath must be configured for Chrome e2e tests');
         const context = await chromium.launchPersistentContext(testInfo.outputPath('chrome-user-data'), {
             baseURL,
             channel: 'chromium',

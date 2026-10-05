@@ -17,6 +17,56 @@ function pathNode(container: ContainerPathNode['container'], distance = 0): Cont
 }
 
 describe('preview semantic presentation', () => {
+    it('creates a compact preview of root content and interactive elements', () => {
+        // Given
+        const structure: ContainerRootNode = {
+            content: [
+                createContentElementFixture({
+                    tag: 'p',
+                    text: 'Welcome',
+                    importanceScore: { value: 0.6 },
+                }),
+            ],
+            interactive: [
+                createInteractiveElementFixture({
+                    text: 'Save changes',
+                    importanceScore: { value: 0.7 },
+                }),
+            ],
+            nodes: [],
+        };
+
+        // When
+        const preview = presentPreviewStructure(structure);
+
+        // Then
+        expect(preview).toEqual({
+            semanticText: 'root',
+            nodes: [],
+            content: [
+                {
+                    tag: 'p',
+                    text: 'Welcome',
+                    semanticText: 'Text: Welcome',
+                    score: 0.6,
+                    context: [],
+                },
+            ],
+            interactive: [
+                {
+                    tag: 'button',
+                    role: 'button',
+                    labels: [],
+                    text: 'Save changes',
+                    semanticText: 'Button. Name: Save changes. Action: click action',
+                    score: 0.7,
+                    context: [],
+                    link: undefined,
+                },
+            ],
+        });
+    });
+
     it('creates a compact preview of the container tree', () => {
         // Given
         const structure: ContainerRootNode = {

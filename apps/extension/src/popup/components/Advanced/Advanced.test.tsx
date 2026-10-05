@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
-import { Advanced } from './Advanced.tsx';
+import { Advanced } from './Advanced';
 
 describe('Advanced', () => {
     it('opens inspector tabs from its actions', () => {

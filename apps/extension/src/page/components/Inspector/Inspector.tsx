@@ -142,7 +142,7 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                             Inspect page context
                         </h3>
                         <p id="flowforge-inspector-subtitle" className="flowforge-inspector__header-subtitle">
-                            See what FlowForge understands about this page
+                            See what the current page contains and how it is organized.
                         </p>
                     </div>
                     <div className="flowforge-inspector__header-ctrl">

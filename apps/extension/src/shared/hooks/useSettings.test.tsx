@@ -5,7 +5,7 @@ import type { TransportService } from '@/adapters/interface';
 import { config } from '@/config';
 import type { ExtensionSettings, Message, MessageResponse } from '@/types';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
-import { createSettingsFixture } from '../../../test/fixtures.ts';
+import { createSettingsFixture } from '../../../test/fixtures';
 import { useSettings } from './useSettings';
 
 const initialSettings = createSettingsFixture();
