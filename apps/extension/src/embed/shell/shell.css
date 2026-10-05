@@ -3,7 +3,7 @@
 @import '../../popup/index.css';
 @import '../../page/index.css';
 
-@import '../components/Trigger/Trigger.css';
+@import './components/Trigger/Trigger.css';
 
 .flowforge-shell .flowforge-page {
   z-index: 1;

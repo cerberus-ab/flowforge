@@ -7,8 +7,8 @@ import { getEventTarget } from '@/core/utils/dom';
 import { forwardRef } from 'preact/compat';
 import { PageApp } from '@/page/PageApp';
 import { useSettings } from '@/shared/hooks/useSettings';
-import { Trigger } from '@/embed/components/Trigger';
-import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
+import { Trigger } from '@/embed/shell/components/Trigger';
+import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
 
 export type ShellAppDemoProps = PopupAppDemoProps;
 

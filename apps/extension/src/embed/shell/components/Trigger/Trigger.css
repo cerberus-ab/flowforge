@@ -15,7 +15,7 @@
   pointer-events: auto;
   box-shadow: 0 4px 12px rgba(var(--flowforge-rgb-shadow), 0.4);
   background:
-    url('../../../shared/img/header-bg-sm.webp') right bottom no-repeat,
+    url('../../../../shared/img/header-bg-sm.webp') right bottom no-repeat,
     linear-gradient(
       135deg,
       var(--flowforge-color-primary) 0%,

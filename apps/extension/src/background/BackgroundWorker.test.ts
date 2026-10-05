@@ -1,288 +1,94 @@
-import type { PageTrailDto } from '@flowforge/contract';
-import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FakeApiClient, createQueryResponseFixture } from '../../test/unit/fakes/FakeApiClient';
-import { FakeLocalStorage } from '../../test/unit/fakes/FakeLocalStorage';
 import { FakeTransportService } from '../../test/unit/fakes/FakeTransportService';
-import { HistoryStorage } from '../core/services/HistoryStorage';
-import { SettingsStorage } from '../core/services/SettingsStorage';
-import type {
-    AskQuestionMessage,
-    ExtensionSettings,
-    GetPrevQuestionsMessage,
-    NavigateToElementMessage,
-    OpenPageInspectorMessage,
-    PopupInitializeMessage,
-    UpdateSettingsMessage,
-} from '@/types';
+import type { BackgroundMessageHandler } from './handlers/BackgroundMessageHandler';
 import { BackgroundWorker } from './BackgroundWorker';
 
 describe('BackgroundWorker', () => {
     beforeEach(() => {
         vi.spyOn(console, 'log').mockImplementation(() => undefined);
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
     });
 
-    it('registers and unregisters its message listener', async () => {
-        const transport = createTransport();
-        const worker = createWorker(transport);
-
+    it('routes messages to the first matching handler', async () => {
+        // Given
+        const transport = new FakeTransportService();
+        const skippedHandler: BackgroundMessageHandler = { handle: vi.fn(() => undefined) };
+        const matchingHandler: BackgroundMessageHandler = {
+            handle: vi.fn(() => ({ success: true as const })),
+        };
+        const trailingHandler: BackgroundMessageHandler = {
+            handle: vi.fn(() => ({ success: false as const, error: 'Must not run' })),
+        };
+        const worker = new BackgroundWorker(transport, [skippedHandler, matchingHandler, trailingHandler]);
         worker.start();
 
-        await expect(transport.dispatchToBackground({ type: 'GET_SETTINGS' })).resolves.toEqual({
-            success: true,
-            data: defaultSettings,
-        });
+        // When
+        const response = await transport.dispatchToBackground({ type: 'GET_SETTINGS' });
 
+        // Then
+        expect(response).toEqual({ success: true });
+        expect(skippedHandler.handle).toHaveBeenCalledOnce();
+        expect(matchingHandler.handle).toHaveBeenCalledOnce();
+        expect(trailingHandler.handle).not.toHaveBeenCalled();
+    });
+
+    it('unregisters its transport listener when stopped', async () => {
+        // Given
+        const transport = new FakeTransportService();
+        const worker = new BackgroundWorker(transport, [{ handle: () => ({ success: true }) }]);
+        worker.start();
+
+        // When
         worker.stop();
 
+        // Then
         await expect(transport.dispatchToBackground({ type: 'GET_SETTINGS' })).rejects.toThrow(
             'Message handler is not registered',
         );
     });
 
-    it('returns and updates settings', async () => {
-        const transport = createTransport();
-        const worker = createWorker(transport);
-
-        worker.start();
-
-        await expect(transport.dispatchToBackground({ type: 'GET_SETTINGS' })).resolves.toEqual({
-            success: true,
-            data: defaultSettings,
-        });
-
-        await expect(
-            transport.dispatchToBackground({
-                type: 'UPDATE_SETTINGS',
-                senderId: 7,
-                data: { patch: { theme: 'dark' } },
-            } satisfies UpdateSettingsMessage),
-        ).resolves.toEqual({
-            success: true,
-            data: { ...defaultSettings, theme: 'dark' },
-        });
-
-        expect(transport.getSentToPage()).toContainEqual({
-            senderId: 7,
-            message: {
-                type: 'SETTINGS_UPDATED',
-                data: { ...defaultSettings, theme: 'dark' },
-            },
-        });
-
-        worker.stop();
-    });
-
-    it('clears page state when the popup initializes', async () => {
-        const transport = createTransport();
-        const worker = createWorker(transport);
-
-        worker.start();
-
-        await expect(
-            transport.dispatchToBackground({
-                type: 'POPUP_INITIALISE',
-                senderId: 7,
-            } satisfies PopupInitializeMessage),
-        ).resolves.toEqual({
-            success: true,
-        });
-
-        expect(transport.getSentToPage()).toContainEqual({
-            senderId: 7,
-            message: { type: 'CLEAR_PAGE' },
-        });
-
-        worker.stop();
-    });
-
-    it('answers a question through page collection, API query, onboarding, and history', async () => {
-        const element = {
-            text: 'Save',
-            dataId: 'save-button',
-            cssSelector: '#save',
-            action: 'click',
-        } as const;
-        const response = createQueryResponseFixture({
-            result: {
-                answer: 'Click Save.',
-                elements: [element],
-                mode: 'steps',
-                topic: 'Saving',
-            },
-        });
-        const pageTrailDto = createPageTrailDtoFixture({
-            basics: {
-                url: 'https://app.flowforge.test/settings',
-                title: 'Settings page',
-                description: 'Application settings',
-                language: 'en',
-                viewport: {
-                    width: 1440,
-                    height: 900,
-                    scrollY: 120,
-                    scrollHeight: 1800,
-                },
-            },
-        });
-        const apiClient = new FakeApiClient(response);
-        const localStorage = new FakeLocalStorage();
-        const historyStorage = new HistoryStorage(localStorage, 5);
-        await historyStorage.saveQuestion('app.flowforge.test', 'Previous question');
-        const transport = createTransport({
-            hostname: 'app.flowforge.test',
-            pageTrailDto,
-        });
-        const worker = createWorker(transport, { apiClient, historyStorage });
-
-        worker.start();
-
-        await expect(
-            transport.dispatchToBackground({
-                type: 'ASK_QUESTION',
-                senderId: 7,
-                data: { question: 'How do I save?' },
-            } satisfies AskQuestionMessage),
-        ).resolves.toEqual({ success: true, data: response });
-
-        expect(transport.getSentToPage()).toEqual([
-            { senderId: 7, message: { type: 'CLEAR_PAGE' } },
-            { senderId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
+    it('converts a synchronous handler error to a failure response', async () => {
+        // Given
+        const transport = new FakeTransportService();
+        const worker = new BackgroundWorker(transport, [
             {
-                senderId: 7,
-                message: {
-                    type: 'START_ONBOARDING',
-                    data: {
-                        title: 'Saving',
-                        description: 'Click Save.',
-                        elements: [element],
-                        mode: 'steps',
-                    },
+                handle: () => {
+                    throw new Error('Settings unavailable');
                 },
             },
         ]);
-        expect(apiClient.requests).toEqual([
-            {
-                question: 'How do I save?',
-                pageTrailDto,
-                domain: 'app.flowforge.test',
-                userContext: {
-                    previousQuestions: ['Previous question'],
-                },
-            },
-        ]);
-        await expect(historyStorage.getPreviousQuestions('app.flowforge.test')).resolves.toEqual([
-            'How do I save?',
-            'Previous question',
-        ]);
-
-        worker.stop();
-    });
-
-    it('returns previous questions for the sender hostname', async () => {
-        const historyStorage = new HistoryStorage(new FakeLocalStorage(), 5);
-        await historyStorage.saveQuestion('app.flowforge.test', 'How do I save?');
-        const transport = createTransport({ hostname: 'app.flowforge.test' });
-        const worker = createWorker(transport, { historyStorage });
-
         worker.start();
 
-        await expect(
-            transport.dispatchToBackground({
-                type: 'GET_PREV_QUESTIONS',
-                senderId: 7,
-            } satisfies GetPrevQuestionsMessage),
-        ).resolves.toEqual({
-            success: true,
-            data: { questions: ['How do I save?'] },
-        });
+        // When
+        const response = await transport.dispatchToBackground({ type: 'GET_SETTINGS' });
 
-        worker.stop();
+        // Then
+        expect(response).toEqual({ success: false, error: 'Settings unavailable' });
+        expect(console.error).toHaveBeenCalledWith(
+            '[FlowForge] Background failed to handle GET_SETTINGS:',
+            expect.any(Error),
+        );
     });
 
-    it('navigates to elements and opens the inspector through page messages', async () => {
-        const transport = createTransport();
-        const worker = createWorker(transport);
-        const element = {
-            text: 'Save',
-            dataId: 'save-button',
-            cssSelector: '#save',
-            action: 'click',
-        } as const;
-
-        worker.start();
-
-        await expect(
-            transport.dispatchToBackground({
-                type: 'NAVIGATE_TO_ELEMENT',
-                senderId: 7,
-                data: { element },
-            } satisfies NavigateToElementMessage),
-        ).resolves.toEqual({ success: true });
-
-        await expect(
-            transport.dispatchToBackground({
-                type: 'OPEN_PAGE_INSPECTOR',
-                senderId: 7,
-                data: { tab: 'semantic' },
-            } satisfies OpenPageInspectorMessage),
-        ).resolves.toEqual({ success: true });
-
-        expect(transport.getSentToPage()).toEqual([
-            { senderId: 7, message: { type: 'CLEAR_PAGE' } },
+    it('converts an asynchronous handler error to a failure response', async () => {
+        // Given
+        const transport = new FakeTransportService();
+        const worker = new BackgroundWorker(transport, [
             {
-                senderId: 7,
-                message: {
-                    type: 'HIGHLIGHT_ELEMENT',
-                    data: { element },
-                },
-            },
-            { senderId: 7, message: { type: 'CLEAR_PAGE' } },
-            {
-                senderId: 7,
-                message: {
-                    type: 'OPEN_INSPECTOR',
-                    data: { tab: 'semantic' },
-                },
+                handle: () => Promise.reject(new Error('Page unavailable')),
             },
         ]);
+        worker.start();
 
-        worker.stop();
+        // When
+        const response = await transport.dispatchToBackground({ type: 'OPEN_PAGE_INSPECTOR' });
+
+        // Then
+        expect(response).toEqual({ success: false, error: 'Page unavailable' });
+        expect(console.error).toHaveBeenCalledWith(
+            '[FlowForge] Background failed to handle OPEN_PAGE_INSPECTOR:',
+            expect.any(Error),
+        );
     });
 });
-
-const defaultSettings: ExtensionSettings = {
-    theme: 'light',
-    devMode: false,
-};
-
-function createWorker(
-    transport: FakeTransportService,
-    {
-        apiClient = new FakeApiClient(),
-        historyStorage = new HistoryStorage(new FakeLocalStorage(), 5),
-        settingsStorage = new SettingsStorage(new FakeLocalStorage(), defaultSettings),
-    }: {
-        apiClient?: FakeApiClient;
-        historyStorage?: HistoryStorage;
-        settingsStorage?: SettingsStorage;
-    } = {},
-) {
-    return new BackgroundWorker(transport, apiClient, historyStorage, settingsStorage);
-}
-
-function createTransport({
-    hostname = 'localhost',
-    pageTrailDto = createPageTrailDtoFixture(),
-}: {
-    hostname?: string;
-    pageTrailDto?: PageTrailDto;
-} = {}) {
-    const transport = new FakeTransportService({
-        activeSenderId: 7,
-        senderHostname: hostname,
-    });
-    transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
-    return transport;
-}
