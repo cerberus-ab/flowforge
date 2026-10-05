@@ -4,19 +4,16 @@ import { render } from 'preact';
 
 import shellStyles from './shell/shell.css?inline';
 
-import type { TransportService } from '@/adapters/interface';
-import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
 import { config } from '@/config';
-import { HistoryStorage } from '@/core/services/HistoryStorage';
-import { SettingsStorage } from '@/core/services/SettingsStorage';
+import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
 import { BackgroundWorker } from '@/background/BackgroundWorker';
 import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
-import { EmbedLocalStorage } from '@/adapters/embed/EmbedLocalStorage';
 import type { AgentResult } from '@flowforge/contract';
 import { embedConstants } from '@/embed/constants';
-import type { TriggerSize } from '@/embed/components/Trigger/Trigger';
+import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
 import type { ExtensionSettings, MessageResponse, OpenPageInspectorMessage } from '@/types';
+import { createEmbedBackgroundWorker } from '@/embed/background/createWorker';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;
@@ -45,7 +42,7 @@ interface RuntimeApi {
 }
 
 export class Runtime implements RuntimeApi {
-    private readonly transport: TransportService;
+    private readonly transport: EmbedTransportService;
     private readonly shellRef: RefObject<ShellAppRef>;
     // on initialization
     private backgroundWorker?: BackgroundWorker;
@@ -134,11 +131,7 @@ export class Runtime implements RuntimeApi {
     }
 
     private startBackground(apiClient: ApiClient, initialSettings: Partial<ExtensionSettings> = {}): void {
-        const localStorage = new EmbedLocalStorage();
-        const historyStorage = new HistoryStorage(localStorage, config.questionsHistoryLimit);
-        const settingsStorage = new SettingsStorage(localStorage, config.defaultSettings, initialSettings);
-
-        this.backgroundWorker = new BackgroundWorker(this.transport, apiClient, historyStorage, settingsStorage);
+        this.backgroundWorker = createEmbedBackgroundWorker(this.transport, apiClient, initialSettings);
         this.backgroundWorker.start();
     }
 
