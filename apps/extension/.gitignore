@@ -2,6 +2,7 @@
 node_modules/
 
 # Build output
+src/chrome/*/action/icon*.png
 dist/
 reports/
 

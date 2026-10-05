@@ -1,0 +1,14 @@
+<svg width="256" height="256" viewBox="32 48 192 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Body -->
+  <path d="M54 142C78 108 118 94 154 94H198C191 116 178 132 158 144C142 154 122 160 94 166C76 170 62 178 54 194H112C160 194 196 170 210 126C215 109 218 90 220 70H154C103 70 65 93 44 132L54 142Z" fill="#6D28D9"/>
+  <!-- Main flow -->
+  <path d="M48 164C66 154 86 148 112 144C138 140 158 132 173 116C181 107 186 98 190 86" stroke="#F97316" stroke-width="12" stroke-linecap="round"/>
+  <!-- Secondary flow -->
+  <path d="M68 118C84 98 110 86 144 86H184" stroke="#F97316" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <!-- Forge base -->
+  <path d="M102 182H174L163 206H92L102 182Z" fill="#0F172A"/>
+  <!-- Forge highlight -->
+  <path d="M122 168H198L189 182H114L122 168Z" fill="#475569"/>
+  <!-- Spark -->
+  <path d="M177 50L180 62L194 68L180 74L177 88L174 74L160 68L174 62L177 50Z" fill="#F97316"/>
+</svg>

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     root: 'src/embed',
     resolve: {
         tsconfigPaths: true,
@@ -9,7 +9,7 @@ export default defineConfig({
     plugins: [preact()],
     build: {
         target: 'esnext',
-        sourcemap: true,
+        sourcemap: mode !== 'production',
         outDir: '../../dist/embed',
         emptyOutDir: true,
         manifest: true,
@@ -24,4 +24,4 @@ export default defineConfig({
             },
         },
     },
-});
+}));
