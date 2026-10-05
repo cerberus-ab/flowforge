@@ -4,22 +4,24 @@
 
 ### Models and providers
 
-- Research OpenRouter, Lighter LM, and Cerebras.ai for LLM routing and low-latency inference.
+- Research OpenRouter and Lighter LM for LLM routing.
+- Evaluate Cerebras.ai for low-latency inference alongside Ollama-based deployments.
 - Research WebLLM for a fully browser-local mode, including summaries, intent classification, reranking, and reasoning without the backend.
 - Try open source models such as gpt-oss:120b and nemotron-3-super.
 
 ### Agent orchestration and reasoning
 
+- Research Jev for action selection.
 - Research OpenAI Agents SDK and Agna framework for agent orchestration.
 - Move from intent-routed tools to reasoning primitives for retrieval, ranking, target resolution, and workflow synthesis.
 - Present a page or website UI and meanings graph for reasoning.
 
 ### Extraction, storage, and automation
 
-- Try crawl4ai for extracting and fetching data.
+- Evaluate crawl4ai and Firecrawl for extracting and fetching data.
 - Consider using PostgreSQL pgvector instead of LanceDB.
 - Research Stagehand for browser action planning and execution.
-- Consider using Vercel AI SDK and OpenRouter.
+- Consider using Vercel AI SDK.
 
 ## Implementation
 
@@ -27,25 +29,30 @@
 
 - Cache heavy collector computations.
 - Make `h1..4` headings participate more actively in the page structure.
-- Add size metadata and pluggable token estimates to semantic document output.
+- Make token estimation pluggable across semantic outputs.
 - Parse structured data such as Schema.org, Open Graph, and X Card for basic page information.
 - Enhance `dataId` and CSS selector usage for element location.
 - Create extendable abstractions over extractors, selectors, embeddings, and tooling.
+- Publish `@flowforge/page-trail` as a standalone npm package.
 
 ### Extension
 
-- Improve error handling for element lookup, backend availability, and unavailable page runtime.
+- Improve error handling for element lookup, backend availability, browser failures, and unavailable page runtime.
 - Support service pages where browser APIs allow content scripts or fallback flows.
 - Restore popup and page UI state when reopening the extension.
+- Generalize Demo preset questions into a preset command mode.
 - Style the wizard to better fit the host website.
-- Consider separating the Inspector.
 - Add page inspector loading state.
 - Add lazy rendering in `JsonViewer`.
 - Provide history data about page usage.
 - Evaluate Chrome Side Panel (`chrome.sidePanel`) as the UI surface for the Inspector.
+- Inject page runtimes on user action and remove persistent `<all_urls>` access.
+- Package Page Inspector as a versioned downloadable archive.
+- Prepare Page Inspector policies, listing assets, and package for Chrome Web Store publication.
 
 ### Backend
 
+- Build a dedicated PageTrail URL collection service and CLI.
 - Enhance logging with pino, LangSmith, or OpenTelemetry.
 - Enhance error handling and API validation.
 - Support Anthropic and Ollama Cloud providers.
@@ -70,8 +77,6 @@
 
 - Improve backend, integration, and promptfoo test coverage.
 - Isolate extension e2e build output from the normal `dist` directory.
-- Add development and production modes.
 - Use pnpm for package management instead of npm.
 - Add an agent run inspector for tool calls, intermediate reasoning state, retrieved context, and final output.
-- Publish PageTrail as a standalone package.
-- Update `backend/quick-setup.js`.
+- Update `apps/backend/scripts/quick-setup.js`.
