@@ -1,4 +1,4 @@
-export const chromeConstants = {
-    POPUP_ROOT_ID: 'flowforge-chrome-popup-root',
-    PAGE_ROOT_ID: 'flowforge-chrome-page-root',
+export const mountConstants = {
+    POPUP_ROOT_ID: 'flowforge-extension-popup-root',
+    PAGE_ROOT_ID: 'flowforge-extension-page-root',
 };

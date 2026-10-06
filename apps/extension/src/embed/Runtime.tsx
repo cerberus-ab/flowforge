@@ -10,7 +10,7 @@ import { BackgroundWorker } from '@/background/BackgroundWorker';
 import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
 import type { AgentResult } from '@flowforge/contract';
-import { embedConstants } from '@/embed/constants';
+import { mountConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
 import type { ExtensionSettings, MessageResponse, OpenPageInspectorMessage } from '@/types';
 import { createEmbedBackgroundWorker } from '@/embed/background/createWorker';
@@ -149,7 +149,7 @@ export class Runtime implements RuntimeApi {
         });
 
         const doMount = () => {
-            const shellRoot = rootInjector.inject(document, embedConstants.SHELL_ROOT_ID, { overlay: true });
+            const shellRoot = rootInjector.inject(document, mountConstants.EMBED_SHELL_ROOT_ID, { overlay: true });
             shellRoot.host.dataset.testid = 'flowforge-shell-root';
             rootInjector.injectStyles(shellRoot, shellStyles);
             render(

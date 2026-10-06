@@ -4,7 +4,7 @@ import styles from './page.css?inline';
 
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
 import { ShadowRootInjector } from '@/core/services/RootInjector';
-import { chromeConstants } from '@/chrome/inspector/constants';
+import { mountConstants } from '@/chrome/inspector/constants';
 import type { TransportService } from '@/adapters/interface';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
@@ -21,7 +21,7 @@ function InspectorPageApp({ transport, devMode, onDevModeChange }: InspectorPage
     const { inspector } = useInspectorPage({ transport, devMode, onDevModeChange });
 
     return (
-        <div className="flowforge-page flowforge-page--inspector" data-testid="flowforge-pi-page">
+        <div className="flowforge-page flowforge-page--inspector" data-testid="flowforge-inspector-page">
             {inspector && <Inspector {...inspector} />}
         </div>
     );
@@ -45,11 +45,11 @@ function InspectorPageAppRoot({ transport }: { transport: TransportService }) {
     const rootInjector = new ShadowRootInjector();
 
     const doMount = () => {
-        const root = rootInjector.inject(document, chromeConstants.PI_PAGE_ROOT_ID, { overlay: true });
-        root.host.dataset.testid = 'flowforge-pi-chrome-page-root';
+        const root = rootInjector.inject(document, mountConstants.INSPECTOR_PAGE_ROOT_ID, { overlay: true });
+        root.host.dataset.testid = 'flowforge-inspector-page-root';
         rootInjector.injectStyles(root, styles);
         render(<InspectorPageAppRoot transport={transport} />, root.mountPoint);
-        console.log('[FlowForge: Page Inspector] Content script loaded');
+        console.log('[FlowForge] Inspector content script loaded');
     };
 
     if (document.readyState === 'loading') {

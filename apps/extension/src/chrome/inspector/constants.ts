@@ -1,4 +1,4 @@
-export const chromeConstants = {
-    PI_POPUP_ROOT_ID: 'flowforge-pi-chrome-popup-root',
-    PI_PAGE_ROOT_ID: 'flowforge-pi-chrome-page-root',
+export const mountConstants = {
+    INSPECTOR_POPUP_ROOT_ID: 'flowforge-extension-inspector-popup-root',
+    INSPECTOR_PAGE_ROOT_ID: 'flowforge-extension-inspector-page-root',
 };

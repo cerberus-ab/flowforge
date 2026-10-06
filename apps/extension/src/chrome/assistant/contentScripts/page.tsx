@@ -5,7 +5,7 @@ import styles from '@/page/index.css?inline';
 import { PageApp } from '@/page/PageApp';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
 import { ShadowRootInjector } from '@/core/services/RootInjector';
-import { chromeConstants } from '@/chrome/assistant/constants';
+import { mountConstants } from '@/chrome/assistant/constants';
 import { Main } from '@/shared/components/Main';
 import { useSettings } from '@/shared/hooks/useSettings';
 import type { TransportService } from '@/adapters/interface';
@@ -28,8 +28,8 @@ function PageAppRoot({ transport }: { transport: TransportService }) {
     const rootInjector = new ShadowRootInjector();
 
     const doMount = () => {
-        const root = rootInjector.inject(document, chromeConstants.PAGE_ROOT_ID, { overlay: true });
-        root.host.dataset.testid = 'flowforge-chrome-page-root';
+        const root = rootInjector.inject(document, mountConstants.PAGE_ROOT_ID, { overlay: true });
+        root.host.dataset.testid = 'flowforge-page-root';
         rootInjector.injectStyles(root, styles);
         render(<PageAppRoot transport={transport} />, root.mountPoint);
         console.log('[FlowForge] Content script loaded');
