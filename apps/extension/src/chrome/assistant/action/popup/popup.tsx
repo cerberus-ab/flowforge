@@ -5,7 +5,7 @@ import '@/popup/index.css';
 import { PopupApp } from '@/popup/PopupApp';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
 import { DocumentRootInjector } from '@/core/services/RootInjector';
-import { chromeConstants } from '@/chrome/assistant/constants';
+import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import type { TransportService } from '@/adapters/interface';
@@ -34,7 +34,7 @@ function PopupAppRoot({ transport }: { transport: TransportService }) {
     const rootInjector = new DocumentRootInjector();
 
     const doMount = () => {
-        const root = rootInjector.inject(document, chromeConstants.POPUP_ROOT_ID);
+        const root = rootInjector.inject(document, mountConstants.POPUP_ROOT_ID);
         render(<PopupAppRoot transport={transport} />, root.mountPoint);
         console.log('[FlowForge] Popup loaded');
     };

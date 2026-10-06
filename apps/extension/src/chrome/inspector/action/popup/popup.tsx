@@ -3,7 +3,7 @@ import { render } from 'preact';
 import './popup.css';
 
 import { DocumentRootInjector } from '@/core/services/RootInjector';
-import { chromeConstants } from '@/chrome/inspector/constants';
+import { mountConstants } from '@/chrome/inspector/constants';
 import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
 import type { TransportService } from '@/adapters/interface';
 import { useSettings } from '@/shared/hooks/useSettings';
@@ -35,12 +35,12 @@ export function InspectorPopupApp({ transport, theme, onToggleTheme, onClose }: 
     );
 
     return (
-        <div className="flowforge-popup flowforge-popup--inspector" data-testid="flowforge-pi-popup">
+        <div className="flowforge-popup flowforge-popup--inspector" data-testid="flowforge-inspector-popup">
             <header className="flowforge-popup__header flowforge-popup__header--parallax">
                 <h2 className="flowforge-popup__header-title">FlowForge</h2>
                 <p className="flowforge-popup__header-subtitle">Page Inspector</p>
             </header>
-            <div className="flowforge-popup__content" data-testid="flowforge-pi-popup-content">
+            <div className="flowforge-popup__content" data-testid="flowforge-inspector-popup-content">
                 <Opener website={website} onOpenPageInspector={handleOpenPageInspector} />
 
                 <footer className="flowforge-popup__footer">
@@ -78,9 +78,9 @@ function InspectorPopupAppRoot({ transport }: { transport: TransportService }) {
     const rootInjector = new DocumentRootInjector();
 
     const doMount = () => {
-        const root = rootInjector.inject(document, chromeConstants.PI_POPUP_ROOT_ID);
+        const root = rootInjector.inject(document, mountConstants.INSPECTOR_POPUP_ROOT_ID);
         render(<InspectorPopupAppRoot transport={transport} />, root.mountPoint);
-        console.log('[FlowForge: Page Inspector] Popup loaded');
+        console.log('[FlowForge] Inspector popup loaded');
     };
 
     if (document.readyState === 'loading') {

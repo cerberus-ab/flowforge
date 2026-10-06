@@ -6,13 +6,13 @@
 
 /* Inspector popup */
 .flowforge-popup--inspector {
-  --flowforge-pi-popup-width: 320px;
-  --flowforge-pi-popup-height: 440px;
-  --flowforge-pi-popup-header-height: 80px;
+  --flowforge-inspector-popup-width: 320px;
+  --flowforge-inspector-popup-height: 440px;
+  --flowforge-inspector-popup-header-height: 80px;
 }
 .flowforge-popup--inspector {
-  width: var(--flowforge-pi-popup-width);
-  height: var(--flowforge-pi-popup-height);
+  width: var(--flowforge-inspector-popup-width);
+  height: var(--flowforge-inspector-popup-height);
 }
 .flowforge-popup--inspector .flowforge-popup__header {
   background:

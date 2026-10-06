@@ -1,0 +1,46 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - 'v*'
+
+jobs:
+    release-extension:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v5
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 22
+                  cache: npm
+            - run: npm ci
+            - run: |
+                  release_version="${GITHUB_REF_NAME#v}"
+                  package_version="$(node -p "require('./apps/extension/package.json').version")"
+                  test "$release_version" = "$package_version"
+            - run: npm run build:packages
+            - run: npm run build -w @flowforge/extension
+            - run: |
+                  extension_asset="flowforge-extension-${GITHUB_REF_NAME}.zip"
+                  extension_inspector_asset="flowforge-extension-inspector-${GITHUB_REF_NAME}.zip"
+                  extension_embed_asset="flowforge-extension-embed-${GITHUB_REF_NAME}.zip"
+
+                  (cd "apps/extension/dist/chrome/assistant" && zip -r "$GITHUB_WORKSPACE/$extension_asset" .)
+                  (cd "apps/extension/dist/chrome/inspector" && zip -r "$GITHUB_WORKSPACE/$extension_inspector_asset" .)
+                  (cd "apps/extension/dist/embed" && zip -r "$GITHUB_WORKSPACE/$extension_embed_asset" .)
+
+                  printf '%s\n' \
+                      "EXTENSION_RELEASE_ASSET=$extension_asset" \
+                      "EXTENSION_INSPECTOR_RELEASE_ASSET=$extension_inspector_asset" \
+                      "EXTENSION_EMBED_RELEASE_ASSET=$extension_embed_asset" >> "$GITHUB_ENV"
+            - env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+                      gh release upload "$GITHUB_REF_NAME" "$EXTENSION_RELEASE_ASSET" "$EXTENSION_INSPECTOR_RELEASE_ASSET" "$EXTENSION_EMBED_RELEASE_ASSET" --clobber
+                  else
+                      gh release create "$GITHUB_REF_NAME" "$EXTENSION_RELEASE_ASSET" "$EXTENSION_INSPECTOR_RELEASE_ASSET" "$EXTENSION_EMBED_RELEASE_ASSET" --title "$GITHUB_REF_NAME" --notes "See [CHANGELOG.md](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/CHANGELOG.md)."
+                  fi

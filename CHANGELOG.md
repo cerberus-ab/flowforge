@@ -4,9 +4,15 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added a standalone **Page Inspector** Chrome extension for inspecting the current page locally without a backend.
+- Added versioned ZIP releases for the Assistant, Page Inspector, and embed runtime.
+
 ### Changed
 
-- Fixed enriched presentation for structure in Page inspector.
+- Refactored background message handling into focused handlers shared by the Chrome and embed runtimes.
+- Fixed root-level content and interactive elements in enriched `PageTrail` structure output.
 
 ## [0.2.2] - 2026-10-04
 

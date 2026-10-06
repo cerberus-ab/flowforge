@@ -33,7 +33,7 @@ It can:
 - Understand unfamiliar interfaces without onboarding.
 
 <p align="left">
-  <img src="./docs/assets/use-cases.gif" width="960" />
+  <img src="./docs/assets/use-cases.gif" width="900" />
 </p>
 
 ## Disclaimer
@@ -89,7 +89,7 @@ Note: As an early-stage MVP, security is evolving and not yet production-ready.
 The project also includes a standalone Chrome extension for inspecting the current web page locally, without a backend.
 
 <p align="left">
-  <img src="./docs/assets/use-cases-pi.webp" width="960" />
+  <img src="./docs/assets/use-cases-pi.webp" width="900" />
 </p>
 
 When using **Load unpacked**, select `apps/extension/dist/chrome/inspector`.
