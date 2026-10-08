@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { TransportService } from '@/adapters/interface';
+import type { Message, Response, TransportService } from '@/adapters';
 import {
     type ExtensionSettings,
     type GetSettingsMessage,
@@ -7,8 +7,6 @@ import {
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,
     isSettingsUpdatedMessage,
-    type Message,
-    type MessageResponse,
 } from '@/types';
 import { config } from '@/config';
 
@@ -46,7 +44,7 @@ export function useSettings({ transport }: UseSettingsParams): SettingsViewModel
     }, [transport]);
 
     useEffect(() => {
-        return transport.addMessageListener((message: Message): MessageResponse | undefined => {
+        return transport.addMessageListener((message: Message): Response | undefined => {
             if (isSettingsUpdatedMessage(message)) {
                 setSettings(message.data);
                 return { success: true };
@@ -57,7 +55,7 @@ export function useSettings({ transport }: UseSettingsParams): SettingsViewModel
 
     const handleUpdateSettings = useCallback(
         async (patch: Partial<ExtensionSettings>) => {
-            const senderId = await transport.getActiveSenderId().catch(() => undefined);
+            const senderId = await transport.getActivePageId().catch(() => undefined);
             const response = await transport.sendToBackground<UpdateSettingsMessage, UpdateSettingsMessageResponse>({
                 type: 'UPDATE_SETTINGS',
                 senderId,

@@ -1,25 +1,7 @@
 import type { AgentResultElement, AgentResultMode, PageTrailDto, QueryResponse } from '@flowforge/contract';
+
+import type { Message, Response } from '@/adapters';
 import type { ExtensionSettings } from '@/core/types/settings';
-
-type MessageTypeToBackground = 'GET_SETTINGS' | 'UPDATE_SETTINGS';
-
-type MessageTypePopupToBackground =
-    'POPUP_INITIALISE' | 'ASK_QUESTION' | 'GET_PREV_QUESTIONS' | 'NAVIGATE_TO_ELEMENT' | 'OPEN_PAGE_INSPECTOR';
-
-type MessageTypeBackgroundToPage =
-    | 'COLLECT_PAGE_TRAIL'
-    | 'START_ONBOARDING'
-    | 'HIGHLIGHT_ELEMENT'
-    | 'CLEAR_PAGE'
-    | 'OPEN_INSPECTOR'
-    | 'SETTINGS_UPDATED';
-
-type MessageType = MessageTypeToBackground | MessageTypePopupToBackground | MessageTypeBackgroundToPage;
-
-export type Message<T = undefined> = T extends undefined ? { type: MessageType } : { type: MessageType; data: T };
-
-export type MessageResponse<T = undefined> =
-    (T extends undefined ? { success: true } : { success: true; data: T }) | { success: false; error: string };
 
 // Popup, Page -> Background
 
@@ -29,7 +11,7 @@ export type GetSettingsMessage = Message & {
 
 export type GetSettingsMessageResponseData = ExtensionSettings;
 
-export type GetSettingsMessageResponse = MessageResponse<GetSettingsMessageResponseData>;
+export type GetSettingsMessageResponse = Response<GetSettingsMessageResponseData>;
 
 export type UpdateSettingsMessageData = {
     patch: Partial<ExtensionSettings>;
@@ -42,7 +24,7 @@ export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
 
 export type UpdateSettingsMessageResponseData = ExtensionSettings;
 
-export type UpdateSettingsMessageResponse = MessageResponse<UpdateSettingsMessageResponseData>;
+export type UpdateSettingsMessageResponse = Response<UpdateSettingsMessageResponseData>;
 
 // Popup -> Background
 
@@ -62,7 +44,7 @@ export type AskQuestionMessage = Message<AskQuestionMessageData> & {
 
 export type AskQuestionMessageResponseData = QueryResponse;
 
-export type AskQuestionMessageResponse = MessageResponse<AskQuestionMessageResponseData>;
+export type AskQuestionMessageResponse = Response<AskQuestionMessageResponseData>;
 
 export type GetPrevQuestionsMessage = Message & {
     type: 'GET_PREV_QUESTIONS';
@@ -73,7 +55,7 @@ export interface GetPrevQuestionsMessageResponseData {
     questions: string[];
 }
 
-export type GetPrevQuestionsMessageResponse = MessageResponse<GetPrevQuestionsMessageResponseData>;
+export type GetPrevQuestionsMessageResponse = Response<GetPrevQuestionsMessageResponseData>;
 
 export interface NavigateToElementMessageData {
     element: AgentResultElement;
@@ -99,7 +81,7 @@ export type CollectPageTrailMessage = Message & {
 
 export type CollectPageTrailMessageResponseData = PageTrailDto;
 
-export type CollectPageTrailMessageResponse = MessageResponse<CollectPageTrailMessageResponseData>;
+export type CollectPageTrailMessageResponse = Response<CollectPageTrailMessageResponseData>;
 
 export interface StartOnboardingMessageData {
     title: string;

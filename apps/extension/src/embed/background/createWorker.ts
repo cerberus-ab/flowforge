@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { BackgroundWorker } from '@/background/BackgroundWorker';
-import { EmbedLocalStorage } from '@/adapters/embed/EmbedLocalStorage';
+import { EmbedLocalStorage, type EmbedTransportService } from '@/adapters';
 import { HistoryStorage } from '@/core/services/HistoryStorage';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import type { ExtensionSettings } from '@/types';
@@ -10,7 +10,6 @@ import { PageInspectorMessageHandler } from '@/background/handlers/PageInspector
 import { QuestionMessageHandler } from '@/background/handlers/QuestionMessageHandler';
 import { ElementNavigationMessageHandler } from '@/background/handlers/ElementNavigationMessageHandler';
 import type { ApiClient } from '@/core/services/ApiClient';
-import type { EmbedTransportService } from '@/adapters/embed/EmbedTransportService';
 
 /**
  * Creates an embed background worker with storage and supported message handlers.

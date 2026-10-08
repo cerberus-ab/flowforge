@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
 import { config } from '@/config';
-import type { Message } from '@/types';
+import type { Message } from '@/adapters';
 import { FakeTransportService } from '../../../../../../test/unit/fakes/FakeTransportService';
 import { useInspectorPopup, type UseInspectorPopupOptions } from './useInspectorPopup';
 
@@ -27,7 +27,7 @@ function PopupHarness({ transport }: UseInspectorPopupOptions) {
 describe('useInspectorPopup', () => {
     it('initializes the popup and exposes its links', async () => {
         // Given
-        const transport = new FakeTransportService({ activeSenderId: 42 });
+        const transport = new FakeTransportService({ activePageId: 42 });
         const messages: Message[] = [];
         transport.addMessageListener((message) => {
             messages.push(message);
@@ -48,7 +48,7 @@ describe('useInspectorPopup', () => {
 
     it('opens the inspector with the active sender and optional tab', async () => {
         // Given
-        const transport = new FakeTransportService({ activeSenderId: 42 });
+        const transport = new FakeTransportService({ activePageId: 42 });
         const messages: Message[] = [];
         transport.addMessageListener((message) => {
             messages.push(message);
@@ -71,7 +71,7 @@ describe('useInspectorPopup', () => {
 
     it('keeps the popup usable when initialization fails', async () => {
         // Given
-        const transport = new FakeTransportService({ activeSenderId: 42 });
+        const transport = new FakeTransportService({ activePageId: 42 });
         const messages: Message[] = [];
         transport.addMessageListener((message) => {
             messages.push(message);

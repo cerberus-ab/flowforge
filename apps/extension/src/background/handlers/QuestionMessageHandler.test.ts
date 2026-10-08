@@ -56,10 +56,10 @@ describe('QuestionMessageHandler', () => {
         // Then
         expect(response).toEqual({ success: true, data: queryResponse });
         expect(transport.getSentToPage()).toEqual([
-            { senderId: 7, message: { type: 'CLEAR_PAGE' } },
-            { senderId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
+            { pageId: 7, message: { type: 'CLEAR_PAGE' } },
+            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
             {
-                senderId: 7,
+                pageId: 7,
                 message: {
                     type: 'START_ONBOARDING',
                     data: {
@@ -108,7 +108,7 @@ function createTransport({
     hostname?: string;
     pageTrailDto?: PageTrailDto;
 } = {}) {
-    const transport = new FakeTransportService({ activeSenderId: 7, senderHostname: hostname });
+    const transport = new FakeTransportService({ activePageId: 7, pageHostname: hostname });
     transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
     return transport;
 }

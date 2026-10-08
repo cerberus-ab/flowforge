@@ -1,5 +1,4 @@
-import type { TransportService } from '@/adapters/interface';
-import type { Message, MessageResponse } from '@/types';
+import type { Message, Response, TransportService } from '@/adapters';
 
 import type { BackgroundMessageHandler } from './handlers/BackgroundMessageHandler';
 
@@ -30,7 +29,7 @@ export class BackgroundWorker {
     }
 
     /** Routes a message to the first handler that supports it. */
-    private handleMessage(message: Message): Promise<MessageResponse> | MessageResponse | undefined {
+    private handleMessage(message: Message): Promise<Response> | Response | undefined {
         try {
             for (const handler of this.handlers) {
                 const response = handler.handle(message);
@@ -45,7 +44,7 @@ export class BackgroundWorker {
     }
 
     /** Logs a handler failure and converts it to a message response. */
-    private handleError(message: Message, error: unknown): MessageResponse {
+    private handleError(message: Message, error: unknown): Response {
         console.error(`[FlowForge] Background failed to handle ${message.type}:`, error);
 
         return {

@@ -1,9 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { TransportService } from '@/adapters/interface';
+import type { Message, Response, TransportService } from '@/adapters';
 import { config } from '@/config';
-import type { ExtensionSettings, Message, MessageResponse } from '@/types';
+import type { ExtensionSettings } from '@/types';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { createSettingsFixture } from '../../../test/fixtures';
 import { useSettings } from './useSettings';
@@ -12,7 +12,7 @@ const initialSettings = createSettingsFixture();
 const darkThemeSettings = createSettingsFixture({ theme: 'dark' });
 const devModeSettings = createSettingsFixture({ devMode: true });
 
-type TestMessageResponse = MessageResponse | MessageResponse<ExtensionSettings>;
+type TestMessageResponse = Response | Response<ExtensionSettings>;
 
 function SettingsHarness({ transport }: { transport: TransportService }) {
     const settings = useSettings({ transport });
@@ -40,7 +40,7 @@ function renderSettings({
 }: {
     handler?: (message: Message) => Promise<TestMessageResponse> | TestMessageResponse | undefined;
 } = {}) {
-    const transport = new FakeTransportService({ activeSenderId: 42 });
+    const transport = new FakeTransportService({ activePageId: 42 });
     const messages: Message[] = [];
 
     transport.addMessageListener((message) => {

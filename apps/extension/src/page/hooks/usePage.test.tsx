@@ -2,7 +2,7 @@ import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { MessageResponse } from '@/types';
+import type { Response } from '@/adapters';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePage, type UsePageOptions } from './usePage';
 
@@ -72,7 +72,7 @@ describe('usePage', () => {
         // Then
         expect(onReady).toHaveBeenCalledTimes(1);
         expect(response.success).toBe(true);
-        const pageTrailDto = (response as MessageResponse<PageTrailDto> & { success: true }).data;
+        const pageTrailDto = (response as Response<PageTrailDto> & { success: true }).data;
         expect(pageTrailDto.basics.title).toBe('FlowForge Page');
         expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
     });

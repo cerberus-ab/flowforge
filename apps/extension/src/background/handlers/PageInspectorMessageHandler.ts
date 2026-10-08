@@ -1,9 +1,7 @@
-import type { TransportService } from '@/adapters/interface';
+import type { Message, Response, TransportService } from '@/adapters';
 import {
     type ClearPageMessage,
     isOpenPageInspectorMessage,
-    type Message,
-    type MessageResponse,
     type OpenInspectorMessage,
     type OpenPageInspectorMessage,
 } from '@/types';
@@ -23,13 +21,13 @@ export class PageInspectorMessageHandler implements BackgroundMessageHandler {
     }
 
     /** Routes supported Inspector messages to their operations. */
-    handle(message: Message): Promise<MessageResponse> | undefined {
+    handle(message: Message): Promise<Response> | undefined {
         if (isOpenPageInspectorMessage(message)) return this.handleOpenPageInspector(message);
         return undefined;
     }
 
     /** Clears the page state and opens the requested Inspector tab. */
-    private async handleOpenPageInspector(message: OpenPageInspectorMessage): Promise<MessageResponse> {
+    private async handleOpenPageInspector(message: OpenPageInspectorMessage): Promise<Response> {
         await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
             type: 'CLEAR_PAGE',
         });

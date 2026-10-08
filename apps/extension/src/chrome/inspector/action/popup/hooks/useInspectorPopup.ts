@@ -1,7 +1,7 @@
 import { config } from '@/config';
 import { useCallback, useEffect } from 'preact/hooks';
-import type { MessageResponse, OpenPageInspectorMessage, PopupInitializeMessage } from '@/types';
-import type { TransportService } from '@/adapters/interface';
+import type { Response, TransportService } from '@/adapters';
+import type { OpenPageInspectorMessage, PopupInitializeMessage } from '@/types';
 
 export interface UseInspectorPopupOptions {
     transport: TransportService;
@@ -21,9 +21,9 @@ export function useInspectorPopup({ transport }: UseInspectorPopupOptions): Insp
             try {
                 const message: PopupInitializeMessage = {
                     type: 'POPUP_INITIALISE',
-                    senderId: await transport.getActiveSenderId(),
+                    senderId: await transport.getActivePageId(),
                 };
-                await transport.sendToBackground<PopupInitializeMessage, MessageResponse>(message);
+                await transport.sendToBackground<PopupInitializeMessage, Response>(message);
             } catch {
                 // Popup startup should not fail if the active tab cannot receive page messages.
             }
@@ -35,10 +35,10 @@ export function useInspectorPopup({ transport }: UseInspectorPopupOptions): Insp
         async (tab?: string) => {
             const message: OpenPageInspectorMessage = {
                 type: 'OPEN_PAGE_INSPECTOR',
-                senderId: await transport.getActiveSenderId(),
+                senderId: await transport.getActivePageId(),
                 data: { tab },
             };
-            await transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
+            await transport.sendToBackground<OpenPageInspectorMessage, Response>(message);
         },
         [transport],
     );

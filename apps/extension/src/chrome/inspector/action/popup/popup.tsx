@@ -4,8 +4,7 @@ import './popup.css';
 
 import { DocumentRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/inspector/constants';
-import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
-import type { TransportService } from '@/adapters/interface';
+import { ChromeTransportService, type TransportService } from '@/adapters';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import type { ExtensionSettingsTheme } from '@/types';

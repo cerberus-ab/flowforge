@@ -1,6 +1,5 @@
 import { config } from '@/config';
-import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
-import { ChromeLocalStorage } from '@/adapters/chrome/ChromeLocalStorage';
+import { ChromeLocalStorage, ChromeTransportService } from '@/adapters';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { BackgroundWorker } from '@/background/BackgroundWorker';
 import { PageInspectorMessageHandler } from '@/background/handlers/PageInspectorMessageHandler';

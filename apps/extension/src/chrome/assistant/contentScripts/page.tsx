@@ -3,12 +3,11 @@ import { render } from 'preact';
 import styles from '@/page/index.css?inline';
 
 import { PageApp } from '@/page/PageApp';
-import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
+import { ChromeTransportService, type TransportService } from '@/adapters';
 import { ShadowRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { Main } from '@/shared/components/Main';
 import { useSettings } from '@/shared/hooks/useSettings';
-import type { TransportService } from '@/adapters/interface';
 
 function PageAppRoot({ transport }: { transport: TransportService }) {
     const settings = useSettings({ transport });

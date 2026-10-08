@@ -1,6 +1,6 @@
 import type { QueryRequest } from '@flowforge/contract';
 
-import type { TransportService } from '@/adapters/interface';
+import type { Message, TransportService } from '@/adapters';
 import type { ApiClient } from '@/core/services/ApiClient';
 import type { HistoryStorage } from '@/core/services/HistoryStorage';
 import {
@@ -13,7 +13,6 @@ import {
     type GetPrevQuestionsMessageResponse,
     isAskQuestionMessage,
     isGetPrevQuestionsMessage,
-    type Message,
     type StartOnboardingMessage,
 } from '@/types';
 
@@ -57,7 +56,7 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
         console.log('[FlowForge] Background collected page trail:', pageTrailResponse);
 
         const pageTrailDto = pageTrailResponse.data;
-        const domain = await this.transport.getSenderHostname(message.senderId);
+        const domain = await this.transport.getPageHostname(message.senderId);
         const requestData: QueryRequest = {
             question: message.data.question,
             pageTrailDto,
@@ -89,7 +88,7 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
 
     /** Returns the saved question history for the sender domain. */
     private async handleGetPrevQuestions(message: GetPrevQuestionsMessage): Promise<GetPrevQuestionsMessageResponse> {
-        const domain = await this.transport.getSenderHostname(message.senderId);
+        const domain = await this.transport.getPageHostname(message.senderId);
         const questions = await this.historyStorage.getPreviousQuestions(domain);
         return { success: true, data: { questions } };
     }

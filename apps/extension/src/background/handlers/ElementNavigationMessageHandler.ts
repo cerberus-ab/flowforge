@@ -1,10 +1,8 @@
-import type { TransportService } from '@/adapters/interface';
+import type { Message, Response, TransportService } from '@/adapters';
 import {
     type ClearPageMessage,
     type HighlightElementMessage,
     isNavigateToElementMessage,
-    type Message,
-    type MessageResponse,
     type NavigateToElementMessage,
 } from '@/types';
 
@@ -23,13 +21,13 @@ export class ElementNavigationMessageHandler implements BackgroundMessageHandler
     }
 
     /** Routes supported element navigation messages to their operations. */
-    handle(message: Message): Promise<MessageResponse> | undefined {
+    handle(message: Message): Promise<Response> | undefined {
         if (isNavigateToElementMessage(message)) return this.handleNavigateToElement(message);
         return undefined;
     }
 
     /** Clears the page state and highlights the requested element. */
-    private async handleNavigateToElement(message: NavigateToElementMessage): Promise<MessageResponse> {
+    private async handleNavigateToElement(message: NavigateToElementMessage): Promise<Response> {
         await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
             type: 'CLEAR_PAGE',
         });

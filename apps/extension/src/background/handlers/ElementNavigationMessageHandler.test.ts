@@ -27,8 +27,8 @@ describe('ElementNavigationMessageHandler', () => {
         // Then
         expect(response).toEqual({ success: true });
         expect(transport.getSentToPage()).toEqual([
-            { senderId: 7, message: { type: 'CLEAR_PAGE' } },
-            { senderId: 7, message: { type: 'HIGHLIGHT_ELEMENT', data: { element } } },
+            { pageId: 7, message: { type: 'CLEAR_PAGE' } },
+            { pageId: 7, message: { type: 'HIGHLIGHT_ELEMENT', data: { element } } },
         ]);
     });
 });

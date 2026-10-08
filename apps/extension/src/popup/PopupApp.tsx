@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'preact/hooks';
-import type { TransportService } from '@/adapters/interface';
+import type { TransportService } from '@/adapters';
 
 import { usePopup } from './hooks/usePopup';
 import { Question } from './components/Question';

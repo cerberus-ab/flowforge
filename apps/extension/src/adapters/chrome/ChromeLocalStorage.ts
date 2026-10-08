@@ -1,4 +1,4 @@
-import type { LocalStorage } from '../interface';
+import type { LocalStorage } from '@/adapters';
 
 export class ChromeLocalStorage implements LocalStorage {
     async get<T>(key: string): Promise<T | null> {
