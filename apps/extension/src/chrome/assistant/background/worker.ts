@@ -1,8 +1,7 @@
 import { config } from '@/config';
 import { HttpApiClient } from '@/core/services/ApiClient';
 import { HistoryStorage } from '@/core/services/HistoryStorage';
-import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
-import { ChromeLocalStorage } from '@/adapters/chrome/ChromeLocalStorage';
+import { ChromeLocalStorage, ChromeTransportService } from '@/adapters';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { BackgroundWorker } from '@/background/BackgroundWorker';
 import { ElementNavigationMessageHandler } from '@/background/handlers/ElementNavigationMessageHandler';

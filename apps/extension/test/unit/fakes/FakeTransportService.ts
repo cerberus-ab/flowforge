@@ -1,43 +1,37 @@
-import type { Message, MessageResponse } from '@/types';
-import type { TransportService } from '@/adapters/interface.ts';
+import type { Message, Response, TransportService } from '@/adapters';
 
-type Handler = (message: Message) => Promise<MessageResponse> | MessageResponse | undefined;
+type Handler = (message: Message) => Promise<Response> | Response | undefined;
 
 export class FakeTransportService implements TransportService {
     private readonly sentToBackground: Message[] = [];
-    private readonly sentToPage: { senderId: number; message: Message }[] = [];
+    private readonly sentToPage: { pageId: number; message: Message }[] = [];
     private readonly handlers = new Set<Handler>();
-    private readonly pageResponses = new Map<string, MessageResponse<unknown>>();
+    private readonly pageResponses = new Map<string, Response<unknown>>();
 
-    private readonly activeSenderId;
-    private readonly senderHostname;
+    private readonly activePageId;
+    private readonly pageHostname;
 
-    constructor({ activeSenderId, senderHostname }: { activeSenderId?: number; senderHostname?: string } = {}) {
-        this.activeSenderId = activeSenderId ?? 1;
-        this.senderHostname = senderHostname ?? 'localhost';
+    constructor({ activePageId, pageHostname }: { activePageId?: number; pageHostname?: string } = {}) {
+        this.activePageId = activePageId ?? 1;
+        this.pageHostname = pageHostname ?? 'localhost';
     }
 
-    async getActiveSenderId(): Promise<number> {
-        return this.activeSenderId;
+    async getActivePageId(): Promise<number> {
+        return this.activePageId;
     }
 
-    async getSenderHostname(): Promise<string> {
-        return this.senderHostname;
+    async getPageHostname(): Promise<string> {
+        return this.pageHostname;
     }
 
-    async sendToBackground<TMessage extends Message, TResponse extends MessageResponse = MessageResponse>(
-        message: TMessage,
-    ): Promise<TResponse> {
+    async sendToBackground<M extends Message, R extends Response = Response>(message: M): Promise<R> {
         this.sentToBackground.push(message);
-        return this.dispatchToBackground<TMessage, TResponse>(message);
+        return this.dispatchToBackground<M, R>(message);
     }
 
-    async sendToPage<TMessage extends Message, TResponse extends MessageResponse = MessageResponse>(
-        senderId: number,
-        message: TMessage,
-    ): Promise<TResponse> {
-        this.sentToPage.push({ senderId, message });
-        return (this.pageResponses.get(message.type) ?? { success: true }) as TResponse;
+    async sendToPage<M extends Message, R extends Response = Response>(pageId: number, message: M): Promise<R> {
+        this.sentToPage.push({ pageId, message });
+        return (this.pageResponses.get(message.type) ?? { success: true }) as R;
     }
 
     addMessageListener(handler: Handler): () => void {
@@ -47,24 +41,22 @@ export class FakeTransportService implements TransportService {
         };
     }
 
-    getSentToPage(): readonly { senderId: number; message: Message }[] {
+    getSentToPage(): readonly { pageId: number; message: Message }[] {
         return this.sentToPage;
     }
 
-    setPageResponse(messageType: Message['type'], response: MessageResponse<unknown>): void {
+    setPageResponse(messageType: Message['type'], response: Response<unknown>): void {
         this.pageResponses.set(messageType, response);
     }
 
-    async dispatchToBackground<TMessage extends Message, TResponse extends MessageResponse = MessageResponse>(
-        message: TMessage,
-    ): Promise<TResponse> {
+    async dispatchToBackground<M extends Message, R extends Response = Response>(message: M): Promise<R> {
         if (this.handlers.size === 0) {
             throw new Error('Message handler is not registered');
         }
         for (const handler of this.handlers) {
             const response = await handler(message);
             if (response !== undefined) {
-                return response as TResponse;
+                return response as R;
             }
         }
         throw new Error('Message handler did not return a response');

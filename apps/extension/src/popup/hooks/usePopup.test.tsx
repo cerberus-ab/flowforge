@@ -2,7 +2,7 @@ import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, MessageResponse } from '@/types';
+import type { Message, Response } from '@/adapters';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';
 
@@ -67,7 +67,7 @@ function PopupHarness(options: UsePopupOptions) {
     );
 }
 
-type TestMessageResponse = MessageResponse | MessageResponse<{ questions: string[] }> | MessageResponse<QueryResponse>;
+type TestMessageResponse = Response | Response<{ questions: string[] }> | Response<QueryResponse>;
 
 function defaultResponseFor(message: Message): TestMessageResponse {
     if (message.type === 'GET_PREV_QUESTIONS') {
@@ -86,7 +86,7 @@ function renderPopup({
 }: {
     handler?: (message: Message) => Promise<TestMessageResponse> | TestMessageResponse | undefined;
 } = {}) {
-    const transport = new FakeTransportService({ activeSenderId: 42 });
+    const transport = new FakeTransportService({ activePageId: 42 });
     const messages: Message[] = [];
 
     transport.addMessageListener((message) => {
@@ -182,11 +182,11 @@ describe('usePopup', () => {
 
     it('shows loading while a question request is pending', async () => {
         // Given
-        let resolveQuestion!: (response: MessageResponse<QueryResponse>) => void;
+        let resolveQuestion!: (response: Response<QueryResponse>) => void;
         renderPopup({
             handler: (message) => {
                 if (message.type === 'ASK_QUESTION') {
-                    return new Promise<MessageResponse<QueryResponse>>((resolve) => {
+                    return new Promise<Response<QueryResponse>>((resolve) => {
                         resolveQuestion = resolve;
                     });
                 }

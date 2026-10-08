@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { ChromeTransportService } from './ChromeTransportService';
+import { ChromeTransportService } from '@/adapters';
 
 type ChromeMessageListener = typeof chrome.runtime.onMessage.addListener extends (listener: infer T) => void
     ? T
@@ -20,7 +20,7 @@ describe('ChromeTransportService', () => {
         });
         const transport = new ChromeTransportService();
 
-        await expect(transport.getActiveSenderId()).resolves.toBe(42);
+        await expect(transport.getActivePageId()).resolves.toBe(42);
         expect(chromeApi.tabs.query).toHaveBeenCalledWith({ active: true, currentWindow: true });
     });
 
@@ -32,7 +32,7 @@ describe('ChromeTransportService', () => {
         });
         const transport = new ChromeTransportService();
 
-        await expect(transport.getActiveSenderId()).rejects.toThrow('Active tab not found');
+        await expect(transport.getActivePageId()).rejects.toThrow('Active tab not found');
     });
 
     it('resolves the sender hostname from the tab URL', async () => {
@@ -43,7 +43,7 @@ describe('ChromeTransportService', () => {
         });
         const transport = new ChromeTransportService();
 
-        await expect(transport.getSenderHostname(42)).resolves.toBe('app.flowforge.test');
+        await expect(transport.getPageHostname(42)).resolves.toBe('app.flowforge.test');
         expect(chromeApi.tabs.get).toHaveBeenCalledWith(42);
     });
 

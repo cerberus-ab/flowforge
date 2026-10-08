@@ -1,10 +1,9 @@
-import type { TransportService } from '@/adapters/interface';
+import type { Message, TransportService } from '@/adapters';
 import type { SettingsStorage } from '@/core/services/SettingsStorage';
 import {
     type GetSettingsMessageResponse,
     isGetSettingsMessage,
     isUpdateSettingsMessage,
-    type Message,
     type SettingsUpdatedMessage,
     type UpdateSettingsMessage,
     type UpdateSettingsMessageResponse,

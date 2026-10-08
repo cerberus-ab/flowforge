@@ -36,7 +36,7 @@ describe('SettingsMessageHandler', () => {
         expect(response).toEqual({ success: true, data: { ...defaultSettings, theme: 'dark' } });
         expect(transport.getSentToPage()).toEqual([
             {
-                senderId: 7,
+                pageId: 7,
                 message: {
                     type: 'SETTINGS_UPDATED',
                     data: { ...defaultSettings, theme: 'dark' },

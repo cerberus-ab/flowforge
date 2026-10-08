@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { EmbedTransportService } from './EmbedTransportService';
+import { EmbedTransportService } from '@/adapters';
 
 describe('EmbedTransportService', () => {
     it('uses the current window as the sender context', async () => {
         window.history.replaceState(null, '', '/start');
         const transport = new EmbedTransportService();
 
-        await expect(transport.getActiveSenderId()).resolves.toBe(1);
-        await expect(transport.getSenderHostname()).resolves.toBe('localhost');
+        await expect(transport.getActivePageId()).resolves.toBe(1);
+        await expect(transport.getPageHostname()).resolves.toBe('localhost');
     });
 
     it('dispatches background and page messages to registered handlers', async () => {

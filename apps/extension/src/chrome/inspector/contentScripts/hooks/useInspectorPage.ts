@@ -1,7 +1,6 @@
-import type { Message } from '@/types';
+import type { Message, TransportService } from '@/adapters';
 import { isClearPageMessage, isOpenInspectorMessage } from '@/types';
 import { useCallback, useLayoutEffect, useState } from 'preact/hooks';
-import type { TransportService } from '@/adapters/interface';
 import { constants } from '@/constants';
 import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
 

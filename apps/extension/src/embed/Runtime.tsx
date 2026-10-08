@@ -1,4 +1,4 @@
-import { EmbedTransportService } from '@/adapters/embed/EmbedTransportService';
+import { EmbedTransportService, type Response } from '@/adapters';
 import { type InjectedRoot, ShadowRootInjector } from '@/core/services/RootInjector';
 import { render } from 'preact';
 
@@ -12,7 +12,7 @@ import { createRef, type RefObject } from 'preact/compat';
 import type { AgentResult } from '@flowforge/contract';
 import { mountConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
-import type { ExtensionSettings, MessageResponse, OpenPageInspectorMessage } from '@/types';
+import type { ExtensionSettings, OpenPageInspectorMessage } from '@/types';
 import { createEmbedBackgroundWorker } from '@/embed/background/createWorker';
 
 interface RuntimeStartOptions {
@@ -118,10 +118,10 @@ export class Runtime implements RuntimeApi {
     async openPageInspector(tab?: string): Promise<void> {
         const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
-            senderId: await this.transport.getActiveSenderId(),
+            senderId: await this.transport.getActivePageId(),
             data: { tab },
         };
-        await this.transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
+        await this.transport.sendToBackground<OpenPageInspectorMessage, Response>(message);
     }
 
     destroy() {

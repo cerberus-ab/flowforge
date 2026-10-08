@@ -2,10 +2,9 @@ import { render } from 'preact';
 
 import styles from './page.css?inline';
 
-import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
+import { ChromeTransportService, type TransportService } from '@/adapters';
 import { ShadowRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/inspector/constants';
-import type { TransportService } from '@/adapters/interface';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import { useInspectorPage } from '@/chrome/inspector/contentScripts/hooks/useInspectorPage';

@@ -1,34 +1,26 @@
-import type { Message, MessageResponse } from '@/types';
-import type { TransportService } from '../interface';
+import type { Message, Response, TransportService } from '@/adapters';
 
 export class EmbedTransportService implements TransportService {
-    private readonly messageHandlers = new Set<
-        (message: Message) => Promise<MessageResponse> | MessageResponse | undefined
-    >();
+    private readonly messageHandlers = new Set<(message: Message) => Promise<Response> | Response | undefined>();
 
-    async getActiveSenderId(): Promise<number> {
+    async getActivePageId(): Promise<number> {
         return 1; // not applicable
     }
 
-    async getSenderHostname(): Promise<string> {
+    async getPageHostname(): Promise<string> {
         return window.location.hostname;
     }
 
-    async sendToBackground<TMessage extends Message, TResponse extends MessageResponse = MessageResponse>(
-        message: TMessage,
-    ): Promise<TResponse> {
+    async sendToBackground<M extends Message, R extends Response = Response>(message: M): Promise<R> {
         return this.send(message);
     }
 
-    async sendToPage<TMessage extends Message, TResponse extends MessageResponse = MessageResponse>(
-        _senderId: number,
-        message: TMessage,
-    ): Promise<TResponse> {
+    async sendToPage<M extends Message, R extends Response = Response>(_pageId: number, message: M): Promise<R> {
         return this.send(message);
     }
 
-    addMessageListener(
-        handler: (message: Message) => Promise<MessageResponse> | MessageResponse | undefined,
+    addMessageListener<R extends Response = Response>(
+        handler: (message: Message) => Promise<R> | R | undefined,
     ): () => void {
         this.messageHandlers.add(handler);
         return () => {
@@ -36,14 +28,14 @@ export class EmbedTransportService implements TransportService {
         };
     }
 
-    private async send<TResponse extends MessageResponse = MessageResponse>(message: Message): Promise<TResponse> {
+    private async send<R extends Response = Response>(message: Message): Promise<R> {
         if (this.messageHandlers.size === 0) {
             throw new Error('Message handler is not registered');
         }
         for (const handler of this.messageHandlers) {
             const response = await handler(message);
             if (response !== undefined) {
-                return response as TResponse;
+                return response as R;
             }
         }
         throw new Error('Message handler did not return a response');

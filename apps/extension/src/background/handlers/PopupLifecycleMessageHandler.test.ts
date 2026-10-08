@@ -16,7 +16,7 @@ describe('PopupLifecycleMessageHandler', () => {
 
         // Then
         expect(response).toEqual({ success: true });
-        expect(transport.getSentToPage()).toEqual([{ senderId: 7, message: { type: 'CLEAR_PAGE' } }]);
+        expect(transport.getSentToPage()).toEqual([{ pageId: 7, message: { type: 'CLEAR_PAGE' } }]);
     });
 
     it('ignores a page clearing failure', async () => {

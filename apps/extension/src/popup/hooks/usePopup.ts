@@ -4,7 +4,6 @@ import type {
     AskQuestionMessageResponse,
     GetPrevQuestionsMessage,
     GetPrevQuestionsMessageResponse,
-    MessageResponse,
     NavigateToElementMessage,
     OpenPageInspectorMessage,
     PopupInitializeMessage,
@@ -13,7 +12,7 @@ import { config } from '@/config';
 import { normalizeText } from '@/core/utils/text';
 import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/data';
 import { buildTryExampleItems } from '@/popup/utils/data';
-import type { TransportService } from '@/adapters/interface';
+import type { Response, TransportService } from '@/adapters';
 import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 import { formatQueryResponseMetadata } from '@/popup/utils/format';
 
@@ -53,9 +52,9 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
             try {
                 const message: PopupInitializeMessage = {
                     type: 'POPUP_INITIALISE',
-                    senderId: await transport.getActiveSenderId(),
+                    senderId: await transport.getActivePageId(),
                 };
-                await transport.sendToBackground<PopupInitializeMessage, MessageResponse>(message);
+                await transport.sendToBackground<PopupInitializeMessage, Response>(message);
             } catch {
                 // Popup startup should not fail if the active tab cannot receive page messages.
             }
@@ -76,7 +75,7 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
             try {
                 const message: GetPrevQuestionsMessage = {
                     type: 'GET_PREV_QUESTIONS',
-                    senderId: await transport.getActiveSenderId(),
+                    senderId: await transport.getActivePageId(),
                 };
                 const response = await transport.sendToBackground<
                     GetPrevQuestionsMessage,
@@ -122,7 +121,7 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
 
             const message: AskQuestionMessage = {
                 type: 'ASK_QUESTION',
-                senderId: await transport.getActiveSenderId(),
+                senderId: await transport.getActivePageId(),
                 data: { question: normalized },
             };
 
@@ -156,10 +155,10 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         async (element: AgentResultElement) => {
             const message: NavigateToElementMessage = {
                 type: 'NAVIGATE_TO_ELEMENT',
-                senderId: await transport.getActiveSenderId(),
+                senderId: await transport.getActivePageId(),
                 data: { element },
             };
-            await transport.sendToBackground<NavigateToElementMessage, MessageResponse>(message);
+            await transport.sendToBackground<NavigateToElementMessage, Response>(message);
         },
         [transport],
     );
@@ -169,10 +168,10 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         async (tab?: string) => {
             const message: OpenPageInspectorMessage = {
                 type: 'OPEN_PAGE_INSPECTOR',
-                senderId: await transport.getActiveSenderId(),
+                senderId: await transport.getActivePageId(),
                 data: { tab },
             };
-            await transport.sendToBackground<OpenPageInspectorMessage, MessageResponse>(message);
+            await transport.sendToBackground<OpenPageInspectorMessage, Response>(message);
         },
         [transport],
     );

@@ -21,8 +21,8 @@ describe('PageInspectorMessageHandler', () => {
         // Then
         expect(response).toEqual({ success: true });
         expect(transport.getSentToPage()).toEqual([
-            { senderId: 7, message: { type: 'CLEAR_PAGE' } },
-            { senderId: 7, message: { type: 'OPEN_INSPECTOR', data: { tab: 'semantic' } } },
+            { pageId: 7, message: { type: 'CLEAR_PAGE' } },
+            { pageId: 7, message: { type: 'OPEN_INSPECTOR', data: { tab: 'semantic' } } },
         ]);
     });
 

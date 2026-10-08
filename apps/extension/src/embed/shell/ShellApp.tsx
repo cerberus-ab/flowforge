@@ -1,4 +1,4 @@
-import type { TransportService } from '@/adapters/interface';
+import type { TransportService } from '@/adapters';
 
 import { Main } from '@/shared/components/Main';
 import { PopupApp, type PopupAppDemoProps } from '@/popup/PopupApp';

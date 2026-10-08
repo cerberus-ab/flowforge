@@ -1,4 +1,4 @@
-import type { TransportService } from '@/adapters/interface';
+import type { TransportService } from '@/adapters';
 
 import { usePage } from '@/page/hooks/usePage';
 import { Highlight } from '@/page/components/Highlight';

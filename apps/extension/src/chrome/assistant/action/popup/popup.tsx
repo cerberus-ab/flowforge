@@ -3,12 +3,11 @@ import { render } from 'preact';
 import '@/popup/index.css';
 
 import { PopupApp } from '@/popup/PopupApp';
-import { ChromeTransportService } from '@/adapters/chrome/ChromeTransportService';
+import { ChromeTransportService, type TransportService } from '@/adapters';
 import { DocumentRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
-import type { TransportService } from '@/adapters/interface';
 
 function PopupAppRoot({ transport }: { transport: TransportService }) {
     const settings = useSettings({ transport });

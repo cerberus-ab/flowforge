@@ -5,10 +5,11 @@ import {
     isOpenInspectorMessage,
     isStartOnboardingMessage,
 } from '@/types';
-import type { Message, StartOnboardingMessageData } from '@/types';
+import type { Message } from '@/adapters';
+import type { StartOnboardingMessageData } from '@/types';
 import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { findElement, getOrCreateDataId } from '@/core/locator/locate';
-import type { TransportService } from '@/adapters/interface';
+import type { TransportService } from '@/adapters';
 import { constants } from '@/constants';
 import type { AgentResultElement } from '@flowforge/contract';
 import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';

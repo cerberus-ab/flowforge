@@ -1,4 +1,4 @@
-import type { LocalStorage } from '@/adapters/interface';
+import type { LocalStorage } from '@/adapters';
 import { constants } from '@/constants';
 import type { ExtensionSettings } from '@/types';
 
