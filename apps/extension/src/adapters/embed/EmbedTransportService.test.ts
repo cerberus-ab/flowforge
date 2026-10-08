@@ -13,7 +13,7 @@ describe('EmbedTransportService', () => {
 
     it('dispatches background and page messages to registered handlers', async () => {
         const transport = new EmbedTransportService();
-        const message = { type: 'GET_SETTINGS' } as const;
+        const message = { type: 'GET_SETTINGS', pageId: 1 } as const;
 
         transport.addMessageListener((received) => {
             if (received.type === 'GET_SETTINGS') {
@@ -37,7 +37,7 @@ describe('EmbedTransportService', () => {
 
         unsubscribe();
 
-        await expect(transport.sendToBackground({ type: 'GET_SETTINGS' })).rejects.toThrow(
+        await expect(transport.sendToBackground({ type: 'GET_SETTINGS', pageId: 1 })).rejects.toThrow(
             'Message handler is not registered',
         );
     });
@@ -46,7 +46,7 @@ describe('EmbedTransportService', () => {
         const transport = new EmbedTransportService();
         transport.addMessageListener(() => undefined);
 
-        await expect(transport.sendToBackground({ type: 'GET_SETTINGS' })).rejects.toThrow(
+        await expect(transport.sendToBackground({ type: 'GET_SETTINGS', pageId: 1 })).rejects.toThrow(
             'Message handler did not return a response',
         );
     });

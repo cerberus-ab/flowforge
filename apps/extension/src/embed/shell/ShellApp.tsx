@@ -1,5 +1,3 @@
-import type { TransportService } from '@/adapters';
-
 import { Main } from '@/shared/components/Main';
 import { PopupApp, type PopupAppDemoProps } from '@/popup/PopupApp';
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'preact/hooks';
@@ -9,11 +7,12 @@ import { PageApp } from '@/page/PageApp';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Trigger } from '@/embed/shell/components/Trigger';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
+import type { AssistantBackgroundClient } from '@/background/client/contract';
 
 export type ShellAppDemoProps = PopupAppDemoProps;
 
 export interface ShellAppProps {
-    transport: TransportService;
+    backgroundClient: AssistantBackgroundClient;
     demoProps?: ShellAppDemoProps;
     triggerSize?: TriggerSize;
     onShellReady?: () => void;
@@ -25,12 +24,12 @@ export interface ShellAppRef {
 }
 
 export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp(
-    { transport, demoProps, triggerSize, onShellReady },
+    { backgroundClient, demoProps, triggerSize, onShellReady },
     ref,
 ) {
     const [isOpen, setIsOpen] = useState(false);
     const [initialQuestion, setInitialQuestion] = useState<string>();
-    const settings = useSettings({ transport });
+    const settings = useSettings({ backgroundClient });
 
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -103,7 +102,7 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
         <Main theme={settings.theme}>
             <div className="flowforge-shell">
                 <PageApp
-                    transport={transport}
+                    backgroundClient={backgroundClient}
                     devMode={settings.devMode}
                     onDevModeChange={settings.setDevMode}
                     onReady={onShellReady}
@@ -113,7 +112,7 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
                     <div className="flowforge-popup-container" ref={popupRef}>
                         <PopupApp
                             variant="dialog"
-                            transport={transport}
+                            backgroundClient={backgroundClient}
                             demoProps={demoProps}
                             theme={settings.theme}
                             onToggleTheme={settings.toggleTheme}

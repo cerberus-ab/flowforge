@@ -46,7 +46,7 @@ describe('QuestionMessageHandler', () => {
         const handler = new QuestionMessageHandler(transport, apiClient, historyStorage);
         const message: AskQuestionMessage = {
             type: 'ASK_QUESTION',
-            senderId: 7,
+            pageId: 7,
             data: { question: 'How do I save?' },
         };
 
@@ -91,7 +91,7 @@ describe('QuestionMessageHandler', () => {
         await historyStorage.saveQuestion('app.flowforge.test', 'How do I save?');
         const transport = createTransport({ hostname: 'app.flowforge.test' });
         const handler = new QuestionMessageHandler(transport, new FakeApiClient(), historyStorage);
-        const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS', senderId: 7 };
+        const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS', pageId: 7 };
 
         // When
         const response = await handler.handle(message);

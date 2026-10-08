@@ -1,4 +1,4 @@
-import { EmbedTransportService, type Response } from '@/adapters';
+import { EmbedTransportService } from '@/adapters';
 import { type InjectedRoot, ShadowRootInjector } from '@/core/services/RootInjector';
 import { render } from 'preact';
 
@@ -12,8 +12,9 @@ import { createRef, type RefObject } from 'preact/compat';
 import type { AgentResult } from '@flowforge/contract';
 import { mountConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
-import type { ExtensionSettings, OpenPageInspectorMessage } from '@/types';
+import type { ExtensionSettings } from '@/types';
 import { createEmbedBackgroundWorker } from '@/embed/background/createWorker';
+import { BackgroundClient } from '@/background/client/BackgroundClient';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;
@@ -43,6 +44,7 @@ interface RuntimeApi {
 
 export class Runtime implements RuntimeApi {
     private readonly transport: EmbedTransportService;
+    private readonly backgroundClient: BackgroundClient;
     private readonly shellRef: RefObject<ShellAppRef>;
     // on initialization
     private backgroundWorker?: BackgroundWorker;
@@ -50,6 +52,7 @@ export class Runtime implements RuntimeApi {
 
     private constructor() {
         this.transport = new EmbedTransportService();
+        this.backgroundClient = new BackgroundClient(this.transport);
         this.shellRef = createRef<ShellAppRef>();
     }
 
@@ -116,12 +119,7 @@ export class Runtime implements RuntimeApi {
     }
 
     async openPageInspector(tab?: string): Promise<void> {
-        const message: OpenPageInspectorMessage = {
-            type: 'OPEN_PAGE_INSPECTOR',
-            senderId: await this.transport.getActivePageId(),
-            data: { tab },
-        };
-        await this.transport.sendToBackground<OpenPageInspectorMessage, Response>(message);
+        await this.backgroundClient.openPageInspector(tab);
     }
 
     destroy() {
@@ -155,7 +153,7 @@ export class Runtime implements RuntimeApi {
             render(
                 <ShellApp
                     ref={this.shellRef}
-                    transport={this.transport}
+                    backgroundClient={this.backgroundClient}
                     triggerSize={options.triggerSize}
                     demoProps={options.demoProps}
                     onShellReady={resolveShellReady}

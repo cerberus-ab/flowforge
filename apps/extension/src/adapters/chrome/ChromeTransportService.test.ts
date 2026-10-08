@@ -57,7 +57,7 @@ describe('ChromeTransportService', () => {
             },
         });
         const transport = new ChromeTransportService();
-        const message = { type: 'CLEAR_PAGE' } as const;
+        const message = { type: 'CLEAR_PAGE', pageId: 42 } as const;
 
         await expect(transport.sendToBackground(message)).resolves.toEqual({ success: true });
         await expect(transport.sendToPage(42, message)).resolves.toEqual({ success: true });

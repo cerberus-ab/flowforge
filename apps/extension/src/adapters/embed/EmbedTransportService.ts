@@ -1,7 +1,9 @@
-import type { Message, Response, TransportService } from '@/adapters';
+import type { Message, PageMessage, MessageResponse, TransportService } from '@/adapters';
 
 export class EmbedTransportService implements TransportService {
-    private readonly messageHandlers = new Set<(message: Message) => Promise<Response> | Response | undefined>();
+    private readonly messageHandlers = new Set<
+        (message: Message) => Promise<MessageResponse> | MessageResponse | undefined
+    >();
 
     async getActivePageId(): Promise<number> {
         return 1; // not applicable
@@ -11,15 +13,15 @@ export class EmbedTransportService implements TransportService {
         return window.location.hostname;
     }
 
-    async sendToBackground<M extends Message, R extends Response = Response>(message: M): Promise<R> {
+    async sendToBackground<R extends MessageResponse = MessageResponse>(message: PageMessage): Promise<R> {
         return this.send(message);
     }
 
-    async sendToPage<M extends Message, R extends Response = Response>(_pageId: number, message: M): Promise<R> {
+    async sendToPage<R extends MessageResponse = MessageResponse>(_pageId: number, message: Message): Promise<R> {
         return this.send(message);
     }
 
-    addMessageListener<R extends Response = Response>(
+    addMessageListener<R extends MessageResponse = MessageResponse>(
         handler: (message: Message) => Promise<R> | R | undefined,
     ): () => void {
         this.messageHandlers.add(handler);
@@ -28,7 +30,7 @@ export class EmbedTransportService implements TransportService {
         };
     }
 
-    private async send<R extends Response = Response>(message: Message): Promise<R> {
+    private async send<R extends MessageResponse = MessageResponse>(message: Message): Promise<R> {
         if (this.messageHandlers.size === 0) {
             throw new Error('Message handler is not registered');
         }

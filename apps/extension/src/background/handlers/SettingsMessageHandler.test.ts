@@ -25,7 +25,7 @@ describe('SettingsMessageHandler', () => {
         const { handler, transport } = createHandler();
         const message: UpdateSettingsMessage = {
             type: 'UPDATE_SETTINGS',
-            senderId: 7,
+            pageId: 7,
             data: { patch: { theme: 'dark' } },
         };
 

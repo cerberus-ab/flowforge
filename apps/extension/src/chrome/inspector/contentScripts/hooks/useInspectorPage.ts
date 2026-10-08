@@ -1,8 +1,7 @@
-import type { Message, TransportService } from '@/adapters';
-import { isClearPageMessage, isOpenInspectorMessage } from '@/types';
 import { useCallback, useLayoutEffect, useState } from 'preact/hooks';
 import { constants } from '@/constants';
 import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
+import type { InspectorPageBackgroundClient } from '@/background/client/contract';
 
 function collectPageTrail(): PageTrail {
     return PageTrailCollector.collectFor(window, document, {
@@ -13,7 +12,7 @@ function collectPageTrail(): PageTrail {
 }
 
 export interface UseInspectorPageOptions {
-    transport: TransportService;
+    backgroundClient: InspectorPageBackgroundClient;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
 }
@@ -34,7 +33,7 @@ export interface InspectorPageViewModel {
 }
 
 export function useInspectorPage({
-    transport,
+    backgroundClient,
     devMode,
     onDevModeChange,
 }: UseInspectorPageOptions): InspectorPageViewModel {
@@ -50,19 +49,11 @@ export function useInspectorPage({
 
     // Listen to messages from background
     useLayoutEffect(() => {
-        return transport.addMessageListener((message: Message) => {
-            if (isClearPageMessage(message)) {
-                closeInspector();
-                return { success: true };
-            }
-            if (isOpenInspectorMessage(message)) {
-                const pageTrail = collectPageTrail();
-                openInspector(pageTrail, message.data.tab);
-                return { success: true };
-            }
-            return undefined;
+        return backgroundClient.subscribeToInspectorPageCommands({
+            clearPage: closeInspector,
+            openInspector: (tab) => openInspector(collectPageTrail(), tab),
         });
-    }, [transport, openInspector, closeInspector]);
+    }, [backgroundClient, openInspector, closeInspector]);
 
     return {
         inspector: inspector

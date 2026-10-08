@@ -3,11 +3,12 @@ import { describe, expect, it } from 'vitest';
 
 import { config } from '@/config';
 import type { Message } from '@/adapters';
+import { BackgroundClient } from '@/background/client/BackgroundClient';
 import { FakeTransportService } from '../../../../../../test/unit/fakes/FakeTransportService';
 import { useInspectorPopup, type UseInspectorPopupOptions } from './useInspectorPopup';
 
-function PopupHarness({ transport }: UseInspectorPopupOptions) {
-    const popup = useInspectorPopup({ transport });
+function PopupHarness(options: UseInspectorPopupOptions) {
+    const popup = useInspectorPopup(options);
 
     return (
         <section>
@@ -28,6 +29,7 @@ describe('useInspectorPopup', () => {
     it('initializes the popup and exposes its links', async () => {
         // Given
         const transport = new FakeTransportService({ activePageId: 42 });
+        const backgroundClient = new BackgroundClient(transport);
         const messages: Message[] = [];
         transport.addMessageListener((message) => {
             messages.push(message);
@@ -35,11 +37,11 @@ describe('useInspectorPopup', () => {
         });
 
         // When
-        render(<PopupHarness transport={transport} />);
+        render(<PopupHarness backgroundClient={backgroundClient} />);
 
         // Then
         await waitFor(() => {
-            expect(messages).toEqual([{ type: 'POPUP_INITIALISE', senderId: 42 }]);
+            expect(messages).toEqual([{ type: 'POPUP_INITIALISE', pageId: 42 }]);
         });
         expect(screen.getByTestId('website').textContent).toBe(config.website);
         expect(screen.getByTestId('github').textContent).toBe(config.github);
@@ -49,12 +51,13 @@ describe('useInspectorPopup', () => {
     it('opens the inspector with the active sender and optional tab', async () => {
         // Given
         const transport = new FakeTransportService({ activePageId: 42 });
+        const backgroundClient = new BackgroundClient(transport);
         const messages: Message[] = [];
         transport.addMessageListener((message) => {
             messages.push(message);
             return { success: true };
         });
-        render(<PopupHarness transport={transport} />);
+        render(<PopupHarness backgroundClient={backgroundClient} />);
 
         // When
         fireEvent.click(screen.getByRole('button', { name: 'Open inspector' }));
@@ -63,8 +66,8 @@ describe('useInspectorPopup', () => {
         // Then
         await waitFor(() => {
             expect(messages.filter((message) => message.type === 'OPEN_PAGE_INSPECTOR')).toEqual([
-                { type: 'OPEN_PAGE_INSPECTOR', senderId: 42, data: { tab: undefined } },
-                { type: 'OPEN_PAGE_INSPECTOR', senderId: 42, data: { tab: 'interactive' } },
+                { type: 'OPEN_PAGE_INSPECTOR', pageId: 42, data: { tab: undefined } },
+                { type: 'OPEN_PAGE_INSPECTOR', pageId: 42, data: { tab: 'interactive' } },
             ]);
         });
     });
@@ -72,13 +75,14 @@ describe('useInspectorPopup', () => {
     it('keeps the popup usable when initialization fails', async () => {
         // Given
         const transport = new FakeTransportService({ activePageId: 42 });
+        const backgroundClient = new BackgroundClient(transport);
         const messages: Message[] = [];
         transport.addMessageListener((message) => {
             messages.push(message);
             if (message.type === 'POPUP_INITIALISE') throw new Error('Page unavailable');
             return { success: true };
         });
-        render(<PopupHarness transport={transport} />);
+        render(<PopupHarness backgroundClient={backgroundClient} />);
         await waitFor(() => expect(messages[0]?.type).toBe('POPUP_INITIALISE'));
 
         // When
@@ -86,7 +90,7 @@ describe('useInspectorPopup', () => {
 
         // Then
         await waitFor(() => {
-            expect(messages).toContainEqual({ type: 'OPEN_PAGE_INSPECTOR', senderId: 42, data: { tab: undefined } });
+            expect(messages).toContainEqual({ type: 'OPEN_PAGE_INSPECTOR', pageId: 42, data: { tab: undefined } });
         });
     });
 });

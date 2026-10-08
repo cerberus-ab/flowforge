@@ -17,7 +17,7 @@ describe('ElementNavigationMessageHandler', () => {
         } as const;
         const message: NavigateToElementMessage = {
             type: 'NAVIGATE_TO_ELEMENT',
-            senderId: 7,
+            pageId: 7,
             data: { element },
         };
 

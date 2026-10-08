@@ -1,23 +1,14 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
-import type {
-    AskQuestionMessage,
-    AskQuestionMessageResponse,
-    GetPrevQuestionsMessage,
-    GetPrevQuestionsMessageResponse,
-    NavigateToElementMessage,
-    OpenPageInspectorMessage,
-    PopupInitializeMessage,
-} from '@/types';
 import { config } from '@/config';
 import { normalizeText } from '@/core/utils/text';
 import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/data';
 import { buildTryExampleItems } from '@/popup/utils/data';
-import type { Response, TransportService } from '@/adapters';
 import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 import { formatQueryResponseMetadata } from '@/popup/utils/format';
+import type { PopupBackgroundClient } from '@/background/client/contract';
 
 export interface UsePopupOptions {
-    transport: TransportService;
+    backgroundClient: PopupBackgroundClient;
     presetQuestions?: string[];
     initialQuestion?: string;
 }
@@ -34,11 +25,11 @@ export interface PopupViewModel {
     github: string;
     askQuestion: () => Promise<void>;
     applyExampleQuestion: (question: string) => void;
-    navigateToElement: (element: AgentResultElement) => void;
+    navigateToElement: (element: AgentResultElement) => Promise<void>;
     openPageInspector: (tab?: string) => Promise<void>;
 }
 
-export function usePopup({ transport, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
+export function usePopup({ backgroundClient, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
     const [question, setQuestion] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<AgentResult | null>(null);
@@ -50,16 +41,12 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
     useEffect(() => {
         void (async () => {
             try {
-                const message: PopupInitializeMessage = {
-                    type: 'POPUP_INITIALISE',
-                    senderId: await transport.getActivePageId(),
-                };
-                await transport.sendToBackground<PopupInitializeMessage, Response>(message);
+                await backgroundClient.initializePopup();
             } catch {
                 // Popup startup should not fail if the active tab cannot receive page messages.
             }
         })();
-    }, [transport]);
+    }, [backgroundClient]);
 
     // Initialize questions examples
     useEffect(() => {
@@ -73,17 +60,10 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         // Load previous questions
         const loadPreviousQuestions = async () => {
             try {
-                const message: GetPrevQuestionsMessage = {
-                    type: 'GET_PREV_QUESTIONS',
-                    senderId: await transport.getActivePageId(),
-                };
-                const response = await transport.sendToBackground<
-                    GetPrevQuestionsMessage,
-                    GetPrevQuestionsMessageResponse
-                >(message);
+                const questions = await backgroundClient.getPreviousQuestions();
 
-                if (response.success && response.data.questions.length > 0) {
-                    setExamples(buildTryExampleItems(config.exampleQuestions, response.data.questions));
+                if (questions.length > 0) {
+                    setExamples(buildTryExampleItems(config.exampleQuestions, questions));
                 }
             } catch (err) {
                 console.warn('[FlowForge] Failed to load previous questions:', err);
@@ -91,7 +71,7 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
         };
 
         void loadPreviousQuestions();
-    }, [presetQuestions, transport]);
+    }, [presetQuestions, backgroundClient]);
 
     // Initialize initial question if presented
     useEffect(() => {
@@ -119,31 +99,21 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
             }
             setIsLoading(true);
 
-            const message: AskQuestionMessage = {
-                type: 'ASK_QUESTION',
-                senderId: await transport.getActivePageId(),
-                data: { question: normalized },
-            };
-
-            const response = await transport.sendToBackground<AskQuestionMessage, AskQuestionMessageResponse>(message);
+            const response = await backgroundClient.askQuestion(normalized);
 
             setIsLoading(false);
 
-            if (!response.success) {
-                setError(response.error ?? 'Unknown error occurred');
-                return;
-            }
-            if (!response.data) {
+            if (!response) {
                 setError('Empty response received');
                 return;
             }
-            setResult(response.data.result);
-            setResultMetadata(formatQueryResponseMetadata(response.data.metadata));
+            setResult(response.result);
+            setResultMetadata(formatQueryResponseMetadata(response.metadata));
         } catch (err) {
             setIsLoading(false);
             setError(err instanceof Error ? err.message : 'Unknown error occurred');
         }
-    }, [question, transport]);
+    }, [question, backgroundClient]);
 
     // Handle example selection
     const handleSelectExample = useCallback((selectedQuestion: string) => {
@@ -153,27 +123,17 @@ export function usePopup({ transport, presetQuestions, initialQuestion }: UsePop
     // Handle navigation to an element
     const handleNavigateToElement = useCallback(
         async (element: AgentResultElement) => {
-            const message: NavigateToElementMessage = {
-                type: 'NAVIGATE_TO_ELEMENT',
-                senderId: await transport.getActivePageId(),
-                data: { element },
-            };
-            await transport.sendToBackground<NavigateToElementMessage, Response>(message);
+            await backgroundClient.navigateToElement(element);
         },
-        [transport],
+        [backgroundClient],
     );
 
     // Handle open inspector
     const handleOpenPageInspector = useCallback(
         async (tab?: string) => {
-            const message: OpenPageInspectorMessage = {
-                type: 'OPEN_PAGE_INSPECTOR',
-                senderId: await transport.getActivePageId(),
-                data: { tab },
-            };
-            await transport.sendToBackground<OpenPageInspectorMessage, Response>(message);
+            await backgroundClient.openPageInspector(tab);
         },
-        [transport],
+        [backgroundClient],
     );
 
     return {

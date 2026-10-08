@@ -1,5 +1,5 @@
-import type { Message, Response } from '@/adapters';
+import type { Message, MessageResponse } from '@/adapters';
 
 export interface BackgroundMessageHandler {
-    handle(message: Message): Promise<Response> | Response | undefined;
+    handle(message: Message): Promise<MessageResponse> | MessageResponse | undefined;
 }

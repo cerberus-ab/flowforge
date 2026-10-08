@@ -41,13 +41,12 @@ export class SettingsMessageHandler implements BackgroundMessageHandler {
     /** Persists a settings patch and broadcasts the updated settings. */
     private async handleUpdateSettings(message: UpdateSettingsMessage): Promise<UpdateSettingsMessageResponse> {
         const updatedSettings = await this.settingsStorage.update(message.data.patch);
-        if (message.senderId !== undefined) {
-            void this.transport
-                .sendToPage<SettingsUpdatedMessage>(message.senderId, {
-                    type: 'SETTINGS_UPDATED',
-                    data: updatedSettings,
-                })
-                .catch(() => undefined);
+        if (message.pageId !== undefined) {
+            const settingsUpdatedMessage: SettingsUpdatedMessage = {
+                type: 'SETTINGS_UPDATED',
+                data: updatedSettings,
+            };
+            void this.transport.sendToPage(message.pageId, settingsUpdatedMessage).catch(() => undefined);
         }
         return { success: true, data: updatedSettings };
     }

@@ -2,7 +2,8 @@ import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { Response } from '@/adapters';
+import type { MessageResponse } from '@/adapters';
+import { BackgroundClient } from '@/background/client/BackgroundClient';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePage, type UsePageOptions } from './usePage';
 
@@ -28,8 +29,13 @@ function addTargetButton(element: AgentResultElement) {
     document.body.append(button);
 }
 
-function PageHarness({ transport, devMode = false, onDevModeChange = () => undefined, onReady }: UsePageOptions) {
-    const page = usePage({ transport, devMode, onDevModeChange, onReady });
+function PageHarness({
+    backgroundClient,
+    devMode = false,
+    onDevModeChange = () => undefined,
+    onReady,
+}: UsePageOptions) {
+    const page = usePage({ backgroundClient, devMode, onDevModeChange, onReady });
 
     return (
         <section>
@@ -48,10 +54,18 @@ function PageHarness({ transport, devMode = false, onDevModeChange = () => undef
     );
 }
 
-function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'transport'>> = {}) {
+function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'backgroundClient'>> = {}) {
     const transport = new FakeTransportService();
+    const backgroundClient = new BackgroundClient(transport);
 
-    render(<PageHarness transport={transport} devMode={false} onDevModeChange={() => undefined} onReady={onReady} />);
+    render(
+        <PageHarness
+            backgroundClient={backgroundClient}
+            devMode={false}
+            onDevModeChange={() => undefined}
+            onReady={onReady}
+        />,
+    );
 
     return { transport };
 }
@@ -72,7 +86,7 @@ describe('usePage', () => {
         // Then
         expect(onReady).toHaveBeenCalledTimes(1);
         expect(response.success).toBe(true);
-        const pageTrailDto = (response as Response<PageTrailDto> & { success: true }).data;
+        const pageTrailDto = (response as MessageResponse<PageTrailDto> & { success: true }).data;
         expect(pageTrailDto.basics.title).toBe('FlowForge Page');
         expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
     });

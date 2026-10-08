@@ -11,7 +11,7 @@ describe('PageInspectorMessageHandler', () => {
         const handler = new PageInspectorMessageHandler(transport);
         const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
-            senderId: 7,
+            pageId: 7,
             data: { tab: 'semantic' },
         };
 
@@ -35,7 +35,7 @@ describe('PageInspectorMessageHandler', () => {
         const handler = new PageInspectorMessageHandler(transport);
         const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
-            senderId: 7,
+            pageId: 7,
             data: {},
         };
 
