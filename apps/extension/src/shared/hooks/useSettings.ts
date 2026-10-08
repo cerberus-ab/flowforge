@@ -1,17 +1,10 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { Message, Response, TransportService } from '@/adapters';
-import {
-    type ExtensionSettings,
-    type GetSettingsMessage,
-    type GetSettingsMessageResponse,
-    type UpdateSettingsMessage,
-    type UpdateSettingsMessageResponse,
-    isSettingsUpdatedMessage,
-} from '@/types';
+import type { ExtensionSettings } from '@/types';
 import { config } from '@/config';
+import type { SettingsBackgroundClient } from '@/background/client/contract';
 
 interface UseSettingsParams {
-    transport: TransportService;
+    backgroundClient: SettingsBackgroundClient;
 }
 
 export interface SettingsReadyViewModel extends ExtensionSettings {
@@ -26,46 +19,33 @@ export interface SettingsLoadingViewModel {
 
 export type SettingsViewModel = SettingsLoadingViewModel | SettingsReadyViewModel;
 
-export function useSettings({ transport }: UseSettingsParams): SettingsViewModel {
+export function useSettings({ backgroundClient }: UseSettingsParams): SettingsViewModel {
     const [settings, setSettings] = useState<ExtensionSettings | null>(null);
 
     // Get settings on mount
     useEffect(() => {
         void (async () => {
             try {
-                const response = await transport.sendToBackground<GetSettingsMessage, GetSettingsMessageResponse>({
-                    type: 'GET_SETTINGS',
-                });
-                setSettings(response.success ? response.data : config.defaultSettings);
+                setSettings(await backgroundClient.getSettings());
             } catch {
                 setSettings(config.defaultSettings);
             }
         })();
-    }, [transport]);
+    }, [backgroundClient]);
 
     useEffect(() => {
-        return transport.addMessageListener((message: Message): Response | undefined => {
-            if (isSettingsUpdatedMessage(message)) {
-                setSettings(message.data);
-                return { success: true };
-            }
-            return undefined;
-        });
-    }, [transport]);
+        return backgroundClient.subscribeToSettingsCommands({ settingsUpdated: setSettings });
+    }, [backgroundClient]);
 
     const handleUpdateSettings = useCallback(
         async (patch: Partial<ExtensionSettings>) => {
-            const senderId = await transport.getActivePageId().catch(() => undefined);
-            const response = await transport.sendToBackground<UpdateSettingsMessage, UpdateSettingsMessageResponse>({
-                type: 'UPDATE_SETTINGS',
-                senderId,
-                data: { patch },
-            });
-            if (response.success) {
-                setSettings(response.data);
+            try {
+                setSettings(await backgroundClient.updateSettings(patch));
+            } catch {
+                // Keep the current settings when persistence fails.
             }
         },
-        [transport],
+        [backgroundClient],
     );
 
     if (!settings) {

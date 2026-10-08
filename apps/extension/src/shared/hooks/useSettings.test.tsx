@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, Response, TransportService } from '@/adapters';
+import type { Message, MessageResponse } from '@/adapters';
+import { BackgroundClient } from '@/background/client/BackgroundClient';
+import type { SettingsBackgroundClient } from '@/background/client/contract';
 import { config } from '@/config';
 import type { ExtensionSettings } from '@/types';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
@@ -12,10 +14,10 @@ const initialSettings = createSettingsFixture();
 const darkThemeSettings = createSettingsFixture({ theme: 'dark' });
 const devModeSettings = createSettingsFixture({ devMode: true });
 
-type TestMessageResponse = Response | Response<ExtensionSettings>;
+type TestMessageResponse = MessageResponse | MessageResponse<ExtensionSettings>;
 
-function SettingsHarness({ transport }: { transport: TransportService }) {
-    const settings = useSettings({ transport });
+function SettingsHarness({ backgroundClient }: { backgroundClient: SettingsBackgroundClient }) {
+    const settings = useSettings({ backgroundClient });
 
     if (settings.status === 'loading') {
         return <div data-testid="status">loading</div>;
@@ -41,6 +43,7 @@ function renderSettings({
     handler?: (message: Message) => Promise<TestMessageResponse> | TestMessageResponse | undefined;
 } = {}) {
     const transport = new FakeTransportService({ activePageId: 42 });
+    const backgroundClient = new BackgroundClient(transport);
     const messages: Message[] = [];
 
     transport.addMessageListener((message) => {
@@ -55,7 +58,7 @@ function renderSettings({
         return undefined;
     });
 
-    render(<SettingsHarness transport={transport} />);
+    render(<SettingsHarness backgroundClient={backgroundClient} />);
 
     return { messages, transport };
 }
@@ -133,7 +136,7 @@ describe('useSettings', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     type: 'UPDATE_SETTINGS',
-                    senderId: 42,
+                    pageId: 42,
                     data: {
                         patch: {
                             theme: 'dark',

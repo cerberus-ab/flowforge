@@ -1,5 +1,5 @@
-import type { Message, Response, TransportService } from '@/adapters';
-import { type ClearPageMessage, isPopupInitializeMessage, type PopupInitializeMessage } from '@/types';
+import type { Message, MessageResponse, TransportService } from '@/adapters';
+import { isPopupInitializeMessage, type PopupInitializeMessage } from '@/types';
 
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
 
@@ -16,15 +16,15 @@ export class PopupLifecycleMessageHandler implements BackgroundMessageHandler {
     }
 
     /** Routes supported popup lifecycle messages to their operations. */
-    handle(message: Message): Response | undefined {
+    handle(message: Message): MessageResponse | undefined {
         if (isPopupInitializeMessage(message)) return this.handlePopupInitialize(message);
         return undefined;
     }
 
     /** Clears existing page UI when the popup initializes. */
-    private handlePopupInitialize(message: PopupInitializeMessage): Response {
+    private handlePopupInitialize(message: PopupInitializeMessage): MessageResponse {
         void this.transport
-            .sendToPage<ClearPageMessage>(message.senderId, {
+            .sendToPage(message.pageId, {
                 type: 'CLEAR_PAGE',
             })
             .catch(() => undefined);

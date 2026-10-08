@@ -1,4 +1,4 @@
-import type { TransportService } from '@/adapters';
+import type { PageBackgroundClient } from '@/background/client/contract';
 
 import { usePage } from '@/page/hooks/usePage';
 import { Highlight } from '@/page/components/Highlight';
@@ -6,14 +6,14 @@ import { Wizard } from '@/page/components/Wizard';
 import { Inspector } from '@/page/components/Inspector';
 
 export interface PageAppProps {
-    transport: TransportService;
+    backgroundClient: PageBackgroundClient;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
     onReady?: () => void;
 }
 
-export function PageApp({ transport, devMode, onDevModeChange, onReady }: PageAppProps) {
-    const { highlights, wizard, inspector } = usePage({ transport, devMode, onDevModeChange, onReady });
+export function PageApp({ backgroundClient, devMode, onDevModeChange, onReady }: PageAppProps) {
+    const { highlights, wizard, inspector } = usePage({ backgroundClient, devMode, onDevModeChange, onReady });
 
     return (
         <div className="flowforge-page" data-testid="flowforge-page">

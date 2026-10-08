@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'preact/hooks';
-import type { TransportService } from '@/adapters';
+import type { PopupBackgroundClient } from '@/background/client/contract';
 
 import { usePopup } from './hooks/usePopup';
 import { Question } from './components/Question';
@@ -24,7 +24,7 @@ export type PopupAppDemoProps =
 
 export interface PopupAppProps {
     variant: 'page' | 'dialog';
-    transport: TransportService;
+    backgroundClient: PopupBackgroundClient;
     demoProps?: PopupAppDemoProps;
     theme: ExtensionSettingsTheme;
     onToggleTheme: () => Promise<void>;
@@ -34,7 +34,7 @@ export interface PopupAppProps {
 
 export function PopupApp({
     variant,
-    transport,
+    backgroundClient,
     demoProps,
     theme,
     onToggleTheme,
@@ -56,7 +56,7 @@ export function PopupApp({
         navigateToElement,
         openPageInspector,
     } = usePopup({
-        transport,
+        backgroundClient,
         presetQuestions: demoProps?.enabled ? demoProps.setup.stubQuestions : undefined,
         initialQuestion,
     });

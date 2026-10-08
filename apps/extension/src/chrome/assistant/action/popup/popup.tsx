@@ -3,14 +3,15 @@ import { render } from 'preact';
 import '@/popup/index.css';
 
 import { PopupApp } from '@/popup/PopupApp';
-import { ChromeTransportService, type TransportService } from '@/adapters';
+import { ChromeTransportService } from '@/adapters';
 import { DocumentRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
+import { BackgroundClient } from '@/background/client/BackgroundClient';
 
-function PopupAppRoot({ transport }: { transport: TransportService }) {
-    const settings = useSettings({ transport });
+function PopupAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient }) {
+    const settings = useSettings({ backgroundClient });
 
     if (settings.status === 'loading') {
         return null;
@@ -19,7 +20,7 @@ function PopupAppRoot({ transport }: { transport: TransportService }) {
         <Main theme={settings.theme}>
             <PopupApp
                 variant="page"
-                transport={transport}
+                backgroundClient={backgroundClient}
                 theme={settings.theme}
                 onToggleTheme={settings.toggleTheme}
                 onClose={() => window.close()}
@@ -30,11 +31,12 @@ function PopupAppRoot({ transport }: { transport: TransportService }) {
 
 (function main() {
     const transport = new ChromeTransportService();
+    const backgroundClient = new BackgroundClient(transport);
     const rootInjector = new DocumentRootInjector();
 
     const doMount = () => {
         const root = rootInjector.inject(document, mountConstants.POPUP_ROOT_ID);
-        render(<PopupAppRoot transport={transport} />, root.mountPoint);
+        render(<PopupAppRoot backgroundClient={backgroundClient} />, root.mountPoint);
         console.log('[FlowForge] Popup loaded');
     };
 

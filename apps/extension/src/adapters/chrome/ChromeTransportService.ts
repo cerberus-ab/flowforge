@@ -1,4 +1,4 @@
-import type { Message, Response, TransportService } from '@/adapters';
+import type { Message, PageMessage, MessageResponse, TransportService } from '@/adapters';
 
 /**
  * Chrome-based implementation of TransportService
@@ -27,15 +27,15 @@ export class ChromeTransportService implements TransportService {
         return new URL(tab.url).hostname;
     }
 
-    public async sendToBackground<M extends Message, R extends Response = Response>(message: M): Promise<R> {
-        return chrome.runtime.sendMessage<M, R>(message);
+    public async sendToBackground<R extends MessageResponse = MessageResponse>(message: PageMessage): Promise<R> {
+        return chrome.runtime.sendMessage<PageMessage, R>(message);
     }
 
-    public async sendToPage<M extends Message, R extends Response = Response>(pageId: number, message: M): Promise<R> {
-        return chrome.tabs.sendMessage<M, R>(pageId, message);
+    public async sendToPage<R extends MessageResponse = MessageResponse>(pageId: number, message: Message): Promise<R> {
+        return chrome.tabs.sendMessage<Message, R>(pageId, message);
     }
 
-    public addMessageListener<R extends Response = Response>(
+    public addMessageListener<R extends MessageResponse = MessageResponse>(
         handler: (message: Message) => Promise<R> | R | undefined,
     ): () => void {
         const listener = (

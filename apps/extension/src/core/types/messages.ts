@@ -1,6 +1,6 @@
 import type { AgentResultElement, AgentResultMode, PageTrailDto, QueryResponse } from '@flowforge/contract';
 
-import type { Message, Response } from '@/adapters';
+import type { Message, MessageResponse } from '@/adapters';
 import type { ExtensionSettings } from '@/core/types/settings';
 
 // Popup, Page -> Background
@@ -11,7 +11,7 @@ export type GetSettingsMessage = Message & {
 
 export type GetSettingsMessageResponseData = ExtensionSettings;
 
-export type GetSettingsMessageResponse = Response<GetSettingsMessageResponseData>;
+export type GetSettingsMessageResponse = MessageResponse<GetSettingsMessageResponseData>;
 
 export type UpdateSettingsMessageData = {
     patch: Partial<ExtensionSettings>;
@@ -19,18 +19,18 @@ export type UpdateSettingsMessageData = {
 
 export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
     type: 'UPDATE_SETTINGS';
-    senderId?: number;
+    pageId?: number;
 };
 
 export type UpdateSettingsMessageResponseData = ExtensionSettings;
 
-export type UpdateSettingsMessageResponse = Response<UpdateSettingsMessageResponseData>;
+export type UpdateSettingsMessageResponse = MessageResponse<UpdateSettingsMessageResponseData>;
 
 // Popup -> Background
 
 export type PopupInitializeMessage = Message & {
     type: 'POPUP_INITIALISE';
-    senderId: number;
+    pageId: number;
 };
 
 export interface AskQuestionMessageData {
@@ -39,23 +39,23 @@ export interface AskQuestionMessageData {
 
 export type AskQuestionMessage = Message<AskQuestionMessageData> & {
     type: 'ASK_QUESTION';
-    senderId: number;
+    pageId: number;
 };
 
 export type AskQuestionMessageResponseData = QueryResponse;
 
-export type AskQuestionMessageResponse = Response<AskQuestionMessageResponseData>;
+export type AskQuestionMessageResponse = MessageResponse<AskQuestionMessageResponseData>;
 
 export type GetPrevQuestionsMessage = Message & {
     type: 'GET_PREV_QUESTIONS';
-    senderId: number;
+    pageId: number;
 };
 
 export interface GetPrevQuestionsMessageResponseData {
     questions: string[];
 }
 
-export type GetPrevQuestionsMessageResponse = Response<GetPrevQuestionsMessageResponseData>;
+export type GetPrevQuestionsMessageResponse = MessageResponse<GetPrevQuestionsMessageResponseData>;
 
 export interface NavigateToElementMessageData {
     element: AgentResultElement;
@@ -63,7 +63,7 @@ export interface NavigateToElementMessageData {
 
 export type NavigateToElementMessage = Message<NavigateToElementMessageData> & {
     type: 'NAVIGATE_TO_ELEMENT';
-    senderId: number;
+    pageId: number;
 };
 
 export interface OpenPageInspectorMessageData {
@@ -72,7 +72,7 @@ export interface OpenPageInspectorMessageData {
 
 export type OpenPageInspectorMessage = Message<OpenPageInspectorMessageData> & {
     type: 'OPEN_PAGE_INSPECTOR';
-    senderId: number;
+    pageId: number;
 };
 
 export type CollectPageTrailMessage = Message & {
@@ -81,7 +81,7 @@ export type CollectPageTrailMessage = Message & {
 
 export type CollectPageTrailMessageResponseData = PageTrailDto;
 
-export type CollectPageTrailMessageResponse = Response<CollectPageTrailMessageResponseData>;
+export type CollectPageTrailMessageResponse = MessageResponse<CollectPageTrailMessageResponseData>;
 
 export interface StartOnboardingMessageData {
     title: string;

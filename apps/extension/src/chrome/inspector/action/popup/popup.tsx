@@ -4,7 +4,7 @@ import './popup.css';
 
 import { DocumentRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/inspector/constants';
-import { ChromeTransportService, type TransportService } from '@/adapters';
+import { ChromeTransportService } from '@/adapters';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import type { ExtensionSettingsTheme } from '@/types';
@@ -13,16 +13,18 @@ import { useCallback } from 'preact/hooks';
 import { Opener } from '@/chrome/inspector/action/popup/components/Opener';
 import { Link } from '@/shared/components/Link';
 import { ButtonText } from '@/shared/components/Button';
+import { BackgroundClient } from '@/background/client/BackgroundClient';
+import type { InspectorPopupBackgroundClient } from '@/background/client/contract';
 
 export interface InspectorPopupAppProps {
-    transport: TransportService;
+    backgroundClient: InspectorPopupBackgroundClient;
     theme: ExtensionSettingsTheme;
     onToggleTheme: () => Promise<void>;
     onClose?: () => void;
 }
 
-export function InspectorPopupApp({ transport, theme, onToggleTheme, onClose }: InspectorPopupAppProps) {
-    const { copyright, github, website, openPageInspector } = useInspectorPopup({ transport });
+export function InspectorPopupApp({ backgroundClient, theme, onToggleTheme, onClose }: InspectorPopupAppProps) {
+    const { copyright, github, website, openPageInspector } = useInspectorPopup({ backgroundClient });
 
     // Handle open page inspector and close popup
     const handleOpenPageInspector = useCallback(
@@ -54,8 +56,8 @@ export function InspectorPopupApp({ transport, theme, onToggleTheme, onClose }: 
     );
 }
 
-function InspectorPopupAppRoot({ transport }: { transport: TransportService }) {
-    const settings = useSettings({ transport });
+function InspectorPopupAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient }) {
+    const settings = useSettings({ backgroundClient });
 
     if (settings.status === 'loading') {
         return null;
@@ -63,7 +65,7 @@ function InspectorPopupAppRoot({ transport }: { transport: TransportService }) {
     return (
         <Main theme={settings.theme}>
             <InspectorPopupApp
-                transport={transport}
+                backgroundClient={backgroundClient}
                 theme={settings.theme}
                 onToggleTheme={settings.toggleTheme}
                 onClose={() => window.close()}
@@ -74,11 +76,12 @@ function InspectorPopupAppRoot({ transport }: { transport: TransportService }) {
 
 (function main() {
     const transport = new ChromeTransportService();
+    const backgroundClient = new BackgroundClient(transport);
     const rootInjector = new DocumentRootInjector();
 
     const doMount = () => {
         const root = rootInjector.inject(document, mountConstants.INSPECTOR_POPUP_ROOT_ID);
-        render(<InspectorPopupAppRoot transport={transport} />, root.mountPoint);
+        render(<InspectorPopupAppRoot backgroundClient={backgroundClient} />, root.mountPoint);
         console.log('[FlowForge] Inspector popup loaded');
     };
 

@@ -2,7 +2,8 @@ import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, Response } from '@/adapters';
+import type { Message, MessageResponse } from '@/adapters';
+import { BackgroundClient } from '@/background/client/BackgroundClient';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';
 
@@ -67,7 +68,7 @@ function PopupHarness(options: UsePopupOptions) {
     );
 }
 
-type TestMessageResponse = Response | Response<{ questions: string[] }> | Response<QueryResponse>;
+type TestMessageResponse = MessageResponse | MessageResponse<{ questions: string[] }> | MessageResponse<QueryResponse>;
 
 function defaultResponseFor(message: Message): TestMessageResponse {
     if (message.type === 'GET_PREV_QUESTIONS') {
@@ -87,6 +88,7 @@ function renderPopup({
     handler?: (message: Message) => Promise<TestMessageResponse> | TestMessageResponse | undefined;
 } = {}) {
     const transport = new FakeTransportService({ activePageId: 42 });
+    const backgroundClient = new BackgroundClient(transport);
     const messages: Message[] = [];
 
     transport.addMessageListener((message) => {
@@ -94,7 +96,7 @@ function renderPopup({
         return handler?.(message) ?? defaultResponseFor(message);
     });
 
-    render(<PopupHarness transport={transport} />);
+    render(<PopupHarness backgroundClient={backgroundClient} />);
 
     return { messages };
 }
@@ -122,11 +124,11 @@ describe('usePopup', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     type: 'POPUP_INITIALISE',
-                    senderId: 42,
+                    pageId: 42,
                 }),
                 expect.objectContaining({
                     type: 'GET_PREV_QUESTIONS',
-                    senderId: 42,
+                    pageId: 42,
                 }),
             ]),
         );
@@ -171,7 +173,7 @@ describe('usePopup', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     type: 'ASK_QUESTION',
-                    senderId: 42,
+                    pageId: 42,
                     data: {
                         question: 'How do I open settings?',
                     },
@@ -182,11 +184,11 @@ describe('usePopup', () => {
 
     it('shows loading while a question request is pending', async () => {
         // Given
-        let resolveQuestion!: (response: Response<QueryResponse>) => void;
+        let resolveQuestion!: (response: MessageResponse<QueryResponse>) => void;
         renderPopup({
             handler: (message) => {
                 if (message.type === 'ASK_QUESTION') {
-                    return new Promise<Response<QueryResponse>>((resolve) => {
+                    return new Promise<MessageResponse<QueryResponse>>((resolve) => {
                         resolveQuestion = resolve;
                     });
                 }
@@ -251,14 +253,14 @@ describe('usePopup', () => {
                 expect.arrayContaining([
                     expect.objectContaining({
                         type: 'NAVIGATE_TO_ELEMENT',
-                        senderId: 42,
+                        pageId: 42,
                         data: {
                             element: resultElement,
                         },
                     }),
                     expect.objectContaining({
                         type: 'OPEN_PAGE_INSPECTOR',
-                        senderId: 42,
+                        pageId: 42,
                         data: {
                             tab: 'interactive',
                         },

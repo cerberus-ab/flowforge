@@ -1,10 +1,9 @@
 import { config } from '@/config';
 import { useCallback, useEffect } from 'preact/hooks';
-import type { Response, TransportService } from '@/adapters';
-import type { OpenPageInspectorMessage, PopupInitializeMessage } from '@/types';
+import type { InspectorPopupBackgroundClient } from '@/background/client/contract';
 
 export interface UseInspectorPopupOptions {
-    transport: TransportService;
+    backgroundClient: InspectorPopupBackgroundClient;
 }
 
 export interface InspectorPopupViewModel {
@@ -14,33 +13,24 @@ export interface InspectorPopupViewModel {
     openPageInspector: (tab?: string) => Promise<void>;
 }
 
-export function useInspectorPopup({ transport }: UseInspectorPopupOptions): InspectorPopupViewModel {
+export function useInspectorPopup({ backgroundClient }: UseInspectorPopupOptions): InspectorPopupViewModel {
     // Clear page UI state when popup opens.
     useEffect(() => {
         void (async () => {
             try {
-                const message: PopupInitializeMessage = {
-                    type: 'POPUP_INITIALISE',
-                    senderId: await transport.getActivePageId(),
-                };
-                await transport.sendToBackground<PopupInitializeMessage, Response>(message);
+                await backgroundClient.initializePopup();
             } catch {
                 // Popup startup should not fail if the active tab cannot receive page messages.
             }
         })();
-    }, [transport]);
+    }, [backgroundClient]);
 
     // Handle open inspector
     const handleOpenPageInspector = useCallback(
         async (tab?: string) => {
-            const message: OpenPageInspectorMessage = {
-                type: 'OPEN_PAGE_INSPECTOR',
-                senderId: await transport.getActivePageId(),
-                data: { tab },
-            };
-            await transport.sendToBackground<OpenPageInspectorMessage, Response>(message);
+            await backgroundClient.openPageInspector(tab);
         },
-        [transport],
+        [backgroundClient],
     );
 
     return {

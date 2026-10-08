@@ -1,18 +1,10 @@
-import {
-    isClearPageMessage,
-    isCollectPageTrailMessage,
-    isHighlightElementMessage,
-    isOpenInspectorMessage,
-    isStartOnboardingMessage,
-} from '@/types';
-import type { Message } from '@/adapters';
 import type { StartOnboardingMessageData } from '@/types';
 import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { findElement, getOrCreateDataId } from '@/core/locator/locate';
-import type { TransportService } from '@/adapters';
 import { constants } from '@/constants';
 import type { AgentResultElement } from '@flowforge/contract';
 import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
+import type { PageBackgroundClient } from '@/background/client/contract';
 
 function collectPageTrail(): PageTrail {
     return PageTrailCollector.collectFor(window, document, {
@@ -23,7 +15,7 @@ function collectPageTrail(): PageTrail {
 }
 
 export interface UsePageOptions {
-    transport: TransportService;
+    backgroundClient: PageBackgroundClient;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
     onReady?: () => void;
@@ -70,7 +62,7 @@ export interface PageViewModel {
     inspector: InspectorViewModel | null;
 }
 
-export function usePage({ transport, devMode, onDevModeChange, onReady }: UsePageOptions): PageViewModel {
+export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }: UsePageOptions): PageViewModel {
     const [highlights, setHighlights] = useState<HighlightState[]>([]);
     const [wizard, setWizard] = useState<WizardState | null>(null);
     const [inspector, setInspector] = useState<InspectorState | null>(null);
@@ -173,29 +165,12 @@ export function usePage({ transport, devMode, onDevModeChange, onReady }: UsePag
 
     // Listen to messages from background
     useLayoutEffect(() => {
-        const unsubscribe = transport.addMessageListener((message: Message) => {
-            if (isCollectPageTrailMessage(message)) {
-                const pageTrail = collectPageTrail();
-                return { success: true, data: pageTrail.toDto() };
-            }
-            if (isClearPageMessage(message)) {
-                clearPage();
-                return { success: true };
-            }
-            if (isStartOnboardingMessage(message)) {
-                startOnboarding(message.data);
-                return { success: true };
-            }
-            if (isHighlightElementMessage(message)) {
-                highlightElement(message.data.element);
-                return { success: true };
-            }
-            if (isOpenInspectorMessage(message)) {
-                const pageTrail = collectPageTrail();
-                openInspector(pageTrail, message.data.tab);
-                return { success: true };
-            }
-            return undefined;
+        const unsubscribe = backgroundClient.subscribeToPageCommands({
+            collectPageTrail: () => collectPageTrail().toDto(),
+            clearPage,
+            startOnboarding,
+            highlightElement,
+            openInspector: (tab) => openInspector(collectPageTrail(), tab),
         });
 
         if (!readyRef.current) {
@@ -203,7 +178,7 @@ export function usePage({ transport, devMode, onDevModeChange, onReady }: UsePag
             onReady?.();
         }
         return unsubscribe;
-    }, [transport, startOnboarding, highlightElement, openInspector, clearPage, onReady]);
+    }, [backgroundClient, startOnboarding, highlightElement, openInspector, clearPage, onReady]);
 
     return {
         highlights: highlights.map((highlight) => ({

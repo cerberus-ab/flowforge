@@ -6,8 +6,6 @@ import type { HistoryStorage } from '@/core/services/HistoryStorage';
 import {
     type AskQuestionMessage,
     type AskQuestionMessageResponse,
-    type ClearPageMessage,
-    type CollectPageTrailMessage,
     type CollectPageTrailMessageResponse,
     type GetPrevQuestionsMessage,
     type GetPrevQuestionsMessageResponse,
@@ -43,20 +41,19 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
 
     /** Collects page context, queries the backend, and starts onboarding. */
     private async handleAskQuestion(message: AskQuestionMessage): Promise<AskQuestionMessageResponse> {
-        await this.transport.sendToPage<ClearPageMessage>(message.senderId, {
+        await this.transport.sendToPage(message.pageId, {
             type: 'CLEAR_PAGE',
         });
-        const pageTrailResponse = await this.transport.sendToPage<
-            CollectPageTrailMessage,
-            CollectPageTrailMessageResponse
-        >(message.senderId, { type: 'COLLECT_PAGE_TRAIL' });
+        const pageTrailResponse = await this.transport.sendToPage<CollectPageTrailMessageResponse>(message.pageId, {
+            type: 'COLLECT_PAGE_TRAIL',
+        });
         if (!pageTrailResponse.success) {
             throw new Error('Failed to collect page trail: ' + pageTrailResponse.error);
         }
         console.log('[FlowForge] Background collected page trail:', pageTrailResponse);
 
         const pageTrailDto = pageTrailResponse.data;
-        const domain = await this.transport.getPageHostname(message.senderId);
+        const domain = await this.transport.getPageHostname(message.pageId);
         const requestData: QueryRequest = {
             question: message.data.question,
             pageTrailDto,
@@ -80,7 +77,7 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
                     mode: result.mode,
                 },
             };
-            await this.transport.sendToPage<StartOnboardingMessage>(message.senderId, startOnboardingMsg);
+            await this.transport.sendToPage(message.pageId, startOnboardingMsg);
         }
         await this.historyStorage.saveQuestion(domain, message.data.question);
         return { success: true, data: responseData };
@@ -88,7 +85,7 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
 
     /** Returns the saved question history for the sender domain. */
     private async handleGetPrevQuestions(message: GetPrevQuestionsMessage): Promise<GetPrevQuestionsMessageResponse> {
-        const domain = await this.transport.getPageHostname(message.senderId);
+        const domain = await this.transport.getPageHostname(message.pageId);
         const questions = await this.historyStorage.getPreviousQuestions(domain);
         return { success: true, data: { questions } };
     }
