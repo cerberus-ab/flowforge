@@ -1,34 +1,15 @@
-import { config } from '@/config';
-import { BackgroundWorker } from '@/background/BackgroundWorker';
-import { EmbedLocalStorage, type EmbedTransportService } from '@/adapters';
-import { HistoryStorage } from '@/core/services/HistoryStorage';
-import { SettingsStorage } from '@/core/services/SettingsStorage';
+import type { BackgroundWorker } from '@/background/BackgroundWorker';
+import { createBackgroundWorker } from '@/background/createBackgroundWorker';
+import { EmbedLocalStorage, EmbedTransportService } from '@/adapters';
+import type { ApiClient } from '@/core/services/ApiClient.ts';
 import type { ExtensionSettings } from '@/types';
-import { PopupLifecycleMessageHandler } from '@/background/handlers/PopupLifecycleMessageHandler';
-import { SettingsMessageHandler } from '@/background/handlers/SettingsMessageHandler';
-import { PageInspectorMessageHandler } from '@/background/handlers/PageInspectorMessageHandler';
-import { QuestionMessageHandler } from '@/background/handlers/QuestionMessageHandler';
-import { ElementNavigationMessageHandler } from '@/background/handlers/ElementNavigationMessageHandler';
-import type { ApiClient } from '@/core/services/ApiClient';
 
-/**
- * Creates an embed background worker with storage and supported message handlers.
- * The caller is responsible for starting and stopping it.
- */
-export function createEmbedBackgroundWorker(
+export function createWorker(
     transport: EmbedTransportService,
     apiClient: ApiClient,
     initialSettings: Partial<ExtensionSettings> = {},
 ): BackgroundWorker {
     const localStorage = new EmbedLocalStorage();
-    const historyStorage = new HistoryStorage(localStorage, config.questionsHistoryLimit);
-    const settingsStorage = new SettingsStorage(localStorage, config.defaultSettings, initialSettings);
 
-    return new BackgroundWorker(transport, [
-        new PopupLifecycleMessageHandler(transport),
-        new SettingsMessageHandler(transport, settingsStorage),
-        new PageInspectorMessageHandler(transport),
-        new QuestionMessageHandler(transport, apiClient, historyStorage),
-        new ElementNavigationMessageHandler(transport),
-    ]);
+    return createBackgroundWorker({ transport, localStorage, apiClient, initialSettings });
 }

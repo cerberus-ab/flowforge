@@ -22,8 +22,7 @@ describe('ElementNavigationMessageHandler', () => {
         };
 
         // When
-        const operation = handler.resolve(message);
-        const response = await operation?.();
+        const response = await handler.handle(message);
 
         // Then
         expect(response).toBeUndefined();

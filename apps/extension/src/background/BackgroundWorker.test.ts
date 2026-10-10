@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../test/unit/fakes/FakeTransportService';
-import type { BackgroundMessageHandler } from './handlers/BackgroundMessageHandler';
+import type { MessageRoute } from './MessageRouter';
 import { BackgroundWorker } from './BackgroundWorker';
 
 describe('BackgroundWorker', () => {
@@ -10,22 +10,22 @@ describe('BackgroundWorker', () => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
     });
 
-    it('routes messages to the first matching handler', async () => {
+    it('routes messages to the first matching route', async () => {
         // Given
         const transport = new FakeTransportService();
         const matchingOperation = vi.fn();
-        const skippedHandler: BackgroundMessageHandler = {
+        const skippedRoute: MessageRoute = {
             resolve: vi.fn(() => undefined),
         };
-        const matchingHandler: BackgroundMessageHandler = {
+        const matchingRoute: MessageRoute = {
             resolve: vi.fn(() => matchingOperation),
         };
-        const trailingHandler: BackgroundMessageHandler = {
+        const trailingRoute: MessageRoute = {
             resolve: vi.fn(() => () => {
                 throw new Error('Must not run');
             }),
         };
-        const worker = new BackgroundWorker(transport, [skippedHandler, matchingHandler, trailingHandler]);
+        const worker = new BackgroundWorker(transport, [skippedRoute, matchingRoute, trailingRoute]);
         worker.start();
 
         // When
@@ -33,10 +33,10 @@ describe('BackgroundWorker', () => {
 
         // Then
         expect(response).toEqual({ success: true });
-        expect(skippedHandler.resolve).toHaveBeenCalledOnce();
-        expect(matchingHandler.resolve).toHaveBeenCalledOnce();
+        expect(skippedRoute.resolve).toHaveBeenCalledOnce();
+        expect(matchingRoute.resolve).toHaveBeenCalledOnce();
         expect(matchingOperation).toHaveBeenCalledOnce();
-        expect(trailingHandler.resolve).not.toHaveBeenCalled();
+        expect(trailingRoute.resolve).not.toHaveBeenCalled();
     });
 
     it('unregisters its transport listener when stopped', async () => {

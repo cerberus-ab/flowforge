@@ -12,7 +12,7 @@ describe('PopupLifecycleMessageHandler', () => {
         const message: PopupInitializeMessage = { type: 'POPUP_INITIALISE', pageId: 7 };
 
         // When
-        const response = handler.resolve(message)?.();
+        const response = handler.handle(message);
 
         // Then
         expect(response).toBeUndefined();
@@ -26,7 +26,7 @@ describe('PopupLifecycleMessageHandler', () => {
         const handler = new PopupLifecycleMessageHandler(transport);
 
         // When
-        const response = handler.resolve({ type: 'POPUP_INITIALISE', pageId: 7 } as PopupInitializeMessage)?.();
+        const response = handler.handle({ type: 'POPUP_INITIALISE', pageId: 7 } as PopupInitializeMessage);
         await Promise.resolve();
 
         // Then

@@ -6,15 +6,15 @@ import shellStyles from './shell/shell.css?inline';
 
 import { config } from '@/config';
 import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
-import { BackgroundWorker } from '@/background/BackgroundWorker';
 import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
 import type { AgentResult } from '@flowforge/contract';
 import { mountConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
 import type { ExtensionSettings } from '@/types';
-import { createEmbedBackgroundWorker } from '@/embed/background/createWorker';
+import { BackgroundWorker } from '@/background/BackgroundWorker';
 import { BackgroundClient } from '@/background/client/BackgroundClient';
+import { createWorker } from '@/embed/background/createWorker';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;
@@ -129,7 +129,7 @@ export class Runtime implements RuntimeApi {
     }
 
     private startBackground(apiClient: ApiClient, initialSettings: Partial<ExtensionSettings> = {}): void {
-        this.backgroundWorker = createEmbedBackgroundWorker(this.transport, apiClient, initialSettings);
+        this.backgroundWorker = createWorker(this.transport, apiClient, initialSettings);
         this.backgroundWorker.start();
     }
 

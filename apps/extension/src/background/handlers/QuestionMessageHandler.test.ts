@@ -51,7 +51,7 @@ describe('QuestionMessageHandler', () => {
         };
 
         // When
-        const response = await handler.resolve(message)?.();
+        const response = await handler.handleAskQuestion(message);
 
         // Then
         expect(response).toEqual(queryResponse);
@@ -94,7 +94,7 @@ describe('QuestionMessageHandler', () => {
         const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS', pageId: 7 };
 
         // When
-        const response = await handler.resolve(message)?.();
+        const response = await handler.handleGetPrevQuestions(message);
 
         // Then
         expect(response).toEqual({ questions: ['How do I save?'] });
