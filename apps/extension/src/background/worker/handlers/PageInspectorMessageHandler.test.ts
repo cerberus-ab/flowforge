@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
+import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
+import { PageClient } from '@/page/client/PageClient';
 import type { OpenPageInspectorMessage } from '@/types';
 import { PageInspectorMessageHandler } from './PageInspectorMessageHandler';
 
@@ -8,7 +9,7 @@ describe('PageInspectorMessageHandler', () => {
     it('clears the page before opening the requested inspector tab', async () => {
         // Given
         const transport = new FakeTransportService();
-        const handler = new PageInspectorMessageHandler(transport);
+        const handler = new PageInspectorMessageHandler(new PageClient(transport));
         const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
             pageId: 7,
@@ -16,7 +17,7 @@ describe('PageInspectorMessageHandler', () => {
         };
 
         // When
-        const response = await handler.handle(message);
+        const response = await handler.handleOpenPageInspector(message);
 
         // Then
         expect(response).toBeUndefined();
@@ -32,7 +33,7 @@ describe('PageInspectorMessageHandler', () => {
         const error = new Error('Page unavailable');
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
         vi.spyOn(transport, 'sendToPage').mockRejectedValue(error);
-        const handler = new PageInspectorMessageHandler(transport);
+        const handler = new PageInspectorMessageHandler(new PageClient(transport));
         const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
             pageId: 7,
@@ -40,7 +41,7 @@ describe('PageInspectorMessageHandler', () => {
         };
 
         // When / Then
-        await expect(handler.handle(message)).rejects.toThrow('Page unavailable');
+        await expect(handler.handleOpenPageInspector(message)).rejects.toThrow('Page unavailable');
         expect(transport.sendToPage).toHaveBeenCalledOnce();
         expect(transport.sendToPage).toHaveBeenCalledWith(7, { type: 'CLEAR_PAGE' });
     });

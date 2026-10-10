@@ -6,7 +6,7 @@ import type { Message, MessageResponse } from '@/adapters';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { createSettingsFixture } from '../../../test/fixtures';
 import { BackgroundClient } from './BackgroundClient';
-import type { PageCommandHandlers } from './contract';
+import type { PageMessageCallbacks } from './contract';
 
 const element: AgentResultElement = {
     text: 'Settings',
@@ -79,14 +79,14 @@ describe('BackgroundClient', () => {
         // Given
         const transport = new FakeTransportService();
         const client = new BackgroundClient(transport);
-        client.subscribeToPageCommands({
-            collectPageTrail: vi.fn(),
-            clearPage: () => {
+        client.subscribeToPageMessages({
+            onCollectPageTrail: vi.fn(),
+            onClearPage: () => {
                 throw new Error('Page cleanup failed');
             },
-            startOnboarding: vi.fn(),
-            highlightElement: vi.fn(),
-            openInspector: vi.fn(),
+            onStartOnboarding: vi.fn(),
+            onHighlightElement: vi.fn(),
+            onOpenInspector: vi.fn(),
         });
 
         // When
@@ -110,7 +110,7 @@ describe('BackgroundClient', () => {
         });
         const client = new BackgroundClient(transport);
         const listener = vi.fn();
-        client.subscribeToSettingsCommands({ settingsUpdated: listener });
+        client.subscribeToSettingsMessages({ onSettingsUpdated: listener });
 
         // When
         const loadedSettings = await client.getSettings();
@@ -128,19 +128,19 @@ describe('BackgroundClient', () => {
         ]);
     });
 
-    it('routes page commands and stops after unsubscribe', async () => {
+    it('routes page messages and stops after unsubscribe', async () => {
         // Given
         const transport = new FakeTransportService();
         const pageTrailDto = createPageTrailDtoFixture();
-        const handlers: PageCommandHandlers = {
-            collectPageTrail: vi.fn(() => pageTrailDto),
-            clearPage: vi.fn(),
-            startOnboarding: vi.fn(),
-            highlightElement: vi.fn(),
-            openInspector: vi.fn(),
+        const callbacks: PageMessageCallbacks = {
+            onCollectPageTrail: vi.fn(() => pageTrailDto),
+            onClearPage: vi.fn(),
+            onStartOnboarding: vi.fn(),
+            onHighlightElement: vi.fn(),
+            onOpenInspector: vi.fn(),
         };
         const client = new BackgroundClient(transport);
-        const unsubscribe = client.subscribeToPageCommands(handlers);
+        const unsubscribe = client.subscribeToPageMessages(callbacks);
 
         // When
         const collectionResponse = await transport.dispatchToBackground({ type: 'COLLECT_PAGE_TRAIL' });
@@ -159,15 +159,15 @@ describe('BackgroundClient', () => {
 
         // Then
         expect((collectionResponse as MessageResponse<PageTrailDto> & { success: true }).data).toEqual(pageTrailDto);
-        expect(handlers.clearPage).toHaveBeenCalledOnce();
-        expect(handlers.startOnboarding).toHaveBeenCalledWith({
+        expect(callbacks.onClearPage).toHaveBeenCalledOnce();
+        expect(callbacks.onStartOnboarding).toHaveBeenCalledWith({
             title: 'Settings',
             description: 'Open settings.',
             mode: 'direct',
             elements: [element],
         });
-        expect(handlers.highlightElement).toHaveBeenCalledWith(element);
-        expect(handlers.openInspector).toHaveBeenCalledWith('interactive');
+        expect(callbacks.onHighlightElement).toHaveBeenCalledWith(element);
+        expect(callbacks.onOpenInspector).toHaveBeenCalledWith('interactive');
 
         // When
         unsubscribe();

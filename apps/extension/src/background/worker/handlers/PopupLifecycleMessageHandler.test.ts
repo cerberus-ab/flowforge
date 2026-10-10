@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
+import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
+import { PageClient } from '@/page/client/PageClient';
 import type { PopupInitializeMessage } from '@/types';
 import { PopupLifecycleMessageHandler } from './PopupLifecycleMessageHandler';
 
@@ -8,11 +9,11 @@ describe('PopupLifecycleMessageHandler', () => {
     it('clears the page when the popup initializes', () => {
         // Given
         const transport = new FakeTransportService();
-        const handler = new PopupLifecycleMessageHandler(transport);
+        const handler = new PopupLifecycleMessageHandler(new PageClient(transport));
         const message: PopupInitializeMessage = { type: 'POPUP_INITIALISE', pageId: 7 };
 
         // When
-        const response = handler.handle(message);
+        const response = handler.handlePopupInitialize(message);
 
         // Then
         expect(response).toBeUndefined();
@@ -23,10 +24,13 @@ describe('PopupLifecycleMessageHandler', () => {
         // Given
         const transport = new FakeTransportService();
         vi.spyOn(transport, 'sendToPage').mockRejectedValue(new Error('Page unavailable'));
-        const handler = new PopupLifecycleMessageHandler(transport);
+        const handler = new PopupLifecycleMessageHandler(new PageClient(transport));
 
         // When
-        const response = handler.handle({ type: 'POPUP_INITIALISE', pageId: 7 } as PopupInitializeMessage);
+        const response = handler.handlePopupInitialize({
+            type: 'POPUP_INITIALISE',
+            pageId: 7,
+        } as PopupInitializeMessage);
         await Promise.resolve();
 
         // Then

@@ -2,10 +2,11 @@ import type { PageTrailDto } from '@flowforge/contract';
 import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FakeApiClient, createQueryResponseFixture } from '../../../test/unit/fakes/FakeApiClient';
-import { FakeLocalStorage } from '../../../test/unit/fakes/FakeLocalStorage';
-import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
+import { FakeApiClient, createQueryResponseFixture } from '../../../../test/unit/fakes/FakeApiClient';
+import { FakeLocalStorage } from '../../../../test/unit/fakes/FakeLocalStorage';
+import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { HistoryStorage } from '@/core/services/HistoryStorage';
+import { PageClient } from '@/page/client/PageClient';
 import type { AskQuestionMessage, GetPrevQuestionsMessage } from '@/types';
 import { QuestionMessageHandler } from './QuestionMessageHandler';
 
@@ -43,7 +44,7 @@ describe('QuestionMessageHandler', () => {
         const historyStorage = new HistoryStorage(new FakeLocalStorage(), 5);
         await historyStorage.saveQuestion('app.flowforge.test', 'Previous question');
         const transport = createTransport({ hostname: 'app.flowforge.test', pageTrailDto });
-        const handler = new QuestionMessageHandler(transport, apiClient, historyStorage);
+        const handler = new QuestionMessageHandler(new PageClient(transport), apiClient, historyStorage);
         const message: AskQuestionMessage = {
             type: 'ASK_QUESTION',
             pageId: 7,
@@ -90,7 +91,7 @@ describe('QuestionMessageHandler', () => {
         const historyStorage = new HistoryStorage(new FakeLocalStorage(), 5);
         await historyStorage.saveQuestion('app.flowforge.test', 'How do I save?');
         const transport = createTransport({ hostname: 'app.flowforge.test' });
-        const handler = new QuestionMessageHandler(transport, new FakeApiClient(), historyStorage);
+        const handler = new QuestionMessageHandler(new PageClient(transport), new FakeApiClient(), historyStorage);
         const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS', pageId: 7 };
 
         // When

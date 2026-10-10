@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import { crx } from '@crxjs/vite-plugin';
 // @ts-expect-error an explicit extension for Vite import
-import manifest from './src/chrome/assistant/manifest.config.ts';
+import manifest from './src/chrome/assistant/manifest.config';
 
 export default defineConfig(({ mode }) => ({
     root: 'src/chrome/assistant',

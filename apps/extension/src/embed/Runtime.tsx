@@ -12,7 +12,7 @@ import type { AgentResult } from '@flowforge/contract';
 import { mountConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
 import type { ExtensionSettings } from '@/types';
-import { BackgroundWorker } from '@/background/BackgroundWorker';
+import { BackgroundWorker } from '@/background/worker/BackgroundWorker';
 import { BackgroundClient } from '@/background/client/BackgroundClient';
 import { createWorker } from '@/embed/background/createWorker';
 

@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { FakeLocalStorage } from '../../../test/unit/fakes/FakeLocalStorage';
-import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
+import { FakeLocalStorage } from '../../../../test/unit/fakes/FakeLocalStorage';
+import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
+import { PageClient } from '@/page/client/PageClient';
 import type { ExtensionSettings, UpdateSettingsMessage } from '@/types';
 import { SettingsMessageHandler } from './SettingsMessageHandler';
 
@@ -64,7 +65,7 @@ describe('SettingsMessageHandler', () => {
 function createHandler() {
     const transport = new FakeTransportService();
     const settingsStorage = new SettingsStorage(new FakeLocalStorage(), defaultSettings);
-    const handler = new SettingsMessageHandler(transport, settingsStorage);
+    const handler = new SettingsMessageHandler(new PageClient(transport), settingsStorage);
 
     return { handler, transport };
 }

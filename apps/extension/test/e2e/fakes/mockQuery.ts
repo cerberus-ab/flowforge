@@ -1,6 +1,6 @@
 import type { BrowserContext, Page } from '@playwright/test';
 import type { QueryResponse } from '@flowforge/contract';
-import { BACKEND_URL } from '../constants.ts';
+import { BACKEND_URL } from '../constants';
 
 const corsHeaders = {
     'access-control-allow-headers': 'content-type',

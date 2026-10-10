@@ -13,13 +13,13 @@ import {
 } from '@/types';
 import type {
     InspectorPageBackgroundClient,
-    InspectorPageCommandHandlers,
+    InspectorPageMessageCallbacks,
     InspectorPopupBackgroundClient,
     PageBackgroundClient,
-    PageCommandHandlers,
+    PageMessageCallbacks,
     PopupBackgroundClient,
     SettingsBackgroundClient,
-    SettingsCommandHandlers,
+    SettingsMessageCallbacks,
 } from '@/background/client/contract';
 import { MessageRouter, type MessageRoute } from '@/background/MessageRouter';
 
@@ -97,32 +97,32 @@ export class BackgroundClient
         });
     }
 
-    subscribeToSettingsCommands(handlers: SettingsCommandHandlers): () => void {
-        return this.subscribeToCommands([
-            MessageRouter.route(isSettingsUpdatedMessage, (message) => handlers.settingsUpdated(message.data)),
+    subscribeToSettingsMessages(callbacks: SettingsMessageCallbacks): () => void {
+        return this.subscribeToMessages([
+            MessageRouter.route(isSettingsUpdatedMessage, (message) => callbacks.onSettingsUpdated(message.data)),
         ]);
     }
 
-    subscribeToPageCommands(handlers: PageCommandHandlers): () => void {
-        return this.subscribeToCommands([
-            MessageRouter.route(isCollectPageTrailMessage, () => handlers.collectPageTrail()),
-            MessageRouter.route(isClearPageMessage, () => handlers.clearPage()),
-            MessageRouter.route(isStartOnboardingMessage, (message) => handlers.startOnboarding(message.data)),
+    subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
+        return this.subscribeToMessages([
+            MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrail()),
+            MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
+            MessageRouter.route(isStartOnboardingMessage, (message) => callbacks.onStartOnboarding(message.data)),
             MessageRouter.route(isHighlightElementMessage, (message) =>
-                handlers.highlightElement(message.data.element),
+                callbacks.onHighlightElement(message.data.element),
             ),
-            MessageRouter.route(isOpenInspectorMessage, (message) => handlers.openInspector(message.data.tab)),
+            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data.tab)),
         ]);
     }
 
-    subscribeToInspectorPageCommands(handlers: InspectorPageCommandHandlers): () => void {
-        return this.subscribeToCommands([
-            MessageRouter.route(isClearPageMessage, () => handlers.clearPage()),
-            MessageRouter.route(isOpenInspectorMessage, (message) => handlers.openInspector(message.data.tab)),
+    subscribeToInspectorPageMessages(callbacks: InspectorPageMessageCallbacks): () => void {
+        return this.subscribeToMessages([
+            MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
+            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data.tab)),
         ]);
     }
 
-    private subscribeToCommands(routes: readonly MessageRoute[]): () => void {
+    private subscribeToMessages(routes: readonly MessageRoute[]): () => void {
         const router = new MessageRouter(routes);
         return this.transport.addMessageListener(router.handle);
     }

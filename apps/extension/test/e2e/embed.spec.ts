@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { createQueryResponseFixture } from '../fixtures';
-import { mockQuery } from './fakes/mockQuery.ts';
+import { mockQuery } from './fakes/mockQuery';
 import { expectHighlightToCoverTarget } from './utils';
 
 const directTarget = {

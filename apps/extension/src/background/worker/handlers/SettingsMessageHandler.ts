@@ -1,6 +1,6 @@
-import type { TransportService } from '@/adapters';
+import type { PageSettingsClient } from '@/page/client/contract';
 import type { SettingsStorage } from '@/core/services/SettingsStorage';
-import { type ExtensionSettings, type SettingsUpdatedMessage, type UpdateSettingsMessage } from '@/types';
+import { type ExtensionSettings, type UpdateSettingsMessage } from '@/types';
 
 /**
  * Handles persistent extension settings.
@@ -8,11 +8,11 @@ import { type ExtensionSettings, type SettingsUpdatedMessage, type UpdateSetting
  * sender page when a page context is available.
  */
 export class SettingsMessageHandler {
-    private readonly transport: TransportService;
+    private readonly pageClient: PageSettingsClient;
     private readonly settingsStorage: SettingsStorage;
 
-    constructor(transport: TransportService, settingsStorage: SettingsStorage) {
-        this.transport = transport;
+    constructor(pageClient: PageSettingsClient, settingsStorage: SettingsStorage) {
+        this.pageClient = pageClient;
         this.settingsStorage = settingsStorage;
     }
 
@@ -23,11 +23,7 @@ export class SettingsMessageHandler {
     async handleUpdateSettings(message: UpdateSettingsMessage): Promise<ExtensionSettings> {
         const updatedSettings = await this.settingsStorage.update(message.data.patch);
         if (message.pageId !== undefined) {
-            const settingsUpdatedMessage: SettingsUpdatedMessage = {
-                type: 'SETTINGS_UPDATED',
-                data: updatedSettings,
-            };
-            void this.transport.sendToPage(message.pageId, settingsUpdatedMessage).catch(() => undefined);
+            void this.pageClient.notifySettingsUpdated(message.pageId, updatedSettings).catch(() => undefined);
         }
         return updatedSettings;
     }

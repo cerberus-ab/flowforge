@@ -1,7 +1,7 @@
 import { config } from '@/config';
 import { HttpApiClient } from '@/core/services/ApiClient';
 import { ChromeLocalStorage, ChromeTransportService } from '@/adapters';
-import { createBackgroundWorker } from '@/background/createBackgroundWorker.ts';
+import { createBackgroundWorker } from '@/background/worker/factories/createBackgroundWorker';
 
 (function main() {
     const transport = new ChromeTransportService();

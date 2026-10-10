@@ -1,14 +1,13 @@
 import type { QueryRequest, QueryResponse } from '@flowforge/contract';
 
-import type { TransportService } from '@/adapters';
 import type { ApiClient } from '@/core/services/ApiClient';
 import type { HistoryStorage } from '@/core/services/HistoryStorage';
+import type { PageQuestionClient } from '@/page/client/contract';
 import {
     type AskQuestionMessage,
-    type CollectPageTrailMessageResponse,
     type GetPrevQuestionsMessage,
     type GetPrevQuestionsMessageResponseData,
-    type StartOnboardingMessage,
+    type StartOnboardingMessageData,
 } from '@/types';
 
 /**
@@ -17,30 +16,22 @@ import {
  * the response, and reads or updates previously asked questions.
  */
 export class QuestionMessageHandler {
-    private readonly transport: TransportService;
+    private readonly pageClient: PageQuestionClient;
     private readonly apiClient: ApiClient;
     private readonly historyStorage: HistoryStorage;
 
-    constructor(transport: TransportService, apiClient: ApiClient, historyStorage: HistoryStorage) {
-        this.transport = transport;
+    constructor(pageClient: PageQuestionClient, apiClient: ApiClient, historyStorage: HistoryStorage) {
+        this.pageClient = pageClient;
         this.apiClient = apiClient;
         this.historyStorage = historyStorage;
     }
 
     async handleAskQuestion(message: AskQuestionMessage): Promise<QueryResponse> {
-        await this.transport.sendToPage(message.pageId, {
-            type: 'CLEAR_PAGE',
-        });
-        const pageTrailResponse = await this.transport.sendToPage<CollectPageTrailMessageResponse>(message.pageId, {
-            type: 'COLLECT_PAGE_TRAIL',
-        });
-        if (!pageTrailResponse.success) {
-            throw new Error('Failed to collect page trail: ' + pageTrailResponse.error);
-        }
-        console.log('[FlowForge] Background collected page trail:', pageTrailResponse);
+        await this.pageClient.clearPage(message.pageId);
+        const pageTrailDto = await this.pageClient.collectPageTrail(message.pageId);
+        console.log('[FlowForge] Background collected page trail:', pageTrailDto);
 
-        const pageTrailDto = pageTrailResponse.data;
-        const domain = await this.transport.getPageHostname(message.pageId);
+        const domain = await this.pageClient.getHostname(message.pageId);
         const requestData: QueryRequest = {
             question: message.data.question,
             pageTrailDto,
@@ -55,23 +46,20 @@ export class QuestionMessageHandler {
         const result = responseData.result;
 
         if (result.elements.length > 0) {
-            const startOnboardingMsg: StartOnboardingMessage = {
-                type: 'START_ONBOARDING',
-                data: {
-                    title: result.topic ?? message.data.question,
-                    description: result.answer,
-                    elements: result.elements,
-                    mode: result.mode,
-                },
+            const onboarding: StartOnboardingMessageData = {
+                title: result.topic ?? message.data.question,
+                description: result.answer,
+                elements: result.elements,
+                mode: result.mode,
             };
-            await this.transport.sendToPage(message.pageId, startOnboardingMsg);
+            await this.pageClient.startOnboarding(message.pageId, onboarding);
         }
         await this.historyStorage.saveQuestion(domain, message.data.question);
         return responseData;
     }
 
     async handleGetPrevQuestions(message: GetPrevQuestionsMessage): Promise<GetPrevQuestionsMessageResponseData> {
-        const domain = await this.transport.getPageHostname(message.pageId);
+        const domain = await this.pageClient.getHostname(message.pageId);
         const questions = await this.historyStorage.getPreviousQuestions(domain);
         return { questions };
     }
