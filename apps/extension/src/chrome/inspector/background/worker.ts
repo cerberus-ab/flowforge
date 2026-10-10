@@ -1,5 +1,5 @@
 import { ChromeLocalStorage, ChromeTransportService } from '@/adapters';
-import { createInspectorBackgroundWorker } from '@/background/createInspectorBackgroundWorker';
+import { createInspectorBackgroundWorker } from '@/background/worker/factories/createInspectorBackgroundWorker';
 
 (function main() {
     const transport = new ChromeTransportService();

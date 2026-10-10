@@ -1,1 +1,1 @@
-export { Trigger } from './Trigger.tsx';
+export { Trigger } from './Trigger';

@@ -165,12 +165,12 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
 
     // Listen to messages from background
     useLayoutEffect(() => {
-        const unsubscribe = backgroundClient.subscribeToPageCommands({
-            collectPageTrail: () => collectPageTrail().toDto(),
-            clearPage,
-            startOnboarding,
-            highlightElement,
-            openInspector: (tab) => openInspector(collectPageTrail(), tab),
+        const unsubscribe = backgroundClient.subscribeToPageMessages({
+            onCollectPageTrail: () => collectPageTrail().toDto(),
+            onClearPage: clearPage,
+            onStartOnboarding: startOnboarding,
+            onHighlightElement: highlightElement,
+            onOpenInspector: (tab) => openInspector(collectPageTrail(), tab),
         });
 
         if (!readyRef.current) {

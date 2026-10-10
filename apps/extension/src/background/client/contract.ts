@@ -1,22 +1,22 @@
 import type { ExtensionSettings, StartOnboardingMessageData } from '@/types';
 import type { AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
 
-/* handlers */
-export interface PageCommandHandlers {
-    collectPageTrail: () => PageTrailDto;
-    clearPage: () => void;
-    startOnboarding: (data: StartOnboardingMessageData) => void;
-    highlightElement: (element: AgentResultElement) => void;
-    openInspector: (tab?: string) => void;
+/* message callbacks */
+export interface PageMessageCallbacks {
+    onCollectPageTrail: () => PageTrailDto;
+    onClearPage: () => void;
+    onStartOnboarding: (data: StartOnboardingMessageData) => void;
+    onHighlightElement: (element: AgentResultElement) => void;
+    onOpenInspector: (tab?: string) => void;
 }
 
-export interface InspectorPageCommandHandlers {
-    clearPage: () => void;
-    openInspector: (tab?: string) => void;
+export interface InspectorPageMessageCallbacks {
+    onClearPage: () => void;
+    onOpenInspector: (tab?: string) => void;
 }
 
-export interface SettingsCommandHandlers {
-    settingsUpdated: (settings: ExtensionSettings) => void;
+export interface SettingsMessageCallbacks {
+    onSettingsUpdated: (settings: ExtensionSettings) => void;
 }
 
 /* client interfaces */
@@ -29,13 +29,13 @@ export interface PopupBackgroundClient {
 }
 
 export interface PageBackgroundClient {
-    subscribeToPageCommands(handlers: PageCommandHandlers): () => void;
+    subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void;
 }
 
 export interface SettingsBackgroundClient {
     getSettings(): Promise<ExtensionSettings>;
     updateSettings(patch: Partial<ExtensionSettings>): Promise<ExtensionSettings>;
-    subscribeToSettingsCommands(handlers: SettingsCommandHandlers): () => void;
+    subscribeToSettingsMessages(callbacks: SettingsMessageCallbacks): () => void;
 }
 
 export interface InspectorPopupBackgroundClient {
@@ -44,7 +44,7 @@ export interface InspectorPopupBackgroundClient {
 }
 
 export interface InspectorPageBackgroundClient {
-    subscribeToInspectorPageCommands(handlers: InspectorPageCommandHandlers): () => void;
+    subscribeToInspectorPageMessages(callbacks: InspectorPageMessageCallbacks): () => void;
 }
 
 export type AssistantBackgroundClient = PopupBackgroundClient & PageBackgroundClient & SettingsBackgroundClient;

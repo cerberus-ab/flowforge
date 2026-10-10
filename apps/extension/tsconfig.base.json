@@ -8,6 +8,7 @@
     "resolveJsonModule": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
+    "allowImportingTsExtensions": false,
 
     "paths": {
       "@/config": ["./src/config.ts"],

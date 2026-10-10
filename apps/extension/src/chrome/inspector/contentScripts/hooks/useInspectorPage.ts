@@ -49,9 +49,9 @@ export function useInspectorPage({
 
     // Listen to messages from background
     useLayoutEffect(() => {
-        return backgroundClient.subscribeToInspectorPageCommands({
-            clearPage: closeInspector,
-            openInspector: (tab) => openInspector(collectPageTrail(), tab),
+        return backgroundClient.subscribeToInspectorPageMessages({
+            onClearPage: closeInspector,
+            onOpenInspector: (tab) => openInspector(collectPageTrail(), tab),
         });
     }, [backgroundClient, openInspector, closeInspector]);
 

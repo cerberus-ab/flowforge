@@ -34,7 +34,7 @@ export function useSettings({ backgroundClient }: UseSettingsParams): SettingsVi
     }, [backgroundClient]);
 
     useEffect(() => {
-        return backgroundClient.subscribeToSettingsCommands({ settingsUpdated: setSettings });
+        return backgroundClient.subscribeToSettingsMessages({ onSettingsUpdated: setSettings });
     }, [backgroundClient]);
 
     const handleUpdateSettings = useCallback(

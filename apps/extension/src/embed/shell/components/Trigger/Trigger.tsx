@@ -1,6 +1,6 @@
 import type { Ref } from 'preact';
 import { forwardRef } from 'preact/compat';
-import { cx } from '@/shared/utils/cx.ts';
+import { cx } from '@/shared/utils/cx';
 
 export type TriggerSize = 'medium' | 'large';
 
