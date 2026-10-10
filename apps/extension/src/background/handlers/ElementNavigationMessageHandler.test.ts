@@ -22,10 +22,11 @@ describe('ElementNavigationMessageHandler', () => {
         };
 
         // When
-        const response = await handler.handle(message);
+        const operation = handler.resolve(message);
+        const response = await operation?.();
 
         // Then
-        expect(response).toEqual({ success: true });
+        expect(response).toBeUndefined();
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
             { pageId: 7, message: { type: 'HIGHLIGHT_ELEMENT', data: { element } } },

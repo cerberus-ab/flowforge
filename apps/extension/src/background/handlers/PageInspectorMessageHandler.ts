@@ -1,4 +1,4 @@
-import type { Message, MessageResponse, TransportService } from '@/adapters';
+import type { Message, TransportService } from '@/adapters';
 import { isOpenPageInspectorMessage, type OpenInspectorMessage, type OpenPageInspectorMessage } from '@/types';
 
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
@@ -15,14 +15,12 @@ export class PageInspectorMessageHandler implements BackgroundMessageHandler {
         this.transport = transport;
     }
 
-    /** Routes supported Inspector messages to their operations. */
-    handle(message: Message): Promise<MessageResponse> | undefined {
-        if (isOpenPageInspectorMessage(message)) return this.handleOpenPageInspector(message);
-        return undefined;
+    resolve(message: Message): (() => Promise<void>) | undefined {
+        if (!isOpenPageInspectorMessage(message)) return undefined;
+        return () => this.handleOpenPageInspector(message);
     }
 
-    /** Clears the page state and opens the requested Inspector tab. */
-    private async handleOpenPageInspector(message: OpenPageInspectorMessage): Promise<MessageResponse> {
+    private async handleOpenPageInspector(message: OpenPageInspectorMessage): Promise<void> {
         await this.transport.sendToPage(message.pageId, {
             type: 'CLEAR_PAGE',
         });
@@ -31,6 +29,5 @@ export class PageInspectorMessageHandler implements BackgroundMessageHandler {
             data: message.data,
         };
         await this.transport.sendToPage(message.pageId, openInspectorMessage);
-        return { success: true };
     }
 }

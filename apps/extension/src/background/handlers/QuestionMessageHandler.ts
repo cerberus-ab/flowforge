@@ -1,14 +1,13 @@
-import type { QueryRequest } from '@flowforge/contract';
+import type { QueryRequest, QueryResponse } from '@flowforge/contract';
 
 import type { Message, TransportService } from '@/adapters';
 import type { ApiClient } from '@/core/services/ApiClient';
 import type { HistoryStorage } from '@/core/services/HistoryStorage';
 import {
     type AskQuestionMessage,
-    type AskQuestionMessageResponse,
     type CollectPageTrailMessageResponse,
     type GetPrevQuestionsMessage,
-    type GetPrevQuestionsMessageResponse,
+    type GetPrevQuestionsMessageResponseData,
     isAskQuestionMessage,
     isGetPrevQuestionsMessage,
     type StartOnboardingMessage,
@@ -32,15 +31,13 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
         this.historyStorage = historyStorage;
     }
 
-    /** Routes supported question messages to their operations. */
-    handle(message: Message): Promise<AskQuestionMessageResponse | GetPrevQuestionsMessageResponse> | undefined {
-        if (isAskQuestionMessage(message)) return this.handleAskQuestion(message);
-        if (isGetPrevQuestionsMessage(message)) return this.handleGetPrevQuestions(message);
+    resolve(message: Message): (() => Promise<QueryResponse | GetPrevQuestionsMessageResponseData>) | undefined {
+        if (isAskQuestionMessage(message)) return () => this.handleAskQuestion(message);
+        if (isGetPrevQuestionsMessage(message)) return () => this.handleGetPrevQuestions(message);
         return undefined;
     }
 
-    /** Collects page context, queries the backend, and starts onboarding. */
-    private async handleAskQuestion(message: AskQuestionMessage): Promise<AskQuestionMessageResponse> {
+    private async handleAskQuestion(message: AskQuestionMessage): Promise<QueryResponse> {
         await this.transport.sendToPage(message.pageId, {
             type: 'CLEAR_PAGE',
         });
@@ -80,13 +77,14 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
             await this.transport.sendToPage(message.pageId, startOnboardingMsg);
         }
         await this.historyStorage.saveQuestion(domain, message.data.question);
-        return { success: true, data: responseData };
+        return responseData;
     }
 
-    /** Returns the saved question history for the sender domain. */
-    private async handleGetPrevQuestions(message: GetPrevQuestionsMessage): Promise<GetPrevQuestionsMessageResponse> {
+    private async handleGetPrevQuestions(
+        message: GetPrevQuestionsMessage,
+    ): Promise<GetPrevQuestionsMessageResponseData> {
         const domain = await this.transport.getPageHostname(message.pageId);
         const questions = await this.historyStorage.getPreviousQuestions(domain);
-        return { success: true, data: { questions } };
+        return { questions };
     }
 }

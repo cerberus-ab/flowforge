@@ -1,4 +1,4 @@
-import type { ExtensionSettings, GetPrevQuestionsMessageResponseData, StartOnboardingMessageData } from '@/types';
+import type { ExtensionSettings, StartOnboardingMessageData } from '@/types';
 import type { AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
 
 /* handlers */
@@ -22,7 +22,7 @@ export interface SettingsCommandHandlers {
 /* client interfaces */
 export interface PopupBackgroundClient {
     initializePopup(): Promise<void>;
-    getPreviousQuestions(): Promise<GetPrevQuestionsMessageResponseData>;
+    getPreviousQuestions(): Promise<string[]>;
     askQuestion(question: string): Promise<QueryResponse>;
     navigateToElement(element: AgentResultElement): Promise<void>;
     openPageInspector(tab?: string): Promise<void>;

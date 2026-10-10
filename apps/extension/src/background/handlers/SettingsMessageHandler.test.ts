@@ -14,10 +14,10 @@ describe('SettingsMessageHandler', () => {
         const { handler } = createHandler();
 
         // When
-        const response = await handler.handle({ type: 'GET_SETTINGS' });
+        const response = await handler.resolve({ type: 'GET_SETTINGS' })?.();
 
         // Then
-        expect(response).toEqual({ success: true, data: defaultSettings });
+        expect(response).toEqual(defaultSettings);
     });
 
     it('updates settings and broadcasts the change to the sender page', async () => {
@@ -30,10 +30,10 @@ describe('SettingsMessageHandler', () => {
         };
 
         // When
-        const response = await handler.handle(message);
+        const response = await handler.resolve(message)?.();
 
         // Then
-        expect(response).toEqual({ success: true, data: { ...defaultSettings, theme: 'dark' } });
+        expect(response).toEqual({ ...defaultSettings, theme: 'dark' });
         expect(transport.getSentToPage()).toEqual([
             {
                 pageId: 7,
@@ -50,13 +50,13 @@ describe('SettingsMessageHandler', () => {
         const { handler, transport } = createHandler();
 
         // When
-        const response = await handler.handle({
+        const response = await handler.resolve({
             type: 'UPDATE_SETTINGS',
             data: { patch: { devMode: true } },
-        } as UpdateSettingsMessage);
+        } as UpdateSettingsMessage)?.();
 
         // Then
-        expect(response).toEqual({ success: true, data: { theme: 'light', devMode: true } });
+        expect(response).toEqual({ theme: 'light', devMode: true });
         expect(transport.getSentToPage()).toEqual([]);
     });
 });

@@ -51,10 +51,10 @@ describe('QuestionMessageHandler', () => {
         };
 
         // When
-        const response = await handler.handle(message);
+        const response = await handler.resolve(message)?.();
 
         // Then
-        expect(response).toEqual({ success: true, data: queryResponse });
+        expect(response).toEqual(queryResponse);
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
             { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
@@ -94,10 +94,10 @@ describe('QuestionMessageHandler', () => {
         const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS', pageId: 7 };
 
         // When
-        const response = await handler.handle(message);
+        const response = await handler.resolve(message)?.();
 
         // Then
-        expect(response).toEqual({ success: true, data: { questions: ['How do I save?'] } });
+        expect(response).toEqual({ questions: ['How do I save?'] });
     });
 });
 

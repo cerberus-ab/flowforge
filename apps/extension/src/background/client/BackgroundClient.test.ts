@@ -75,6 +75,27 @@ describe('BackgroundClient', () => {
         await expect(client.askQuestion('How?')).rejects.toThrow('Background unavailable');
     });
 
+    it('converts page command errors to failure responses', async () => {
+        // Given
+        const transport = new FakeTransportService();
+        const client = new BackgroundClient(transport);
+        client.subscribeToPageCommands({
+            collectPageTrail: vi.fn(),
+            clearPage: () => {
+                throw new Error('Page cleanup failed');
+            },
+            startOnboarding: vi.fn(),
+            highlightElement: vi.fn(),
+            openInspector: vi.fn(),
+        });
+
+        // When
+        const response = await transport.dispatchToBackground({ type: 'CLEAR_PAGE' });
+
+        // Then
+        expect(response).toEqual({ success: false, error: 'Page cleanup failed' });
+    });
+
     it('loads, updates, and observes settings', async () => {
         // Given
         const transport = new FakeTransportService({ activePageId: 42 });

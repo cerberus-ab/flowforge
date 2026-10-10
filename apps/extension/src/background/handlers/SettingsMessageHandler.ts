@@ -1,12 +1,11 @@
 import type { Message, TransportService } from '@/adapters';
 import type { SettingsStorage } from '@/core/services/SettingsStorage';
 import {
-    type GetSettingsMessageResponse,
+    type ExtensionSettings,
     isGetSettingsMessage,
     isUpdateSettingsMessage,
     type SettingsUpdatedMessage,
     type UpdateSettingsMessage,
-    type UpdateSettingsMessageResponse,
 } from '@/types';
 
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
@@ -25,21 +24,17 @@ export class SettingsMessageHandler implements BackgroundMessageHandler {
         this.settingsStorage = settingsStorage;
     }
 
-    /** Routes supported settings messages to their operations. */
-    handle(message: Message): Promise<GetSettingsMessageResponse | UpdateSettingsMessageResponse> | undefined {
-        if (isGetSettingsMessage(message)) return this.handleGetSettings();
-        if (isUpdateSettingsMessage(message)) return this.handleUpdateSettings(message);
+    resolve(message: Message): (() => Promise<ExtensionSettings>) | undefined {
+        if (isGetSettingsMessage(message)) return () => this.handleGetSettings();
+        if (isUpdateSettingsMessage(message)) return () => this.handleUpdateSettings(message);
         return undefined;
     }
 
-    /** Returns the current extension settings. */
-    private async handleGetSettings(): Promise<GetSettingsMessageResponse> {
-        const settings = await this.settingsStorage.get();
-        return { success: true, data: settings };
+    private handleGetSettings(): Promise<ExtensionSettings> {
+        return this.settingsStorage.get();
     }
 
-    /** Persists a settings patch and broadcasts the updated settings. */
-    private async handleUpdateSettings(message: UpdateSettingsMessage): Promise<UpdateSettingsMessageResponse> {
+    private async handleUpdateSettings(message: UpdateSettingsMessage): Promise<ExtensionSettings> {
         const updatedSettings = await this.settingsStorage.update(message.data.patch);
         if (message.pageId !== undefined) {
             const settingsUpdatedMessage: SettingsUpdatedMessage = {
@@ -48,6 +43,6 @@ export class SettingsMessageHandler implements BackgroundMessageHandler {
             };
             void this.transport.sendToPage(message.pageId, settingsUpdatedMessage).catch(() => undefined);
         }
-        return { success: true, data: updatedSettings };
+        return updatedSettings;
     }
 }
