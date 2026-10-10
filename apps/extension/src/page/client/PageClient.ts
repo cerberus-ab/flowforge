@@ -12,6 +12,11 @@ import type {
     PageSettingsClient,
 } from './contract';
 
+/**
+ * Provides typed page operations to background handlers.
+ * Each operation targets an explicit page and unwraps transport responses.
+ * The implemented capability interfaces keep handler dependencies narrow.
+ */
 export class PageClient
     implements PageLifecycleClient, PageSettingsClient, PageInspectorClient, PageQuestionClient, PageNavigationClient
 {
@@ -21,18 +26,22 @@ export class PageClient
         this.transport = transport;
     }
 
+    /** Returns the hostname associated with a page. */
     getHostname(pageId: number): Promise<string> {
         return this.transport.getPageHostname(pageId);
     }
 
+    /** Clears extension UI from the target page. */
     clearPage(pageId: number): Promise<void> {
         return this.sendToPage(pageId, { type: 'CLEAR_PAGE' });
     }
 
+    /** Collects the current page's trail for question context. */
     collectPageTrail(pageId: number): Promise<PageTrailDto> {
         return this.sendToPage(pageId, { type: 'COLLECT_PAGE_TRAIL' });
     }
 
+    /** Highlights an agent result element on the target page. */
     highlightElement(pageId: number, element: AgentResultElement): Promise<void> {
         return this.sendToPage(pageId, {
             type: 'HIGHLIGHT_ELEMENT',
@@ -40,6 +49,7 @@ export class PageClient
         });
     }
 
+    /** Starts the onboarding wizard on the target page. */
     startOnboarding(pageId: number, data: StartOnboardingMessageData): Promise<void> {
         return this.sendToPage(pageId, {
             type: 'START_ONBOARDING',
@@ -47,6 +57,7 @@ export class PageClient
         });
     }
 
+    /** Opens the inspector panel on the target page. */
     openInspector(pageId: number, tab?: string): Promise<void> {
         return this.sendToPage(pageId, {
             type: 'OPEN_INSPECTOR',
@@ -54,6 +65,7 @@ export class PageClient
         });
     }
 
+    /** Notifies the target page that extension settings have changed. */
     notifySettingsUpdated(pageId: number, settings: ExtensionSettings): Promise<void> {
         return this.sendToPage(pageId, {
             type: 'SETTINGS_UPDATED',
@@ -61,6 +73,7 @@ export class PageClient
         });
     }
 
+    /** Sends a typed message to a page and unwraps its response. */
     private async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponseData<M>> {
         const response = await this.transport.sendToPage(pageId, message);
 

@@ -2,13 +2,15 @@ import type { PageSettingsClient } from '@/page/client/contract';
 import type { SettingsStorage } from '@/core/services/SettingsStorage';
 import type { MessageContext, UpdateSettingsMessage } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
+import { MessageRouter, isGetSettingsMessage, isUpdateSettingsMessage } from '@/messaging';
+import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
 
 /**
- * Handles persistent extension settings.
- * It reads and updates SettingsStorage and broadcasts changed settings to the
- * sender page when a page context is available.
+ * Handles reading and updating persistent extension settings.
+ * Updates are stored centrally and broadcast to the sender page when available.
+ * Settings behavior is shared by the Assistant and Inspector workers.
  */
-export class SettingsMessageHandler {
+export class SettingsMessageHandler implements BackgroundMessageHandler {
     private readonly pageClient: PageSettingsClient;
     private readonly settingsStorage: SettingsStorage;
 
@@ -17,10 +19,21 @@ export class SettingsMessageHandler {
         this.settingsStorage = settingsStorage;
     }
 
+    routes() {
+        return [
+            MessageRouter.route(isGetSettingsMessage, () => this.handleGetSettings()),
+            MessageRouter.route(isUpdateSettingsMessage, (message, context) =>
+                this.handleUpdateSettings(message, context),
+            ),
+        ];
+    }
+
+    /** Reads the currently persisted extension settings. */
     handleGetSettings(): Promise<ExtensionSettings> {
         return this.settingsStorage.get();
     }
 
+    /** Persists a settings patch and notifies the sender page of the result. */
     async handleUpdateSettings(message: UpdateSettingsMessage, context: MessageContext): Promise<ExtensionSettings> {
         const updatedSettings = await this.settingsStorage.update(message.data.patch);
         if (context.pageId !== undefined) {

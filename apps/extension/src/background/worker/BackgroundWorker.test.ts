@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import type { MessageRoute } from '@/messaging';
+import type { BackgroundMessageHandler } from './handlers/BackgroundMessageHandler';
 import { BackgroundWorker } from './BackgroundWorker';
+
+function handler(...routes: MessageRoute[]): BackgroundMessageHandler {
+    return { routes: () => routes };
+}
 
 describe('BackgroundWorker', () => {
     beforeEach(() => {
@@ -25,7 +30,7 @@ describe('BackgroundWorker', () => {
                 throw new Error('Must not run');
             }),
         };
-        const worker = new BackgroundWorker(transport, [skippedRoute, matchingRoute, trailingRoute]);
+        const worker = new BackgroundWorker(transport, [handler(skippedRoute), handler(matchingRoute, trailingRoute)]);
         worker.start();
 
         // When
@@ -42,7 +47,7 @@ describe('BackgroundWorker', () => {
     it('unregisters its transport listener when stopped', async () => {
         // Given
         const transport = new FakeTransportService();
-        const worker = new BackgroundWorker(transport, [{ resolve: () => () => undefined }]);
+        const worker = new BackgroundWorker(transport, [handler({ resolve: () => () => undefined })]);
         worker.start();
 
         // When
@@ -58,11 +63,11 @@ describe('BackgroundWorker', () => {
         // Given
         const transport = new FakeTransportService();
         const worker = new BackgroundWorker(transport, [
-            {
+            handler({
                 resolve: () => () => {
                     throw new Error('Settings unavailable');
                 },
-            },
+            }),
         ]);
         worker.start();
 
@@ -81,9 +86,9 @@ describe('BackgroundWorker', () => {
         // Given
         const transport = new FakeTransportService();
         const worker = new BackgroundWorker(transport, [
-            {
+            handler({
                 resolve: () => () => Promise.reject(new Error('Page unavailable')),
-            },
+            }),
         ]);
         worker.start();
 
