@@ -11,7 +11,7 @@ export class HistoryStorage {
     }
 
     private getKey(domain: string): string {
-        return `${constants.LOCAL_STORAGE_NAMESPACE}_history::${domain}`;
+        return `${constants.STORAGE_NAMESPACE}_history::${domain}`;
     }
 
     /**

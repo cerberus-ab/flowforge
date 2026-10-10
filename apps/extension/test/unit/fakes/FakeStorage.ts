@@ -1,6 +1,6 @@
-import type { LocalStorage } from '@/adapters';
+import type { Storage } from '@/adapters';
 
-export class FakeLocalStorage implements LocalStorage {
+export class FakeStorage implements Storage {
     private readonly values = new Map<string, unknown>();
 
     async get<T>(key: string): Promise<T | null> {

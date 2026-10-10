@@ -14,6 +14,7 @@ import {
     requirePageId,
 } from '@/messaging';
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
+import type { PageSessionStorage } from '@/core/services/PageSessionStorage';
 
 /**
  * Handles question requests and per-domain question history.
@@ -23,11 +24,18 @@ import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
 export class QuestionMessageHandler implements BackgroundMessageHandler {
     private readonly pageClient: PageQuestionClient;
     private readonly apiClient: ApiClient;
+    private readonly pageSessionStorage: PageSessionStorage;
     private readonly historyStorage: HistoryStorage;
 
-    constructor(pageClient: PageQuestionClient, apiClient: ApiClient, historyStorage: HistoryStorage) {
+    constructor(
+        pageClient: PageQuestionClient,
+        apiClient: ApiClient,
+        pageSessionStorage: PageSessionStorage,
+        historyStorage: HistoryStorage,
+    ) {
         this.pageClient = pageClient;
         this.apiClient = apiClient;
+        this.pageSessionStorage = pageSessionStorage;
         this.historyStorage = historyStorage;
     }
 
@@ -44,26 +52,40 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
     async handleAskQuestion(message: AskQuestionMessage, context: MessageContext): Promise<QueryResponse> {
         const pageId = requirePageId(context);
 
+        // save question in session
+        const question = message.data.question;
+        const url = await this.pageClient.getUrl(pageId);
+        await this.pageSessionStorage.savePending(pageId, url, { question });
+
+        // collect page trail
         await this.pageClient.clearPage(pageId);
         const pageTrailDto = await this.pageClient.collectPageTrail(pageId);
         console.log('[FlowForge] Background collected page trail:', pageTrailDto);
 
-        const url = await this.pageClient.getUrl(pageId);
+        // prepare request
         const domain = new URL(url).hostname;
-
+        const previousQuestions = await this.historyStorage.getPreviousQuestions(domain);
         const requestData: QueryRequest = {
-            question: message.data.question,
+            question,
             pageTrailDto,
             domain,
             userContext: {
-                previousQuestions: await this.historyStorage.getPreviousQuestions(domain),
+                previousQuestions,
             },
         };
+        // query request
         console.log('[FlowForge] Background sending request to server:', requestData);
         const responseData = await this.apiClient.query(requestData);
         console.log('[FlowForge] Background received response from server:', responseData);
 
-        await this.historyStorage.saveQuestion(domain, message.data.question);
+        // save question in history and result in session
+        await this.historyStorage.saveQuestion(domain, question);
+        await this.pageSessionStorage.saveCompleted(pageId, url, {
+            question,
+            result: responseData.result,
+            metadata: responseData.metadata,
+            trailSnapshot: requestData.pageTrailDto.metadata.snapshot,
+        });
         return responseData;
     }
 

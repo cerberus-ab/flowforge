@@ -2,7 +2,7 @@ import type { LocalStorage } from '@/adapters';
 import { constants } from '@/constants';
 import type { ExtensionSettings } from '@/types';
 
-const SETTINGS_STORAGE_KEY = `${constants.LOCAL_STORAGE_NAMESPACE}_settings`;
+const SETTINGS_STORAGE_KEY = `${constants.STORAGE_NAMESPACE}_settings`;
 
 export class SettingsStorage {
     private readonly storage: LocalStorage;

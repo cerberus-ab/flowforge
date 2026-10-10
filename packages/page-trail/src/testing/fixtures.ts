@@ -3,10 +3,13 @@ import type {
     CollectionMetadata,
     ContainerRootNode,
     ContainerRootNodeDto,
+    ElementsMetadata,
     PageBasics,
     PageElement,
     PageElementDto,
+    PageMetadata,
     PageTrailDto,
+    SnapshotMetadata,
     Viewport,
 } from '../types/index.ts';
 import { VERSION } from '../version.ts';
@@ -15,8 +18,13 @@ export type PageBasicsFixtureOverrides = Partial<Omit<PageBasics, 'viewport'>> &
     viewport?: Partial<Viewport>;
 };
 
-export type CollectionMetadataFixtureOverrides = Partial<Omit<CollectionMetadata, 'performance'>> & {
+export type CollectionMetadataFixtureOverrides = Partial<
+    Omit<CollectionMetadata, 'page' | 'elements' | 'performance' | 'snapshot'>
+> & {
+    page?: Partial<PageMetadata>;
+    elements?: Partial<ElementsMetadata>;
     performance?: Partial<CollectionMetadata['performance']>;
+    snapshot?: Partial<SnapshotMetadata>;
 };
 
 export interface PageTrailDtoFixtureOverrides {
@@ -54,25 +62,36 @@ export function createPageBasicsFixture(overrides: PageBasicsFixtureOverrides = 
 
 export function createCollectionMetadataFixture(
     overrides: CollectionMetadataFixtureOverrides = {},
+    snapshotUrl = 'https://example.com/sandbox',
 ): CollectionMetadata {
     return {
-        version: VERSION,
-        innerTextLength: 0,
-        outerHtmlLength: 0,
-        containerElements: 0,
-        containerElementsMatched: 0,
-        containerElementsMaxDepth: 0,
-        contentElements: 0,
-        contentElementsMatched: 0,
-        contentElementsCandidates: 0,
-        contentElementsLimitReached: false,
-        interactiveElements: 0,
-        interactiveElementsMatched: 0,
-        interactiveElementsCandidates: 0,
-        interactiveElementsLimitReached: false,
-        collectedAt: 0,
-        trailFingerprint: { dataIdSignature: undefined },
         ...overrides,
+        page: {
+            innerTextLength: 0,
+            outerHtmlLength: 0,
+            ...overrides.page,
+        },
+        elements: {
+            containerElements: 0,
+            containerElementsMatched: 0,
+            containerElementsMaxDepth: 0,
+            contentElements: 0,
+            contentElementsMatched: 0,
+            contentElementsCandidates: 0,
+            contentElementsLimitReached: false,
+            interactiveElements: 0,
+            interactiveElementsMatched: 0,
+            interactiveElementsCandidates: 0,
+            interactiveElementsLimitReached: false,
+            ...overrides.elements,
+        },
+        snapshot: {
+            version: VERSION,
+            collectedAt: 0,
+            url: snapshotUrl,
+            trailFingerprint: { dataIdSignature: undefined },
+            ...overrides.snapshot,
+        },
         performance: {
             basicsMs: 0,
             structureMs: 0,
@@ -86,9 +105,11 @@ export function createCollectionMetadataFixture(
 }
 
 export function createPageTrailDtoFixture(overrides: PageTrailDtoFixtureOverrides = {}): PageTrailDto {
+    const basics = createPageBasicsFixture(overrides.basics);
+
     return {
         contextOnly: overrides.contextOnly ?? false,
-        basics: createPageBasicsFixture(overrides.basics),
+        basics,
         structure: {
             contentIds: [],
             interactiveIds: [],
@@ -96,16 +117,18 @@ export function createPageTrailDtoFixture(overrides: PageTrailDtoFixtureOverride
             ...overrides.structure,
         },
         elements: overrides.elements ?? [],
-        metadata: createCollectionMetadataFixture(overrides.metadata),
+        metadata: createCollectionMetadataFixture(overrides.metadata, basics.url),
     };
 }
 
 export function createPageTrailFixture(options: PageTrailFixtureOptions = {}): PageTrail {
+    const basics = createPageBasicsFixture(options.basics);
+
     return new PageTrail(
         options.contextOnly ?? false,
-        createPageBasicsFixture(options.basics),
+        basics,
         options.structure ?? { content: [], interactive: [], nodes: [] },
         options.elements ?? [],
-        createCollectionMetadataFixture(options.metadata),
+        createCollectionMetadataFixture(options.metadata, basics.url),
     );
 }

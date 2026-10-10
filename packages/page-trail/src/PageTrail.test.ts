@@ -22,7 +22,7 @@ describe('PageTrail DTO conversion', () => {
         });
         const interactive = createInteractiveElementFixture({ id: 3 });
         const pageTrail = createPageTrailFixture({
-            metadata: { innerTextLength: 120, outerHtmlLength: 450 },
+            metadata: { page: { innerTextLength: 120, outerHtmlLength: 450 } },
             structure: {
                 content: [],
                 interactive: [],
@@ -48,7 +48,7 @@ describe('PageTrail DTO conversion', () => {
             },
         });
         expect(dto.elements[1]).not.toHaveProperty('context.path.0.container');
-        expect(dto.metadata).toMatchObject({ innerTextLength: 120, outerHtmlLength: 450 });
+        expect(dto.metadata.page).toEqual({ innerTextLength: 120, outerHtmlLength: 450 });
     });
 
     it('restores shared container references after a JSON roundtrip', () => {
@@ -106,7 +106,7 @@ describe('PageTrail DTO conversion', () => {
     it('preserves page size metadata after a JSON roundtrip', () => {
         // Given
         const dto = createPageTrailFixture({
-            metadata: { innerTextLength: 120, outerHtmlLength: 450 },
+            metadata: { page: { innerTextLength: 120, outerHtmlLength: 450 } },
         }).toDto();
         const serializedDto = JSON.parse(JSON.stringify(dto)) as ReturnType<PageTrail['toDto']>;
 
@@ -114,8 +114,8 @@ describe('PageTrail DTO conversion', () => {
         const restored = PageTrail.fromDto(serializedDto);
 
         // Then
-        expect(restored.metadata.innerTextLength).toBe(120);
-        expect(restored.metadata.outerHtmlLength).toBe(450);
+        expect(restored.metadata.page.innerTextLength).toBe(120);
+        expect(restored.metadata.page.outerHtmlLength).toBe(450);
         expect(restored.toDto().metadata).toEqual(serializedDto.metadata);
     });
 

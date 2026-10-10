@@ -3,9 +3,10 @@ import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeApiClient, createQueryResponseFixture } from '../../../../test/unit/fakes/FakeApiClient';
-import { FakeLocalStorage } from '../../../../test/unit/fakes/FakeLocalStorage';
+import { FakeStorage } from '../../../../test/unit/fakes/FakeStorage';
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { HistoryStorage } from '@/core/services/HistoryStorage';
+import { PageSessionStorage } from '@/core/services/PageSessionStorage';
 import { PageClient } from '@/page/client/PageClient';
 import type { AskQuestionMessage, GetPrevQuestionsMessage } from '@/messaging';
 import { QuestionMessageHandler } from './QuestionMessageHandler';
@@ -41,10 +42,17 @@ describe('QuestionMessageHandler', () => {
             },
         });
         const apiClient = new FakeApiClient(queryResponse);
-        const historyStorage = new HistoryStorage(new FakeLocalStorage(), 5);
+        const sessionStorage = new FakeStorage();
+        const pageSessionStorage = new PageSessionStorage(sessionStorage);
+        const historyStorage = new HistoryStorage(new FakeStorage(), 5);
         await historyStorage.saveQuestion('app.flowforge.test', 'Previous question');
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings', pageTrailDto });
-        const handler = new QuestionMessageHandler(new PageClient(transport), apiClient, historyStorage);
+        const handler = new QuestionMessageHandler(
+            new PageClient(transport),
+            apiClient,
+            pageSessionStorage,
+            historyStorage,
+        );
         const message: AskQuestionMessage = {
             type: 'ASK_QUESTION',
             data: { question: 'How do I save?' },
@@ -71,14 +79,55 @@ describe('QuestionMessageHandler', () => {
             'How do I save?',
             'Previous question',
         ]);
+        await expect(sessionStorage.get(pageSessionKey(7))).resolves.toEqual({
+            url: 'https://app.flowforge.test/settings',
+            state: 'completed',
+            data: {
+                question: 'How do I save?',
+                result: queryResponse.result,
+                metadata: queryResponse.metadata,
+                trailSnapshot: pageTrailDto.metadata.snapshot,
+            },
+        });
+    });
+
+    it('keeps the submitted question in the page session when the API request fails', async () => {
+        // Given
+        const apiClient = new FakeApiClient(new Error('API unavailable'));
+        const sessionStorage = new FakeStorage();
+        const pageTrailDto = createPageTrailDtoFixture();
+        const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings', pageTrailDto });
+        const handler = new QuestionMessageHandler(
+            new PageClient(transport),
+            apiClient,
+            new PageSessionStorage(sessionStorage),
+            new HistoryStorage(new FakeStorage(), 5),
+        );
+        const message: AskQuestionMessage = {
+            type: 'ASK_QUESTION',
+            data: { question: 'How do I save?' },
+        };
+
+        // When / Then
+        await expect(handler.handleAskQuestion(message, { pageId: 7 })).rejects.toThrow('API unavailable');
+        await expect(sessionStorage.get(pageSessionKey(7))).resolves.toEqual({
+            url: 'https://app.flowforge.test/settings',
+            state: 'pending',
+            data: { question: 'How do I save?' },
+        });
     });
 
     it('returns previous questions for the sender hostname', async () => {
         // Given
-        const historyStorage = new HistoryStorage(new FakeLocalStorage(), 5);
+        const historyStorage = new HistoryStorage(new FakeStorage(), 5);
         await historyStorage.saveQuestion('app.flowforge.test', 'How do I save?');
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
-        const handler = new QuestionMessageHandler(new PageClient(transport), new FakeApiClient(), historyStorage);
+        const handler = new QuestionMessageHandler(
+            new PageClient(transport),
+            new FakeApiClient(),
+            new PageSessionStorage(new FakeStorage()),
+            historyStorage,
+        );
         const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS' };
 
         // When
@@ -100,3 +149,5 @@ function createTransport({
     transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
     return transport;
 }
+
+const pageSessionKey = (pageId: number) => `flowforge_page_session::${pageId}`;

@@ -46,8 +46,8 @@ export function InspectorPageMarkdown({ pageTrail }: { pageTrail: PageTrail }) {
     const [blocks, setBlocks] = useState<MarkdownOptionBlock[]>(() => markdownBlocks.map(({ value }) => value));
     const markdown = useMemo(() => Markdown.from(pageTrail, { detailLevel, blocks }), [pageTrail, detailLevel, blocks]);
     const pageSizes = [
-        { id: 'html', label: 'HTML', value: pageTrail.metadata.outerHtmlLength },
-        { id: 'text', label: 'Visible text', value: pageTrail.metadata.innerTextLength },
+        { id: 'html', label: 'HTML', value: pageTrail.metadata.page.outerHtmlLength },
+        { id: 'text', label: 'Visible text', value: pageTrail.metadata.page.innerTextLength },
         { id: 'markdown', label: 'Markdown', value: markdown.length },
         { id: 'tokens', label: 'Estimated tokens', value: markdown.estimatedTokenCount() },
     ];

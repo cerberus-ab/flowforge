@@ -6,31 +6,33 @@ const limitTooltip = 'Only a limited number of top candidates by importance are 
 // Exports
 
 export function InspectorLineMetadata({ metadata }: { metadata: CollectionMetadata }) {
+    const { elements, performance } = metadata;
+
     return (
         <div className="flowforge-inspector-line-metadata">
             Selected{' '}
-            {metadata.contentElementsLimitReached ? (
+            {elements.contentElementsLimitReached ? (
                 <>
                     <Tooltip content={limitTooltip} variant="secondary">
-                        <span className="flowforge-u-color-secondary">{metadata.contentElements}</span>
+                        <span className="flowforge-u-color-secondary">{elements.contentElements}</span>
                     </Tooltip>
-                    /{metadata.contentElementsCandidates}
+                    /{elements.contentElementsCandidates}
                 </>
             ) : (
-                <>{metadata.contentElements}</>
+                <>{elements.contentElements}</>
             )}{' '}
             content elements,{' '}
-            {metadata.interactiveElementsLimitReached ? (
+            {elements.interactiveElementsLimitReached ? (
                 <>
                     <Tooltip content={limitTooltip} variant="secondary">
-                        <span className="flowforge-u-color-secondary">{metadata.interactiveElements}</span>
+                        <span className="flowforge-u-color-secondary">{elements.interactiveElements}</span>
                     </Tooltip>
-                    /{metadata.interactiveElementsCandidates}
+                    /{elements.interactiveElementsCandidates}
                 </>
             ) : (
-                <>{metadata.interactiveElements}</>
+                <>{elements.interactiveElements}</>
             )}{' '}
-            interactive elements · {metadata.performance.totalMs}ms
+            interactive elements · {performance.totalMs}ms
         </div>
     );
 }

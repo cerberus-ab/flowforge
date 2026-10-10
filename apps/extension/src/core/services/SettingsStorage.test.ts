@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { FakeLocalStorage } from '../../../test/unit/fakes/FakeLocalStorage';
+import { FakeStorage } from '../../../test/unit/fakes/FakeStorage';
 import { constants } from '../constants';
 import { SettingsStorage } from './SettingsStorage';
 
-const settingsKey = `${constants.LOCAL_STORAGE_NAMESPACE}_settings`;
+const settingsKey = `${constants.STORAGE_NAMESPACE}_settings`;
 
 describe('SettingsStorage', () => {
     it('returns defaults when settings have not been stored', async () => {
-        const storage = new SettingsStorage(new FakeLocalStorage(), {
+        const storage = new SettingsStorage(new FakeStorage(), {
             theme: 'light',
             devMode: false,
         });
@@ -21,7 +21,7 @@ describe('SettingsStorage', () => {
 
     it('uses initial settings to override defaults', async () => {
         const storage = new SettingsStorage(
-            new FakeLocalStorage(),
+            new FakeStorage(),
             {
                 theme: 'light',
                 devMode: false,
@@ -39,10 +39,10 @@ describe('SettingsStorage', () => {
 
     it('merges stored settings over defaults and initial settings', async () => {
         // Given
-        const localStorage = new FakeLocalStorage();
-        await localStorage.set(settingsKey, { theme: 'dark' });
+        const fakeStorage = new FakeStorage();
+        await fakeStorage.set(settingsKey, { theme: 'dark' });
         const storage = new SettingsStorage(
-            localStorage,
+            fakeStorage,
             {
                 theme: 'light',
                 devMode: false,
@@ -61,9 +61,9 @@ describe('SettingsStorage', () => {
 
     it('updates settings by merging the patch with stored values', async () => {
         // Given
-        const localStorage = new FakeLocalStorage();
-        await localStorage.set(settingsKey, { theme: 'dark' });
-        const storage = new SettingsStorage(localStorage, {
+        const fakeStorage = new FakeStorage();
+        await fakeStorage.set(settingsKey, { theme: 'dark' });
+        const storage = new SettingsStorage(fakeStorage, {
             theme: 'light',
             devMode: false,
         });
@@ -73,7 +73,7 @@ describe('SettingsStorage', () => {
             theme: 'dark',
             devMode: true,
         });
-        await expect(localStorage.get(settingsKey)).resolves.toEqual({
+        await expect(fakeStorage.get(settingsKey)).resolves.toEqual({
             theme: 'dark',
             devMode: true,
         });
