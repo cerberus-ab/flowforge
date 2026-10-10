@@ -41,6 +41,7 @@ describe('PageTrailCollector', () => {
         expect(model.getStructure().nodes[0]?.interactive).toEqual([interactive]);
         expect(model.getStructure().content).toEqual([]);
         expect(model.getStructure().interactive).toEqual([]);
+        expect(model.metadata.trailFingerprint.dataIdSignature).toMatch(/^2-[\da-f]{16}$/);
         expect(getElementDataId).toHaveBeenCalledTimes(2);
         expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#main'));
         expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#action'));
@@ -315,6 +316,7 @@ describe('PageTrailCollector', () => {
         ];
         expect(elements).not.toHaveLength(0);
         expect(elements.every((element) => element.locator === undefined)).toBe(true);
+        expect(model.metadata.trailFingerprint.dataIdSignature).toBeUndefined();
     });
 });
 

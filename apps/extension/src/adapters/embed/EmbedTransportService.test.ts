@@ -8,7 +8,7 @@ describe('EmbedTransportService', () => {
         const transport = new EmbedTransportService();
 
         await expect(transport.getActivePageContext()).resolves.toEqual({ pageId: 1 });
-        await expect(transport.getPageHostname()).resolves.toBe('localhost');
+        await expect(transport.getPageUrl()).resolves.toBe('http://localhost:3000/start');
     });
 
     it('dispatches background and page messages to registered handlers', async () => {

@@ -5,7 +5,7 @@ import { FakeLocalStorage } from '../../../test/unit/fakes/FakeLocalStorage';
 import { constants } from '../constants';
 import { HistoryStorage } from './HistoryStorage';
 
-const historyKey = (domain: string) => `${constants.LOCAL_STORAGE_NAMESPACE}_history_${domain}`;
+const historyKey = (domain: string) => `${constants.LOCAL_STORAGE_NAMESPACE}_history::${domain}`;
 
 describe('HistoryStorage', () => {
     it('returns an empty history when no questions are stored for the domain', async () => {
@@ -42,7 +42,7 @@ describe('HistoryStorage', () => {
         await expect(storage.getPreviousQuestions('example.com')).resolves.toEqual(['third', 'second']);
     });
 
-    it('fails safely when reading history throws', async () => {
+    it('propagates errors when reading history fails', async () => {
         // Given
         const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
         const failingStorage: LocalStorage = {
@@ -53,12 +53,11 @@ describe('HistoryStorage', () => {
         const storage = new HistoryStorage(failingStorage, 5);
 
         // When / Then
-        await expect(storage.getPreviousQuestions('example.com')).resolves.toEqual([]);
-
-        expect(consoleError).toHaveBeenCalledWith('[Background] Error getting previous questions:', expect.any(Error));
+        await expect(storage.getPreviousQuestions('example.com')).rejects.toThrow('storage unavailable');
+        expect(consoleError).not.toHaveBeenCalled();
     });
 
-    it('swallows write failures after logging them', async () => {
+    it('propagates errors when saving history fails', async () => {
         // Given
         const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
         const failingStorage: LocalStorage = {
@@ -69,8 +68,7 @@ describe('HistoryStorage', () => {
         const storage = new HistoryStorage(failingStorage, 5);
 
         // When / Then
-        await expect(storage.saveQuestion('example.com', 'question')).resolves.toBeUndefined();
-
-        expect(consoleError).toHaveBeenCalledWith('[Background] Error saving question:', expect.any(Error));
+        await expect(storage.saveQuestion('example.com', 'question')).rejects.toThrow('quota exceeded');
+        expect(consoleError).not.toHaveBeenCalled();
     });
 });

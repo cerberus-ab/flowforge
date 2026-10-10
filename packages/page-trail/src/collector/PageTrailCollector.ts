@@ -1,4 +1,5 @@
 import type {
+    BaseElement,
     CollectionMetadata,
     ContainerElement,
     ContentElement,
@@ -6,6 +7,7 @@ import type {
     InteractiveElement,
     PageBasics,
     PageMetadata,
+    TrailFingerprint,
 } from '../types/index.ts';
 
 import { ContainerTree } from './extractors/index.ts';
@@ -19,6 +21,7 @@ import { extractContainerElements } from './extractors/container.ts';
 import { PageTrail } from '../PageTrail.ts';
 import { VERSION } from '../version.ts';
 import { extractPageMetadata } from './extractors/metadata.ts';
+import { trailFingerprint } from '../fingerprint/trail.ts';
 
 interface CollectorCommonOptions {
     /** Maximum number of content elements to keep after importance scoring. */
@@ -107,6 +110,7 @@ export class PageTrailCollector {
             ...contentElements.elements(),
             ...interactiveElements.elements(),
         ];
+        const trailFingerprint = this.collectTrailFingerprint(elements);
         const t5_complete = performance.now();
 
         const metadata: CollectionMetadata = {
@@ -124,6 +128,7 @@ export class PageTrailCollector {
             interactiveElementsMatched: interactiveElements.matched,
             interactiveElementsCandidates: interactiveElements.candidates,
             interactiveElementsLimitReached: interactiveElements.limitReached,
+            trailFingerprint,
             // timings
             collectedAt: Date.now(),
             performance: {
@@ -186,5 +191,13 @@ export class PageTrailCollector {
                 elementsLimit: this.options.interactiveElementsLimit,
             },
         );
+    }
+
+    private collectTrailFingerprint(elements: BaseElement[]): TrailFingerprint {
+        return trailFingerprint({
+            dataIds: this.options.contextOnly
+                ? undefined
+                : elements.flatMap((element) => (element.locator ? [element.locator.dataId] : [])),
+        });
     }
 }

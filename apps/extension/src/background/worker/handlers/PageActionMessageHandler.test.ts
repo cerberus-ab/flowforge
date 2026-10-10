@@ -47,6 +47,7 @@ describe('PageActionMessageHandler', () => {
 
         // Then
         expect(transport.getSentToPage()).toEqual([
+            { pageId: 7, message: { type: 'CLEAR_PAGE' } },
             {
                 pageId: 7,
                 message: {

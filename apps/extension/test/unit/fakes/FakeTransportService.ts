@@ -18,19 +18,19 @@ export class FakeTransportService implements TransportService {
     private readonly pageResponses = new Map<string, AnyMessageResponse>();
 
     private readonly activePageId;
-    private readonly pageHostname;
+    private readonly pageUrl;
 
-    constructor({ activePageId, pageHostname }: { activePageId?: number; pageHostname?: string } = {}) {
+    constructor({ activePageId, pageUrl }: { activePageId?: number; pageUrl?: string } = {}) {
         this.activePageId = activePageId ?? 1;
-        this.pageHostname = pageHostname ?? 'localhost';
+        this.pageUrl = pageUrl ?? 'http://localhost/';
     }
 
     async getActivePageContext(): Promise<MessageContext> {
         return { pageId: this.activePageId };
     }
 
-    async getPageHostname(): Promise<string> {
-        return this.pageHostname;
+    async getPageUrl(): Promise<string> {
+        return this.pageUrl;
     }
 
     async sendToBackground<M extends BackgroundMessage>(

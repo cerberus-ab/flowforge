@@ -17,8 +17,8 @@ export class EmbedTransportService implements TransportService {
         return { pageId: 1 }; // virtual page used by the embedded runtime
     }
 
-    async getPageHostname(): Promise<string> {
-        return window.location.hostname;
+    async getPageUrl(): Promise<string> {
+        return window.location.href;
     }
 
     async sendToBackground<M extends BackgroundMessage>(

@@ -1,5 +1,5 @@
 import { constants } from '@/constants';
-import { generateDataId } from '@flowforge/contract';
+import { generateDataId, validateDataId } from '@flowforge/contract';
 
 /**
  * Returns a stable element data id for the given DOM element
@@ -17,6 +17,18 @@ export function getOrCreateDataId(el: Element): string {
         el.setAttribute(constants.DATA_ID_ATTRIBUTE, dataId);
     }
     return dataId;
+}
+
+/**
+ * Finds all non-empty data ids currently present in the document.
+ *
+ * @param doc - The document to search for data id attributes.
+ * @returns The data id values found in document order.
+ */
+export function findDataIds(doc: Document): string[] {
+    return Array.from(doc.querySelectorAll(`[${constants.DATA_ID_ATTRIBUTE}]`))
+        .map((el) => el.getAttribute(constants.DATA_ID_ATTRIBUTE))
+        .filter((dataId): dataId is string => dataId !== null && validateDataId(dataId));
 }
 
 /**

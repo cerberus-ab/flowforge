@@ -35,7 +35,7 @@ describe('ChromeTransportService', () => {
         await expect(transport.getActivePageContext()).resolves.toEqual({});
     });
 
-    it('resolves the sender hostname from the tab URL', async () => {
+    it('resolves the sender URL from the tab', async () => {
         const chromeApi = stubChrome({
             tabs: {
                 get: vi.fn().mockResolvedValue({ url: 'https://app.flowforge.test/path' }),
@@ -43,7 +43,7 @@ describe('ChromeTransportService', () => {
         });
         const transport = new ChromeTransportService();
 
-        await expect(transport.getPageHostname(42)).resolves.toBe('app.flowforge.test');
+        await expect(transport.getPageUrl(42)).resolves.toBe('https://app.flowforge.test/path');
         expect(chromeApi.tabs.get).toHaveBeenCalledWith(42);
     });
 

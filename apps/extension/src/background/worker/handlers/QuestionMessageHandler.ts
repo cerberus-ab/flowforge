@@ -48,7 +48,9 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
         const pageTrailDto = await this.pageClient.collectPageTrail(pageId);
         console.log('[FlowForge] Background collected page trail:', pageTrailDto);
 
-        const domain = await this.pageClient.getHostname(pageId);
+        const url = await this.pageClient.getUrl(pageId);
+        const domain = new URL(url).hostname;
+
         const requestData: QueryRequest = {
             question: message.data.question,
             pageTrailDto,
@@ -72,7 +74,9 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
     ): Promise<PreviousQuestions> {
         const pageId = requirePageId(context);
 
-        const domain = await this.pageClient.getHostname(pageId);
+        const url = await this.pageClient.getUrl(pageId);
+        const domain = new URL(url).hostname;
+
         const questions = await this.historyStorage.getPreviousQuestions(domain);
         return { questions };
     }

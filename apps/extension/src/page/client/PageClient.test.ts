@@ -17,12 +17,12 @@ describe('PageClient', () => {
         // Given
         const pageTrailDto = createPageTrailDtoFixture();
         const settings = createSettingsFixture({ theme: 'dark' });
-        const transport = new FakeTransportService({ pageHostname: 'app.flowforge.test' });
+        const transport = new FakeTransportService({ pageUrl: 'https://app.flowforge.test/settings?tab=profile' });
         transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
         const client = new PageClient(transport);
 
         // When
-        const hostname = await client.getHostname(7);
+        const url = await client.getUrl(7);
         await client.clearPage(7);
         const collectedPageTrail = await client.collectPageTrail(7);
         await client.highlightElement(7, element);
@@ -36,7 +36,7 @@ describe('PageClient', () => {
         await client.notifySettingsUpdated(7, settings);
 
         // Then
-        expect(hostname).toBe('app.flowforge.test');
+        expect(url).toBe('https://app.flowforge.test/settings?tab=profile');
         expect(collectedPageTrail).toEqual(pageTrailDto);
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },

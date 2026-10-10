@@ -15,9 +15,9 @@ export interface TransportService {
     getActivePageContext(): Promise<MessageContext>;
 
     /**
-     * Resolves hostname for the given page.
+     * Resolves url for the given page.
      */
-    getPageHostname(pageId: number): Promise<string>;
+    getPageUrl(pageId: number): Promise<string>;
 
     /**
      * Sends a message to the background and returns a typed response.

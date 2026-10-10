@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { findElement, getOrCreateDataId } from './locate';
+import { findDataIds, findElement, getOrCreateDataId } from './locate';
 
 const dataIdAttribute = 'data-flowforge-id';
 
@@ -19,6 +19,24 @@ describe('getOrCreateDataId', () => {
 
         expect(dataId).toMatch(/^ff/);
         expect(element.getAttribute(dataIdAttribute)).toBe(dataId);
+    });
+});
+
+describe('findDataIds', () => {
+    it('returns all data ids in document order', () => {
+        document.body.innerHTML = `
+            <button ${dataIdAttribute}="ff00000002">Second</button>
+            <div ${dataIdAttribute}="ff00000001"></div>
+            <span ${dataIdAttribute}="invalid-id"></span>
+        `;
+
+        expect(findDataIds(document)).toEqual(['ff00000002', 'ff00000001']);
+    });
+
+    it('returns an empty array when the document has no data ids', () => {
+        document.body.innerHTML = '<button>Save</button>';
+
+        expect(findDataIds(document)).toEqual([]);
     });
 });
 
