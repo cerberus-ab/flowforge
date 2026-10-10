@@ -9,8 +9,8 @@ import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import { useInspectorPage } from '@/chrome/inspector/contentScripts/hooks/useInspectorPage';
 import { Inspector } from '@/page/components/Inspector';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
-import type { InspectorPageBackgroundClient } from '@/background/client/contract';
+import { BackgroundClient } from '@/background';
+import type { InspectorPageBackgroundClient } from '@/background';
 
 interface InspectorPageAppProps {
     backgroundClient: InspectorPageBackgroundClient;

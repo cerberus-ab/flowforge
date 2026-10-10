@@ -5,14 +5,14 @@ import { PageClient } from '@/page/client/PageClient';
 import {
     isGetSettingsMessage,
     isOpenPageInspectorMessage,
-    isPopupInitializeMessage,
+    isPopupOpenedMessage,
     isUpdateSettingsMessage,
 } from '@/messaging';
 
 import { BackgroundWorker } from '../BackgroundWorker';
-import { PageInspectorMessageHandler } from '@/background/worker/handlers/PageInspectorMessageHandler';
-import { PopupLifecycleMessageHandler } from '@/background/worker/handlers/PopupLifecycleMessageHandler';
-import { SettingsMessageHandler } from '@/background/worker/handlers/SettingsMessageHandler';
+import { PageInspectorMessageHandler } from '../handlers/PageInspectorMessageHandler';
+import { PopupLifecycleMessageHandler } from '../handlers/PopupLifecycleMessageHandler';
+import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
 import { MessageRouter } from '@/messaging';
 
 export interface InspectorBackgroundWorkerOptions {
@@ -34,13 +34,15 @@ export function createInspectorBackgroundWorker({
     const pageInspectorHandler = new PageInspectorMessageHandler(pageClient);
 
     return new BackgroundWorker(transport, [
-        MessageRouter.route(isPopupInitializeMessage, (message) =>
-            popupLifecycleHandler.handlePopupInitialize(message),
+        MessageRouter.route(isPopupOpenedMessage, (message, context) =>
+            popupLifecycleHandler.handlePopupOpened(message, context),
         ),
         MessageRouter.route(isGetSettingsMessage, () => settingsHandler.handleGetSettings()),
-        MessageRouter.route(isUpdateSettingsMessage, (message) => settingsHandler.handleUpdateSettings(message)),
-        MessageRouter.route(isOpenPageInspectorMessage, (message) =>
-            pageInspectorHandler.handleOpenPageInspector(message),
+        MessageRouter.route(isUpdateSettingsMessage, (message, context) =>
+            settingsHandler.handleUpdateSettings(message, context),
+        ),
+        MessageRouter.route(isOpenPageInspectorMessage, (message, context) =>
+            pageInspectorHandler.handleOpenPageInspector(message, context),
         ),
     ]);
 }

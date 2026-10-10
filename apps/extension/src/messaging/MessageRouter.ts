@@ -1,9 +1,9 @@
-import type { AnyMessageResponse, Message, MessageResponse } from './Message';
+import type { AnyMessageResponse, Message, MessageContext, MessageResponse } from './Message';
 
-type MessageErrorHandler = (message: Message, error: unknown) => void;
+type MessageErrorHandler = (message: Message, context: MessageContext, error: unknown) => void;
 
 export interface MessageRoute {
-    resolve(message: Message): (() => unknown | Promise<unknown>) | undefined;
+    resolve(message: Message, context: MessageContext): (() => unknown | Promise<unknown>) | undefined;
 }
 
 export class MessageRouter {
@@ -17,37 +17,37 @@ export class MessageRouter {
 
     static route<M extends Message>(
         isMessage: (message: Message) => message is M,
-        handle: (message: M) => unknown | Promise<unknown>,
+        handle: (message: M, context: MessageContext) => unknown | Promise<unknown>,
     ): MessageRoute {
         return {
-            resolve: (message) => {
+            resolve: (message, context) => {
                 if (!isMessage(message)) return undefined;
-                return () => handle(message);
+                return () => handle(message, context);
             },
         };
     }
 
-    readonly handle = (message: Message): Promise<AnyMessageResponse> | undefined => {
+    readonly handle = (message: Message, context: MessageContext): Promise<AnyMessageResponse> | undefined => {
         let operation: (() => unknown | Promise<unknown>) | undefined;
 
         try {
             for (const route of this.routes) {
-                operation = route.resolve(message);
+                operation = route.resolve(message, context);
                 if (operation) break;
             }
         } catch (error) {
-            return Promise.resolve(this.createErrorResponse(message, error));
+            return Promise.resolve(this.createErrorResponse(message, context, error));
         }
         if (!operation) return undefined;
 
         return Promise.resolve()
             .then(operation)
             .then((data): AnyMessageResponse => (data === undefined ? { success: true } : { success: true, data }))
-            .catch((error: unknown) => this.createErrorResponse(message, error));
+            .catch((error: unknown) => this.createErrorResponse(message, context, error));
     };
 
-    private createErrorResponse(message: Message, error: unknown): MessageResponse {
-        this.onError?.(message, error);
+    private createErrorResponse(message: Message, context: MessageContext, error: unknown): MessageResponse {
+        this.onError?.(message, context, error);
 
         return {
             success: false,

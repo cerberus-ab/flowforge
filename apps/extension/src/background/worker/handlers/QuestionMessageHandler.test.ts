@@ -7,7 +7,7 @@ import { FakeLocalStorage } from '../../../../test/unit/fakes/FakeLocalStorage';
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { HistoryStorage } from '@/core/services/HistoryStorage';
 import { PageClient } from '@/page/client/PageClient';
-import type { AskQuestionMessage, GetPrevQuestionsMessage, PageScopedMessage } from '@/messaging';
+import type { AskQuestionMessage, GetPrevQuestionsMessage } from '@/messaging';
 import { QuestionMessageHandler } from './QuestionMessageHandler';
 
 describe('QuestionMessageHandler', () => {
@@ -45,14 +45,13 @@ describe('QuestionMessageHandler', () => {
         await historyStorage.saveQuestion('app.flowforge.test', 'Previous question');
         const transport = createTransport({ hostname: 'app.flowforge.test', pageTrailDto });
         const handler = new QuestionMessageHandler(new PageClient(transport), apiClient, historyStorage);
-        const message: PageScopedMessage<AskQuestionMessage> = {
+        const message: AskQuestionMessage = {
             type: 'ASK_QUESTION',
-            pageId: 7,
             data: { question: 'How do I save?' },
         };
 
         // When
-        const response = await handler.handleAskQuestion(message);
+        const response = await handler.handleAskQuestion(message, { pageId: 7 });
 
         // Then
         expect(response).toEqual(queryResponse);
@@ -92,10 +91,10 @@ describe('QuestionMessageHandler', () => {
         await historyStorage.saveQuestion('app.flowforge.test', 'How do I save?');
         const transport = createTransport({ hostname: 'app.flowforge.test' });
         const handler = new QuestionMessageHandler(new PageClient(transport), new FakeApiClient(), historyStorage);
-        const message: PageScopedMessage<GetPrevQuestionsMessage> = { type: 'GET_PREV_QUESTIONS', pageId: 7 };
+        const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS' };
 
         // When
-        const response = await handler.handleGetPrevQuestions(message);
+        const response = await handler.handleGetPrevQuestions(message, { pageId: 7 });
 
         // Then
         expect(response).toEqual({ questions: ['How do I save?'] });

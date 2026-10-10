@@ -47,7 +47,7 @@ describe('BackgroundClient', () => {
         const client = new BackgroundClient(transport);
 
         // When
-        await client.initializePopup();
+        await client.notifyPopupOpened();
         const questions = await client.getPreviousQuestions();
         const answer = await client.askQuestion('How do I open settings?');
         await client.navigateToElement(element);
@@ -57,11 +57,11 @@ describe('BackgroundClient', () => {
         expect(questions).toEqual(['Where is billing?']);
         expect(answer).toEqual(queryResponse);
         expect(messages).toEqual([
-            { type: 'POPUP_INITIALISE', pageId: 42 },
-            { type: 'GET_PREV_QUESTIONS', pageId: 42 },
-            { type: 'ASK_QUESTION', pageId: 42, data: { question: 'How do I open settings?' } },
-            { type: 'NAVIGATE_TO_ELEMENT', pageId: 42, data: { element } },
-            { type: 'OPEN_PAGE_INSPECTOR', pageId: 42, data: { tab: 'interactive' } },
+            { type: 'POPUP_OPENED' },
+            { type: 'GET_PREV_QUESTIONS' },
+            { type: 'ASK_QUESTION', data: { question: 'How do I open settings?' } },
+            { type: 'NAVIGATE_TO_ELEMENT', data: { element } },
+            { type: 'OPEN_PAGE_INSPECTOR', data: { tab: 'interactive' } },
         ]);
     });
 
@@ -122,8 +122,8 @@ describe('BackgroundClient', () => {
         expect(savedSettings).toEqual(updatedSettings);
         expect(listener).toHaveBeenCalledWith(updatedSettings);
         expect(messages).toEqual([
-            { type: 'GET_SETTINGS', pageId: 42 },
-            { type: 'UPDATE_SETTINGS', pageId: 42, data: { patch: { theme: 'dark' } } },
+            { type: 'GET_SETTINGS' },
+            { type: 'UPDATE_SETTINGS', data: { patch: { theme: 'dark' } } },
             { type: 'SETTINGS_UPDATED', data: updatedSettings },
         ]);
     });

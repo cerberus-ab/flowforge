@@ -7,7 +7,7 @@ import { PageApp } from '@/page/PageApp';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Trigger } from '@/embed/shell/components/Trigger';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
-import type { AssistantBackgroundClient } from '@/background/client/contract';
+import type { AssistantBackgroundClient } from '@/background';
 
 export type ShellAppDemoProps = PopupAppDemoProps;
 

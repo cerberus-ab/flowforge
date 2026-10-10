@@ -1,4 +1,4 @@
-import type { PageBackgroundClient } from '@/background/client/contract';
+import type { PageBackgroundClient } from '@/background';
 
 import { usePage } from '@/page/hooks/usePage';
 import { Highlight } from '@/page/components/Highlight';

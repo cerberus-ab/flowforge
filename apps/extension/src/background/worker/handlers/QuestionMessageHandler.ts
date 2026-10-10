@@ -6,9 +6,10 @@ import type { PageQuestionClient } from '@/page/client/contract';
 import {
     type AskQuestionMessage,
     type GetPrevQuestionsMessage,
-    type PageScopedMessage,
+    type MessageContext,
     type PreviousQuestions,
     type StartOnboardingMessageData,
+    requirePageId,
 } from '@/messaging';
 
 /**
@@ -27,12 +28,13 @@ export class QuestionMessageHandler {
         this.historyStorage = historyStorage;
     }
 
-    async handleAskQuestion(message: PageScopedMessage<AskQuestionMessage>): Promise<QueryResponse> {
-        await this.pageClient.clearPage(message.pageId);
-        const pageTrailDto = await this.pageClient.collectPageTrail(message.pageId);
+    async handleAskQuestion(message: AskQuestionMessage, context: MessageContext): Promise<QueryResponse> {
+        const pageId = requirePageId(context);
+        await this.pageClient.clearPage(pageId);
+        const pageTrailDto = await this.pageClient.collectPageTrail(pageId);
         console.log('[FlowForge] Background collected page trail:', pageTrailDto);
 
-        const domain = await this.pageClient.getHostname(message.pageId);
+        const domain = await this.pageClient.getHostname(pageId);
         const requestData: QueryRequest = {
             question: message.data.question,
             pageTrailDto,
@@ -53,14 +55,17 @@ export class QuestionMessageHandler {
                 elements: result.elements,
                 mode: result.mode,
             };
-            await this.pageClient.startOnboarding(message.pageId, onboarding);
+            await this.pageClient.startOnboarding(pageId, onboarding);
         }
         await this.historyStorage.saveQuestion(domain, message.data.question);
         return responseData;
     }
 
-    async handleGetPrevQuestions(message: PageScopedMessage<GetPrevQuestionsMessage>): Promise<PreviousQuestions> {
-        const domain = await this.pageClient.getHostname(message.pageId);
+    async handleGetPrevQuestions(
+        _message: GetPrevQuestionsMessage,
+        context: MessageContext,
+    ): Promise<PreviousQuestions> {
+        const domain = await this.pageClient.getHostname(requirePageId(context));
         const questions = await this.historyStorage.getPreviousQuestions(domain);
         return { questions };
     }

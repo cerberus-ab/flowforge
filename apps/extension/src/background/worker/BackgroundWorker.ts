@@ -9,7 +9,7 @@ export class BackgroundWorker {
 
     constructor(transport: TransportService, routes: readonly MessageRoute[]) {
         this.transport = transport;
-        this.router = new MessageRouter(routes, (message, error) => {
+        this.router = new MessageRouter(routes, (message, _context, error) => {
             console.error(`[FlowForge] Background failed to handle ${message.type}:`, error);
         });
     }

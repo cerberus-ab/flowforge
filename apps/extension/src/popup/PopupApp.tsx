@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'preact/hooks';
-import type { PopupBackgroundClient } from '@/background/client/contract';
+import type { PopupBackgroundClient } from '@/background';
 
 import { usePopup } from './hooks/usePopup';
 import { Question } from './components/Question';

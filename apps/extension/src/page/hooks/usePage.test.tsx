@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { MessageResponse } from '@/messaging';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
+import { BackgroundClient } from '@/background';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePage, type UsePageOptions } from './usePage';
 

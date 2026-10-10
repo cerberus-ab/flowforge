@@ -1,8 +1,8 @@
-import type { BackgroundWorker } from '@/background/worker/BackgroundWorker';
-import { createBackgroundWorker } from '@/background/worker/factories/createBackgroundWorker';
 import { EmbedLocalStorage, EmbedTransportService } from '@/adapters';
 import type { ApiClient } from '@/core/services/ApiClient';
 import type { ExtensionSettings } from '@/types';
+import type { BackgroundWorker } from '@/background';
+import { createAssistantBackgroundWorker } from '@/background';
 
 export function createWorker(
     transport: EmbedTransportService,
@@ -11,5 +11,5 @@ export function createWorker(
 ): BackgroundWorker {
     const localStorage = new EmbedLocalStorage();
 
-    return createBackgroundWorker({ transport, localStorage, apiClient, initialSettings });
+    return createAssistantBackgroundWorker({ transport, localStorage, apiClient, initialSettings });
 }

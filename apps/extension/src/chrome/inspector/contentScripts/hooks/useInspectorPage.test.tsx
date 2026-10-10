@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../../../../test/unit/fakes/FakeTransportService';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
+import { BackgroundClient } from '@/background';
 import { useInspectorPage, type UseInspectorPageOptions } from './useInspectorPage';
 
 function PageHarness(options: UseInspectorPageOptions) {

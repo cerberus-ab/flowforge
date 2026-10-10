@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { PageClient } from '@/page/client/PageClient';
-import type { PageScopedMessage, PopupInitializeMessage } from '@/messaging';
+import type { PopupOpenedMessage } from '@/messaging';
 import { PopupLifecycleMessageHandler } from './PopupLifecycleMessageHandler';
 
 describe('PopupLifecycleMessageHandler', () => {
@@ -10,10 +10,10 @@ describe('PopupLifecycleMessageHandler', () => {
         // Given
         const transport = new FakeTransportService();
         const handler = new PopupLifecycleMessageHandler(new PageClient(transport));
-        const message: PageScopedMessage<PopupInitializeMessage> = { type: 'POPUP_INITIALISE', pageId: 7 };
+        const message: PopupOpenedMessage = { type: 'POPUP_OPENED' };
 
         // When
-        const response = handler.handlePopupInitialize(message);
+        const response = handler.handlePopupOpened(message, { pageId: 7 });
 
         // Then
         expect(response).toBeUndefined();
@@ -27,10 +27,7 @@ describe('PopupLifecycleMessageHandler', () => {
         const handler = new PopupLifecycleMessageHandler(new PageClient(transport));
 
         // When
-        const response = handler.handlePopupInitialize({
-            type: 'POPUP_INITIALISE',
-            pageId: 7,
-        } as PageScopedMessage<PopupInitializeMessage>);
+        const response = handler.handlePopupOpened({ type: 'POPUP_OPENED' }, { pageId: 7 });
         await Promise.resolve();
 
         // Then

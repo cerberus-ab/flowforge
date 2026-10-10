@@ -11,26 +11,26 @@ import {
     isGetSettingsMessage,
     isNavigateToElementMessage,
     isOpenPageInspectorMessage,
-    isPopupInitializeMessage,
+    isPopupOpenedMessage,
     isUpdateSettingsMessage,
 } from '@/messaging';
 
-import { BackgroundWorker } from '../BackgroundWorker';
-import { ElementNavigationMessageHandler } from '@/background/worker/handlers/ElementNavigationMessageHandler';
-import { PageInspectorMessageHandler } from '@/background/worker/handlers/PageInspectorMessageHandler';
-import { PopupLifecycleMessageHandler } from '@/background/worker/handlers/PopupLifecycleMessageHandler';
-import { QuestionMessageHandler } from '@/background/worker/handlers/QuestionMessageHandler';
-import { SettingsMessageHandler } from '@/background/worker/handlers/SettingsMessageHandler';
+import { ElementNavigationMessageHandler } from '../handlers/ElementNavigationMessageHandler';
+import { PageInspectorMessageHandler } from '../handlers/PageInspectorMessageHandler';
+import { PopupLifecycleMessageHandler } from '../handlers/PopupLifecycleMessageHandler';
+import { QuestionMessageHandler } from '../handlers/QuestionMessageHandler';
+import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
 import { MessageRouter } from '@/messaging';
+import { BackgroundWorker } from '../BackgroundWorker';
 
-export interface AssistantBackgroundWorkerOptions {
+interface AssistantBackgroundWorkerOptions {
     transport: TransportService;
     localStorage: LocalStorage;
     apiClient: ApiClient;
     initialSettings?: Partial<ExtensionSettings>;
 }
 
-export function createBackgroundWorker({
+export function createAssistantBackgroundWorker({
     transport,
     localStorage,
     apiClient,
@@ -49,18 +49,24 @@ export function createBackgroundWorker({
     const elementNavigationHandler = new ElementNavigationMessageHandler(pageClient);
 
     return new BackgroundWorker(transport, [
-        MessageRouter.route(isPopupInitializeMessage, (message) =>
-            popupLifecycleHandler.handlePopupInitialize(message),
+        MessageRouter.route(isPopupOpenedMessage, (message, context) =>
+            popupLifecycleHandler.handlePopupOpened(message, context),
         ),
         MessageRouter.route(isGetSettingsMessage, () => settingsHandler.handleGetSettings()),
-        MessageRouter.route(isUpdateSettingsMessage, (message) => settingsHandler.handleUpdateSettings(message)),
-        MessageRouter.route(isOpenPageInspectorMessage, (message) =>
-            pageInspectorHandler.handleOpenPageInspector(message),
+        MessageRouter.route(isUpdateSettingsMessage, (message, context) =>
+            settingsHandler.handleUpdateSettings(message, context),
         ),
-        MessageRouter.route(isAskQuestionMessage, (message) => questionHandler.handleAskQuestion(message)),
-        MessageRouter.route(isGetPrevQuestionsMessage, (message) => questionHandler.handleGetPrevQuestions(message)),
-        MessageRouter.route(isNavigateToElementMessage, (message) =>
-            elementNavigationHandler.handleNavigateToElement(message),
+        MessageRouter.route(isOpenPageInspectorMessage, (message, context) =>
+            pageInspectorHandler.handleOpenPageInspector(message, context),
+        ),
+        MessageRouter.route(isAskQuestionMessage, (message, context) =>
+            questionHandler.handleAskQuestion(message, context),
+        ),
+        MessageRouter.route(isGetPrevQuestionsMessage, (message, context) =>
+            questionHandler.handleGetPrevQuestions(message, context),
+        ),
+        MessageRouter.route(isNavigateToElementMessage, (message, context) =>
+            elementNavigationHandler.handleNavigateToElement(message, context),
         ),
     ]);
 }

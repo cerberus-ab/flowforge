@@ -7,13 +7,13 @@ describe('EmbedTransportService', () => {
         window.history.replaceState(null, '', '/start');
         const transport = new EmbedTransportService();
 
-        await expect(transport.getActivePageId()).resolves.toBe(1);
+        await expect(transport.getActivePageContext()).resolves.toEqual({ pageId: 1 });
         await expect(transport.getPageHostname()).resolves.toBe('localhost');
     });
 
     it('dispatches background and page messages to registered handlers', async () => {
         const transport = new EmbedTransportService();
-        const backgroundMessage = { type: 'GET_SETTINGS', pageId: 1 } as const;
+        const backgroundMessage = { type: 'GET_SETTINGS' } as const;
         const pageMessage = { type: 'CLEAR_PAGE' } as const;
 
         transport.addMessageListener((received) => {
@@ -23,7 +23,7 @@ describe('EmbedTransportService', () => {
             if (received.type === 'CLEAR_PAGE') return { success: true };
         });
 
-        await expect(transport.sendToBackground(backgroundMessage)).resolves.toEqual({
+        await expect(transport.sendToBackground(backgroundMessage, { pageId: 1 })).resolves.toEqual({
             success: true,
             data: { devMode: true },
         });
@@ -36,7 +36,7 @@ describe('EmbedTransportService', () => {
 
         unsubscribe();
 
-        await expect(transport.sendToBackground({ type: 'GET_SETTINGS', pageId: 1 })).rejects.toThrow(
+        await expect(transport.sendToBackground({ type: 'GET_SETTINGS' }, { pageId: 1 })).rejects.toThrow(
             'Message handler is not registered',
         );
     });
@@ -45,7 +45,7 @@ describe('EmbedTransportService', () => {
         const transport = new EmbedTransportService();
         transport.addMessageListener(() => undefined);
 
-        await expect(transport.sendToBackground({ type: 'GET_SETTINGS', pageId: 1 })).rejects.toThrow(
+        await expect(transport.sendToBackground({ type: 'GET_SETTINGS' }, { pageId: 1 })).rejects.toThrow(
             'Message handler did not return a response',
         );
     });

@@ -1,6 +1,6 @@
 import type { PageSettingsClient } from '@/page/client/contract';
 import type { SettingsStorage } from '@/core/services/SettingsStorage';
-import type { UpdateSettingsMessage } from '@/messaging';
+import type { MessageContext, UpdateSettingsMessage } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
 
 /**
@@ -21,10 +21,10 @@ export class SettingsMessageHandler {
         return this.settingsStorage.get();
     }
 
-    async handleUpdateSettings(message: UpdateSettingsMessage): Promise<ExtensionSettings> {
+    async handleUpdateSettings(message: UpdateSettingsMessage, context: MessageContext): Promise<ExtensionSettings> {
         const updatedSettings = await this.settingsStorage.update(message.data.patch);
-        if (message.pageId !== undefined) {
-            void this.pageClient.notifySettingsUpdated(message.pageId, updatedSettings).catch(() => undefined);
+        if (context.pageId !== undefined) {
+            void this.pageClient.notifySettingsUpdated(context.pageId, updatedSettings).catch(() => undefined);
         }
         return updatedSettings;
     }

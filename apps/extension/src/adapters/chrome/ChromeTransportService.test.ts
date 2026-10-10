@@ -12,7 +12,7 @@ type ChromeOverrides = {
 };
 
 describe('ChromeTransportService', () => {
-    it('resolves the active tab id', async () => {
+    it('resolves the active page context', async () => {
         const chromeApi = stubChrome({
             tabs: {
                 query: vi.fn().mockResolvedValue([{ id: 42 }]),
@@ -20,11 +20,11 @@ describe('ChromeTransportService', () => {
         });
         const transport = new ChromeTransportService();
 
-        await expect(transport.getActivePageId()).resolves.toBe(42);
+        await expect(transport.getActivePageContext()).resolves.toEqual({ pageId: 42 });
         expect(chromeApi.tabs.query).toHaveBeenCalledWith({ active: true, currentWindow: true });
     });
 
-    it('throws when active tab id is unavailable', async () => {
+    it('returns an empty context when active tab id is unavailable', async () => {
         stubChrome({
             tabs: {
                 query: vi.fn().mockResolvedValue([{}]),
@@ -32,7 +32,7 @@ describe('ChromeTransportService', () => {
         });
         const transport = new ChromeTransportService();
 
-        await expect(transport.getActivePageId()).rejects.toThrow('Active tab not found');
+        await expect(transport.getActivePageContext()).resolves.toEqual({});
     });
 
     it('resolves the sender hostname from the tab URL', async () => {
@@ -57,13 +57,19 @@ describe('ChromeTransportService', () => {
             },
         });
         const transport = new ChromeTransportService();
-        const backgroundMessage = { type: 'GET_SETTINGS', pageId: 42 } as const;
+        const backgroundMessage = { type: 'GET_SETTINGS' } as const;
         const pageMessage = { type: 'CLEAR_PAGE' } as const;
 
-        await expect(transport.sendToBackground(backgroundMessage)).resolves.toEqual({ success: true });
+        await expect(transport.sendToBackground(backgroundMessage, { pageId: 42 })).resolves.toEqual({ success: true });
         await expect(transport.sendToPage(42, pageMessage)).resolves.toEqual({ success: true });
-        expect(chromeApi.runtime.sendMessage).toHaveBeenCalledWith(backgroundMessage);
-        expect(chromeApi.tabs.sendMessage).toHaveBeenCalledWith(42, pageMessage);
+        expect(chromeApi.runtime.sendMessage).toHaveBeenCalledWith({
+            message: backgroundMessage,
+            context: { pageId: 42 },
+        });
+        expect(chromeApi.tabs.sendMessage).toHaveBeenCalledWith(42, {
+            message: pageMessage,
+            context: { pageId: 42 },
+        });
     });
 
     it('registers, invokes, and unsubscribes runtime listeners', () => {
@@ -81,11 +87,19 @@ describe('ChromeTransportService', () => {
             },
         });
         const transport = new ChromeTransportService();
-        const unsubscribe = transport.addMessageListener(() => ({ success: true }));
+        const handler = vi.fn(() => ({ success: true }) as const);
+        const unsubscribe = transport.addMessageListener(handler);
         const sendResponse = vi.fn();
         const [listener] = [...listeners];
 
-        expect(listener?.({ type: 'GET_SETTINGS' }, {}, sendResponse)).toBe(true);
+        expect(
+            listener?.(
+                { message: { type: 'GET_SETTINGS' }, context: { pageId: 7 } },
+                { tab: { id: 42 } } as chrome.runtime.MessageSender,
+                sendResponse,
+            ),
+        ).toBe(true);
+        expect(handler).toHaveBeenCalledWith({ type: 'GET_SETTINGS' }, { pageId: 42 });
         unsubscribe();
 
         expect(sendResponse).not.toHaveBeenCalled();
@@ -111,7 +125,7 @@ describe('ChromeTransportService', () => {
         const sendResponse = vi.fn();
         const [listener] = [...listeners];
 
-        expect(listener?.({ type: 'GET_SETTINGS' }, {}, sendResponse)).toBe(true);
+        expect(listener?.({ message: { type: 'GET_SETTINGS' }, context: {} }, {}, sendResponse)).toBe(true);
         await Promise.resolve();
         await Promise.resolve();
 

@@ -4,17 +4,17 @@ import type {
     BackgroundMessage,
     BackgroundMessageResponse,
     Message,
+    MessageContext,
     MessageListener,
     PageMessage,
     PageMessageResponse,
-    PageScopedMessage,
 } from '@/messaging';
 
 export class EmbedTransportService implements TransportService {
     private readonly messageHandlers = new Set<MessageListener>();
 
-    async getActivePageId(): Promise<number> {
-        return 1; // not applicable
+    async getActivePageContext(): Promise<MessageContext> {
+        return { pageId: 1 }; // virtual page used by the embedded runtime
     }
 
     async getPageHostname(): Promise<string> {
@@ -22,13 +22,14 @@ export class EmbedTransportService implements TransportService {
     }
 
     async sendToBackground<M extends BackgroundMessage>(
-        message: PageScopedMessage<M>,
+        message: M,
+        context: MessageContext,
     ): Promise<BackgroundMessageResponse<M>> {
-        return this.send<BackgroundMessageResponse<M>>(message);
+        return this.send<BackgroundMessageResponse<M>>(message, context);
     }
 
-    async sendToPage<M extends PageMessage>(_pageId: number, message: M): Promise<PageMessageResponse<M>> {
-        return this.send<PageMessageResponse<M>>(message);
+    async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>> {
+        return this.send<PageMessageResponse<M>>(message, { pageId });
     }
 
     addMessageListener(handler: MessageListener): () => void {
@@ -38,12 +39,12 @@ export class EmbedTransportService implements TransportService {
         };
     }
 
-    private async send<R extends AnyMessageResponse>(message: Message): Promise<R> {
+    private async send<R extends AnyMessageResponse>(message: Message, context: MessageContext): Promise<R> {
         if (this.messageHandlers.size === 0) {
             throw new Error('Message handler is not registered');
         }
         for (const handler of this.messageHandlers) {
-            const response = await handler(message);
+            const response = await handler(message, context);
             if (response !== undefined) {
                 return response as R;
             }

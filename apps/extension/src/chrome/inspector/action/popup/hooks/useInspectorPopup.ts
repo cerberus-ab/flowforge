@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { useCallback, useEffect } from 'preact/hooks';
-import type { InspectorPopupBackgroundClient } from '@/background/client/contract';
+import type { InspectorPopupBackgroundClient } from '@/background';
 
 export interface UseInspectorPopupOptions {
     backgroundClient: InspectorPopupBackgroundClient;
@@ -18,7 +18,7 @@ export function useInspectorPopup({ backgroundClient }: UseInspectorPopupOptions
     useEffect(() => {
         void (async () => {
             try {
-                await backgroundClient.initializePopup();
+                await backgroundClient.notifyPopupOpened();
             } catch {
                 // Popup startup should not fail if the active tab cannot receive page messages.
             }

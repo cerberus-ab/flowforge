@@ -1,4 +1,4 @@
-export type * from './Message';
+export * from './Message';
 export { MessageRouter } from './MessageRouter';
 export type { MessageRoute } from './MessageRouter';
 

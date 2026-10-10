@@ -75,6 +75,7 @@
 
 ### DX
 
+- Add generated UML documentation for extension messaging, covering component boundaries and key message flows.
 - Improve backend, integration, and promptfoo test coverage.
 - Isolate extension e2e build output from the normal `dist` directory.
 - Use pnpm for package management instead of npm.

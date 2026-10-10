@@ -13,8 +13,8 @@ import { useCallback } from 'preact/hooks';
 import { Opener } from '@/chrome/inspector/action/popup/components/Opener';
 import { Link } from '@/shared/components/Link';
 import { ButtonText } from '@/shared/components/Button';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
-import type { InspectorPopupBackgroundClient } from '@/background/client/contract';
+import { BackgroundClient } from '@/background';
+import type { InspectorPopupBackgroundClient } from '@/background';
 
 export interface InspectorPopupAppProps {
     backgroundClient: InspectorPopupBackgroundClient;
