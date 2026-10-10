@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'preact/hooks';
+import { useState, useEffect, useCallback, useMemo } from 'preact/hooks';
 import { config } from '@/config';
 import { normalizeText } from '@/core/utils/text';
 import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/data';
@@ -15,7 +15,8 @@ export interface UsePopupOptions {
 
 export interface PopupViewModel {
     question: string;
-    setQuestion: (value: string) => void;
+    inputQuestion: string;
+    setInputQuestion: (value: string) => void;
     isLoading: boolean;
     result: AgentResult | null;
     resultMetadata: string | null;
@@ -24,13 +25,15 @@ export interface PopupViewModel {
     copyright: string;
     github: string;
     askQuestion: () => Promise<void>;
+    openOnboarding: () => Promise<void>;
     applyExampleQuestion: (question: string) => void;
     navigateToElement: (element: AgentResultElement) => Promise<void>;
     openPageInspector: (tab?: string) => Promise<void>;
 }
 
 export function usePopup({ backgroundClient, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
-    const [question, setQuestion] = useState('');
+    const [inputQuestion, setInputQuestion] = useState('');
+    const question = useMemo(() => normalizeText(inputQuestion), [inputQuestion]);
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<AgentResult | null>(null);
     const [resultMetadata, setResultMetadata] = useState<string | null>(null);
@@ -60,7 +63,7 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
         // Load previous questions
         const loadPreviousQuestions = async () => {
             try {
-                const questions = await backgroundClient.getPreviousQuestions();
+                const questions = (await backgroundClient.getPreviousQuestions()).questions;
 
                 if (questions.length > 0) {
                     setExamples(buildTryExampleItems(config.exampleQuestions, questions));
@@ -76,7 +79,7 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     // Initialize initial question if presented
     useEffect(() => {
         if (initialQuestion !== undefined) {
-            setQuestion(initialQuestion);
+            setInputQuestion(initialQuestion);
         }
     }, [initialQuestion]);
 
@@ -87,19 +90,17 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
             setResultMetadata(null);
             setError(null);
 
-            const normalized = normalizeText(question);
-
-            if (!normalized) {
+            if (!question) {
                 setError('Please enter a question');
                 return;
             }
-            if (normalized.length > config.maxQuestionLength) {
+            if (question.length > config.maxQuestionLength) {
                 setError(`Please keep your question under ${config.maxQuestionLength} characters`);
                 return;
             }
             setIsLoading(true);
 
-            const response = await backgroundClient.askQuestion(normalized);
+            const response = await backgroundClient.askQuestion(question);
 
             setIsLoading(false);
 
@@ -109,6 +110,11 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
             }
             setResult(response.result);
             setResultMetadata(formatQueryResponseMetadata(response.metadata));
+
+            // Auto navigate to the element in direct mode
+            if (response.result.mode === 'direct' && response.result.elements.length === 1) {
+                void handleNavigateToElement(response.result.elements[0]!);
+            }
         } catch (err) {
             setIsLoading(false);
             setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -117,7 +123,7 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
 
     // Handle example selection
     const handleSelectExample = useCallback((selectedQuestion: string) => {
-        setQuestion(selectedQuestion);
+        setInputQuestion(selectedQuestion);
     }, []);
 
     // Handle navigation to an element
@@ -127,6 +133,12 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
         },
         [backgroundClient],
     );
+
+    // Handle open onboarding
+    const handleOpenOnboarding = useCallback(async () => {
+        if (!result) return;
+        await backgroundClient.openOnboarding(question, result);
+    }, [question, result, backgroundClient]);
 
     // Handle open inspector
     const handleOpenPageInspector = useCallback(
@@ -138,6 +150,7 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
 
     return {
         question,
+        inputQuestion,
         isLoading,
         result,
         resultMetadata,
@@ -146,8 +159,9 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
         copyright: config.copyright,
         github: config.github,
         // actions
-        setQuestion,
+        setInputQuestion,
         askQuestion: handleAskQuestion,
+        openOnboarding: handleOpenOnboarding,
         applyExampleQuestion: handleSelectExample,
         navigateToElement: handleNavigateToElement,
         openPageInspector: handleOpenPageInspector,

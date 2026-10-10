@@ -9,6 +9,16 @@
   font: var(--flowforge-text-h4);
   color: var(--flowforge-color-text);
 }
+.flowforge-elements__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--flowforge-pad-sm);
+}
+.flowforge-elements__action-label {
+  font: var(--flowforge-text-sm);
+  color: var(--flowforge-color-text);
+}
 .flowforge-elements-list {
   display: flex;
   flex-direction: column;

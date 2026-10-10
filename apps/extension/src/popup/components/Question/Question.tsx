@@ -4,8 +4,8 @@ import { Card } from '@/shared/components/Card';
 import { useEffect, useRef } from 'preact/hooks';
 
 interface QuestionProps {
-    question: string;
-    onQuestionChange: (value: string) => void;
+    inputQuestion: string;
+    onInputQuestionChange: (value: string) => void;
     onAskQuestion: () => Promise<void>;
     placeholder: string;
     selectOnly: boolean;
@@ -13,8 +13,8 @@ interface QuestionProps {
 }
 
 export function Question({
-    question,
-    onQuestionChange,
+    inputQuestion,
+    onInputQuestionChange,
     onAskQuestion,
     placeholder,
     selectOnly,
@@ -27,7 +27,7 @@ export function Question({
     }, []);
 
     const handleOnInput = (e: TargetedInputEvent<HTMLTextAreaElement>) => {
-        onQuestionChange((e.currentTarget as HTMLTextAreaElement).value);
+        onInputQuestionChange((e.currentTarget as HTMLTextAreaElement).value);
     };
     const handleOnKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -50,7 +50,7 @@ export function Question({
                     aria-label="Your question"
                     data-testid="flowforge-question-input"
                     rows={4}
-                    value={question}
+                    value={inputQuestion}
                     onInput={handleOnInput}
                     onKeyDown={handleOnKeyDown}
                     readOnly={selectOnly}

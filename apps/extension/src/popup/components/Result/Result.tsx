@@ -7,9 +7,10 @@ interface ResultProps {
     resultMetadata: string | null;
     error: string | null;
     onNavigateToElement: (element: AgentResultElement) => void;
+    onOpenOnboarding: () => void;
 }
 
-export function Result({ result, resultMetadata, error, onNavigateToElement }: ResultProps) {
+export function Result({ result, resultMetadata, error, onNavigateToElement, onOpenOnboarding }: ResultProps) {
     if (error) {
         return <Card title="Couldn't" text={error} direction="left" error data-testid="flowforge-result-error"></Card>;
     }
@@ -21,6 +22,7 @@ export function Result({ result, resultMetadata, error, onNavigateToElement }: R
                         elements={result.elements}
                         mode={result.mode}
                         onNavigateToElement={onNavigateToElement}
+                        onOpenOnboarding={onOpenOnboarding}
                     />
                 )}
                 {resultMetadata && (

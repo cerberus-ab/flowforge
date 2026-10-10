@@ -22,7 +22,13 @@ describe('Result', () => {
     it('renders errors instead of results', () => {
         // Given / When
         render(
-            <Result result={result} resultMetadata="test-model" error="Backend failed" onNavigateToElement={vi.fn()} />,
+            <Result
+                result={result}
+                resultMetadata="test-model"
+                error="Backend failed"
+                onNavigateToElement={vi.fn()}
+                onOpenOnboarding={vi.fn()}
+            />,
         );
 
         // Then
@@ -42,6 +48,7 @@ describe('Result', () => {
                 resultMetadata="test-model · 1.2k tokens · 1.3s"
                 error={null}
                 onNavigateToElement={onNavigateToElement}
+                onOpenOnboarding={vi.fn()}
             />,
         );
         fireEvent.click(screen.getByRole('button', { name: 'Settings' }));

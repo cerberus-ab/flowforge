@@ -52,9 +52,10 @@ describe('BackgroundClient', () => {
         const answer = await client.askQuestion('How do I open settings?');
         await client.navigateToElement(element);
         await client.openPageInspector('interactive');
+        await client.openOnboarding('How do I open settings?', queryResponse.result);
 
         // Then
-        expect(questions).toEqual(['Where is billing?']);
+        expect(questions).toEqual({ questions: ['Where is billing?'] });
         expect(answer).toEqual(queryResponse);
         expect(messages).toEqual([
             { type: 'POPUP_OPENED' },
@@ -62,6 +63,10 @@ describe('BackgroundClient', () => {
             { type: 'ASK_QUESTION', data: { question: 'How do I open settings?' } },
             { type: 'NAVIGATE_TO_ELEMENT', data: { element } },
             { type: 'OPEN_PAGE_INSPECTOR', data: { tab: 'interactive' } },
+            {
+                type: 'OPEN_ONBOARDING',
+                data: { question: 'How do I open settings?', result: queryResponse.result },
+            },
         ]);
     });
 
