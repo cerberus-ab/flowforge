@@ -1,6 +1,5 @@
-import type { Message, MessageResponse } from '@/adapters';
+import type { AnyMessageResponse, Message, MessageResponse } from './Message';
 
-type RouterResponse = MessageResponse | MessageResponse<unknown>;
 type MessageErrorHandler = (message: Message, error: unknown) => void;
 
 export interface MessageRoute {
@@ -28,7 +27,7 @@ export class MessageRouter {
         };
     }
 
-    readonly handle = (message: Message): Promise<RouterResponse> | undefined => {
+    readonly handle = (message: Message): Promise<AnyMessageResponse> | undefined => {
         let operation: (() => unknown | Promise<unknown>) | undefined;
 
         try {
@@ -43,7 +42,7 @@ export class MessageRouter {
 
         return Promise.resolve()
             .then(operation)
-            .then((data): RouterResponse => (data === undefined ? { success: true } : { success: true, data }))
+            .then((data): AnyMessageResponse => (data === undefined ? { success: true } : { success: true, data }))
             .catch((error: unknown) => this.createErrorResponse(message, error));
     };
 

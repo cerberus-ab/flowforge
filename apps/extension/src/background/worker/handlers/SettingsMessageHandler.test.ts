@@ -4,7 +4,8 @@ import { FakeLocalStorage } from '../../../../test/unit/fakes/FakeLocalStorage';
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
-import type { ExtensionSettings, UpdateSettingsMessage } from '@/types';
+import type { UpdateSettingsMessage } from '@/messaging';
+import type { ExtensionSettings } from '@/types';
 import { SettingsMessageHandler } from './SettingsMessageHandler';
 
 const defaultSettings: ExtensionSettings = { theme: 'light', devMode: false };

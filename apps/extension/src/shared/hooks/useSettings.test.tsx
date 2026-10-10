@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, MessageResponse } from '@/adapters';
+import type { Message, MessageResponse } from '@/messaging';
 import { BackgroundClient } from '@/background/client/BackgroundClient';
 import type { SettingsBackgroundClient } from '@/background/client/contract';
 import { config } from '@/config';

@@ -1,7 +1,8 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
-import type { Message, MessageResponse, TransportService } from '@/adapters';
-import type { ExtensionSettings, StartOnboardingMessageData } from '@/types';
+import type { TransportService } from '@/adapters';
+import type { PageMessage, PageMessageResponseData, StartOnboardingMessageData } from '@/messaging';
+import type { ExtensionSettings } from '@/types';
 
 import type {
     PageInspectorClient,
@@ -29,7 +30,7 @@ export class PageClient
     }
 
     collectPageTrail(pageId: number): Promise<PageTrailDto> {
-        return this.sendToPage<PageTrailDto>(pageId, { type: 'COLLECT_PAGE_TRAIL' });
+        return this.sendToPage(pageId, { type: 'COLLECT_PAGE_TRAIL' });
     }
 
     highlightElement(pageId: number, element: AgentResultElement): Promise<void> {
@@ -60,12 +61,12 @@ export class PageClient
         });
     }
 
-    private async sendToPage<D = undefined>(pageId: number, message: Message | Message<unknown>): Promise<D> {
-        const response = await this.transport.sendToPage<MessageResponse<D>>(pageId, message);
+    private async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponseData<M>> {
+        const response = await this.transport.sendToPage(pageId, message);
 
         if (!response.success) {
             throw new Error(response.error);
         }
-        return ('data' in response ? response.data : undefined) as D;
+        return ('data' in response ? response.data : undefined) as PageMessageResponseData<M>;
     }
 }

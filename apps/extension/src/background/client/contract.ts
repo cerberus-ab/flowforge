@@ -1,4 +1,5 @@
-import type { ExtensionSettings, StartOnboardingMessageData } from '@/types';
+import type { ExtensionSettings } from '@/types';
+import type { StartOnboardingMessageData } from '@/messaging';
 import type { AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
 
 /* message callbacks */

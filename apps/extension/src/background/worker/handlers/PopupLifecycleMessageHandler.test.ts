@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { PageClient } from '@/page/client/PageClient';
-import type { PopupInitializeMessage } from '@/types';
+import type { PageScopedMessage, PopupInitializeMessage } from '@/messaging';
 import { PopupLifecycleMessageHandler } from './PopupLifecycleMessageHandler';
 
 describe('PopupLifecycleMessageHandler', () => {
@@ -10,7 +10,7 @@ describe('PopupLifecycleMessageHandler', () => {
         // Given
         const transport = new FakeTransportService();
         const handler = new PopupLifecycleMessageHandler(new PageClient(transport));
-        const message: PopupInitializeMessage = { type: 'POPUP_INITIALISE', pageId: 7 };
+        const message: PageScopedMessage<PopupInitializeMessage> = { type: 'POPUP_INITIALISE', pageId: 7 };
 
         // When
         const response = handler.handlePopupInitialize(message);
@@ -30,7 +30,7 @@ describe('PopupLifecycleMessageHandler', () => {
         const response = handler.handlePopupInitialize({
             type: 'POPUP_INITIALISE',
             pageId: 7,
-        } as PopupInitializeMessage);
+        } as PageScopedMessage<PopupInitializeMessage>);
         await Promise.resolve();
 
         // Then

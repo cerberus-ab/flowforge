@@ -1,5 +1,5 @@
 import type { PageLifecycleClient } from '@/page/client/contract';
-import type { PopupInitializeMessage } from '@/types';
+import type { PageScopedMessage, PopupInitializeMessage } from '@/messaging';
 
 /**
  * Handles background work triggered by the popup lifecycle.
@@ -13,7 +13,7 @@ export class PopupLifecycleMessageHandler {
         this.pageClient = pageClient;
     }
 
-    handlePopupInitialize(message: PopupInitializeMessage): void {
+    handlePopupInitialize(message: PageScopedMessage<PopupInitializeMessage>): void {
         void this.pageClient.clearPage(message.pageId).catch(() => undefined);
     }
 }

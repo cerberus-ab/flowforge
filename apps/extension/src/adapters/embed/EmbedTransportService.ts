@@ -1,9 +1,17 @@
-import type { Message, PageMessage, MessageResponse, TransportService } from '@/adapters';
+import type { TransportService } from '@/adapters';
+import type {
+    AnyMessageResponse,
+    BackgroundMessage,
+    BackgroundMessageResponse,
+    Message,
+    MessageListener,
+    PageMessage,
+    PageMessageResponse,
+    PageScopedMessage,
+} from '@/messaging';
 
 export class EmbedTransportService implements TransportService {
-    private readonly messageHandlers = new Set<
-        (message: Message) => Promise<MessageResponse> | MessageResponse | undefined
-    >();
+    private readonly messageHandlers = new Set<MessageListener>();
 
     async getActivePageId(): Promise<number> {
         return 1; // not applicable
@@ -13,24 +21,24 @@ export class EmbedTransportService implements TransportService {
         return window.location.hostname;
     }
 
-    async sendToBackground<R extends MessageResponse = MessageResponse>(message: PageMessage): Promise<R> {
-        return this.send(message);
+    async sendToBackground<M extends BackgroundMessage>(
+        message: PageScopedMessage<M>,
+    ): Promise<BackgroundMessageResponse<M>> {
+        return this.send<BackgroundMessageResponse<M>>(message);
     }
 
-    async sendToPage<R extends MessageResponse = MessageResponse>(_pageId: number, message: Message): Promise<R> {
-        return this.send(message);
+    async sendToPage<M extends PageMessage>(_pageId: number, message: M): Promise<PageMessageResponse<M>> {
+        return this.send<PageMessageResponse<M>>(message);
     }
 
-    addMessageListener<R extends MessageResponse = MessageResponse>(
-        handler: (message: Message) => Promise<R> | R | undefined,
-    ): () => void {
+    addMessageListener(handler: MessageListener): () => void {
         this.messageHandlers.add(handler);
         return () => {
             this.messageHandlers.delete(handler);
         };
     }
 
-    private async send<R extends MessageResponse = MessageResponse>(message: Message): Promise<R> {
+    private async send<R extends AnyMessageResponse>(message: Message): Promise<R> {
         if (this.messageHandlers.size === 0) {
             throw new Error('Message handler is not registered');
         }

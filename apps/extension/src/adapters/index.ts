@@ -1,4 +1,4 @@
-/* interface and types */
+/* interfaces */
 export type * from './LocalStorage';
 export type * from './TransportService';
 

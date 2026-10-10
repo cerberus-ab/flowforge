@@ -1,5 +1,5 @@
 import type { PageInspectorClient } from '@/page/client/contract';
-import type { OpenPageInspectorMessage } from '@/types';
+import type { OpenPageInspectorMessage, PageScopedMessage } from '@/messaging';
 
 /**
  * Handles requests to open the shared PageTrail Inspector on the sender page.
@@ -13,7 +13,7 @@ export class PageInspectorMessageHandler {
         this.pageClient = pageClient;
     }
 
-    async handleOpenPageInspector(message: OpenPageInspectorMessage): Promise<void> {
+    async handleOpenPageInspector(message: PageScopedMessage<OpenPageInspectorMessage>): Promise<void> {
         await this.pageClient.clearPage(message.pageId);
         await this.pageClient.openInspector(message.pageId, message.data.tab);
     }

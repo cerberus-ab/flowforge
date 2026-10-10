@@ -1,10 +1,11 @@
-// transport service contract
-export type Message<D = undefined> = D extends undefined ? { type: string } : { type: string; data: D };
-
-export type PageMessage<D = undefined> = Message<D> & { pageId: number };
-
-export type MessageResponse<D = undefined> =
-    (D extends undefined ? { success: true } : { success: true; data: D }) | { success: false; error: string };
+import type {
+    BackgroundMessage,
+    BackgroundMessageResponse,
+    MessageListener,
+    PageMessage,
+    PageMessageResponse,
+    PageScopedMessage,
+} from '@/messaging';
 
 // transport service interface
 export interface TransportService {
@@ -21,17 +22,15 @@ export interface TransportService {
     /**
      * Sends a message to the background and returns a typed response.
      */
-    sendToBackground<R extends MessageResponse = MessageResponse>(message: PageMessage): Promise<R>;
+    sendToBackground<M extends BackgroundMessage>(message: PageScopedMessage<M>): Promise<BackgroundMessageResponse<M>>;
 
     /**
      * Sends a message to a specific page context (e.g., tab) by pageId.
      */
-    sendToPage<R extends MessageResponse = MessageResponse>(pageId: number, message: Message): Promise<R>;
+    sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>>;
 
     /**
      * Adds a listener for incoming messages. Returns a function to remove the listener.
      */
-    addMessageListener<R extends MessageResponse = MessageResponse>(
-        handler: (message: Message) => Promise<R> | R | undefined,
-    ): () => void;
+    addMessageListener(handler: MessageListener): () => void;
 }

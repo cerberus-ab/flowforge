@@ -1,6 +1,7 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
-import type { ExtensionSettings, StartOnboardingMessageData } from '@/types';
+import type { ExtensionSettings } from '@/types';
+import type { StartOnboardingMessageData } from '@/messaging';
 
 export interface PageLifecycleClient {
     clearPage(pageId: number): Promise<void>;

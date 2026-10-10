@@ -2,7 +2,7 @@ import type { AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge
 import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { Message, MessageResponse } from '@/adapters';
+import type { Message, MessageResponse } from '@/messaging';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { createSettingsFixture } from '../../../test/fixtures';
 import { BackgroundClient } from './BackgroundClient';

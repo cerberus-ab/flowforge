@@ -13,7 +13,7 @@ import {
     isOpenPageInspectorMessage,
     isPopupInitializeMessage,
     isUpdateSettingsMessage,
-} from '@/types';
+} from '@/messaging';
 
 import { BackgroundWorker } from '../BackgroundWorker';
 import { ElementNavigationMessageHandler } from '@/background/worker/handlers/ElementNavigationMessageHandler';
@@ -21,7 +21,7 @@ import { PageInspectorMessageHandler } from '@/background/worker/handlers/PageIn
 import { PopupLifecycleMessageHandler } from '@/background/worker/handlers/PopupLifecycleMessageHandler';
 import { QuestionMessageHandler } from '@/background/worker/handlers/QuestionMessageHandler';
 import { SettingsMessageHandler } from '@/background/worker/handlers/SettingsMessageHandler';
-import { MessageRouter } from '../../MessageRouter';
+import { MessageRouter } from '@/messaging';
 
 export interface AssistantBackgroundWorkerOptions {
     transport: TransportService;

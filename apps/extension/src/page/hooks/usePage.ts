@@ -1,4 +1,4 @@
-import type { StartOnboardingMessageData } from '@/types';
+import type { StartOnboardingMessageData } from '@/messaging';
 import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { findElement, getOrCreateDataId } from '@/core/locator/locate';
 import { constants } from '@/constants';

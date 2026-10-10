@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { PageClient } from '@/page/client/PageClient';
-import type { NavigateToElementMessage } from '@/types';
+import type { NavigateToElementMessage, PageScopedMessage } from '@/messaging';
 import { ElementNavigationMessageHandler } from './ElementNavigationMessageHandler';
 
 describe('ElementNavigationMessageHandler', () => {
@@ -16,7 +16,7 @@ describe('ElementNavigationMessageHandler', () => {
             cssSelector: '#save',
             action: 'click',
         } as const;
-        const message: NavigateToElementMessage = {
+        const message: PageScopedMessage<NavigateToElementMessage> = {
             type: 'NAVIGATE_TO_ELEMENT',
             pageId: 7,
             data: { element },
