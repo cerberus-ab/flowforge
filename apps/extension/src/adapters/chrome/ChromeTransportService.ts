@@ -58,9 +58,10 @@ export class ChromeTransportService implements TransportService {
             sender: chrome.runtime.MessageSender,
             sendResponse: (response: AnyMessageResponse) => void,
         ): boolean => {
+            const senderIsExtensionPage = sender.url?.startsWith(chrome.runtime.getURL('/')) ?? false;
             const context: MessageContext = {
                 ...envelope.context,
-                pageId: sender.tab?.id ?? envelope.context.pageId,
+                pageId: senderIsExtensionPage ? envelope.context.pageId : (sender.tab?.id ?? envelope.context.pageId),
             };
             const response = handler(envelope.message, context);
 

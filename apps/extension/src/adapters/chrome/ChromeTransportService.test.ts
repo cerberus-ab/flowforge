@@ -95,7 +95,7 @@ describe('ChromeTransportService', () => {
         expect(
             listener?.(
                 { message: { type: 'GET_SETTINGS' }, context: { pageId: 7 } },
-                { tab: { id: 42 } } as chrome.runtime.MessageSender,
+                { url: 'https://app.flowforge.test/', tab: { id: 42 } } as chrome.runtime.MessageSender,
                 sendResponse,
             ),
         ).toBe(true);
@@ -105,6 +105,58 @@ describe('ChromeTransportService', () => {
         expect(sendResponse).not.toHaveBeenCalled();
         expect(chromeApi.runtime.onMessage.removeListener).toHaveBeenCalledWith(listener);
         expect(listeners.size).toBe(0);
+    });
+
+    it('preserves the explicit page context for extension-page senders', () => {
+        const listeners = new Set<ChromeMessageListener>();
+        stubChrome({
+            runtime: {
+                onMessage: {
+                    addListener: vi.fn((listener) => {
+                        listeners.add(listener);
+                    }),
+                },
+            },
+        });
+        const transport = new ChromeTransportService();
+        const handler = vi.fn(() => ({ success: true }) as const);
+        transport.addMessageListener(handler);
+        const [listener] = [...listeners];
+
+        listener?.(
+            { message: { type: 'GET_SETTINGS' }, context: { pageId: 7 } },
+            {
+                url: chrome.runtime.getURL('/action/popup/index.html'),
+                tab: { id: 42 },
+            } as chrome.runtime.MessageSender,
+            vi.fn(),
+        );
+
+        expect(handler).toHaveBeenCalledWith({ type: 'GET_SETTINGS' }, { pageId: 7 });
+    });
+
+    it('sends successful asynchronous listener responses to Chrome', async () => {
+        const listeners = new Set<ChromeMessageListener>();
+        stubChrome({
+            runtime: {
+                onMessage: {
+                    addListener: vi.fn((listener) => {
+                        listeners.add(listener);
+                    }),
+                },
+            },
+        });
+        const transport = new ChromeTransportService();
+        const response = { success: true as const, data: { theme: 'light' } };
+        transport.addMessageListener(async () => response);
+        const sendResponse = vi.fn();
+        const [listener] = [...listeners];
+
+        expect(listener?.({ message: { type: 'GET_SETTINGS' }, context: {} }, {}, sendResponse)).toBe(true);
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(sendResponse).toHaveBeenCalledWith(response);
     });
 
     it('converts async listener errors to error responses', async () => {
@@ -136,6 +188,7 @@ describe('ChromeTransportService', () => {
 function stubChrome(overrides: ChromeOverrides) {
     const chromeApi = {
         runtime: {
+            getURL: (path: string) => `chrome-extension://test-extension${path}`,
             sendMessage: vi.fn(),
             onMessage: {
                 addListener: vi.fn(),
