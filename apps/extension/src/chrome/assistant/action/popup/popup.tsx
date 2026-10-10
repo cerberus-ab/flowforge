@@ -8,7 +8,7 @@ import { DocumentRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
+import { BackgroundClient } from '@/background';
 
 function PopupAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient }) {
     const settings = useSettings({ backgroundClient });

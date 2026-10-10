@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useState } from 'preact/hooks';
 import { constants } from '@/constants';
 import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
-import type { InspectorPageBackgroundClient } from '@/background/client/contract';
+import type { InspectorPageBackgroundClient } from '@/background';
 
 function collectPageTrail(): PageTrail {
     return PageTrailCollector.collectFor(window, document, {

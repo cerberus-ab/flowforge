@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { PageClient } from '@/page/client/PageClient';
-import type { OpenPageInspectorMessage, PageScopedMessage } from '@/messaging';
+import type { OpenPageInspectorMessage } from '@/messaging';
 import { PageInspectorMessageHandler } from './PageInspectorMessageHandler';
 
 describe('PageInspectorMessageHandler', () => {
@@ -10,14 +10,13 @@ describe('PageInspectorMessageHandler', () => {
         // Given
         const transport = new FakeTransportService();
         const handler = new PageInspectorMessageHandler(new PageClient(transport));
-        const message: PageScopedMessage<OpenPageInspectorMessage> = {
+        const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
-            pageId: 7,
             data: { tab: 'semantic' },
         };
 
         // When
-        const response = await handler.handleOpenPageInspector(message);
+        const response = await handler.handleOpenPageInspector(message, { pageId: 7 });
 
         // Then
         expect(response).toBeUndefined();
@@ -34,14 +33,13 @@ describe('PageInspectorMessageHandler', () => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
         vi.spyOn(transport, 'sendToPage').mockRejectedValue(error);
         const handler = new PageInspectorMessageHandler(new PageClient(transport));
-        const message: PageScopedMessage<OpenPageInspectorMessage> = {
+        const message: OpenPageInspectorMessage = {
             type: 'OPEN_PAGE_INSPECTOR',
-            pageId: 7,
             data: {},
         };
 
         // When / Then
-        await expect(handler.handleOpenPageInspector(message)).rejects.toThrow('Page unavailable');
+        await expect(handler.handleOpenPageInspector(message, { pageId: 7 })).rejects.toThrow('Page unavailable');
         expect(transport.sendToPage).toHaveBeenCalledOnce();
         expect(transport.sendToPage).toHaveBeenCalledWith(7, { type: 'CLEAR_PAGE' });
     });

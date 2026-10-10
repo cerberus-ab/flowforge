@@ -1,10 +1,10 @@
 import type { AgentResultElement, QueryResponse } from '@flowforge/contract';
 
-import type { Message, MessageResponse, PageScopedMessage } from '../Message';
+import type { Message, MessageResponse } from '../Message';
 import type { ExtensionSettings } from '@/core/types/settings';
 
-export type PopupInitializeMessage = Message & {
-    type: 'POPUP_INITIALISE';
+export type PopupOpenedMessage = Message & {
+    type: 'POPUP_OPENED';
 };
 
 export type GetSettingsMessage = Message & {
@@ -17,7 +17,6 @@ export interface UpdateSettingsMessageData {
 
 export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
     type: 'UPDATE_SETTINGS';
-    pageId?: number;
 };
 
 export interface AskQuestionMessageData {
@@ -53,7 +52,7 @@ export type OpenPageInspectorMessage = Message<OpenPageInspectorMessageData> & {
 };
 
 export type BackgroundMessage =
-    | PopupInitializeMessage
+    | PopupOpenedMessage
     | GetSettingsMessage
     | UpdateSettingsMessage
     | AskQuestionMessage
@@ -62,7 +61,7 @@ export type BackgroundMessage =
     | OpenPageInspectorMessage;
 
 export interface BackgroundMessageResponseMap {
-    POPUP_INITIALISE: undefined;
+    POPUP_OPENED: undefined;
     GET_SETTINGS: ExtensionSettings;
     UPDATE_SETTINGS: ExtensionSettings;
     ASK_QUESTION: QueryResponse;
@@ -74,12 +73,8 @@ export interface BackgroundMessageResponseMap {
 export type BackgroundMessageResponseData<M extends BackgroundMessage> = BackgroundMessageResponseMap[M['type']];
 export type BackgroundMessageResponse<M extends BackgroundMessage> = MessageResponse<BackgroundMessageResponseData<M>>;
 
-function hasPageId(message: Message): message is PageScopedMessage {
-    return 'pageId' in message && typeof message.pageId === 'number';
-}
-
-export function isPopupInitializeMessage(message: Message): message is PageScopedMessage<PopupInitializeMessage> {
-    return message.type === 'POPUP_INITIALISE' && hasPageId(message);
+export function isPopupOpenedMessage(message: Message): message is PopupOpenedMessage {
+    return message.type === 'POPUP_OPENED';
 }
 
 export function isGetSettingsMessage(message: Message): message is GetSettingsMessage {
@@ -90,18 +85,18 @@ export function isUpdateSettingsMessage(message: Message): message is UpdateSett
     return message.type === 'UPDATE_SETTINGS';
 }
 
-export function isAskQuestionMessage(message: Message): message is PageScopedMessage<AskQuestionMessage> {
-    return message.type === 'ASK_QUESTION' && hasPageId(message);
+export function isAskQuestionMessage(message: Message): message is AskQuestionMessage {
+    return message.type === 'ASK_QUESTION';
 }
 
-export function isGetPrevQuestionsMessage(message: Message): message is PageScopedMessage<GetPrevQuestionsMessage> {
-    return message.type === 'GET_PREV_QUESTIONS' && hasPageId(message);
+export function isGetPrevQuestionsMessage(message: Message): message is GetPrevQuestionsMessage {
+    return message.type === 'GET_PREV_QUESTIONS';
 }
 
-export function isNavigateToElementMessage(message: Message): message is PageScopedMessage<NavigateToElementMessage> {
-    return message.type === 'NAVIGATE_TO_ELEMENT' && hasPageId(message);
+export function isNavigateToElementMessage(message: Message): message is NavigateToElementMessage {
+    return message.type === 'NAVIGATE_TO_ELEMENT';
 }
 
-export function isOpenPageInspectorMessage(message: Message): message is PageScopedMessage<OpenPageInspectorMessage> {
-    return message.type === 'OPEN_PAGE_INSPECTOR' && hasPageId(message);
+export function isOpenPageInspectorMessage(message: Message): message is OpenPageInspectorMessage {
+    return message.type === 'OPEN_PAGE_INSPECTOR';
 }

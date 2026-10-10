@@ -4,7 +4,7 @@ import { findElement, getOrCreateDataId } from '@/core/locator/locate';
 import { constants } from '@/constants';
 import type { AgentResultElement } from '@flowforge/contract';
 import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
-import type { PageBackgroundClient } from '@/background/client/contract';
+import type { PageBackgroundClient } from '@/background';
 
 function collectPageTrail(): PageTrail {
     return PageTrailCollector.collectFor(window, document, {

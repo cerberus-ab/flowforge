@@ -5,7 +5,7 @@ import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/da
 import { buildTryExampleItems } from '@/popup/utils/data';
 import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 import { formatQueryResponseMetadata } from '@/popup/utils/format';
-import type { PopupBackgroundClient } from '@/background/client/contract';
+import type { PopupBackgroundClient } from '@/background';
 
 export interface UsePopupOptions {
     backgroundClient: PopupBackgroundClient;
@@ -41,7 +41,7 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     useEffect(() => {
         void (async () => {
             try {
-                await backgroundClient.initializePopup();
+                await backgroundClient.notifyPopupOpened();
             } catch {
                 // Popup startup should not fail if the active tab cannot receive page messages.
             }

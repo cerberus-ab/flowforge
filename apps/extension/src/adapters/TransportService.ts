@@ -1,18 +1,18 @@
 import type {
     BackgroundMessage,
     BackgroundMessageResponse,
+    MessageContext,
     MessageListener,
     PageMessage,
     PageMessageResponse,
-    PageScopedMessage,
 } from '@/messaging';
 
 // transport service interface
 export interface TransportService {
     /**
-     * Returns identifier of the current active page (e.g., active tab).
+     * Returns the current page context when one is available (e.g., the active tab).
      */
-    getActivePageId(): Promise<number>;
+    getActivePageContext(): Promise<MessageContext>;
 
     /**
      * Resolves hostname for the given page.
@@ -22,7 +22,10 @@ export interface TransportService {
     /**
      * Sends a message to the background and returns a typed response.
      */
-    sendToBackground<M extends BackgroundMessage>(message: PageScopedMessage<M>): Promise<BackgroundMessageResponse<M>>;
+    sendToBackground<M extends BackgroundMessage>(
+        message: M,
+        context: MessageContext,
+    ): Promise<BackgroundMessageResponse<M>>;
 
     /**
      * Sends a message to a specific page context (e.g., tab) by pageId.

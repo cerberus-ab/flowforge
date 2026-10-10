@@ -8,7 +8,7 @@ import { ShadowRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { Main } from '@/shared/components/Main';
 import { useSettings } from '@/shared/hooks/useSettings';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
+import { BackgroundClient } from '@/background';
 
 function PageAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient }) {
     const settings = useSettings({ backgroundClient });

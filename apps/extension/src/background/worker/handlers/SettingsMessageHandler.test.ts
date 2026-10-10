@@ -27,12 +27,11 @@ describe('SettingsMessageHandler', () => {
         const { handler, transport } = createHandler();
         const message: UpdateSettingsMessage = {
             type: 'UPDATE_SETTINGS',
-            pageId: 7,
             data: { patch: { theme: 'dark' } },
         };
 
         // When
-        const response = await handler.handleUpdateSettings(message);
+        const response = await handler.handleUpdateSettings(message, { pageId: 7 });
 
         // Then
         expect(response).toEqual({ ...defaultSettings, theme: 'dark' });
@@ -52,10 +51,13 @@ describe('SettingsMessageHandler', () => {
         const { handler, transport } = createHandler();
 
         // When
-        const response = await handler.handleUpdateSettings({
-            type: 'UPDATE_SETTINGS',
-            data: { patch: { devMode: true } },
-        } as UpdateSettingsMessage);
+        const response = await handler.handleUpdateSettings(
+            {
+                type: 'UPDATE_SETTINGS',
+                data: { patch: { devMode: true } },
+            },
+            {},
+        );
 
         // Then
         expect(response).toEqual({ theme: 'light', devMode: true });

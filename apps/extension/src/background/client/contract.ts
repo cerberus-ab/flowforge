@@ -22,7 +22,7 @@ export interface SettingsMessageCallbacks {
 
 /* client interfaces */
 export interface PopupBackgroundClient {
-    initializePopup(): Promise<void>;
+    notifyPopupOpened(): Promise<void>;
     getPreviousQuestions(): Promise<string[]>;
     askQuestion(question: string): Promise<QueryResponse>;
     navigateToElement(element: AgentResultElement): Promise<void>;
@@ -40,7 +40,7 @@ export interface SettingsBackgroundClient {
 }
 
 export interface InspectorPopupBackgroundClient {
-    initializePopup(): Promise<void>;
+    notifyPopupOpened(): Promise<void>;
     openPageInspector(tab?: string): Promise<void>;
 }
 

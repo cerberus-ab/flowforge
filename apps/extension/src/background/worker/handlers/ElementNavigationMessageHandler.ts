@@ -1,5 +1,5 @@
 import type { PageNavigationClient } from '@/page/client/contract';
-import type { NavigateToElementMessage, PageScopedMessage } from '@/messaging';
+import { requirePageId, type MessageContext, type NavigateToElementMessage } from '@/messaging';
 
 /**
  * Handles navigation to an element selected from a result.
@@ -13,8 +13,9 @@ export class ElementNavigationMessageHandler {
         this.pageClient = pageClient;
     }
 
-    async handleNavigateToElement(message: PageScopedMessage<NavigateToElementMessage>): Promise<void> {
-        await this.pageClient.clearPage(message.pageId);
-        await this.pageClient.highlightElement(message.pageId, message.data.element);
+    async handleNavigateToElement(message: NavigateToElementMessage, context: MessageContext): Promise<void> {
+        const pageId = requirePageId(context);
+        await this.pageClient.clearPage(pageId);
+        await this.pageClient.highlightElement(pageId, message.data.element);
     }
 }

@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
 import type { Message, MessageResponse } from '@/messaging';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
+import { BackgroundClient } from '@/background';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';
 
@@ -123,12 +123,10 @@ describe('usePopup', () => {
         expect(messages).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
-                    type: 'POPUP_INITIALISE',
-                    pageId: 42,
+                    type: 'POPUP_OPENED',
                 }),
                 expect.objectContaining({
                     type: 'GET_PREV_QUESTIONS',
-                    pageId: 42,
                 }),
             ]),
         );
@@ -173,7 +171,6 @@ describe('usePopup', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     type: 'ASK_QUESTION',
-                    pageId: 42,
                     data: {
                         question: 'How do I open settings?',
                     },
@@ -253,14 +250,12 @@ describe('usePopup', () => {
                 expect.arrayContaining([
                     expect.objectContaining({
                         type: 'NAVIGATE_TO_ELEMENT',
-                        pageId: 42,
                         data: {
                             element: resultElement,
                         },
                     }),
                     expect.objectContaining({
                         type: 'OPEN_PAGE_INSPECTOR',
-                        pageId: 42,
                         data: {
                             tab: 'interactive',
                         },

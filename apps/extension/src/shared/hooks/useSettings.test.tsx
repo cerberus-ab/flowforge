@@ -2,8 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
 import type { Message, MessageResponse } from '@/messaging';
-import { BackgroundClient } from '@/background/client/BackgroundClient';
-import type { SettingsBackgroundClient } from '@/background/client/contract';
+import { BackgroundClient, type SettingsBackgroundClient } from '@/background';
 import { config } from '@/config';
 import type { ExtensionSettings } from '@/types';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
@@ -136,7 +135,6 @@ describe('useSettings', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     type: 'UPDATE_SETTINGS',
-                    pageId: 42,
                     data: {
                         patch: {
                             theme: 'dark',

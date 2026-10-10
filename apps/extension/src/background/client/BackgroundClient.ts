@@ -21,7 +21,7 @@ import type {
     PopupBackgroundClient,
     SettingsBackgroundClient,
     SettingsMessageCallbacks,
-} from '@/background/client/contract';
+} from './contract';
 import { MessageRouter, type MessageRoute } from '@/messaging';
 
 export class BackgroundClient
@@ -39,11 +39,8 @@ export class BackgroundClient
     }
 
     private async sendToBackground<M extends BackgroundMessage>(message: M): Promise<BackgroundMessageResponseData<M>> {
-        const pageMessage = {
-            ...message,
-            pageId: await this.transport.getActivePageId(),
-        };
-        const response = await this.transport.sendToBackground(pageMessage);
+        const context = await this.transport.getActivePageContext();
+        const response = await this.transport.sendToBackground(message, context);
 
         if (!response.success) {
             throw new Error(response.error);
@@ -51,9 +48,9 @@ export class BackgroundClient
         return ('data' in response ? response.data : undefined) as BackgroundMessageResponseData<M>;
     }
 
-    async initializePopup(): Promise<void> {
+    async notifyPopupOpened(): Promise<void> {
         return this.sendToBackground({
-            type: 'POPUP_INITIALISE',
+            type: 'POPUP_OPENED',
         });
     }
 

@@ -4,11 +4,11 @@ import type {
     BackgroundMessage,
     BackgroundMessageResponse,
     Message,
+    MessageContext,
     MessageListener,
     MessageResponse,
     PageMessage,
     PageMessageResponse,
-    PageScopedMessage,
 } from '@/messaging';
 
 export class FakeTransportService implements TransportService {
@@ -25,8 +25,8 @@ export class FakeTransportService implements TransportService {
         this.pageHostname = pageHostname ?? 'localhost';
     }
 
-    async getActivePageId(): Promise<number> {
-        return this.activePageId;
+    async getActivePageContext(): Promise<MessageContext> {
+        return { pageId: this.activePageId };
     }
 
     async getPageHostname(): Promise<string> {
@@ -34,10 +34,11 @@ export class FakeTransportService implements TransportService {
     }
 
     async sendToBackground<M extends BackgroundMessage>(
-        message: PageScopedMessage<M>,
+        message: M,
+        context: MessageContext,
     ): Promise<BackgroundMessageResponse<M>> {
         this.sentToBackground.push(message);
-        return this.dispatchToBackground<PageScopedMessage<M>, BackgroundMessageResponse<M>>(message);
+        return this.dispatchToBackground<M, BackgroundMessageResponse<M>>(message, context);
     }
 
     async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>> {
@@ -62,12 +63,13 @@ export class FakeTransportService implements TransportService {
 
     async dispatchToBackground<M extends Message | Message<unknown>, R extends AnyMessageResponse = MessageResponse>(
         message: M,
+        context: MessageContext = {},
     ): Promise<R> {
         if (this.handlers.size === 0) {
             throw new Error('Message handler is not registered');
         }
         for (const handler of this.handlers) {
-            const response = await handler(message);
+            const response = await handler(message, context);
             if (response !== undefined) {
                 return response as R;
             }

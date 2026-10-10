@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import type { ExtensionSettings } from '@/types';
 import { config } from '@/config';
-import type { SettingsBackgroundClient } from '@/background/client/contract';
+import type { SettingsBackgroundClient } from '@/background';
 
 interface UseSettingsParams {
     backgroundClient: SettingsBackgroundClient;

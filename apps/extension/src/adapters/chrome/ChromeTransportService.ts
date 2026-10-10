@@ -3,11 +3,11 @@ import type {
     AnyMessageResponse,
     BackgroundMessage,
     BackgroundMessageResponse,
-    Message,
+    MessageContext,
+    MessageEnvelope,
     MessageListener,
     PageMessage,
     PageMessageResponse,
-    PageScopedMessage,
 } from '@/messaging';
 
 /**
@@ -21,12 +21,14 @@ import type {
  * Chrome-specific details (e.g. tabId) are handled internally.
  */
 export class ChromeTransportService implements TransportService {
-    public async getActivePageId(): Promise<number> {
+    public async getActivePageContext(): Promise<MessageContext> {
+        if (!chrome.tabs?.query) return {};
+
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (!tab?.id) {
-            throw new Error('Active tab not found');
+        if (tab?.id === undefined) {
+            return {};
         }
-        return tab.id;
+        return { pageId: tab.id };
     }
 
     public async getPageHostname(pageId: number): Promise<string> {
@@ -38,22 +40,29 @@ export class ChromeTransportService implements TransportService {
     }
 
     public async sendToBackground<M extends BackgroundMessage>(
-        message: PageScopedMessage<M>,
+        message: M,
+        context: MessageContext,
     ): Promise<BackgroundMessageResponse<M>> {
-        return chrome.runtime.sendMessage<PageScopedMessage<M>, BackgroundMessageResponse<M>>(message);
+        const envelope: MessageEnvelope<M> = { message, context };
+        return chrome.runtime.sendMessage<MessageEnvelope<M>, BackgroundMessageResponse<M>>(envelope);
     }
 
     public async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>> {
-        return chrome.tabs.sendMessage<M, PageMessageResponse<M>>(pageId, message);
+        const envelope: MessageEnvelope<M> = { message, context: { pageId } };
+        return chrome.tabs.sendMessage<MessageEnvelope<M>, PageMessageResponse<M>>(pageId, envelope);
     }
 
     public addMessageListener(handler: MessageListener): () => void {
         const listener = (
-            message: Message,
-            _sender: chrome.runtime.MessageSender,
+            envelope: MessageEnvelope,
+            sender: chrome.runtime.MessageSender,
             sendResponse: (response: AnyMessageResponse) => void,
         ): boolean => {
-            const response = handler(message);
+            const context: MessageContext = {
+                ...envelope.context,
+                pageId: sender.tab?.id ?? envelope.context.pageId,
+            };
+            const response = handler(envelope.message, context);
 
             if (response === undefined) {
                 return false;
