@@ -12,6 +12,7 @@ All notable changes to the project will be documented in this file.
 ### Changed
 
 - Refactored extension messaging around receiver-specific contracts, shared clients, centralized routing, focused handlers, and transport-level page context.
+- Changed onboarding to open from an explicit action on the result instead of opening automatically.
 - Fixed root-level content and interactive elements in enriched `PageTrail` structure output.
 
 ## [0.2.2] - 2026-10-04

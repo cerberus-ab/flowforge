@@ -8,15 +8,19 @@ import {
     type GetPrevQuestionsMessage,
     type MessageContext,
     type PreviousQuestions,
+    MessageRouter,
+    isAskQuestionMessage,
+    isGetPrevQuestionsMessage,
     requirePageId,
 } from '@/messaging';
+import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
 
 /**
- * Handles the question workflow and its per-domain history.
- * It collects page context, submits questions to the API, and reads or updates
- * previously asked questions.
+ * Handles question requests and per-domain question history.
+ * Collects page context and submits new questions to the API.
+ * Also retrieves the previous questions associated with the page domain.
  */
-export class QuestionMessageHandler {
+export class QuestionMessageHandler implements BackgroundMessageHandler {
     private readonly pageClient: PageQuestionClient;
     private readonly apiClient: ApiClient;
     private readonly historyStorage: HistoryStorage;
@@ -27,8 +31,19 @@ export class QuestionMessageHandler {
         this.historyStorage = historyStorage;
     }
 
+    routes() {
+        return [
+            MessageRouter.route(isAskQuestionMessage, (message, context) => this.handleAskQuestion(message, context)),
+            MessageRouter.route(isGetPrevQuestionsMessage, (message, context) =>
+                this.handleGetPrevQuestions(message, context),
+            ),
+        ];
+    }
+
+    /** Collects page context, queries the API, and saves the submitted question. */
     async handleAskQuestion(message: AskQuestionMessage, context: MessageContext): Promise<QueryResponse> {
         const pageId = requirePageId(context);
+
         await this.pageClient.clearPage(pageId);
         const pageTrailDto = await this.pageClient.collectPageTrail(pageId);
         console.log('[FlowForge] Background collected page trail:', pageTrailDto);
@@ -50,11 +65,14 @@ export class QuestionMessageHandler {
         return responseData;
     }
 
+    /** Returns the saved question history for the sender page's domain. */
     async handleGetPrevQuestions(
         _message: GetPrevQuestionsMessage,
         context: MessageContext,
     ): Promise<PreviousQuestions> {
-        const domain = await this.pageClient.getHostname(requirePageId(context));
+        const pageId = requirePageId(context);
+
+        const domain = await this.pageClient.getHostname(pageId);
         const questions = await this.historyStorage.getPreviousQuestions(domain);
         return { questions };
     }

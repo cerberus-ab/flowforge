@@ -25,6 +25,11 @@ import type {
 } from './contract';
 import { MessageRouter, type MessageRoute } from '@/messaging';
 
+/**
+ * Provides typed popup/page operations through the background worker.
+ * It also routes messages sent back from background to registered callbacks.
+ * Context and response handling are centralized so callers use capability methods.
+ */
 export class BackgroundClient
     implements
         PopupBackgroundClient,
@@ -39,6 +44,7 @@ export class BackgroundClient
         this.transport = transport;
     }
 
+    /** Sends a typed message with the active page context and unwraps its response. */
     private async sendToBackground<M extends BackgroundMessage>(message: M): Promise<BackgroundMessageResponseData<M>> {
         const context = await this.transport.getActivePageContext();
         const response = await this.transport.sendToBackground(message, context);
@@ -49,18 +55,21 @@ export class BackgroundClient
         return ('data' in response ? response.data : undefined) as BackgroundMessageResponseData<M>;
     }
 
+    /** Notifies background that the popup has opened. */
     async notifyPopupOpened(): Promise<void> {
         return this.sendToBackground({
             type: 'POPUP_OPENED',
         });
     }
 
+    /** Retrieves question history for the active page. */
     async getPreviousQuestions(): Promise<PreviousQuestions> {
         return this.sendToBackground({
             type: 'GET_PREV_QUESTIONS',
         });
     }
 
+    /** Submits a question along with the active page context. */
     async askQuestion(question: string): Promise<QueryResponse> {
         return this.sendToBackground({
             type: 'ASK_QUESTION',
@@ -68,6 +77,7 @@ export class BackgroundClient
         });
     }
 
+    /** Asks background to open onboarding on the active page. */
     async openOnboarding(question: string, result: AgentResult): Promise<void> {
         return this.sendToBackground({
             type: 'OPEN_ONBOARDING',
@@ -75,6 +85,7 @@ export class BackgroundClient
         });
     }
 
+    /** Navigates the active page to an element returned by the agent. */
     async navigateToElement(element: AgentResultElement): Promise<void> {
         return this.sendToBackground({
             type: 'NAVIGATE_TO_ELEMENT',
@@ -82,6 +93,7 @@ export class BackgroundClient
         });
     }
 
+    /** Opens the PageTrail Inspector on the active page. */
     async openPageInspector(tab?: string): Promise<void> {
         return this.sendToBackground({
             type: 'OPEN_PAGE_INSPECTOR',
@@ -89,12 +101,14 @@ export class BackgroundClient
         });
     }
 
+    /** Reads the current extension settings from background. */
     async getSettings(): Promise<ExtensionSettings> {
         return this.sendToBackground({
             type: 'GET_SETTINGS',
         });
     }
 
+    /** Applies a settings patch and returns the updated settings. */
     async updateSettings(patch: Partial<ExtensionSettings>): Promise<ExtensionSettings> {
         return this.sendToBackground({
             type: 'UPDATE_SETTINGS',
@@ -102,12 +116,14 @@ export class BackgroundClient
         });
     }
 
+    /** Subscribes to settings updates initiated by background. */
     subscribeToSettingsMessages(callbacks: SettingsMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isSettingsUpdatedMessage, (message) => callbacks.onSettingsUpdated(message.data)),
         ]);
     }
 
+    /** Subscribes to page commands sent by background. */
     subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrail()),
@@ -120,6 +136,7 @@ export class BackgroundClient
         ]);
     }
 
+    /** Subscribes to the subset of page commands used by the Inspector. */
     subscribeToInspectorPageMessages(callbacks: InspectorPageMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
@@ -127,6 +144,7 @@ export class BackgroundClient
         ]);
     }
 
+    /** Registers message routes and returns a function that removes the listener. */
     private subscribeToMessages(routes: readonly MessageRoute[]): () => void {
         const router = new MessageRouter(routes);
         return this.transport.addMessageListener(router.handle);
