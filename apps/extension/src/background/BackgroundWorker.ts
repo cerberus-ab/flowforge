@@ -1,55 +1,32 @@
-import type { Message, MessageResponse, TransportService } from '@/adapters';
+import type { TransportService } from '@/adapters';
 
 import type { BackgroundMessageHandler } from './handlers/BackgroundMessageHandler';
+import { MessageRouter } from './MessageRouter';
 
 /**
  * Routes incoming background messages through an ordered collection of handlers.
- * The first handler that returns a response owns the message. The worker manages
- * the transport listener lifecycle and converts synchronous or asynchronous
- * handler failures into unsuccessful message responses.
+ * The first matching handler owns the message. The shared router converts handler
+ * results and failures into transport responses.
  */
 export class BackgroundWorker {
     private readonly transport: TransportService;
-    private readonly handlers: readonly BackgroundMessageHandler[];
+    private readonly router: MessageRouter;
     private unsubscribe?: () => void;
 
     constructor(transport: TransportService, handlers: readonly BackgroundMessageHandler[]) {
         this.transport = transport;
-        this.handlers = handlers;
+        this.router = new MessageRouter(handlers, (message, error) => {
+            console.error(`[FlowForge] Background failed to handle ${message.type}:`, error);
+        });
     }
 
     start(): void {
-        this.unsubscribe = this.transport.addMessageListener((message) => this.handleMessage(message));
+        this.unsubscribe = this.transport.addMessageListener(this.router.handle);
         console.log('[FlowForge] Background worker loaded and started');
     }
 
     stop(): void {
         this.unsubscribe?.();
         console.log('[FlowForge] Background worker stopped');
-    }
-
-    /** Routes a message to the first handler that supports it. */
-    private handleMessage(message: Message): Promise<MessageResponse> | MessageResponse | undefined {
-        try {
-            for (const handler of this.handlers) {
-                const response = handler.handle(message);
-                if (response !== undefined) {
-                    return Promise.resolve(response).catch((error: unknown) => this.handleError(message, error));
-                }
-            }
-        } catch (error) {
-            return this.handleError(message, error);
-        }
-        return undefined;
-    }
-
-    /** Logs a handler failure and converts it to a message response. */
-    private handleError(message: Message, error: unknown): MessageResponse {
-        console.error(`[FlowForge] Background failed to handle ${message.type}:`, error);
-
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : String(error),
-        };
     }
 }

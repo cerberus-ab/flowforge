@@ -16,10 +16,11 @@ describe('PageInspectorMessageHandler', () => {
         };
 
         // When
-        const response = await handler.handle(message);
+        const operation = handler.resolve(message);
+        const response = await operation?.();
 
         // Then
-        expect(response).toEqual({ success: true });
+        expect(response).toBeUndefined();
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
             { pageId: 7, message: { type: 'OPEN_INSPECTOR', data: { tab: 'semantic' } } },
@@ -40,7 +41,7 @@ describe('PageInspectorMessageHandler', () => {
         };
 
         // When / Then
-        await expect(handler.handle(message)).rejects.toThrow('Page unavailable');
+        await expect(handler.resolve(message)?.()).rejects.toThrow('Page unavailable');
         expect(transport.sendToPage).toHaveBeenCalledOnce();
         expect(transport.sendToPage).toHaveBeenCalledWith(7, { type: 'CLEAR_PAGE' });
     });

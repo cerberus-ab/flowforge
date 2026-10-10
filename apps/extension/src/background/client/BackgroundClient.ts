@@ -21,6 +21,7 @@ import type {
     SettingsBackgroundClient,
     SettingsCommandHandlers,
 } from '@/background/client/contract';
+import { MessageRouter, type MessageRoute } from '@/background/MessageRouter';
 
 export class BackgroundClient
     implements
@@ -55,10 +56,11 @@ export class BackgroundClient
         });
     }
 
-    async getPreviousQuestions(): Promise<GetPrevQuestionsMessageResponseData> {
-        return this.sendToBackground<GetPrevQuestionsMessageResponseData>({
+    async getPreviousQuestions(): Promise<string[]> {
+        const response = await this.sendToBackground<GetPrevQuestionsMessageResponseData>({
             type: 'GET_PREV_QUESTIONS',
         });
+        return response.questions;
     }
 
     async askQuestion(question: string): Promise<QueryResponse> {
@@ -96,52 +98,32 @@ export class BackgroundClient
     }
 
     subscribeToSettingsCommands(handlers: SettingsCommandHandlers): () => void {
-        return this.transport.addMessageListener((message) => {
-            if (isSettingsUpdatedMessage(message)) {
-                handlers.settingsUpdated(message.data);
-                return { success: true };
-            }
-            return undefined;
-        });
+        return this.subscribeToCommands([
+            MessageRouter.route(isSettingsUpdatedMessage, (message) => handlers.settingsUpdated(message.data)),
+        ]);
     }
 
     subscribeToPageCommands(handlers: PageCommandHandlers): () => void {
-        return this.transport.addMessageListener((message) => {
-            if (isCollectPageTrailMessage(message)) {
-                const data = handlers.collectPageTrail();
-                return { success: true, data };
-            }
-            if (isClearPageMessage(message)) {
-                handlers.clearPage();
-                return { success: true };
-            }
-            if (isStartOnboardingMessage(message)) {
-                handlers.startOnboarding(message.data);
-                return { success: true };
-            }
-            if (isHighlightElementMessage(message)) {
-                handlers.highlightElement(message.data.element);
-                return { success: true };
-            }
-            if (isOpenInspectorMessage(message)) {
-                handlers.openInspector(message.data.tab);
-                return { success: true };
-            }
-            return undefined;
-        });
+        return this.subscribeToCommands([
+            MessageRouter.route(isCollectPageTrailMessage, () => handlers.collectPageTrail()),
+            MessageRouter.route(isClearPageMessage, () => handlers.clearPage()),
+            MessageRouter.route(isStartOnboardingMessage, (message) => handlers.startOnboarding(message.data)),
+            MessageRouter.route(isHighlightElementMessage, (message) =>
+                handlers.highlightElement(message.data.element),
+            ),
+            MessageRouter.route(isOpenInspectorMessage, (message) => handlers.openInspector(message.data.tab)),
+        ]);
     }
 
     subscribeToInspectorPageCommands(handlers: InspectorPageCommandHandlers): () => void {
-        return this.transport.addMessageListener((message) => {
-            if (isClearPageMessage(message)) {
-                handlers.clearPage();
-                return { success: true };
-            }
-            if (isOpenInspectorMessage(message)) {
-                handlers.openInspector(message.data.tab);
-                return { success: true };
-            }
-            return undefined;
-        });
+        return this.subscribeToCommands([
+            MessageRouter.route(isClearPageMessage, () => handlers.clearPage()),
+            MessageRouter.route(isOpenInspectorMessage, (message) => handlers.openInspector(message.data.tab)),
+        ]);
+    }
+
+    private subscribeToCommands(routes: readonly MessageRoute[]): () => void {
+        const router = new MessageRouter(routes);
+        return this.transport.addMessageListener(router.handle);
     }
 }

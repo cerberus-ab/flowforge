@@ -12,10 +12,10 @@ describe('PopupLifecycleMessageHandler', () => {
         const message: PopupInitializeMessage = { type: 'POPUP_INITIALISE', pageId: 7 };
 
         // When
-        const response = handler.handle(message);
+        const response = handler.resolve(message)?.();
 
         // Then
-        expect(response).toEqual({ success: true });
+        expect(response).toBeUndefined();
         expect(transport.getSentToPage()).toEqual([{ pageId: 7, message: { type: 'CLEAR_PAGE' } }]);
     });
 
@@ -26,10 +26,10 @@ describe('PopupLifecycleMessageHandler', () => {
         const handler = new PopupLifecycleMessageHandler(transport);
 
         // When
-        const response = handler.handle({ type: 'POPUP_INITIALISE', pageId: 7 } as PopupInitializeMessage);
+        const response = handler.resolve({ type: 'POPUP_INITIALISE', pageId: 7 } as PopupInitializeMessage)?.();
         await Promise.resolve();
 
         // Then
-        expect(response).toEqual({ success: true });
+        expect(response).toBeUndefined();
     });
 });

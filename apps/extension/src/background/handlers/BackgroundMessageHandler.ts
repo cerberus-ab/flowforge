@@ -1,5 +1,3 @@
-import type { Message, MessageResponse } from '@/adapters';
+import type { MessageRoute } from '@/background/MessageRouter';
 
-export interface BackgroundMessageHandler {
-    handle(message: Message): Promise<MessageResponse> | MessageResponse | undefined;
-}
+export type BackgroundMessageHandler = MessageRoute;

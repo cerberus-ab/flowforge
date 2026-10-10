@@ -13,12 +13,17 @@ describe('BackgroundWorker', () => {
     it('routes messages to the first matching handler', async () => {
         // Given
         const transport = new FakeTransportService();
-        const skippedHandler: BackgroundMessageHandler = { handle: vi.fn(() => undefined) };
+        const matchingOperation = vi.fn();
+        const skippedHandler: BackgroundMessageHandler = {
+            resolve: vi.fn(() => undefined),
+        };
         const matchingHandler: BackgroundMessageHandler = {
-            handle: vi.fn(() => ({ success: true as const })),
+            resolve: vi.fn(() => matchingOperation),
         };
         const trailingHandler: BackgroundMessageHandler = {
-            handle: vi.fn(() => ({ success: false as const, error: 'Must not run' })),
+            resolve: vi.fn(() => () => {
+                throw new Error('Must not run');
+            }),
         };
         const worker = new BackgroundWorker(transport, [skippedHandler, matchingHandler, trailingHandler]);
         worker.start();
@@ -28,15 +33,16 @@ describe('BackgroundWorker', () => {
 
         // Then
         expect(response).toEqual({ success: true });
-        expect(skippedHandler.handle).toHaveBeenCalledOnce();
-        expect(matchingHandler.handle).toHaveBeenCalledOnce();
-        expect(trailingHandler.handle).not.toHaveBeenCalled();
+        expect(skippedHandler.resolve).toHaveBeenCalledOnce();
+        expect(matchingHandler.resolve).toHaveBeenCalledOnce();
+        expect(matchingOperation).toHaveBeenCalledOnce();
+        expect(trailingHandler.resolve).not.toHaveBeenCalled();
     });
 
     it('unregisters its transport listener when stopped', async () => {
         // Given
         const transport = new FakeTransportService();
-        const worker = new BackgroundWorker(transport, [{ handle: () => ({ success: true }) }]);
+        const worker = new BackgroundWorker(transport, [{ resolve: () => () => undefined }]);
         worker.start();
 
         // When
@@ -53,7 +59,7 @@ describe('BackgroundWorker', () => {
         const transport = new FakeTransportService();
         const worker = new BackgroundWorker(transport, [
             {
-                handle: () => {
+                resolve: () => () => {
                     throw new Error('Settings unavailable');
                 },
             },
@@ -76,7 +82,7 @@ describe('BackgroundWorker', () => {
         const transport = new FakeTransportService();
         const worker = new BackgroundWorker(transport, [
             {
-                handle: () => Promise.reject(new Error('Page unavailable')),
+                resolve: () => () => Promise.reject(new Error('Page unavailable')),
             },
         ]);
         worker.start();
