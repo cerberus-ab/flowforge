@@ -8,14 +8,13 @@ import {
     type GetPrevQuestionsMessage,
     type MessageContext,
     type PreviousQuestions,
-    type StartOnboardingMessageData,
     requirePageId,
 } from '@/messaging';
 
 /**
  * Handles the question workflow and its per-domain history.
- * It collects page context, submits questions to the API, starts onboarding from
- * the response, and reads or updates previously asked questions.
+ * It collects page context, submits questions to the API, and reads or updates
+ * previously asked questions.
  */
 export class QuestionMessageHandler {
     private readonly pageClient: PageQuestionClient;
@@ -46,17 +45,7 @@ export class QuestionMessageHandler {
         console.log('[FlowForge] Background sending request to server:', requestData);
         const responseData = await this.apiClient.query(requestData);
         console.log('[FlowForge] Background received response from server:', responseData);
-        const result = responseData.result;
 
-        if (result.elements.length > 0) {
-            const onboarding: StartOnboardingMessageData = {
-                title: result.topic ?? message.data.question,
-                description: result.answer,
-                elements: result.elements,
-                mode: result.mode,
-            };
-            await this.pageClient.startOnboarding(pageId, onboarding);
-        }
         await this.historyStorage.saveQuestion(domain, message.data.question);
         return responseData;
     }

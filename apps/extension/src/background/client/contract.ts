@@ -1,6 +1,6 @@
 import type { ExtensionSettings } from '@/types';
-import type { StartOnboardingMessageData } from '@/messaging';
-import type { AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
+import type { PreviousQuestions, StartOnboardingMessageData } from '@/messaging';
+import type { AgentResult, AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
 
 /* message callbacks */
 export interface PageMessageCallbacks {
@@ -23,8 +23,9 @@ export interface SettingsMessageCallbacks {
 /* client interfaces */
 export interface PopupBackgroundClient {
     notifyPopupOpened(): Promise<void>;
-    getPreviousQuestions(): Promise<string[]>;
+    getPreviousQuestions(): Promise<PreviousQuestions>;
     askQuestion(question: string): Promise<QueryResponse>;
+    openOnboarding(question: string, result: AgentResult): Promise<void>;
     navigateToElement(element: AgentResultElement): Promise<void>;
     openPageInspector(tab?: string): Promise<void>;
 }

@@ -260,7 +260,15 @@ test('runs wizard onboarding through the configured backend', async ({ context, 
 
     // Then
     await expect(popup.getByTestId('flowforge-result')).toContainText('Follow the Chrome sandbox controls.');
+    await expect(popup.getByTestId('flowforge-open-onboarding')).toBeFocused();
+    await expect(page.getByTestId('flowforge-wizard')).toHaveCount(0);
+
+    // When
+    const popupClosed = popup.waitForEvent('close');
+    await popup.getByTestId('flowforge-open-onboarding').click();
     await expect(page.getByTestId('flowforge-wizard')).toBeVisible();
+    await popupClosed;
+    await expect(page.getByTestId('flowforge-wizard-start')).toBeFocused();
 
     await page.getByTestId('flowforge-wizard-start').click();
     await expect(page.getByTestId('flowforge-wizard-status')).toContainText('Step 1 of 3');

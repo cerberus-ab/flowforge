@@ -55,6 +55,7 @@ describe('Wizard', () => {
         expect(screen.getByRole('heading', { name: 'Setup flow' })).toBeTruthy();
         expect(screen.getByText('Follow these steps.')).toBeTruthy();
         expect(screen.getByText('2-step walkthrough')).toBeTruthy();
+        expect(screen.getByTestId('flowforge-wizard-start')).toBe(document.activeElement);
 
         // When
         fireEvent.click(screen.getByRole('button', { name: 'Start onboarding' }));

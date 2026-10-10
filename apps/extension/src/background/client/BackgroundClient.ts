@@ -1,4 +1,4 @@
-import type { AgentResultElement, QueryResponse } from '@flowforge/contract';
+import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/contract';
 
 import type { TransportService } from '@/adapters';
 import {
@@ -10,6 +10,7 @@ import {
     isOpenInspectorMessage,
     isSettingsUpdatedMessage,
     isStartOnboardingMessage,
+    type PreviousQuestions,
 } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
 import type {
@@ -54,17 +55,23 @@ export class BackgroundClient
         });
     }
 
-    async getPreviousQuestions(): Promise<string[]> {
-        const response = await this.sendToBackground({
+    async getPreviousQuestions(): Promise<PreviousQuestions> {
+        return this.sendToBackground({
             type: 'GET_PREV_QUESTIONS',
         });
-        return response.questions;
     }
 
     async askQuestion(question: string): Promise<QueryResponse> {
         return this.sendToBackground({
             type: 'ASK_QUESTION',
             data: { question },
+        });
+    }
+
+    async openOnboarding(question: string, result: AgentResult): Promise<void> {
+        return this.sendToBackground({
+            type: 'OPEN_ONBOARDING',
+            data: { question, result },
         });
     }
 

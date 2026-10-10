@@ -20,6 +20,9 @@ export interface PageQuestionClient {
     clearPage(pageId: number): Promise<void>;
     collectPageTrail(pageId: number): Promise<PageTrailDto>;
     getHostname(pageId: number): Promise<string>;
+}
+
+export interface PageOnboardingClient {
     startOnboarding(pageId: number, data: StartOnboardingMessageData): Promise<void>;
 }
 

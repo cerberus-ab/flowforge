@@ -17,6 +17,12 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
 
     const dragRef = useRef<DragState | null>(null);
     const wizardRef = useRef<HTMLDivElement>(null);
+    const startButtonRef = useRef<HTMLButtonElement>(null);
+    const isStartScreen = currentStep === 0;
+
+    useEffect(() => {
+        if (isStartScreen) startButtonRef.current?.focus();
+    }, [isStartScreen]);
 
     // Dragging logic
     useEffect(() => {
@@ -110,7 +116,6 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
         setIsDragging(true);
     };
 
-    const isStartScreen = currentStep === 0;
     const wizardStatus = isStartScreen ? `${steps.length}-step walkthrough` : `Step ${currentStep} of ${steps.length}`;
 
     return (
@@ -146,7 +151,7 @@ export function Wizard({ title, description, steps, currentStep, close, changeSt
                 >
                     {isStartScreen ? (
                         <>
-                            <Button data-testid="flowforge-wizard-start" onClick={handleStart}>
+                            <Button ref={startButtonRef} data-testid="flowforge-wizard-start" onClick={handleStart}>
                                 Start onboarding
                             </Button>
                             <Button variant="secondary" data-testid="flowforge-wizard-finish" onClick={handleFinish}>

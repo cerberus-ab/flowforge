@@ -42,8 +42,8 @@ export function PopupApp({
     onClose,
 }: PopupAppProps) {
     const {
-        question,
-        setQuestion,
+        inputQuestion,
+        setInputQuestion,
         isLoading,
         result,
         resultMetadata,
@@ -52,6 +52,7 @@ export function PopupApp({
         copyright,
         github,
         askQuestion,
+        openOnboarding,
         applyExampleQuestion,
         navigateToElement,
         openPageInspector,
@@ -85,6 +86,11 @@ export function PopupApp({
         [openPageInspector, onClose],
     );
 
+    const handleOpenOnboarding = useCallback(async () => {
+        await openOnboarding();
+        onClose?.();
+    }, [openOnboarding, onClose]);
+
     const isDialog = variant === 'dialog';
     const Root = isDialog ? 'section' : 'div';
 
@@ -115,8 +121,8 @@ export function PopupApp({
                     />
                 )}
                 <Question
-                    question={question}
-                    onQuestionChange={setQuestion}
+                    inputQuestion={inputQuestion}
+                    onInputQuestionChange={setInputQuestion}
                     onAskQuestion={askQuestion}
                     placeholder={
                         demoProps?.enabled
@@ -135,6 +141,7 @@ export function PopupApp({
                         resultMetadata={resultMetadata}
                         error={error}
                         onNavigateToElement={navigateToElement}
+                        onOpenOnboarding={handleOpenOnboarding}
                     />
                 )}
 

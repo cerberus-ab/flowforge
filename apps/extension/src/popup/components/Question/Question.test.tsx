@@ -4,20 +4,20 @@ import { describe, expect, it, vi } from 'vitest';
 import { Question } from './Question';
 
 function renderQuestion({
-    onQuestionChange = vi.fn(),
+    onInputQuestionChange = vi.fn(),
     onAskQuestion = vi.fn(),
     disabled = false,
     selectOnly = false,
 }: {
-    onQuestionChange?: (value: string) => void;
+    onInputQuestionChange?: (value: string) => void;
     onAskQuestion?: () => Promise<void>;
     disabled?: boolean;
     selectOnly?: boolean;
 } = {}) {
     render(
         <Question
-            question=""
-            onQuestionChange={onQuestionChange}
+            inputQuestion=""
+            onInputQuestionChange={onInputQuestionChange}
             onAskQuestion={onAskQuestion}
             placeholder="Ask about this page"
             disabled={disabled}
@@ -25,13 +25,13 @@ function renderQuestion({
         />,
     );
 
-    return { onQuestionChange, onAskQuestion };
+    return { onInputQuestionChange, onAskQuestion };
 }
 
 describe('Question', () => {
     it('updates the question and submits from the form or Enter key', () => {
         // Given
-        const { onQuestionChange, onAskQuestion } = renderQuestion();
+        const { onInputQuestionChange, onAskQuestion } = renderQuestion();
         const textarea = screen.getByLabelText('Your question');
 
         // When
@@ -40,7 +40,7 @@ describe('Question', () => {
         fireEvent.submit(textarea.closest('form')!);
 
         // Then
-        expect(onQuestionChange).toHaveBeenCalledWith('How do I save?');
+        expect(onInputQuestionChange).toHaveBeenCalledWith('How do I save?');
         expect(onAskQuestion).toHaveBeenCalledTimes(2);
     });
 

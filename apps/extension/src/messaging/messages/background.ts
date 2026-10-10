@@ -1,4 +1,4 @@
-import type { AgentResultElement, QueryResponse } from '@flowforge/contract';
+import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/contract';
 
 import type { Message, MessageResponse } from '../Message';
 import type { ExtensionSettings } from '@/core/types/settings';
@@ -51,6 +51,15 @@ export type OpenPageInspectorMessage = Message<OpenPageInspectorMessageData> & {
     type: 'OPEN_PAGE_INSPECTOR';
 };
 
+export interface OpenOnboardingMessageData {
+    question: string;
+    result: AgentResult;
+}
+
+export type OpenOnboardingMessage = Message<OpenOnboardingMessageData> & {
+    type: 'OPEN_ONBOARDING';
+};
+
 export type BackgroundMessage =
     | PopupOpenedMessage
     | GetSettingsMessage
@@ -58,7 +67,8 @@ export type BackgroundMessage =
     | AskQuestionMessage
     | GetPrevQuestionsMessage
     | NavigateToElementMessage
-    | OpenPageInspectorMessage;
+    | OpenPageInspectorMessage
+    | OpenOnboardingMessage;
 
 export interface BackgroundMessageResponseMap {
     POPUP_OPENED: undefined;
@@ -68,6 +78,7 @@ export interface BackgroundMessageResponseMap {
     GET_PREV_QUESTIONS: PreviousQuestions;
     NAVIGATE_TO_ELEMENT: undefined;
     OPEN_PAGE_INSPECTOR: undefined;
+    OPEN_ONBOARDING: undefined;
 }
 
 export type BackgroundMessageResponseData<M extends BackgroundMessage> = BackgroundMessageResponseMap[M['type']];
@@ -99,4 +110,8 @@ export function isNavigateToElementMessage(message: Message): message is Navigat
 
 export function isOpenPageInspectorMessage(message: Message): message is OpenPageInspectorMessage {
     return message.type === 'OPEN_PAGE_INSPECTOR';
+}
+
+export function isOpenOnboardingMessage(message: Message): message is OpenOnboardingMessage {
+    return message.type === 'OPEN_ONBOARDING';
 }

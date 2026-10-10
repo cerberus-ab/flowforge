@@ -41,16 +41,20 @@ function PopupHarness(options: UsePopupOptions) {
         <section>
             <input
                 aria-label="Question"
-                value={popup.question}
+                value={popup.inputQuestion}
                 onInput={(event) => {
-                    popup.setQuestion(event.currentTarget.value);
+                    popup.setInputQuestion(event.currentTarget.value);
                 }}
             />
+            <div data-testid="normalized-question">{popup.question}</div>
             <button type="button" onClick={() => void popup.askQuestion()}>
                 Ask
             </button>
             <button type="button" onClick={() => void popup.navigateToElement(resultElement)}>
                 Navigate
+            </button>
+            <button type="button" onClick={() => void popup.openOnboarding()}>
+                Open Onboarding
             </button>
             <button type="button" onClick={() => void popup.openPageInspector('interactive')}>
                 Open Inspector
@@ -162,21 +166,50 @@ describe('usePopup', () => {
         fireEvent.input(await screen.findByLabelText('Question'), {
             target: { value: '  How do I open settings?  ' },
         });
+        expect(screen.getByTestId('normalized-question').textContent).toBe('How do I open settings?');
         fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
 
         // Then
         expect(await screen.findByText(result.answer)).toBeTruthy();
         expect(screen.getByText('test-model · 1.2k tokens · 1.3s')).toBeTruthy();
-        expect(messages).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    type: 'ASK_QUESTION',
-                    data: {
-                        question: 'How do I open settings?',
-                    },
-                }),
-            ]),
-        );
+        fireEvent.click(screen.getByRole('button', { name: 'Open Onboarding' }));
+        await waitFor(() => expect(messages.find((message) => message.type === 'OPEN_ONBOARDING')).toBeDefined());
+        expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'How do I open settings?' } });
+        expect(messages).toContainEqual({ type: 'NAVIGATE_TO_ELEMENT', data: { element: resultElement } });
+        const onboardingMessage = messages.find((message) => message.type === 'OPEN_ONBOARDING');
+        expect(onboardingMessage).toMatchObject({
+            type: 'OPEN_ONBOARDING',
+            data: {
+                question: 'How do I open settings?',
+                result: { mode: 'direct', elements: [resultElement] },
+            },
+        });
+    });
+
+    it('does not open onboarding until requested for a steps result', async () => {
+        // Given
+        const stepsResult = { ...result, mode: 'steps' as const };
+        const stepsResponse = { ...queryResponse, result: stepsResult };
+        const { messages } = renderPopup({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') return { success: true, data: stepsResponse };
+                return undefined;
+            },
+        });
+
+        // When
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I open settings?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+
+        // Then
+        expect(await screen.findByText(stepsResult.answer)).toBeTruthy();
+        expect(messages.some((message) => message.type === 'OPEN_ONBOARDING')).toBe(false);
+
+        // When
+        fireEvent.click(screen.getByRole('button', { name: 'Open Onboarding' }));
+
+        // Then
+        await waitFor(() => expect(messages.some((message) => message.type === 'OPEN_ONBOARDING')).toBe(true));
     });
 
     it('shows loading while a question request is pending', async () => {

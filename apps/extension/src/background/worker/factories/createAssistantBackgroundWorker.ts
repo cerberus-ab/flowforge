@@ -11,12 +11,14 @@ import {
     isGetSettingsMessage,
     isNavigateToElementMessage,
     isOpenPageInspectorMessage,
+    isOpenOnboardingMessage,
     isPopupOpenedMessage,
     isUpdateSettingsMessage,
 } from '@/messaging';
 
 import { ElementNavigationMessageHandler } from '../handlers/ElementNavigationMessageHandler';
 import { PageInspectorMessageHandler } from '../handlers/PageInspectorMessageHandler';
+import { OnboardingMessageHandler } from '../handlers/OnboardingMessageHandler';
 import { PopupLifecycleMessageHandler } from '../handlers/PopupLifecycleMessageHandler';
 import { QuestionMessageHandler } from '../handlers/QuestionMessageHandler';
 import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
@@ -47,6 +49,7 @@ export function createAssistantBackgroundWorker({
     const pageInspectorHandler = new PageInspectorMessageHandler(pageClient);
     const questionHandler = new QuestionMessageHandler(pageClient, apiClient, historyStorage);
     const elementNavigationHandler = new ElementNavigationMessageHandler(pageClient);
+    const onboardingHandler = new OnboardingMessageHandler(pageClient);
 
     return new BackgroundWorker(transport, [
         MessageRouter.route(isPopupOpenedMessage, (message, context) =>
@@ -67,6 +70,9 @@ export function createAssistantBackgroundWorker({
         ),
         MessageRouter.route(isNavigateToElementMessage, (message, context) =>
             elementNavigationHandler.handleNavigateToElement(message, context),
+        ),
+        MessageRouter.route(isOpenOnboardingMessage, (message, context) =>
+            onboardingHandler.handleOpenOnboarding(message, context),
         ),
     ]);
 }

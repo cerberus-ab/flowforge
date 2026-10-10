@@ -1,14 +1,22 @@
 import type { AgentResultElement, AgentResultMode } from '@flowforge/contract';
 import { cx } from '@/shared/utils/cx';
+import { Button } from '@/shared/components/Button';
+import { useEffect, useRef } from 'preact/hooks';
 
 interface ResultElementsProps {
     elements: AgentResultElement[];
     mode: AgentResultMode;
     onNavigateToElement: (element: AgentResultElement) => void;
+    onOpenOnboarding: () => void;
 }
 
-export function ResultElements({ elements, mode, onNavigateToElement }: ResultElementsProps) {
+export function ResultElements({ elements, mode, onNavigateToElement, onOpenOnboarding }: ResultElementsProps) {
     const isSteps = mode === 'steps';
+    const openOnboardingButtonRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (isSteps) openOnboardingButtonRef.current?.focus();
+    }, [isSteps]);
 
     return (
         <div className="flowforge-elements" data-testid="flowforge-result-elements">
@@ -37,6 +45,19 @@ export function ResultElements({ elements, mode, onNavigateToElement }: ResultEl
                     ),
                 )}
             </div>
+            {isSteps && (
+                <div className="flowforge-elements__actions">
+                    <span className="flowforge-elements__action-label">To continue:</span>
+                    <Button
+                        size="small"
+                        onClick={onOpenOnboarding}
+                        ref={openOnboardingButtonRef}
+                        data-testid="flowforge-open-onboarding"
+                    >
+                        Open onboarding
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

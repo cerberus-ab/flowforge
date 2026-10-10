@@ -20,7 +20,14 @@ test('runs the complete demo walkthrough and destroys the runtime', async ({ pag
 
     // Then
     await expect(page.getByTestId('flowforge-result')).toContainText('You can start the runtime with a real backend');
+    await expect(page.getByTestId('flowforge-open-onboarding')).toBeFocused();
+    await expect(page.getByTestId('flowforge-wizard')).toHaveCount(0);
+
+    // When
+    await page.getByTestId('flowforge-open-onboarding').click();
     await expect(page.getByTestId('flowforge-wizard')).toBeVisible();
+    await expect(page.getByTestId('flowforge-popup')).toHaveCount(0);
+    await expect(page.getByTestId('flowforge-wizard-start')).toBeFocused();
 
     await page.getByTestId('flowforge-wizard-start').click();
 

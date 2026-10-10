@@ -15,7 +15,7 @@ describe('QuestionMessageHandler', () => {
         vi.spyOn(console, 'log').mockImplementation(() => undefined);
     });
 
-    it('answers a question through page collection, API query, onboarding, and history', async () => {
+    it('answers a question through page collection, API query, and history without opening onboarding', async () => {
         // Given
         const element = {
             text: 'Save',
@@ -58,18 +58,6 @@ describe('QuestionMessageHandler', () => {
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
             { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
-            {
-                pageId: 7,
-                message: {
-                    type: 'START_ONBOARDING',
-                    data: {
-                        title: 'Saving',
-                        description: 'Click Save.',
-                        elements: [element],
-                        mode: 'steps',
-                    },
-                },
-            },
         ]);
         expect(apiClient.requests).toEqual([
             {
