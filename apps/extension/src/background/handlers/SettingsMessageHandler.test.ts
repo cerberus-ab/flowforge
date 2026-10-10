@@ -14,7 +14,7 @@ describe('SettingsMessageHandler', () => {
         const { handler } = createHandler();
 
         // When
-        const response = await handler.resolve({ type: 'GET_SETTINGS' })?.();
+        const response = await handler.handleGetSettings();
 
         // Then
         expect(response).toEqual(defaultSettings);
@@ -30,7 +30,7 @@ describe('SettingsMessageHandler', () => {
         };
 
         // When
-        const response = await handler.resolve(message)?.();
+        const response = await handler.handleUpdateSettings(message);
 
         // Then
         expect(response).toEqual({ ...defaultSettings, theme: 'dark' });
@@ -50,10 +50,10 @@ describe('SettingsMessageHandler', () => {
         const { handler, transport } = createHandler();
 
         // When
-        const response = await handler.resolve({
+        const response = await handler.handleUpdateSettings({
             type: 'UPDATE_SETTINGS',
             data: { patch: { devMode: true } },
-        } as UpdateSettingsMessage)?.();
+        } as UpdateSettingsMessage);
 
         // Then
         expect(response).toEqual({ theme: 'light', devMode: true });

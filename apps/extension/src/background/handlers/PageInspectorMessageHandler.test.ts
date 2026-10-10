@@ -16,8 +16,7 @@ describe('PageInspectorMessageHandler', () => {
         };
 
         // When
-        const operation = handler.resolve(message);
-        const response = await operation?.();
+        const response = await handler.handle(message);
 
         // Then
         expect(response).toBeUndefined();
@@ -41,7 +40,7 @@ describe('PageInspectorMessageHandler', () => {
         };
 
         // When / Then
-        await expect(handler.resolve(message)?.()).rejects.toThrow('Page unavailable');
+        await expect(handler.handle(message)).rejects.toThrow('Page unavailable');
         expect(transport.sendToPage).toHaveBeenCalledOnce();
         expect(transport.sendToPage).toHaveBeenCalledWith(7, { type: 'CLEAR_PAGE' });
     });

@@ -1,21 +1,13 @@
-import type { Message, TransportService } from '@/adapters';
+import type { TransportService } from '@/adapters';
 import type { SettingsStorage } from '@/core/services/SettingsStorage';
-import {
-    type ExtensionSettings,
-    isGetSettingsMessage,
-    isUpdateSettingsMessage,
-    type SettingsUpdatedMessage,
-    type UpdateSettingsMessage,
-} from '@/types';
-
-import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
+import { type ExtensionSettings, type SettingsUpdatedMessage, type UpdateSettingsMessage } from '@/types';
 
 /**
  * Handles persistent extension settings.
  * It reads and updates SettingsStorage and broadcasts changed settings to the
  * sender page when a page context is available.
  */
-export class SettingsMessageHandler implements BackgroundMessageHandler {
+export class SettingsMessageHandler {
     private readonly transport: TransportService;
     private readonly settingsStorage: SettingsStorage;
 
@@ -24,17 +16,11 @@ export class SettingsMessageHandler implements BackgroundMessageHandler {
         this.settingsStorage = settingsStorage;
     }
 
-    resolve(message: Message): (() => Promise<ExtensionSettings>) | undefined {
-        if (isGetSettingsMessage(message)) return () => this.handleGetSettings();
-        if (isUpdateSettingsMessage(message)) return () => this.handleUpdateSettings(message);
-        return undefined;
-    }
-
-    private handleGetSettings(): Promise<ExtensionSettings> {
+    handleGetSettings(): Promise<ExtensionSettings> {
         return this.settingsStorage.get();
     }
 
-    private async handleUpdateSettings(message: UpdateSettingsMessage): Promise<ExtensionSettings> {
+    async handleUpdateSettings(message: UpdateSettingsMessage): Promise<ExtensionSettings> {
         const updatedSettings = await this.settingsStorage.update(message.data.patch);
         if (message.pageId !== undefined) {
             const settingsUpdatedMessage: SettingsUpdatedMessage = {
