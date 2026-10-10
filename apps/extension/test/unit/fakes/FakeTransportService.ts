@@ -1,12 +1,21 @@
-import type { Message, MessageResponse, PageMessage, TransportService } from '@/adapters';
-
-type Handler = (message: Message) => Promise<MessageResponse> | MessageResponse | undefined;
+import type { TransportService } from '@/adapters';
+import type {
+    AnyMessageResponse,
+    BackgroundMessage,
+    BackgroundMessageResponse,
+    Message,
+    MessageListener,
+    MessageResponse,
+    PageMessage,
+    PageMessageResponse,
+    PageScopedMessage,
+} from '@/messaging';
 
 export class FakeTransportService implements TransportService {
     private readonly sentToBackground: Message[] = [];
     private readonly sentToPage: { pageId: number; message: Message }[] = [];
-    private readonly handlers = new Set<Handler>();
-    private readonly pageResponses = new Map<string, MessageResponse<unknown>>();
+    private readonly handlers = new Set<MessageListener>();
+    private readonly pageResponses = new Map<string, AnyMessageResponse>();
 
     private readonly activePageId;
     private readonly pageHostname;
@@ -24,17 +33,19 @@ export class FakeTransportService implements TransportService {
         return this.pageHostname;
     }
 
-    async sendToBackground<R extends MessageResponse = MessageResponse>(message: PageMessage): Promise<R> {
+    async sendToBackground<M extends BackgroundMessage>(
+        message: PageScopedMessage<M>,
+    ): Promise<BackgroundMessageResponse<M>> {
         this.sentToBackground.push(message);
-        return this.dispatchToBackground<Message, R>(message);
+        return this.dispatchToBackground<PageScopedMessage<M>, BackgroundMessageResponse<M>>(message);
     }
 
-    async sendToPage<R extends MessageResponse = MessageResponse>(pageId: number, message: Message): Promise<R> {
+    async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>> {
         this.sentToPage.push({ pageId, message });
-        return (this.pageResponses.get(message.type) ?? { success: true }) as R;
+        return (this.pageResponses.get(message.type) ?? { success: true }) as PageMessageResponse<M>;
     }
 
-    addMessageListener(handler: Handler): () => void {
+    addMessageListener(handler: MessageListener): () => void {
         this.handlers.add(handler);
         return () => {
             this.handlers.delete(handler);
@@ -45,11 +56,13 @@ export class FakeTransportService implements TransportService {
         return this.sentToPage;
     }
 
-    setPageResponse(messageType: Message['type'], response: MessageResponse<unknown>): void {
+    setPageResponse(messageType: PageMessage['type'], response: AnyMessageResponse): void {
         this.pageResponses.set(messageType, response);
     }
 
-    async dispatchToBackground<M extends Message, R extends MessageResponse = MessageResponse>(message: M): Promise<R> {
+    async dispatchToBackground<M extends Message | Message<unknown>, R extends AnyMessageResponse = MessageResponse>(
+        message: M,
+    ): Promise<R> {
         if (this.handlers.size === 0) {
             throw new Error('Message handler is not registered');
         }

@@ -6,9 +6,10 @@ import type { PageQuestionClient } from '@/page/client/contract';
 import {
     type AskQuestionMessage,
     type GetPrevQuestionsMessage,
-    type GetPrevQuestionsMessageResponseData,
+    type PageScopedMessage,
+    type PreviousQuestions,
     type StartOnboardingMessageData,
-} from '@/types';
+} from '@/messaging';
 
 /**
  * Handles the question workflow and its per-domain history.
@@ -26,7 +27,7 @@ export class QuestionMessageHandler {
         this.historyStorage = historyStorage;
     }
 
-    async handleAskQuestion(message: AskQuestionMessage): Promise<QueryResponse> {
+    async handleAskQuestion(message: PageScopedMessage<AskQuestionMessage>): Promise<QueryResponse> {
         await this.pageClient.clearPage(message.pageId);
         const pageTrailDto = await this.pageClient.collectPageTrail(message.pageId);
         console.log('[FlowForge] Background collected page trail:', pageTrailDto);
@@ -58,7 +59,7 @@ export class QuestionMessageHandler {
         return responseData;
     }
 
-    async handleGetPrevQuestions(message: GetPrevQuestionsMessage): Promise<GetPrevQuestionsMessageResponseData> {
+    async handleGetPrevQuestions(message: PageScopedMessage<GetPrevQuestionsMessage>): Promise<PreviousQuestions> {
         const domain = await this.pageClient.getHostname(message.pageId);
         const questions = await this.historyStorage.getPreviousQuestions(domain);
         return { questions };

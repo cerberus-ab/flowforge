@@ -2,7 +2,7 @@ import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, MessageResponse } from '@/adapters';
+import type { Message, MessageResponse } from '@/messaging';
 import { BackgroundClient } from '@/background/client/BackgroundClient';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';

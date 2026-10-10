@@ -57,12 +57,13 @@ describe('ChromeTransportService', () => {
             },
         });
         const transport = new ChromeTransportService();
-        const message = { type: 'CLEAR_PAGE', pageId: 42 } as const;
+        const backgroundMessage = { type: 'GET_SETTINGS', pageId: 42 } as const;
+        const pageMessage = { type: 'CLEAR_PAGE' } as const;
 
-        await expect(transport.sendToBackground(message)).resolves.toEqual({ success: true });
-        await expect(transport.sendToPage(42, message)).resolves.toEqual({ success: true });
-        expect(chromeApi.runtime.sendMessage).toHaveBeenCalledWith(message);
-        expect(chromeApi.tabs.sendMessage).toHaveBeenCalledWith(42, message);
+        await expect(transport.sendToBackground(backgroundMessage)).resolves.toEqual({ success: true });
+        await expect(transport.sendToPage(42, pageMessage)).resolves.toEqual({ success: true });
+        expect(chromeApi.runtime.sendMessage).toHaveBeenCalledWith(backgroundMessage);
+        expect(chromeApi.tabs.sendMessage).toHaveBeenCalledWith(42, pageMessage);
     });
 
     it('registers, invokes, and unsubscribes runtime listeners', () => {

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
 import { config } from '@/config';
-import type { Message } from '@/adapters';
+import type { Message } from '@/messaging';
 import { BackgroundClient } from '@/background/client/BackgroundClient';
 import { FakeTransportService } from '../../../../../../test/unit/fakes/FakeTransportService';
 import { useInspectorPopup, type UseInspectorPopupOptions } from './useInspectorPopup';

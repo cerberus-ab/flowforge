@@ -1,16 +1,17 @@
 import type { AgentResultElement, QueryResponse } from '@flowforge/contract';
 
-import type { Message, MessageResponse, TransportService } from '@/adapters';
+import type { TransportService } from '@/adapters';
 import {
-    type ExtensionSettings,
-    type GetPrevQuestionsMessageResponseData,
+    type BackgroundMessage,
+    type BackgroundMessageResponseData,
     isClearPageMessage,
     isCollectPageTrailMessage,
     isHighlightElementMessage,
     isOpenInspectorMessage,
     isSettingsUpdatedMessage,
     isStartOnboardingMessage,
-} from '@/types';
+} from '@/messaging';
+import type { ExtensionSettings } from '@/types';
 import type {
     InspectorPageBackgroundClient,
     InspectorPageMessageCallbacks,
@@ -21,7 +22,7 @@ import type {
     SettingsBackgroundClient,
     SettingsMessageCallbacks,
 } from '@/background/client/contract';
-import { MessageRouter, type MessageRoute } from '@/background/MessageRouter';
+import { MessageRouter, type MessageRoute } from '@/messaging';
 
 export class BackgroundClient
     implements
@@ -37,17 +38,17 @@ export class BackgroundClient
         this.transport = transport;
     }
 
-    private async sendToBackground<D = undefined>(message: Message | Message<unknown>): Promise<D> {
+    private async sendToBackground<M extends BackgroundMessage>(message: M): Promise<BackgroundMessageResponseData<M>> {
         const pageMessage = {
             ...message,
             pageId: await this.transport.getActivePageId(),
         };
-        const response = await this.transport.sendToBackground<MessageResponse<D>>(pageMessage);
+        const response = await this.transport.sendToBackground(pageMessage);
 
         if (!response.success) {
             throw new Error(response.error);
         }
-        return ('data' in response ? response.data : undefined) as D;
+        return ('data' in response ? response.data : undefined) as BackgroundMessageResponseData<M>;
     }
 
     async initializePopup(): Promise<void> {
@@ -57,14 +58,14 @@ export class BackgroundClient
     }
 
     async getPreviousQuestions(): Promise<string[]> {
-        const response = await this.sendToBackground<GetPrevQuestionsMessageResponseData>({
+        const response = await this.sendToBackground({
             type: 'GET_PREV_QUESTIONS',
         });
         return response.questions;
     }
 
     async askQuestion(question: string): Promise<QueryResponse> {
-        return this.sendToBackground<QueryResponse>({
+        return this.sendToBackground({
             type: 'ASK_QUESTION',
             data: { question },
         });
@@ -85,13 +86,13 @@ export class BackgroundClient
     }
 
     async getSettings(): Promise<ExtensionSettings> {
-        return this.sendToBackground<ExtensionSettings>({
+        return this.sendToBackground({
             type: 'GET_SETTINGS',
         });
     }
 
     async updateSettings(patch: Partial<ExtensionSettings>): Promise<ExtensionSettings> {
-        return this.sendToBackground<ExtensionSettings>({
+        return this.sendToBackground({
             type: 'UPDATE_SETTINGS',
             data: { patch },
         });

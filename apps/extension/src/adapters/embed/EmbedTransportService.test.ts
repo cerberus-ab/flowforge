@@ -13,22 +13,21 @@ describe('EmbedTransportService', () => {
 
     it('dispatches background and page messages to registered handlers', async () => {
         const transport = new EmbedTransportService();
-        const message = { type: 'GET_SETTINGS', pageId: 1 } as const;
+        const backgroundMessage = { type: 'GET_SETTINGS', pageId: 1 } as const;
+        const pageMessage = { type: 'CLEAR_PAGE' } as const;
 
         transport.addMessageListener((received) => {
             if (received.type === 'GET_SETTINGS') {
                 return { success: true, data: { devMode: true } };
             }
+            if (received.type === 'CLEAR_PAGE') return { success: true };
         });
 
-        await expect(transport.sendToBackground(message)).resolves.toEqual({
+        await expect(transport.sendToBackground(backgroundMessage)).resolves.toEqual({
             success: true,
             data: { devMode: true },
         });
-        await expect(transport.sendToPage(1, message)).resolves.toEqual({
-            success: true,
-            data: { devMode: true },
-        });
+        await expect(transport.sendToPage(1, pageMessage)).resolves.toEqual({ success: true });
     });
 
     it('unsubscribes listeners', async () => {

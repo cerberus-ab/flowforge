@@ -1,6 +1,7 @@
 import type { PageSettingsClient } from '@/page/client/contract';
 import type { SettingsStorage } from '@/core/services/SettingsStorage';
-import { type ExtensionSettings, type UpdateSettingsMessage } from '@/types';
+import type { UpdateSettingsMessage } from '@/messaging';
+import type { ExtensionSettings } from '@/types';
 
 /**
  * Handles persistent extension settings.

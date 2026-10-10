@@ -1,4 +1,14 @@
-import type { Message, PageMessage, MessageResponse, TransportService } from '@/adapters';
+import type { TransportService } from '@/adapters';
+import type {
+    AnyMessageResponse,
+    BackgroundMessage,
+    BackgroundMessageResponse,
+    Message,
+    MessageListener,
+    PageMessage,
+    PageMessageResponse,
+    PageScopedMessage,
+} from '@/messaging';
 
 /**
  * Chrome-based implementation of TransportService
@@ -27,21 +37,21 @@ export class ChromeTransportService implements TransportService {
         return new URL(tab.url).hostname;
     }
 
-    public async sendToBackground<R extends MessageResponse = MessageResponse>(message: PageMessage): Promise<R> {
-        return chrome.runtime.sendMessage<PageMessage, R>(message);
+    public async sendToBackground<M extends BackgroundMessage>(
+        message: PageScopedMessage<M>,
+    ): Promise<BackgroundMessageResponse<M>> {
+        return chrome.runtime.sendMessage<PageScopedMessage<M>, BackgroundMessageResponse<M>>(message);
     }
 
-    public async sendToPage<R extends MessageResponse = MessageResponse>(pageId: number, message: Message): Promise<R> {
-        return chrome.tabs.sendMessage<Message, R>(pageId, message);
+    public async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>> {
+        return chrome.tabs.sendMessage<M, PageMessageResponse<M>>(pageId, message);
     }
 
-    public addMessageListener<R extends MessageResponse = MessageResponse>(
-        handler: (message: Message) => Promise<R> | R | undefined,
-    ): () => void {
+    public addMessageListener(handler: MessageListener): () => void {
         const listener = (
             message: Message,
             _sender: chrome.runtime.MessageSender,
-            sendResponse: (response: R) => void,
+            sendResponse: (response: AnyMessageResponse) => void,
         ): boolean => {
             const response = handler(message);
 
@@ -54,7 +64,7 @@ export class ChromeTransportService implements TransportService {
                     sendResponse({
                         success: false,
                         error: reason instanceof Error ? reason.message : String(reason),
-                    } as R);
+                    });
                 });
             return true;
         };

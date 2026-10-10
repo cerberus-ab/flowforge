@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
-import type { MessageRoute } from '../MessageRouter';
+import type { MessageRoute } from '@/messaging';
 import { BackgroundWorker } from './BackgroundWorker';
 
 describe('BackgroundWorker', () => {

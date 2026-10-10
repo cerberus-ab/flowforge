@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { PageClient } from '@/page/client/PageClient';
-import type { OpenPageInspectorMessage } from '@/types';
+import type { OpenPageInspectorMessage, PageScopedMessage } from '@/messaging';
 import { PageInspectorMessageHandler } from './PageInspectorMessageHandler';
 
 describe('PageInspectorMessageHandler', () => {
@@ -10,7 +10,7 @@ describe('PageInspectorMessageHandler', () => {
         // Given
         const transport = new FakeTransportService();
         const handler = new PageInspectorMessageHandler(new PageClient(transport));
-        const message: OpenPageInspectorMessage = {
+        const message: PageScopedMessage<OpenPageInspectorMessage> = {
             type: 'OPEN_PAGE_INSPECTOR',
             pageId: 7,
             data: { tab: 'semantic' },
@@ -34,7 +34,7 @@ describe('PageInspectorMessageHandler', () => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
         vi.spyOn(transport, 'sendToPage').mockRejectedValue(error);
         const handler = new PageInspectorMessageHandler(new PageClient(transport));
-        const message: OpenPageInspectorMessage = {
+        const message: PageScopedMessage<OpenPageInspectorMessage> = {
             type: 'OPEN_PAGE_INSPECTOR',
             pageId: 7,
             data: {},

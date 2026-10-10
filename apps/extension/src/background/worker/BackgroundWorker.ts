@@ -1,6 +1,6 @@
 import type { TransportService } from '@/adapters';
 
-import { MessageRouter, type MessageRoute } from '../MessageRouter';
+import { MessageRouter, type MessageRoute } from '@/messaging';
 
 export class BackgroundWorker {
     private readonly transport: TransportService;
