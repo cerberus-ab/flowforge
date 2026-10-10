@@ -26,9 +26,9 @@ export class PageClient
         this.transport = transport;
     }
 
-    /** Returns the hostname associated with a page. */
-    getHostname(pageId: number): Promise<string> {
-        return this.transport.getPageHostname(pageId);
+    /** Returns the url associated with a page. */
+    getUrl(pageId: number): Promise<string> {
+        return this.transport.getPageUrl(pageId);
     }
 
     /** Clears extension UI from the target page. */

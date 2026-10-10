@@ -19,7 +19,7 @@ export interface PageInspectorClient {
 export interface PageQuestionClient {
     clearPage(pageId: number): Promise<void>;
     collectPageTrail(pageId: number): Promise<PageTrailDto>;
-    getHostname(pageId: number): Promise<string>;
+    getUrl(pageId: number): Promise<string>;
 }
 
 export interface PageOnboardingClient {

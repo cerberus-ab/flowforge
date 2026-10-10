@@ -43,7 +43,7 @@ describe('QuestionMessageHandler', () => {
         const apiClient = new FakeApiClient(queryResponse);
         const historyStorage = new HistoryStorage(new FakeLocalStorage(), 5);
         await historyStorage.saveQuestion('app.flowforge.test', 'Previous question');
-        const transport = createTransport({ hostname: 'app.flowforge.test', pageTrailDto });
+        const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings', pageTrailDto });
         const handler = new QuestionMessageHandler(new PageClient(transport), apiClient, historyStorage);
         const message: AskQuestionMessage = {
             type: 'ASK_QUESTION',
@@ -77,7 +77,7 @@ describe('QuestionMessageHandler', () => {
         // Given
         const historyStorage = new HistoryStorage(new FakeLocalStorage(), 5);
         await historyStorage.saveQuestion('app.flowforge.test', 'How do I save?');
-        const transport = createTransport({ hostname: 'app.flowforge.test' });
+        const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
         const handler = new QuestionMessageHandler(new PageClient(transport), new FakeApiClient(), historyStorage);
         const message: GetPrevQuestionsMessage = { type: 'GET_PREV_QUESTIONS' };
 
@@ -90,13 +90,13 @@ describe('QuestionMessageHandler', () => {
 });
 
 function createTransport({
-    hostname = 'localhost',
+    pageUrl = 'http://localhost/',
     pageTrailDto = createPageTrailDtoFixture(),
 }: {
-    hostname?: string;
+    pageUrl?: string;
     pageTrailDto?: PageTrailDto;
 } = {}) {
-    const transport = new FakeTransportService({ activePageId: 7, pageHostname: hostname });
+    const transport = new FakeTransportService({ activePageId: 7, pageUrl });
     transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
     return transport;
 }

@@ -71,6 +71,7 @@ export function createCollectionMetadataFixture(
         interactiveElementsCandidates: 0,
         interactiveElementsLimitReached: false,
         collectedAt: 0,
+        trailFingerprint: { dataIdSignature: undefined },
         ...overrides,
         performance: {
             basicsMs: 0,

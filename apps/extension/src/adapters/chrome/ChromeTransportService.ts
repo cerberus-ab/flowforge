@@ -31,12 +31,12 @@ export class ChromeTransportService implements TransportService {
         return { pageId: tab.id };
     }
 
-    public async getPageHostname(pageId: number): Promise<string> {
+    public async getPageUrl(pageId: number): Promise<string> {
         const tab = await chrome.tabs.get(pageId);
         if (!tab.url) {
             throw new Error('Tab URL is not available');
         }
-        return new URL(tab.url).hostname;
+        return tab.url;
     }
 
     public async sendToBackground<M extends BackgroundMessage>(

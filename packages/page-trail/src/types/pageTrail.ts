@@ -154,7 +154,7 @@ export type InteractiveElementType = 'button' | 'input' | 'select' | 'link';
 
 export interface BaseElement {
     id: ElementId;
-    locator: ElementLocator | undefined; // contextOnly if undefined
+    locator?: ElementLocator; // contextOnly if undefined
     tag: string;
     kind: ElementKind;
     type: ContainerElementType | ContentElementType | InteractiveElementType;
@@ -196,6 +196,10 @@ export type PageElement = ContainerElement | ContentElement | InteractiveElement
 
 // collection metadata
 
+export type TrailFingerprint = {
+    dataIdSignature?: string; // contextOnly if undefined
+};
+
 export interface PageMetadata {
     innerTextLength: number;
     outerHtmlLength: number;
@@ -228,4 +232,5 @@ export interface CollectionMetadata extends PageMetadata, ElementsMetadata {
     version: string;
     collectedAt: number; // timestamp
     performance: PerformanceMetadata;
+    trailFingerprint: TrailFingerprint;
 }

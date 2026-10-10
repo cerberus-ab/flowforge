@@ -10,35 +10,25 @@ export class HistoryStorage {
         this.limit = limit;
     }
 
-    private getKey(domain: string) {
-        return `${constants.LOCAL_STORAGE_NAMESPACE}_history_${domain}`;
+    private getKey(domain: string): string {
+        return `${constants.LOCAL_STORAGE_NAMESPACE}_history::${domain}`;
     }
 
     /**
      * Get previous questions for this domain
      */
     async getPreviousQuestions(domain: string): Promise<string[]> {
-        try {
-            const history = await this.storage.get<string[]>(this.getKey(domain));
-
-            return history ?? [];
-        } catch (error) {
-            console.error('[Background] Error getting previous questions:', error);
-            return [];
-        }
+        const history = await this.storage.get<string[]>(this.getKey(domain));
+        return history ?? [];
     }
 
     /**
      * Save question to history
      */
     async saveQuestion(domain: string, question: string): Promise<void> {
-        try {
-            const history = await this.getPreviousQuestions(domain);
-            const updated = [question, ...history].slice(0, this.limit); // LIFO
+        const history = await this.getPreviousQuestions(domain);
+        const updated = [question, ...history].slice(0, this.limit); // LIFO
 
-            await this.storage.set(this.getKey(domain), updated);
-        } catch (error) {
-            console.error('[Background] Error saving question:', error);
-        }
+        await this.storage.set(this.getKey(domain), updated);
     }
 }
