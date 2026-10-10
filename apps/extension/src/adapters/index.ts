@@ -1,5 +1,5 @@
 /* interfaces */
-export type * from './LocalStorage';
+export type * from './Storage';
 export type * from './TransportService';
 
 /* chrome impl */

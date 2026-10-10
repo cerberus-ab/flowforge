@@ -1,23 +1,23 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { LocalStorage } from '@/adapters';
-import { FakeLocalStorage } from '../../../test/unit/fakes/FakeLocalStorage';
+import type { Storage } from '@/adapters';
+import { FakeStorage } from '../../../test/unit/fakes/FakeStorage';
 import { constants } from '../constants';
 import { HistoryStorage } from './HistoryStorage';
 
-const historyKey = (domain: string) => `${constants.LOCAL_STORAGE_NAMESPACE}_history::${domain}`;
+const historyKey = (domain: string) => `${constants.STORAGE_NAMESPACE}_history::${domain}`;
 
 describe('HistoryStorage', () => {
     it('returns an empty history when no questions are stored for the domain', async () => {
-        const storage = new HistoryStorage(new FakeLocalStorage(), 5);
+        const storage = new HistoryStorage(new FakeStorage(), 5);
 
         await expect(storage.getPreviousQuestions('example.com')).resolves.toEqual([]);
     });
 
     it('saves questions in LIFO order under the domain-specific key', async () => {
         // Given
-        const localStorage = new FakeLocalStorage();
-        const storage = new HistoryStorage(localStorage, 5);
+        const fakeStorage = new FakeStorage();
+        const storage = new HistoryStorage(fakeStorage, 5);
 
         // When
         await storage.saveQuestion('example.com', 'first');
@@ -25,13 +25,13 @@ describe('HistoryStorage', () => {
 
         // Then
         await expect(storage.getPreviousQuestions('example.com')).resolves.toEqual(['second', 'first']);
-        await expect(localStorage.get(historyKey('example.com'))).resolves.toEqual(['second', 'first']);
-        await expect(localStorage.get(historyKey('other.example.com'))).resolves.toBeNull();
+        await expect(fakeStorage.get(historyKey('example.com'))).resolves.toEqual(['second', 'first']);
+        await expect(fakeStorage.get(historyKey('other.example.com'))).resolves.toBeNull();
     });
 
     it('keeps only the configured number of recent questions', async () => {
         // Given
-        const storage = new HistoryStorage(new FakeLocalStorage(), 2);
+        const storage = new HistoryStorage(new FakeStorage(), 2);
 
         // When
         await storage.saveQuestion('example.com', 'first');
@@ -45,7 +45,7 @@ describe('HistoryStorage', () => {
     it('propagates errors when reading history fails', async () => {
         // Given
         const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-        const failingStorage: LocalStorage = {
+        const failingStorage: Storage = {
             get: vi.fn().mockRejectedValue(new Error('storage unavailable')),
             set: vi.fn(),
             clear: vi.fn(),
@@ -60,7 +60,7 @@ describe('HistoryStorage', () => {
     it('propagates errors when saving history fails', async () => {
         // Given
         const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-        const failingStorage: LocalStorage = {
+        const failingStorage: Storage = {
             get: vi.fn().mockResolvedValue([]),
             set: vi.fn().mockRejectedValue(new Error('quota exceeded')),
             clear: vi.fn(),

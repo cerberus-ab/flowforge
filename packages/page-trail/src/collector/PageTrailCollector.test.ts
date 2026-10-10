@@ -41,7 +41,7 @@ describe('PageTrailCollector', () => {
         expect(model.getStructure().nodes[0]?.interactive).toEqual([interactive]);
         expect(model.getStructure().content).toEqual([]);
         expect(model.getStructure().interactive).toEqual([]);
-        expect(model.metadata.trailFingerprint.dataIdSignature).toMatch(/^2-[\da-f]{16}$/);
+        expect(model.metadata.snapshot.trailFingerprint.dataIdSignature).toMatch(/^2-[\da-f]{16}$/);
         expect(getElementDataId).toHaveBeenCalledTimes(2);
         expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#main'));
         expect(getElementDataId).toHaveBeenCalledWith(document.querySelector('#action'));
@@ -71,7 +71,7 @@ describe('PageTrailCollector', () => {
                 scrollHeight: 2000,
             },
         });
-        expect(model.metadata.collectedAt).toBeTypeOf('number');
+        expect(model.metadata.snapshot.collectedAt).toBeTypeOf('number');
         expect(model.metadata.performance.totalMs).toBeTypeOf('number');
     });
 
@@ -83,8 +83,8 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.metadata.innerTextLength).toBe(document.body.innerText.length);
-        expect(model.metadata.outerHtmlLength).toBe(document.documentElement.outerHTML.length);
+        expect(model.metadata.page.innerTextLength).toBe(document.body.innerText.length);
+        expect(model.metadata.page.outerHtmlLength).toBe(document.documentElement.outerHTML.length);
     });
 
     it('normalizes page basics text', () => {
@@ -255,10 +255,10 @@ describe('PageTrailCollector', () => {
         const model = collect();
 
         // Then
-        expect(model.metadata.containerElements).toBe(2);
-        expect(model.metadata.containerElementsMaxDepth).toBe(2);
-        expect(model.metadata).not.toHaveProperty('containerElementsTotal');
-        expect(model.metadata).not.toHaveProperty('containerElementsLimitReached');
+        expect(model.metadata.elements.containerElements).toBe(2);
+        expect(model.metadata.elements.containerElementsMaxDepth).toBe(2);
+        expect(model.metadata.elements).not.toHaveProperty('containerElementsTotal');
+        expect(model.metadata.elements).not.toHaveProperty('containerElementsLimitReached');
         expect(
             model.mapStructureTree((node) => ('container' in node ? node.container : undefined))[1],
         ).not.toHaveProperty('importanceScore');
@@ -316,7 +316,7 @@ describe('PageTrailCollector', () => {
         ];
         expect(elements).not.toHaveLength(0);
         expect(elements.every((element) => element.locator === undefined)).toBe(true);
-        expect(model.metadata.trailFingerprint.dataIdSignature).toBeUndefined();
+        expect(model.metadata.snapshot.trailFingerprint.dataIdSignature).toBeUndefined();
     });
 });
 

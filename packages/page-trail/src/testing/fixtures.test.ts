@@ -10,13 +10,13 @@ describe('PageTrail test fixtures', () => {
         // When
         const dto = createPageTrailDtoFixture({
             basics: {
+                url: 'https://example.com/settings',
                 title: 'Settings',
                 viewport: { width: 1440 },
             },
             metadata: {
-                innerTextLength: 120,
-                outerHtmlLength: 450,
-                contentElements: 2,
+                page: { innerTextLength: 120, outerHtmlLength: 450 },
+                elements: { contentElements: 2 },
                 performance: { totalMs: 10 },
             },
         });
@@ -31,12 +31,15 @@ describe('PageTrail test fixtures', () => {
         });
         expect(dto.metadata).toEqual(
             expect.objectContaining({
-                version: VERSION,
-                innerTextLength: 120,
-                outerHtmlLength: 450,
-                contentElements: 2,
-                interactiveElements: 0,
+                page: expect.objectContaining({ innerTextLength: 120, outerHtmlLength: 450 }),
+                elements: expect.objectContaining({ contentElements: 2, interactiveElements: 0 }),
                 performance: expect.objectContaining({ basicsMs: 0, totalMs: 10 }),
+                snapshot: expect.objectContaining({
+                    version: VERSION,
+                    url: 'https://example.com/settings',
+                    collectedAt: 0,
+                    trailFingerprint: { dataIdSignature: undefined },
+                }),
             }),
         );
     });
@@ -49,7 +52,7 @@ describe('PageTrail test fixtures', () => {
         // Then
         expect(pageTrail).toBeInstanceOf(PageTrail);
         expect(pageTrail.toDto()).toEqual(createPageTrailDtoFixture());
-        expect(metadata.version).toBe(VERSION);
+        expect(metadata.snapshot.version).toBe(VERSION);
         expect(metadata.performance.totalMs).toBe(0);
     });
 

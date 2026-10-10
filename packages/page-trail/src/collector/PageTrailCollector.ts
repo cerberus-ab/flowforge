@@ -4,6 +4,7 @@ import type {
     ContainerElement,
     ContentElement,
     ElementId,
+    ElementsMetadata,
     InteractiveElement,
     PageBasics,
     PageMetadata,
@@ -110,13 +111,7 @@ export class PageTrailCollector {
             ...contentElements.elements(),
             ...interactiveElements.elements(),
         ];
-        const trailFingerprint = this.collectTrailFingerprint(elements);
-        const t5_complete = performance.now();
-
-        const metadata: CollectionMetadata = {
-            version: VERSION,
-            ...pageMetadata,
-            // elements
+        const elementsMetadata: ElementsMetadata = {
             containerElements: containerElements.length,
             containerElementsMatched: containerElements.matched,
             containerElementsMaxDepth: containerTree.getMaxDepth(),
@@ -128,9 +123,19 @@ export class PageTrailCollector {
             interactiveElementsMatched: interactiveElements.matched,
             interactiveElementsCandidates: interactiveElements.candidates,
             interactiveElementsLimitReached: interactiveElements.limitReached,
-            trailFingerprint,
-            // timings
-            collectedAt: Date.now(),
+        };
+        const trailFingerprint = this.collectTrailFingerprint(elements);
+        const t5_complete = performance.now();
+
+        const metadata: CollectionMetadata = {
+            page: pageMetadata,
+            elements: elementsMetadata,
+            snapshot: {
+                version: VERSION,
+                collectedAt: Date.now(),
+                url: pageBasics.url,
+                trailFingerprint,
+            },
             performance: {
                 basicsMs: Math.round(t1_basics - t0),
                 structureMs: Math.round(t2_structure - t1_basics),

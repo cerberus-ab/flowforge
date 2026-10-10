@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { FakeLocalStorage } from '../../../../test/unit/fakes/FakeLocalStorage';
+import { FakeStorage } from '../../../../test/unit/fakes/FakeStorage';
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
@@ -67,7 +67,7 @@ describe('SettingsMessageHandler', () => {
 
 function createHandler() {
     const transport = new FakeTransportService();
-    const settingsStorage = new SettingsStorage(new FakeLocalStorage(), defaultSettings);
+    const settingsStorage = new SettingsStorage(new FakeStorage(), defaultSettings);
     const handler = new SettingsMessageHandler(new PageClient(transport), settingsStorage);
 
     return { handler, transport };

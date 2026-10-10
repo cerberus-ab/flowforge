@@ -196,10 +196,6 @@ export type PageElement = ContainerElement | ContentElement | InteractiveElement
 
 // collection metadata
 
-export type TrailFingerprint = {
-    dataIdSignature?: string; // contextOnly if undefined
-};
-
 export interface PageMetadata {
     innerTextLength: number;
     outerHtmlLength: number;
@@ -228,9 +224,20 @@ export interface PerformanceMetadata {
     totalMs: number;
 }
 
-export interface CollectionMetadata extends PageMetadata, ElementsMetadata {
+export type TrailFingerprint = {
+    dataIdSignature?: string; // contextOnly if undefined
+};
+
+export interface SnapshotMetadata {
     version: string;
-    collectedAt: number; // timestamp
-    performance: PerformanceMetadata;
+    collectedAt: number;
+    url: string;
     trailFingerprint: TrailFingerprint;
+}
+
+export interface CollectionMetadata {
+    page: PageMetadata;
+    elements: ElementsMetadata;
+    performance: PerformanceMetadata;
+    snapshot: SnapshotMetadata;
 }

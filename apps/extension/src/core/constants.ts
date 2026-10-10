@@ -1,7 +1,7 @@
 export const constants = {
     // general
     DATA_ID_ATTRIBUTE: 'data-flowforge-id',
-    LOCAL_STORAGE_NAMESPACE: 'flowforge',
+    STORAGE_NAMESPACE: 'flowforge',
     // api
     API_QUERY_TIMEOUT_MS: 60000,
     // popup

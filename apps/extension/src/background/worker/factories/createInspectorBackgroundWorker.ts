@@ -1,4 +1,4 @@
-import type { LocalStorage, TransportService } from '@/adapters';
+import type { Storage, TransportService } from '@/adapters';
 import { config } from '@/config';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
@@ -9,7 +9,7 @@ import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
 
 export interface InspectorBackgroundWorkerOptions {
     transport: TransportService;
-    localStorage: LocalStorage;
+    localStorage: Storage;
 }
 
 export function createInspectorBackgroundWorker({

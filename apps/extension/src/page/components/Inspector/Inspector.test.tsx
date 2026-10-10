@@ -9,8 +9,10 @@ const pageTrail = createPageTrailFixture({
         title: 'Settings page',
     },
     metadata: {
-        contentElements: 2,
-        interactiveElements: 3,
+        elements: {
+            contentElements: 2,
+            interactiveElements: 3,
+        },
         performance: {
             totalMs: 10,
         },
