@@ -86,6 +86,7 @@ describe('BackgroundClient', () => {
         const client = new BackgroundClient(transport);
         client.subscribeToPageMessages({
             onCollectPageTrail: vi.fn(),
+            onCollectTrailFingerprint: vi.fn(),
             onClearPage: () => {
                 throw new Error('Page cleanup failed');
             },
@@ -139,6 +140,7 @@ describe('BackgroundClient', () => {
         const pageTrailDto = createPageTrailDtoFixture();
         const callbacks: PageMessageCallbacks = {
             onCollectPageTrail: vi.fn(() => pageTrailDto),
+            onCollectTrailFingerprint: vi.fn(() => pageTrailDto.metadata.snapshot.trailFingerprint),
             onClearPage: vi.fn(),
             onStartOnboarding: vi.fn(),
             onHighlightElement: vi.fn(),
@@ -149,6 +151,7 @@ describe('BackgroundClient', () => {
 
         // When
         const collectionResponse = await transport.dispatchToBackground({ type: 'COLLECT_PAGE_TRAIL' });
+        const fingerprintResponse = await transport.dispatchToBackground({ type: 'COLLECT_TRAIL_FINGERPRINT' });
         await transport.dispatchToBackground({ type: 'CLEAR_PAGE' });
         await transport.dispatchToBackground({
             type: 'START_ONBOARDING',
@@ -164,6 +167,11 @@ describe('BackgroundClient', () => {
 
         // Then
         expect((collectionResponse as MessageResponse<PageTrailDto> & { success: true }).data).toEqual(pageTrailDto);
+        expect(fingerprintResponse).toEqual({
+            success: true,
+            data: pageTrailDto.metadata.snapshot.trailFingerprint,
+        });
+        expect(callbacks.onCollectTrailFingerprint).toHaveBeenCalledOnce();
         expect(callbacks.onClearPage).toHaveBeenCalledOnce();
         expect(callbacks.onStartOnboarding).toHaveBeenCalledWith({
             title: 'Settings',

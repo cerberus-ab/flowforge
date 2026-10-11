@@ -11,6 +11,10 @@ export class FakeStorage implements Storage {
         this.values.set(key, value);
     }
 
+    async remove(key: string): Promise<void> {
+        this.values.delete(key);
+    }
+
     async clear(): Promise<void> {
         this.values.clear();
     }

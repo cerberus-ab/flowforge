@@ -2,6 +2,7 @@ import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/
 
 import type { Message, MessageResponse } from '../Message';
 import type { ExtensionSettings } from '@/core/types/settings';
+import type { QuerySessionDataCompleted, QuerySessionDataPending } from '@/core/services/QuerySessionStorage';
 
 export type PopupOpenedMessage = Message & {
     type: 'POPUP_OPENED';
@@ -19,6 +20,25 @@ export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {
     type: 'UPDATE_SETTINGS';
 };
 
+export type RestoreQueryMessage = Message & {
+    type: 'RESTORE_QUERY';
+};
+
+export type RestoreQueryResponse =
+    | { restored: false; reason: 'empty' | 'mismatch:url' }
+    | {
+          restored: true;
+          state: 'pending';
+          data: QuerySessionDataPending;
+          reason: 'ok' | 'mismatch:fingerprint';
+      }
+    | {
+          restored: true;
+          state: 'completed';
+          data: Omit<QuerySessionDataCompleted, 'trailSnapshot'>;
+          reason: 'ok';
+      };
+
 export interface AskQuestionMessageData {
     question: string;
 }
@@ -31,7 +51,7 @@ export type GetPrevQuestionsMessage = Message & {
     type: 'GET_PREV_QUESTIONS';
 };
 
-export interface PreviousQuestions {
+export interface PreviousQuestionsResponse {
     questions: string[];
 }
 
@@ -64,6 +84,7 @@ export type BackgroundMessage =
     | PopupOpenedMessage
     | GetSettingsMessage
     | UpdateSettingsMessage
+    | RestoreQueryMessage
     | AskQuestionMessage
     | GetPrevQuestionsMessage
     | NavigateToElementMessage
@@ -74,8 +95,9 @@ export interface BackgroundMessageResponseMap {
     POPUP_OPENED: undefined;
     GET_SETTINGS: ExtensionSettings;
     UPDATE_SETTINGS: ExtensionSettings;
+    RESTORE_QUERY: RestoreQueryResponse;
     ASK_QUESTION: QueryResponse;
-    GET_PREV_QUESTIONS: PreviousQuestions;
+    GET_PREV_QUESTIONS: PreviousQuestionsResponse;
     NAVIGATE_TO_ELEMENT: undefined;
     OPEN_PAGE_INSPECTOR: undefined;
     OPEN_ONBOARDING: undefined;
@@ -94,6 +116,10 @@ export function isGetSettingsMessage(message: Message): message is GetSettingsMe
 
 export function isUpdateSettingsMessage(message: Message): message is UpdateSettingsMessage {
     return message.type === 'UPDATE_SETTINGS';
+}
+
+export function isRestoreQueryMessage(message: Message): message is RestoreQueryMessage {
+    return message.type === 'RESTORE_QUERY';
 }
 
 export function isAskQuestionMessage(message: Message): message is AskQuestionMessage {

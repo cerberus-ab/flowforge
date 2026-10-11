@@ -1,8 +1,12 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ChromeSessionStorage } from './ChromeSessionStorage';
 
 describe('ChromeSessionStorage', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
     it('reads a value from chrome.storage.session', async () => {
         const session = stubChromeSession({ get: vi.fn().mockResolvedValue({ sessionKey: { question: 'How?' } }) });
         const storage = new ChromeSessionStorage();
@@ -28,6 +32,15 @@ describe('ChromeSessionStorage', () => {
         expect(session.set).toHaveBeenCalledWith({ sessionKey: value });
     });
 
+    it('removes a key from chrome.storage.session', async () => {
+        const session = stubChromeSession({ remove: vi.fn().mockResolvedValue(undefined) });
+        const storage = new ChromeSessionStorage();
+
+        await storage.remove('sessionKey');
+
+        expect(session.remove).toHaveBeenCalledWith('sessionKey');
+    });
+
     it('clears chrome.storage.session', async () => {
         const session = stubChromeSession({ clear: vi.fn().mockResolvedValue(undefined) });
         const storage = new ChromeSessionStorage();
@@ -42,6 +55,7 @@ function stubChromeSession(overrides: Record<string, unknown> = {}) {
     const session = {
         get: vi.fn().mockResolvedValue({}),
         set: vi.fn().mockResolvedValue(undefined),
+        remove: vi.fn().mockResolvedValue(undefined),
         clear: vi.fn().mockResolvedValue(undefined),
         ...overrides,
     };

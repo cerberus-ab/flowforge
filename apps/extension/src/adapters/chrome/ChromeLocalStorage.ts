@@ -10,6 +10,10 @@ export class ChromeLocalStorage implements LocalStorage {
         await chrome.storage.local.set({ [key]: value });
     }
 
+    async remove(key: string): Promise<void> {
+        await chrome.storage.local.remove(key);
+    }
+
     async clear(): Promise<void> {
         await chrome.storage.local.clear();
     }

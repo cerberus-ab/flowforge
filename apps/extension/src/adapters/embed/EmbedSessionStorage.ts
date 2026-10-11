@@ -10,6 +10,10 @@ export class EmbedSessionStorage implements SessionStorage {
         window.sessionStorage.setItem(key, JSON.stringify(value));
     }
 
+    async remove(key: string): Promise<void> {
+        window.sessionStorage.removeItem(key);
+    }
+
     async clear(): Promise<void> {
         window.sessionStorage.clear();
     }

@@ -1,4 +1,5 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
+import type { TrailFingerprint } from '@flowforge/page-trail';
 
 import type { ExtensionSettings } from '@/types';
 import type { StartOnboardingMessageData } from '@/messaging';
@@ -19,6 +20,7 @@ export interface PageInspectorClient {
 export interface PageQuestionClient {
     clearPage(pageId: number): Promise<void>;
     collectPageTrail(pageId: number): Promise<PageTrailDto>;
+    collectTrailFingerprint(pageId: number): Promise<TrailFingerprint>;
     getUrl(pageId: number): Promise<string>;
 }
 

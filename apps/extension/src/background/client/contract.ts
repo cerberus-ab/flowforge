@@ -1,10 +1,12 @@
 import type { ExtensionSettings } from '@/types';
-import type { PreviousQuestions, StartOnboardingMessageData } from '@/messaging';
+import type { PreviousQuestionsResponse, StartOnboardingMessageData } from '@/messaging';
 import type { AgentResult, AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
+import type { TrailFingerprint } from '@flowforge/page-trail';
 
 /* message callbacks */
 export interface PageMessageCallbacks {
     onCollectPageTrail: () => PageTrailDto;
+    onCollectTrailFingerprint: () => TrailFingerprint;
     onClearPage: () => void;
     onStartOnboarding: (data: StartOnboardingMessageData) => void;
     onHighlightElement: (element: AgentResultElement) => void;
@@ -23,7 +25,7 @@ export interface SettingsMessageCallbacks {
 /* client interfaces */
 export interface PopupBackgroundClient {
     notifyPopupOpened(): Promise<void>;
-    getPreviousQuestions(): Promise<PreviousQuestions>;
+    getPreviousQuestions(): Promise<PreviousQuestionsResponse>;
     askQuestion(question: string): Promise<QueryResponse>;
     openOnboarding(question: string, result: AgentResult): Promise<void>;
     navigateToElement(element: AgentResultElement): Promise<void>;

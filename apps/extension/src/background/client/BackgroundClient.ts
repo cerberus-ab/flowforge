@@ -6,11 +6,12 @@ import {
     type BackgroundMessageResponseData,
     isClearPageMessage,
     isCollectPageTrailMessage,
+    isCollectTrailFingerprintMessage,
     isHighlightElementMessage,
     isOpenInspectorMessage,
     isSettingsUpdatedMessage,
     isStartOnboardingMessage,
-    type PreviousQuestions,
+    type PreviousQuestionsResponse,
 } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
 import type {
@@ -63,7 +64,7 @@ export class BackgroundClient
     }
 
     /** Retrieves question history for the active page. */
-    async getPreviousQuestions(): Promise<PreviousQuestions> {
+    async getPreviousQuestions(): Promise<PreviousQuestionsResponse> {
         return this.sendToBackground({
             type: 'GET_PREV_QUESTIONS',
         });
@@ -127,6 +128,7 @@ export class BackgroundClient
     subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrail()),
+            MessageRouter.route(isCollectTrailFingerprintMessage, () => callbacks.onCollectTrailFingerprint()),
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
             MessageRouter.route(isStartOnboardingMessage, (message) => callbacks.onStartOnboarding(message.data)),
             MessageRouter.route(isHighlightElementMessage, (message) =>

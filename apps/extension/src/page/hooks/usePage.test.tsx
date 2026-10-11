@@ -1,4 +1,5 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
+import { trailFingerprint } from '@flowforge/page-trail';
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -89,6 +90,23 @@ describe('usePage', () => {
         const pageTrailDto = (response as MessageResponse<PageTrailDto> & { success: true }).data;
         expect(pageTrailDto.basics.title).toBe('FlowForge Page');
         expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
+    });
+
+    it('computes a fingerprint from the data ids already present on the page', async () => {
+        // Given
+        const dataId = 'ff00000001';
+        addTargetButton({ ...targetElement, dataId });
+        const { transport } = renderPage();
+
+        // When
+        const response = await transport.dispatchToBackground({ type: 'COLLECT_TRAIL_FINGERPRINT' });
+
+        // Then
+        expect(response).toEqual({
+            success: true,
+            data: trailFingerprint({ dataIds: [dataId] }),
+        });
+        expect(transport.getSentToPage()).toEqual([]);
     });
 
     it('shows a direct highlight for target messages', async () => {

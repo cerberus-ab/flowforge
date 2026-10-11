@@ -7,41 +7,45 @@ import {
     type AskQuestionMessage,
     type GetPrevQuestionsMessage,
     type MessageContext,
-    type PreviousQuestions,
+    type PreviousQuestionsResponse,
     MessageRouter,
     isAskQuestionMessage,
     isGetPrevQuestionsMessage,
     requirePageId,
+    type RestoreQueryMessage,
+    isRestoreQueryMessage,
+    type RestoreQueryResponse,
 } from '@/messaging';
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
-import type { PageSessionStorage } from '@/core/services/PageSessionStorage';
+import type { QuerySessionStorage } from '@/core/services/QuerySessionStorage';
 
 /**
  * Handles question requests and per-domain question history.
  * Collects page context and submits new questions to the API.
  * Also retrieves the previous questions associated with the page domain.
  */
-export class QuestionMessageHandler implements BackgroundMessageHandler {
+export class QueryMessageHandler implements BackgroundMessageHandler {
     private readonly pageClient: PageQuestionClient;
     private readonly apiClient: ApiClient;
-    private readonly pageSessionStorage: PageSessionStorage;
+    private readonly querySessionStorage: QuerySessionStorage;
     private readonly historyStorage: HistoryStorage;
 
     constructor(
         pageClient: PageQuestionClient,
         apiClient: ApiClient,
-        pageSessionStorage: PageSessionStorage,
+        querySessionStorage: QuerySessionStorage,
         historyStorage: HistoryStorage,
     ) {
         this.pageClient = pageClient;
         this.apiClient = apiClient;
-        this.pageSessionStorage = pageSessionStorage;
+        this.querySessionStorage = querySessionStorage;
         this.historyStorage = historyStorage;
     }
 
     routes() {
         return [
             MessageRouter.route(isAskQuestionMessage, (message, context) => this.handleAskQuestion(message, context)),
+            MessageRouter.route(isRestoreQueryMessage, (message, context) => this.handleRestoreQuery(message, context)),
             MessageRouter.route(isGetPrevQuestionsMessage, (message, context) =>
                 this.handleGetPrevQuestions(message, context),
             ),
@@ -55,7 +59,7 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
         // save question in session
         const question = message.data.question;
         const url = await this.pageClient.getUrl(pageId);
-        await this.pageSessionStorage.savePending(pageId, url, { question });
+        await this.querySessionStorage.savePending(pageId, url, { question });
 
         // collect page trail
         await this.pageClient.clearPage(pageId);
@@ -80,7 +84,7 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
 
         // save question in history and result in session
         await this.historyStorage.saveQuestion(domain, question);
-        await this.pageSessionStorage.saveCompleted(pageId, url, {
+        await this.querySessionStorage.saveCompleted(pageId, url, {
             question,
             result: responseData.result,
             metadata: responseData.metadata,
@@ -89,11 +93,53 @@ export class QuestionMessageHandler implements BackgroundMessageHandler {
         return responseData;
     }
 
+    /** Trys to restore query from session, might be called on initialization. */
+    async handleRestoreQuery(_message: RestoreQueryMessage, context: MessageContext): Promise<RestoreQueryResponse> {
+        const pageId = requirePageId(context);
+
+        const record = await this.querySessionStorage.getRecord(pageId);
+
+        // nothing is saved
+        if (record == null) {
+            return { restored: false, reason: 'empty' };
+        }
+        // validate by url
+        const url = await this.pageClient.getUrl(pageId);
+        if (record.url !== url) {
+            await this.querySessionStorage.removeRecord(pageId);
+            return { restored: false, reason: 'mismatch:url' };
+        }
+        // if pending return
+        if (record.state === 'pending') {
+            return { restored: true, state: record.state, data: record.data, reason: 'ok' };
+        }
+        const recFingerprint = record.data.trailSnapshot.trailFingerprint;
+        if (recFingerprint.dataIdSignature !== undefined) {
+            // validate by fingerprint
+            const liveFingerprint = await this.pageClient.collectTrailFingerprint(pageId);
+            if (recFingerprint.dataIdSignature !== liveFingerprint.dataIdSignature) {
+                const pendingData = { question: record.data.question };
+                await this.querySessionStorage.savePending(pageId, url, pendingData);
+                return { restored: true, state: 'pending', data: pendingData, reason: 'mismatch:fingerprint' };
+            }
+        }
+        return {
+            restored: true,
+            state: record.state,
+            data: {
+                question: record.data.question,
+                result: record.data.result,
+                metadata: record.data.metadata,
+            },
+            reason: 'ok',
+        };
+    }
+
     /** Returns the saved question history for the sender page's domain. */
     async handleGetPrevQuestions(
         _message: GetPrevQuestionsMessage,
         context: MessageContext,
-    ): Promise<PreviousQuestions> {
+    ): Promise<PreviousQuestionsResponse> {
         const pageId = requirePageId(context);
 
         const url = await this.pageClient.getUrl(pageId);

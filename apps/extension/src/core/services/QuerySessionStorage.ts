@@ -4,31 +4,32 @@ import type { AgentResult, QueryResponseMetadata } from '@flowforge/contract';
 import type { SnapshotMetadata } from '@flowforge/page-trail';
 
 // page session record types
-export type PageSessionDataPending = {
+export type QuerySessionDataPending = {
     question: string;
 };
 
-export type PageSessionDataCompleted = PageSessionDataPending & {
+export type QuerySessionDataCompleted = QuerySessionDataPending & {
     result: AgentResult;
     metadata: QueryResponseMetadata;
     trailSnapshot: SnapshotMetadata;
 };
 
-export type PageSessionRecord = {
-    url: string;
-} & (
+export type QuerySessionData =
     | {
           state: 'pending';
-          data: PageSessionDataPending;
+          data: QuerySessionDataPending;
       }
     | {
           state: 'completed';
-          data: PageSessionDataCompleted;
-      }
-);
+          data: QuerySessionDataCompleted;
+      };
+
+export type QuerySessionRecord = {
+    url: string;
+} & QuerySessionData;
 
 // storage class
-export class PageSessionStorage {
+export class QuerySessionStorage {
     private readonly storage: SessionStorage;
 
     constructor(storage: SessionStorage) {
@@ -36,14 +37,14 @@ export class PageSessionStorage {
     }
 
     private getKey(pageId: number): string {
-        return `${constants.STORAGE_NAMESPACE}_page_session::${String(pageId)}`;
+        return `${constants.STORAGE_NAMESPACE}_query_session::${String(pageId)}`;
     }
 
-    private saveRecord(pageId: number, record: PageSessionRecord): Promise<void> {
+    private saveRecord(pageId: number, record: QuerySessionRecord): Promise<void> {
         return this.storage.set(this.getKey(pageId), record);
     }
 
-    async savePending(pageId: number, url: string, pendingData: PageSessionDataPending): Promise<void> {
+    savePending(pageId: number, url: string, pendingData: QuerySessionDataPending): Promise<void> {
         return this.saveRecord(pageId, {
             url,
             state: 'pending',
@@ -51,11 +52,19 @@ export class PageSessionStorage {
         });
     }
 
-    async saveCompleted(pageId: number, url: string, completedData: PageSessionDataCompleted): Promise<void> {
+    saveCompleted(pageId: number, url: string, completedData: QuerySessionDataCompleted): Promise<void> {
         return this.saveRecord(pageId, {
             url,
             state: 'completed',
             data: completedData,
         });
+    }
+
+    getRecord(pageId: number): Promise<QuerySessionRecord | null> {
+        return this.storage.get<QuerySessionRecord>(this.getKey(pageId));
+    }
+
+    removeRecord(pageId: number): Promise<void> {
+        return this.storage.remove(this.getKey(pageId));
     }
 }

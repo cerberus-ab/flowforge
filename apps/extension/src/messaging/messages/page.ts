@@ -1,4 +1,5 @@
 import type { AgentResultElement, AgentResultMode, PageTrailDto } from '@flowforge/contract';
+import type { TrailFingerprint } from '@flowforge/page-trail';
 
 import type { Message, MessageResponse } from '../Message';
 import type { ExtensionSettings } from '@/core/types/settings';
@@ -12,6 +13,10 @@ export interface StartOnboardingMessageData {
 
 export type CollectPageTrailMessage = Message & {
     type: 'COLLECT_PAGE_TRAIL';
+};
+
+export type CollectTrailFingerprintMessage = Message & {
+    type: 'COLLECT_TRAIL_FINGERPRINT';
 };
 
 export type ClearPageMessage = Message & {
@@ -46,6 +51,7 @@ export type SettingsUpdatedMessage = Message<SettingsUpdatedMessageData> & {
 
 export type PageMessage =
     | CollectPageTrailMessage
+    | CollectTrailFingerprintMessage
     | ClearPageMessage
     | StartOnboardingMessage
     | HighlightElementMessage
@@ -54,6 +60,7 @@ export type PageMessage =
 
 export interface PageMessageResponseMap {
     COLLECT_PAGE_TRAIL: PageTrailDto;
+    COLLECT_TRAIL_FINGERPRINT: TrailFingerprint;
     CLEAR_PAGE: undefined;
     START_ONBOARDING: undefined;
     HIGHLIGHT_ELEMENT: undefined;
@@ -66,6 +73,10 @@ export type PageMessageResponse<M extends PageMessage> = MessageResponse<PageMes
 
 export function isCollectPageTrailMessage(message: Message): message is CollectPageTrailMessage {
     return message.type === 'COLLECT_PAGE_TRAIL';
+}
+
+export function isCollectTrailFingerprintMessage(message: Message): message is CollectTrailFingerprintMessage {
+    return message.type === 'COLLECT_TRAIL_FINGERPRINT';
 }
 
 export function isStartOnboardingMessage(message: Message): message is StartOnboardingMessage {
