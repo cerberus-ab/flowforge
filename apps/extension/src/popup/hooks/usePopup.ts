@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'preact/hooks';
+import { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'preact/hooks';
 import { config } from '@/config';
 import { normalizeText } from '@/core/utils/text';
 import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/data';
@@ -33,6 +33,7 @@ export interface PopupViewModel {
 
 export function usePopup({ backgroundClient, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
     const [inputQuestion, setInputQuestionState] = useState('');
+    const isMountedRef = useRef(true);
     const hasUserEditedQuestion = useRef(false);
     const question = useMemo(() => normalizeText(inputQuestion), [inputQuestion]);
     const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +45,14 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     const setInputQuestion = useCallback((value: string) => {
         hasUserEditedQuestion.current = true;
         setInputQuestionState(value);
+    }, []);
+
+    useLayoutEffect(() => {
+        isMountedRef.current = true;
+
+        return () => {
+            isMountedRef.current = false;
+        };
     }, []);
 
     // Clear page UI state when popup opens.
@@ -61,7 +70,7 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
         void backgroundClient
             .restoreQuery()
             .then((response) => {
-                if (!isActive || hasUserEditedQuestion.current || !response.restored) return;
+                if (!isActive || !isMountedRef.current || hasUserEditedQuestion.current || !response.restored) return;
 
                 setInputQuestionState(response.data.question);
                 setError(null);
@@ -95,11 +104,11 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
             try {
                 const questions = (await backgroundClient.getPreviousQuestions()).questions;
 
-                if (questions.length > 0) {
+                if (isMountedRef.current && questions.length > 0) {
                     setExamples(buildTryExampleItems(config.exampleQuestions, questions));
                 }
             } catch (err) {
-                console.warn('[FlowForge] Failed to load previous questions:', err);
+                if (isMountedRef.current) console.warn('[FlowForge] Failed to load previous questions:', err);
             }
         };
 
@@ -133,6 +142,8 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
 
             const response = await backgroundClient.askQuestion(question);
 
+            if (!isMountedRef.current) return;
+
             setIsLoading(false);
 
             if (!response) {
@@ -147,6 +158,8 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
                 void handleNavigateToElement(response.result.elements[0]!);
             }
         } catch (err) {
+            if (!isMountedRef.current) return;
+
             setIsLoading(false);
             setError(err instanceof Error ? err.message : 'Unknown error occurred');
         }

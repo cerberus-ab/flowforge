@@ -116,8 +116,8 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
         const recFingerprint = record.data.trailSnapshot.trailFingerprint;
         if (recFingerprint.dataIdSignature !== undefined) {
             // validate by fingerprint
-            const liveFingerprint = await this.pageClient.collectTrailFingerprint(pageId);
-            if (recFingerprint.dataIdSignature !== liveFingerprint.dataIdSignature) {
+            const lifeFingerprint = await this.pageClient.collectTrailFingerprint(pageId);
+            if (recFingerprint.dataIdSignature !== lifeFingerprint.dataIdSignature) {
                 const pendingData = { question: record.data.question };
                 await this.querySessionStorage.savePending(pageId, url, pendingData);
                 return { restored: true, state: 'pending', data: pendingData, reason: 'mismatch:fingerprint' };
