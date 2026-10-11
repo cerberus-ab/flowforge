@@ -31,4 +31,24 @@ describe('Examples', () => {
         // Then
         expect(container.textContent).toBe('');
     });
+
+    it('does not select examples when disabled', () => {
+        // Given
+        const onExampleQuestionSelect = vi.fn();
+        render(
+            <Examples
+                examples={[{ question: 'Where is billing?', type: 'previous' }]}
+                onExampleQuestionSelect={onExampleQuestionSelect}
+                disabled
+            />,
+        );
+        const example = screen.getByRole('button', { name: 'Where is billing?' }) as HTMLButtonElement;
+
+        // When
+        fireEvent.click(example);
+
+        // Then
+        expect(example.disabled).toBe(true);
+        expect(onExampleQuestionSelect).not.toHaveBeenCalled();
+    });
 });

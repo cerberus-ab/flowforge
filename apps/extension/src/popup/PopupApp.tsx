@@ -150,7 +150,11 @@ export function PopupApp({
                     />
                 )}
 
-                <Examples examples={examples} onExampleQuestionSelect={handleApplyExampleQuestion} />
+                <Examples
+                    examples={examples}
+                    onExampleQuestionSelect={handleApplyExampleQuestion}
+                    disabled={isLoading}
+                />
 
                 <Advanced onOpenPageInspector={handleOpenPageInspector}></Advanced>
 
