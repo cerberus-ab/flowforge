@@ -38,7 +38,7 @@ describe('PageTrail test fixtures', () => {
                     version: VERSION,
                     url: 'https://example.com/settings',
                     collectedAt: 0,
-                    trailFingerprint: { dataIdSignature: undefined },
+                    dataIdSignature: undefined,
                 }),
             }),
         );

@@ -1,5 +1,4 @@
 import type { PageTrailDto } from '@flowforge/contract';
-import type { TrailFingerprint } from '@flowforge/page-trail';
 import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -113,7 +112,7 @@ describe('QueryMessageHandler', () => {
         await expect(handler.handleAskQuestion(message, { pageId: 7 })).rejects.toThrow('API unavailable');
         await expect(sessionStorage.get(querySessionKey(7))).resolves.toEqual({
             url: 'https://app.flowforge.test/settings',
-            state: 'pending',
+            state: 'ready',
             data: { question: 'How do I save?' },
         });
     });
@@ -152,7 +151,7 @@ describe('QueryMessageHandler', () => {
 
     it('removes a saved query session when the page URL changed', async () => {
         const sessionStorage = new FakeStorage();
-        await saveCompletedQuery(sessionStorage, fingerprint('1-old'));
+        await saveCompletedQuery(sessionStorage, '1-old');
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/other' });
         const handler = createQueryHandler(transport, sessionStorage);
 
@@ -164,34 +163,34 @@ describe('QueryMessageHandler', () => {
         expect(transport.getSentToPage()).toEqual([]);
     });
 
-    it('restores pending query sessions without checking the page fingerprint', async () => {
+    it('restores ready query sessions without checking a page signature', async () => {
         const sessionStorage = new FakeStorage();
-        const pendingData = { question: 'How do I save?' };
+        const readyData = { question: 'How do I save?' };
         await sessionStorage.set(querySessionKey(7), {
             url: 'https://app.flowforge.test/settings',
-            state: 'pending',
-            data: pendingData,
+            state: 'ready',
+            data: readyData,
         });
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
         const handler = createQueryHandler(transport, sessionStorage);
 
         await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
             restored: true,
-            state: 'pending',
-            data: pendingData,
+            state: 'ready',
+            data: readyData,
             reason: 'ok',
         });
         expect(transport.getSentToPage()).toEqual([]);
     });
 
-    it('restores a completed query when the page fingerprint still matches', async () => {
+    it('restores a completed query when the page data ID signature still matches', async () => {
         const sessionStorage = new FakeStorage();
         const queryResponse = createQueryResponseFixture();
-        const trailFingerprint = fingerprint('1-current');
-        await saveCompletedQuery(sessionStorage, trailFingerprint, queryResponse);
+        const dataIdSignature = '1-current';
+        await saveCompletedQuery(sessionStorage, dataIdSignature, queryResponse);
         const transport = createTransport({
             pageUrl: 'https://app.flowforge.test/settings',
-            trailFingerprint,
+            dataIdSignature,
         });
         const handler = createQueryHandler(transport, sessionStorage);
 
@@ -205,34 +204,34 @@ describe('QueryMessageHandler', () => {
             },
             reason: 'ok',
         });
-        expect(transport.getSentToPage()).toEqual([{ pageId: 7, message: { type: 'COLLECT_TRAIL_FINGERPRINT' } }]);
+        expect(transport.getSentToPage()).toEqual([{ pageId: 7, message: { type: 'COLLECT_DATA_ID_SIGNATURE' } }]);
     });
 
-    it('resets a completed query to pending when the page fingerprint changed', async () => {
+    it('resets a completed query to ready when the page data ID signature changed', async () => {
         const sessionStorage = new FakeStorage();
-        await saveCompletedQuery(sessionStorage, fingerprint('1-saved'));
+        await saveCompletedQuery(sessionStorage, '1-saved');
         const transport = createTransport({
             pageUrl: 'https://app.flowforge.test/settings',
-            trailFingerprint: fingerprint('1-current'),
+            dataIdSignature: '1-current',
         });
         const handler = createQueryHandler(transport, sessionStorage);
 
         await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
             restored: true,
-            state: 'pending',
+            state: 'ready',
             data: { question: 'How do I save?' },
-            reason: 'mismatch:fingerprint',
+            reason: 'mismatch:data-id-signature',
         });
         await expect(sessionStorage.get(querySessionKey(7))).resolves.toEqual({
             url: 'https://app.flowforge.test/settings',
-            state: 'pending',
+            state: 'ready',
             data: { question: 'How do I save?' },
         });
     });
 
-    it('restores a completed context-only query without checking a fingerprint', async () => {
+    it('restores a completed context-only query without checking a data ID signature', async () => {
         const sessionStorage = new FakeStorage();
-        await saveCompletedQuery(sessionStorage, fingerprint(undefined));
+        await saveCompletedQuery(sessionStorage, undefined);
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
         const handler = createQueryHandler(transport, sessionStorage);
 
@@ -246,16 +245,16 @@ describe('QueryMessageHandler', () => {
 function createTransport({
     pageUrl = 'http://localhost/',
     pageTrailDto = createPageTrailDtoFixture(),
-    trailFingerprint,
+    dataIdSignature,
 }: {
     pageUrl?: string;
     pageTrailDto?: PageTrailDto;
-    trailFingerprint?: TrailFingerprint;
+    dataIdSignature?: string;
 } = {}) {
     const transport = new FakeTransportService({ activePageId: 7, pageUrl });
     transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
-    if (trailFingerprint !== undefined) {
-        transport.setPageResponse('COLLECT_TRAIL_FINGERPRINT', { success: true, data: trailFingerprint });
+    if (dataIdSignature !== undefined) {
+        transport.setPageResponse('COLLECT_DATA_ID_SIGNATURE', { success: true, data: dataIdSignature });
     }
     return transport;
 }
@@ -273,7 +272,7 @@ function createQueryHandler(transport: FakeTransportService, sessionStorage: Fak
 
 async function saveCompletedQuery(
     sessionStorage: FakeStorage,
-    trailFingerprint: TrailFingerprint,
+    dataIdSignature: string | undefined,
     queryResponse = createQueryResponseFixture(),
 ): Promise<void> {
     const trailSnapshot = createPageTrailDtoFixture().metadata.snapshot;
@@ -284,11 +283,9 @@ async function saveCompletedQuery(
             question: 'How do I save?',
             result: queryResponse.result,
             metadata: queryResponse.metadata,
-            trailSnapshot: { ...trailSnapshot, trailFingerprint },
+            trailSnapshot: { ...trailSnapshot, dataIdSignature },
         },
     });
 }
-
-const fingerprint = (dataIdSignature: string | undefined): TrailFingerprint => ({ dataIdSignature });
 
 const querySessionKey = (pageId: number) => `flowforge_query_session::${pageId}`;

@@ -224,15 +224,11 @@ export interface PerformanceMetadata {
     totalMs: number;
 }
 
-export type TrailFingerprint = {
-    dataIdSignature?: string; // contextOnly if undefined
-};
-
 export interface SnapshotMetadata {
     version: string;
     collectedAt: number;
     url: string;
-    trailFingerprint: TrailFingerprint;
+    dataIdSignature?: string; // undefined for contextOnly snapshots
 }
 
 export interface CollectionMetadata {

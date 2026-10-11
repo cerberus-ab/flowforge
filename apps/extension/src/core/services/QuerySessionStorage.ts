@@ -4,11 +4,11 @@ import type { AgentResult, QueryResponseMetadata } from '@flowforge/contract';
 import type { SnapshotMetadata } from '@flowforge/page-trail';
 
 // page session record types
-export type QuerySessionDataPending = {
+export type QuerySessionDataReady = {
     question: string;
 };
 
-export type QuerySessionDataCompleted = QuerySessionDataPending & {
+export type QuerySessionDataCompleted = QuerySessionDataReady & {
     result: AgentResult;
     metadata: QueryResponseMetadata;
     trailSnapshot: SnapshotMetadata;
@@ -16,8 +16,8 @@ export type QuerySessionDataCompleted = QuerySessionDataPending & {
 
 export type QuerySessionData =
     | {
-          state: 'pending';
-          data: QuerySessionDataPending;
+          state: 'ready';
+          data: QuerySessionDataReady;
       }
     | {
           state: 'completed';
@@ -44,11 +44,11 @@ export class QuerySessionStorage {
         return this.storage.set(this.getKey(pageId), record);
     }
 
-    savePending(pageId: number, url: string, pendingData: QuerySessionDataPending): Promise<void> {
+    saveReady(pageId: number, url: string, readyData: QuerySessionDataReady): Promise<void> {
         return this.saveRecord(pageId, {
             url,
-            state: 'pending',
-            data: pendingData,
+            state: 'ready',
+            data: readyData,
         });
     }
 

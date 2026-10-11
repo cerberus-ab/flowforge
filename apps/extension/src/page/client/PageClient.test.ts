@@ -16,17 +16,17 @@ describe('PageClient', () => {
     it('sends typed commands to the requested page and unwraps their responses', async () => {
         // Given
         const pageTrailDto = createPageTrailDtoFixture();
-        const expectedFingerprint = pageTrailDto.metadata.snapshot.trailFingerprint;
+        const expectedSignature = pageTrailDto.metadata.snapshot.dataIdSignature;
         const settings = createSettingsFixture({ theme: 'dark' });
         const transport = new FakeTransportService({ pageUrl: 'https://app.flowforge.test/settings?tab=profile' });
         transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
-        transport.setPageResponse('COLLECT_TRAIL_FINGERPRINT', { success: true, data: expectedFingerprint });
+        transport.setPageResponse('COLLECT_DATA_ID_SIGNATURE', { success: true, data: expectedSignature });
         const client = new PageClient(transport);
 
         // When
         const url = await client.getUrl(7);
         await client.clearPage(7);
-        const trailFingerprint = await client.collectTrailFingerprint(7);
+        const dataIdSignature = await client.collectDataIdSignature(7);
         const collectedPageTrail = await client.collectPageTrail(7);
         await client.highlightElement(7, element);
         await client.startOnboarding(7, {
@@ -40,11 +40,11 @@ describe('PageClient', () => {
 
         // Then
         expect(url).toBe('https://app.flowforge.test/settings?tab=profile');
-        expect(trailFingerprint).toEqual(expectedFingerprint);
+        expect(dataIdSignature).toEqual(expectedSignature);
         expect(collectedPageTrail).toEqual(pageTrailDto);
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
-            { pageId: 7, message: { type: 'COLLECT_TRAIL_FINGERPRINT' } },
+            { pageId: 7, message: { type: 'COLLECT_DATA_ID_SIGNATURE' } },
             { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
             { pageId: 7, message: { type: 'HIGHLIGHT_ELEMENT', data: { element } } },
             {

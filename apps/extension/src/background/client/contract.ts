@@ -1,12 +1,11 @@
 import type { ExtensionSettings } from '@/types';
 import type { PreviousQuestionsResponse, RestoreQueryResponse, StartOnboardingMessageData } from '@/messaging';
 import type { AgentResult, AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
-import type { TrailFingerprint } from '@flowforge/page-trail';
 
 /* message callbacks */
 export interface PageMessageCallbacks {
     onCollectPageTrail: () => PageTrailDto;
-    onCollectTrailFingerprint: () => TrailFingerprint;
+    onCollectDataIdSignature: () => string | undefined;
     onClearPage: () => void;
     onStartOnboarding: (data: StartOnboardingMessageData) => void;
     onHighlightElement: (element: AgentResultElement) => void;

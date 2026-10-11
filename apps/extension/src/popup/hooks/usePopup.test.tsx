@@ -185,7 +185,7 @@ describe('usePopup', () => {
         expect(messages).toContainEqual({ type: 'GET_PREV_QUESTIONS' });
     });
 
-    it('restores a pending query without showing a loading state', async () => {
+    it('restores a ready query without showing a loading state', async () => {
         // Given
         renderPopup({
             handler: (message) => {
@@ -194,7 +194,7 @@ describe('usePopup', () => {
                         success: true,
                         data: {
                             restored: true,
-                            state: 'pending',
+                            state: 'ready',
                             data: { question: 'How do I open settings?' },
                             reason: 'ok',
                         },

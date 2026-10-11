@@ -89,7 +89,7 @@ export function createCollectionMetadataFixture(
             version: VERSION,
             collectedAt: 0,
             url: snapshotUrl,
-            trailFingerprint: { dataIdSignature: undefined },
+            dataIdSignature: undefined,
             ...overrides.snapshot,
         },
         performance: {
