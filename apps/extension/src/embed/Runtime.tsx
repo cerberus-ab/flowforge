@@ -1,4 +1,5 @@
-import { EmbedTransportService } from '@/adapters';
+import { EmbedTransportService, withTransportLogging } from '@/adapters';
+import type { TransportService } from '@/adapters';
 import { type InjectedRoot, ShadowRootInjector } from '@/core/services/RootInjector';
 import { render } from 'preact';
 
@@ -42,7 +43,7 @@ interface RuntimeApi {
 }
 
 export class Runtime implements RuntimeApi {
-    private readonly transport: EmbedTransportService;
+    private readonly transport: TransportService;
     private readonly backgroundClient: BackgroundClient;
     private readonly shellRef: RefObject<ShellAppRef>;
     // on initialization
@@ -50,7 +51,7 @@ export class Runtime implements RuntimeApi {
     private shellRoot?: InjectedRoot;
 
     private constructor() {
-        this.transport = new EmbedTransportService();
+        this.transport = withTransportLogging(new EmbedTransportService());
         this.backgroundClient = new BackgroundClient(this.transport);
         this.shellRef = createRef<ShellAppRef>();
     }

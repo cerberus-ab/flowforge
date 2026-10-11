@@ -4,7 +4,7 @@ import './popup.css';
 
 import { DocumentRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/inspector/constants';
-import { ChromeTransportService } from '@/adapters';
+import { ChromeTransportService, withTransportLogging } from '@/adapters';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import type { ExtensionSettingsTheme } from '@/types';
@@ -75,7 +75,7 @@ function InspectorPopupAppRoot({ backgroundClient }: { backgroundClient: Backgro
 }
 
 (function main() {
-    const transport = new ChromeTransportService();
+    const transport = withTransportLogging(new ChromeTransportService());
     const backgroundClient = new BackgroundClient(transport);
     const rootInjector = new DocumentRootInjector();
 

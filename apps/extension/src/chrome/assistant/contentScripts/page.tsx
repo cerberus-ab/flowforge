@@ -3,7 +3,7 @@ import { render } from 'preact';
 import styles from '@/page/index.css?inline';
 
 import { PageApp } from '@/page/PageApp';
-import { ChromeTransportService } from '@/adapters';
+import { ChromeTransportService, withTransportLogging } from '@/adapters';
 import { ShadowRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { Main } from '@/shared/components/Main';
@@ -28,7 +28,7 @@ function PageAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient 
 }
 
 (function main() {
-    const transport = new ChromeTransportService();
+    const transport = withTransportLogging(new ChromeTransportService());
     const backgroundClient = new BackgroundClient(transport);
     const rootInjector = new ShadowRootInjector();
 
