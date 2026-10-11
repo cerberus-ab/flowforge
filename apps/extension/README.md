@@ -11,6 +11,7 @@ Browser runtimes for the FlowForge Assistant, its embedded delivery, and an addi
 - Render answers, highlights, wizard steps, and Inspector views
 - Route messages between popup, page runtime, and backend
 - Store settings and per-domain Assistant history locally
+- Restore per-page Assistant queries when the popup reopens
 
 ## Run
 
@@ -43,6 +44,12 @@ Development commands are `dev:chrome:assistant`, `dev:chrome:inspector`, and `de
 
 The Assistant requires the backend at `http://localhost:3477`.
 
+## Assistant popup
+
+The Assistant keeps one query session per page in browser session storage: `chrome.storage.session` in Chrome and `window.sessionStorage` in embed. Reopening the popup restores a pending query while its background task is still active, or a completed answer for the same page URL. Settings and per-domain question history use separate local storage.
+
+If the page's data-ID signature no longer matches the saved snapshot, the answer remains visible with a warning, but element actions are unavailable. **Clear result** removes the saved answer while keeping the question in the open popup. Step-by-step results start the wizard only when **Open onboarding** is clicked.
+
 ## Embed runtime
 
 `build:embed` creates the bundle and declarations under `dist/embed`. `Runtime.start()` uses the backend, while `Runtime.demo()` uses predefined responses. Runtime instances expose popup, Inspector, and lifecycle methods.
@@ -60,12 +67,14 @@ Page Inspector displays the current page's `PageTrail` locally and does not requ
 ## Key parts
 
 - `src/chrome/` — Assistant and Page Inspector manifests and entry points
-- `src/popup/`, `src/page/`, `src/background/` — shared UI and message handling
+- `src/popup/`, `src/page/`, `src/background/` — shared UI and message handlers
+- `src/messaging/` — typed messages and routing
 - `src/embed/` — embedded runtime
 - `src/core/`, `src/adapters/` — services and runtime boundaries
 
 ## Notes
 
 - Sandbox runs at `http://localhost:3007` with backend and demo modes.
+- Development builds log sent and handled incoming transport messages in their browser context consoles.
 - Browser security limits access to restricted pages and cross-origin frames.
 - See [Architecture](../../docs/architecture.md) for system design.
