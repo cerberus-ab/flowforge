@@ -1,9 +1,9 @@
 import type { StartOnboardingMessageData } from '@/messaging';
 import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { findElement, getOrCreateDataId } from '@/core/locator/locate';
+import { findDataIds, findElement, getOrCreateDataId } from '@/core/locator/locate';
 import { constants } from '@/constants';
 import type { AgentResultElement } from '@flowforge/contract';
-import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
+import { PageTrail, PageTrailCollector, type TrailFingerprint, trailFingerprint } from '@flowforge/page-trail';
 import type { PageBackgroundClient } from '@/background';
 
 function collectPageTrail(): PageTrail {
@@ -12,6 +12,10 @@ function collectPageTrail(): PageTrail {
         interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
         getElementDataId: getOrCreateDataId,
     });
+}
+
+function collectTrailFingerprint(): TrailFingerprint {
+    return trailFingerprint({ dataIds: findDataIds(document) });
 }
 
 export interface UsePageOptions {
@@ -167,6 +171,7 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
     useLayoutEffect(() => {
         const unsubscribe = backgroundClient.subscribeToPageMessages({
             onCollectPageTrail: () => collectPageTrail().toDto(),
+            onCollectTrailFingerprint: collectTrailFingerprint,
             onClearPage: clearPage,
             onStartOnboarding: startOnboarding,
             onHighlightElement: highlightElement,

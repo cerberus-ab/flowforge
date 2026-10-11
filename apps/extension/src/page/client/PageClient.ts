@@ -1,4 +1,5 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
+import type { TrailFingerprint } from '@flowforge/page-trail';
 
 import type { TransportService } from '@/adapters';
 import type { PageMessage, PageMessageResponseData, StartOnboardingMessageData } from '@/messaging';
@@ -39,6 +40,11 @@ export class PageClient
     /** Collects the current page's trail for question context. */
     collectPageTrail(pageId: number): Promise<PageTrailDto> {
         return this.sendToPage(pageId, { type: 'COLLECT_PAGE_TRAIL' });
+    }
+
+    /** Collects the current page data IDs and returns their fingerprint. */
+    async collectTrailFingerprint(pageId: number): Promise<TrailFingerprint> {
+        return this.sendToPage(pageId, { type: 'COLLECT_TRAIL_FINGERPRINT' });
     }
 
     /** Highlights an agent result element on the target page. */

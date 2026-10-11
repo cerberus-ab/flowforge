@@ -10,6 +10,10 @@ export class ChromeSessionStorage implements SessionStorage {
         await chrome.storage.session.set({ [key]: value });
     }
 
+    async remove(key: string): Promise<void> {
+        await chrome.storage.session.remove(key);
+    }
+
     async clear(): Promise<void> {
         await chrome.storage.session.clear();
     }

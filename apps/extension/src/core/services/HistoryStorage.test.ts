@@ -48,6 +48,7 @@ describe('HistoryStorage', () => {
         const failingStorage: Storage = {
             get: vi.fn().mockRejectedValue(new Error('storage unavailable')),
             set: vi.fn(),
+            remove: vi.fn(),
             clear: vi.fn(),
         };
         const storage = new HistoryStorage(failingStorage, 5);
@@ -63,6 +64,7 @@ describe('HistoryStorage', () => {
         const failingStorage: Storage = {
             get: vi.fn().mockResolvedValue([]),
             set: vi.fn().mockRejectedValue(new Error('quota exceeded')),
+            remove: vi.fn(),
             clear: vi.fn(),
         };
         const storage = new HistoryStorage(failingStorage, 5);

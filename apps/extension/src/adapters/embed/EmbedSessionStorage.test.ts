@@ -42,4 +42,15 @@ describe('EmbedSessionStorage', () => {
         expect(window.sessionStorage.length).toBe(0);
         expect(window.localStorage.getItem('persistentKey')).toBe('persistent value');
     });
+
+    it('removes only the requested session key', async () => {
+        window.sessionStorage.setItem('sessionKey', 'temporary value');
+        window.sessionStorage.setItem('otherKey', 'keep me');
+        const storage = new EmbedSessionStorage();
+
+        await storage.remove('sessionKey');
+
+        expect(window.sessionStorage.getItem('sessionKey')).toBeNull();
+        expect(window.sessionStorage.getItem('otherKey')).toBe('keep me');
+    });
 });

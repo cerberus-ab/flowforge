@@ -10,6 +10,10 @@ export class EmbedLocalStorage implements LocalStorage {
         window.localStorage.setItem(key, JSON.stringify(value));
     }
 
+    async remove(key: string): Promise<void> {
+        window.localStorage.removeItem(key);
+    }
+
     async clear(): Promise<void> {
         window.localStorage.clear();
     }
