@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'preact/hooks';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'preact/hooks';
 import { config } from '@/config';
 import { normalizeText } from '@/core/utils/text';
 import { buildPresetExampleItems, type PopupExampleItem } from '@/popup/utils/data';
@@ -32,7 +32,8 @@ export interface PopupViewModel {
 }
 
 export function usePopup({ backgroundClient, presetQuestions, initialQuestion }: UsePopupOptions): PopupViewModel {
-    const [inputQuestion, setInputQuestion] = useState('');
+    const [inputQuestion, setInputQuestionState] = useState('');
+    const hasUserEditedQuestion = useRef(false);
     const question = useMemo(() => normalizeText(inputQuestion), [inputQuestion]);
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<AgentResult | null>(null);
@@ -40,16 +41,45 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     const [error, setError] = useState<string | null>(null);
     const [examples, setExamples] = useState<PopupExampleItem[]>([]);
 
+    const setInputQuestion = useCallback((value: string) => {
+        hasUserEditedQuestion.current = true;
+        setInputQuestionState(value);
+    }, []);
+
     // Clear page UI state when popup opens.
     useEffect(() => {
-        void (async () => {
-            try {
-                await backgroundClient.notifyPopupOpened();
-            } catch {
-                // Popup startup should not fail if the active tab cannot receive page messages.
-            }
-        })();
+        void backgroundClient.notifyPopupOpened().catch(() => {
+            // Popup startup should not fail if the active tab cannot receive page messages.
+        });
     }, [backgroundClient]);
+
+    // Restore the saved query independently from loading question-history examples.
+    useEffect(() => {
+        if (initialQuestion !== undefined) return;
+
+        let isActive = true;
+        void backgroundClient
+            .restoreQuery()
+            .then((response) => {
+                if (!isActive || hasUserEditedQuestion.current || !response.restored) return;
+
+                setInputQuestionState(response.data.question);
+                setError(null);
+                setIsLoading(false);
+
+                if (response.state === 'completed') {
+                    setResult(response.data.result);
+                    setResultMetadata(formatQueryResponseMetadata(response.data.metadata));
+                }
+            })
+            .catch((err) => {
+                if (isActive) console.warn('[FlowForge] Failed to restore query session:', err);
+            });
+
+        return () => {
+            isActive = false;
+        };
+    }, [backgroundClient, initialQuestion]);
 
     // Initialize questions examples
     useEffect(() => {
@@ -79,7 +109,8 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     // Initialize initial question if presented
     useEffect(() => {
         if (initialQuestion !== undefined) {
-            setInputQuestion(initialQuestion);
+            hasUserEditedQuestion.current = false;
+            setInputQuestionState(initialQuestion);
         }
     }, [initialQuestion]);
 
@@ -122,9 +153,12 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     }, [question, backgroundClient]);
 
     // Handle example selection
-    const handleSelectExample = useCallback((selectedQuestion: string) => {
-        setInputQuestion(selectedQuestion);
-    }, []);
+    const handleSelectExample = useCallback(
+        (selectedQuestion: string) => {
+            setInputQuestion(selectedQuestion);
+        },
+        [setInputQuestion],
+    );
 
     // Handle navigation to an element
     const handleNavigateToElement = useCallback(

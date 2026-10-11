@@ -12,6 +12,7 @@ import {
     isSettingsUpdatedMessage,
     isStartOnboardingMessage,
     type PreviousQuestionsResponse,
+    type RestoreQueryResponse,
 } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
 import type {
@@ -60,6 +61,13 @@ export class BackgroundClient
     async notifyPopupOpened(): Promise<void> {
         return this.sendToBackground({
             type: 'POPUP_OPENED',
+        });
+    }
+
+    /** Restores the saved query session for the active page. */
+    async restoreQuery(): Promise<RestoreQueryResponse> {
+        return this.sendToBackground({
+            type: 'RESTORE_QUERY',
         });
     }
 

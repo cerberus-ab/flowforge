@@ -2,7 +2,7 @@ import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, MessageResponse } from '@/messaging';
+import type { Message, MessageResponse, RestoreQueryResponse } from '@/messaging';
 import { BackgroundClient } from '@/background';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';
@@ -72,7 +72,11 @@ function PopupHarness(options: UsePopupOptions) {
     );
 }
 
-type TestMessageResponse = MessageResponse | MessageResponse<{ questions: string[] }> | MessageResponse<QueryResponse>;
+type TestMessageResponse =
+    | MessageResponse
+    | MessageResponse<{ questions: string[] }>
+    | MessageResponse<QueryResponse>
+    | MessageResponse<RestoreQueryResponse>;
 
 function defaultResponseFor(message: Message): TestMessageResponse {
     if (message.type === 'GET_PREV_QUESTIONS') {
@@ -83,13 +87,18 @@ function defaultResponseFor(message: Message): TestMessageResponse {
             },
         };
     }
+    if (message.type === 'RESTORE_QUERY') {
+        return { success: true, data: { restored: false, reason: 'empty' } };
+    }
     return { success: true };
 }
 
 function renderPopup({
     handler,
+    initialQuestion,
 }: {
     handler?: (message: Message) => Promise<TestMessageResponse> | TestMessageResponse | undefined;
+    initialQuestion?: string;
 } = {}) {
     const transport = new FakeTransportService({ activePageId: 42 });
     const backgroundClient = new BackgroundClient(transport);
@@ -100,7 +109,7 @@ function renderPopup({
         return handler?.(message) ?? defaultResponseFor(message);
     });
 
-    render(<PopupHarness backgroundClient={backgroundClient} />);
+    render(<PopupHarness backgroundClient={backgroundClient} initialQuestion={initialQuestion} />);
 
     return { messages };
 }
@@ -130,10 +139,90 @@ describe('usePopup', () => {
                     type: 'POPUP_OPENED',
                 }),
                 expect.objectContaining({
+                    type: 'RESTORE_QUERY',
+                }),
+                expect.objectContaining({
                     type: 'GET_PREV_QUESTIONS',
                 }),
             ]),
         );
+    });
+
+    it('restores a completed query without affecting previous-question examples', async () => {
+        // Given
+        const { messages } = renderPopup({
+            handler: (message) => {
+                if (message.type === 'RESTORE_QUERY') {
+                    return {
+                        success: true,
+                        data: {
+                            restored: true,
+                            state: 'completed',
+                            data: {
+                                question: 'How do I open settings?',
+                                result,
+                                metadata: queryResponse.metadata,
+                            },
+                            reason: 'ok',
+                        },
+                    };
+                }
+                if (message.type === 'GET_PREV_QUESTIONS') {
+                    return { success: true, data: { questions: ['Where is billing?'] } };
+                }
+                return undefined;
+            },
+        });
+
+        // Then
+        await waitFor(() => {
+            expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe('How do I open settings?');
+            expect(screen.getByTestId('result').textContent).toBe(result.answer);
+            expect(screen.getByTestId('metadata').textContent).toBe('test-model · 1.2k tokens · 1.3s');
+        });
+        expect(await screen.findByText('Where is billing?')).toBeTruthy();
+        expect(messages).toContainEqual({ type: 'RESTORE_QUERY' });
+        expect(messages).toContainEqual({ type: 'GET_PREV_QUESTIONS' });
+    });
+
+    it('restores a pending query without showing a loading state', async () => {
+        // Given
+        renderPopup({
+            handler: (message) => {
+                if (message.type === 'RESTORE_QUERY') {
+                    return {
+                        success: true,
+                        data: {
+                            restored: true,
+                            state: 'pending',
+                            data: { question: 'How do I open settings?' },
+                            reason: 'ok',
+                        },
+                    };
+                }
+                return undefined;
+            },
+        });
+
+        // Then
+        await waitFor(() => {
+            expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe('How do I open settings?');
+        });
+        expect(screen.getByTestId('loading').textContent).toBe('false');
+        expect(screen.getByTestId('result').textContent).toBe('');
+    });
+
+    it('uses an explicit initial question instead of restoring a previous session', async () => {
+        // Given
+        const { messages } = renderPopup({ initialQuestion: 'Question from the embed caller' });
+
+        // Then
+        await waitFor(() => {
+            expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe(
+                'Question from the embed caller',
+            );
+        });
+        expect(messages.some((message) => message.type === 'RESTORE_QUERY')).toBe(false);
     });
 
     it('validates questions before asking the background', async () => {
