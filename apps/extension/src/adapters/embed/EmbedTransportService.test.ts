@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { EmbedTransportService } from '@/adapters';
 
@@ -39,6 +39,17 @@ describe('EmbedTransportService', () => {
         await expect(transport.sendToBackground({ type: 'GET_SETTINGS' }, { pageId: 1 })).rejects.toThrow(
             'Message handler is not registered',
         );
+    });
+
+    it('broadcasts popup notifications to registered message listeners', async () => {
+        const transport = new EmbedTransportService();
+        const handler = vi.fn(() => ({ success: true }) as const);
+        transport.addMessageListener(handler);
+        const message = { type: 'QUERY_FINISHED', data: { queryId: 'query-1' } } as const;
+
+        await transport.sendToPopup(1, message);
+
+        expect(handler).toHaveBeenCalledWith(message, { pageId: 1 });
     });
 
     it('throws when no handler responds', async () => {

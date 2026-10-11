@@ -9,11 +9,13 @@ import type {
     MessageResponse,
     PageMessage,
     PageMessageResponse,
+    PopupMessage,
 } from '@/messaging';
 
 export class FakeTransportService implements TransportService {
     private readonly sentToBackground: Message[] = [];
     private readonly sentToPage: { pageId: number; message: Message }[] = [];
+    private readonly sentToPopup: { pageId: number; message: PopupMessage }[] = [];
     private readonly handlers = new Set<MessageListener>();
     private readonly pageResponses = new Map<string, AnyMessageResponse>();
 
@@ -46,6 +48,11 @@ export class FakeTransportService implements TransportService {
         return (this.pageResponses.get(message.type) ?? { success: true }) as PageMessageResponse<M>;
     }
 
+    async sendToPopup(pageId: number, message: PopupMessage): Promise<void> {
+        this.sentToPopup.push({ pageId, message });
+        await Promise.all([...this.handlers].map((handler) => handler(message, { pageId })));
+    }
+
     addMessageListener(handler: MessageListener): () => void {
         this.handlers.add(handler);
         return () => {
@@ -55,6 +62,10 @@ export class FakeTransportService implements TransportService {
 
     getSentToPage(): readonly { pageId: number; message: Message }[] {
         return this.sentToPage;
+    }
+
+    getSentToPopup(): readonly { pageId: number; message: PopupMessage }[] {
+        return this.sentToPopup;
     }
 
     setPageResponse(messageType: PageMessage['type'], response: AnyMessageResponse): void {

@@ -11,4 +11,5 @@
 .flowforge-notice__text {
   font: inherit;
   color: inherit;
+  white-space: pre-line;
 }

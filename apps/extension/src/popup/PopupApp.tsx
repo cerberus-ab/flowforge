@@ -47,6 +47,8 @@ export function PopupApp({
         isLoading,
         result,
         resultMetadata,
+        isResultStale,
+        warning,
         error,
         examples,
         copyright,
@@ -135,10 +137,13 @@ export function PopupApp({
 
                 {isLoading && <Loading />}
 
+                {warning && <Notice type="note" text={warning} />}
+
                 {(result || error) && (
                     <Result
                         result={result}
                         resultMetadata={resultMetadata}
+                        isStale={isResultStale}
                         error={error}
                         onNavigateToElement={navigateToElement}
                         onOpenOnboarding={handleOpenOnboarding}

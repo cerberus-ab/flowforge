@@ -1,8 +1,9 @@
 import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/contract';
+import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, MessageResponse, RestoreQueryResponse } from '@/messaging';
+import type { Message, MessageResponse, PopupMessage, RestoreQueryResponse } from '@/messaging';
 import { BackgroundClient } from '@/background';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';
@@ -33,6 +34,7 @@ const queryResponse: QueryResponse = {
         },
     },
 };
+const trailSnapshot = createPageTrailDtoFixture().metadata.snapshot;
 
 function PopupHarness(options: UsePopupOptions) {
     const popup = usePopup(options);
@@ -62,6 +64,7 @@ function PopupHarness(options: UsePopupOptions) {
             <div data-testid="loading">{String(popup.isLoading)}</div>
             <div data-testid="result">{popup.result?.answer ?? ''}</div>
             <div data-testid="metadata">{popup.resultMetadata ?? ''}</div>
+            <div data-testid="warning">{popup.warning ?? ''}</div>
             <ul>
                 {popup.examples.map((example) => (
                     <li key={`${example.type}:${example.question}`}>{example.question}</li>
@@ -88,7 +91,7 @@ function defaultResponseFor(message: Message): TestMessageResponse {
         };
     }
     if (message.type === 'RESTORE_QUERY') {
-        return { success: true, data: { restored: false, reason: 'empty' } };
+        return { success: true, data: { status: 'empty' } };
     }
     return { success: true };
 }
@@ -111,7 +114,7 @@ function renderPopup({
 
     const rendered = render(<PopupHarness backgroundClient={backgroundClient} initialQuestion={initialQuestion} />);
 
-    return { messages, unmount: rendered.unmount };
+    return { messages, transport, unmount: rendered.unmount };
 }
 
 describe('usePopup', () => {
@@ -156,14 +159,14 @@ describe('usePopup', () => {
                     return {
                         success: true,
                         data: {
-                            restored: true,
-                            state: 'completed',
+                            status: 'completed',
+                            queryId: 'query-1',
                             data: {
                                 question: 'How do I open settings?',
                                 result,
                                 metadata: queryResponse.metadata,
+                                trailSnapshot,
                             },
-                            reason: 'ok',
                         },
                     };
                 }
@@ -185,7 +188,7 @@ describe('usePopup', () => {
         expect(messages).toContainEqual({ type: 'GET_PREV_QUESTIONS' });
     });
 
-    it('restores a ready query without showing a loading state', async () => {
+    it('restores a pending query and shows a loading state', async () => {
         // Given
         renderPopup({
             handler: (message) => {
@@ -193,10 +196,9 @@ describe('usePopup', () => {
                     return {
                         success: true,
                         data: {
-                            restored: true,
-                            state: 'ready',
+                            status: 'pending',
+                            queryId: 'query-1',
                             data: { question: 'How do I open settings?' },
-                            reason: 'ok',
                         },
                     };
                 }
@@ -208,8 +210,38 @@ describe('usePopup', () => {
         await waitFor(() => {
             expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe('How do I open settings?');
         });
-        expect(screen.getByTestId('loading').textContent).toBe('false');
+        expect(screen.getByTestId('loading').textContent).toBe('true');
         expect(screen.getByTestId('result').textContent).toBe('');
+    });
+
+    it('restores a stale answer with a warning', async () => {
+        renderPopup({
+            handler: (message) => {
+                if (message.type === 'RESTORE_QUERY') {
+                    return {
+                        success: true,
+                        data: {
+                            status: 'stale',
+                            queryId: 'query-1',
+                            data: {
+                                question: 'How do I open settings?',
+                                result,
+                                metadata: queryResponse.metadata,
+                                trailSnapshot,
+                            },
+                        },
+                    };
+                }
+                return undefined;
+            },
+        });
+
+        await waitFor(() => {
+            expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe('How do I open settings?');
+            expect(screen.getByTestId('result').textContent).toBe(result.answer);
+        });
+        expect(screen.getByTestId('loading').textContent).toBe('false');
+        expect(screen.getByTestId('warning').textContent).toContain('page has changed');
     });
 
     it('uses an explicit initial question instead of restoring a previous session', async () => {
@@ -222,6 +254,20 @@ describe('usePopup', () => {
                 'Question from the embed caller',
             );
         });
+        expect(messages.some((message) => message.type === 'RESTORE_QUERY')).toBe(false);
+    });
+
+    it('does not restore a previous session over an explicit initial question on notifications', async () => {
+        const { messages, transport } = renderPopup({ initialQuestion: 'Question from the embed caller' });
+
+        await act(async () => {
+            await transport.sendToPopup(42, {
+                type: 'QUERY_FINISHED',
+                data: { queryId: 'previous-query' },
+            } as PopupMessage);
+        });
+
+        expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe('Question from the embed caller');
         expect(messages.some((message) => message.type === 'RESTORE_QUERY')).toBe(false);
     });
 
@@ -244,9 +290,23 @@ describe('usePopup', () => {
                 if (message.type === 'ASK_QUESTION') {
                     return {
                         success: true,
-                        data: queryResponse,
+                        data: { queryId: 'query-1' },
                     };
                 }
+                if (message.type === 'RESTORE_QUERY')
+                    return {
+                        success: true,
+                        data: {
+                            status: 'completed',
+                            queryId: 'query-1',
+                            data: {
+                                question: 'How do I open settings?',
+                                result,
+                                metadata: queryResponse.metadata,
+                                trailSnapshot,
+                            },
+                        },
+                    };
                 return undefined;
             },
         });
@@ -261,8 +321,20 @@ describe('usePopup', () => {
         // Then
         expect(await screen.findByText(result.answer)).toBeTruthy();
         expect(screen.getByText('test-model · 1.2k tokens · 1.3s')).toBeTruthy();
+
+        // A changed question keeps the result visible but clearly marks it as belonging to the old question.
+        fireEvent.input(screen.getByLabelText('Question'), { target: { value: 'A different question' } });
+        expect(screen.getByTestId('warning').textContent).toContain('question has changed');
+        expect(screen.getByTestId('warning').textContent).toContain(
+            'The question has changed. This result is for the previous question: "How do I open settings?"',
+        );
         fireEvent.click(screen.getByRole('button', { name: 'Open Onboarding' }));
         await waitFor(() => expect(messages.find((message) => message.type === 'OPEN_ONBOARDING')).toBeDefined());
+        fireEvent.input(screen.getByLabelText('Question'), { target: { value: 'How do I open settings?' } });
+        expect(screen.getByTestId('warning').textContent).toContain('question has changed');
+        expect(screen.getByTestId('warning').textContent).toContain(
+            'The question has changed. This result is for the previous question: "How do I open settings?"',
+        );
         expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'How do I open settings?' } });
         expect(messages).toContainEqual({ type: 'NAVIGATE_TO_ELEMENT', data: { element: resultElement } });
         const onboardingMessage = messages.find((message) => message.type === 'OPEN_ONBOARDING');
@@ -278,10 +350,23 @@ describe('usePopup', () => {
     it('does not open onboarding until requested for a steps result', async () => {
         // Given
         const stepsResult = { ...result, mode: 'steps' as const };
-        const stepsResponse = { ...queryResponse, result: stepsResult };
         const { messages } = renderPopup({
             handler: (message) => {
-                if (message.type === 'ASK_QUESTION') return { success: true, data: stepsResponse };
+                if (message.type === 'ASK_QUESTION') return { success: true, data: { queryId: 'query-1' } };
+                if (message.type === 'RESTORE_QUERY')
+                    return {
+                        success: true,
+                        data: {
+                            status: 'completed',
+                            queryId: 'query-1',
+                            data: {
+                                question: 'How do I open settings?',
+                                result: stepsResult,
+                                metadata: queryResponse.metadata,
+                                trailSnapshot,
+                            },
+                        },
+                    };
                 return undefined;
             },
         });
@@ -303,14 +388,16 @@ describe('usePopup', () => {
 
     it('shows loading while a question request is pending', async () => {
         // Given
-        let resolveQuestion!: (response: MessageResponse<QueryResponse>) => void;
-        renderPopup({
+        let resolveQuestion!: (response: MessageResponse<{ queryId: string }>) => void;
+        let restored: RestoreQueryResponse = { status: 'empty' };
+        const { transport } = renderPopup({
             handler: (message) => {
                 if (message.type === 'ASK_QUESTION') {
-                    return new Promise<MessageResponse<QueryResponse>>((resolve) => {
+                    return new Promise<MessageResponse<{ queryId: string }>>((resolve) => {
                         resolveQuestion = resolve;
                     });
                 }
+                if (message.type === 'RESTORE_QUERY') return { success: true, data: restored };
                 return undefined;
             },
         });
@@ -327,22 +414,92 @@ describe('usePopup', () => {
         // When
         resolveQuestion({
             success: true,
-            data: queryResponse,
+            data: { queryId: 'query-1' },
+        });
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('true'));
+
+        // The background completes the persisted session and notifies this popup.
+        restored = {
+            status: 'completed',
+            queryId: 'query-1',
+            data: {
+                question: 'How do I open settings?',
+                result,
+                metadata: queryResponse.metadata,
+                trailSnapshot,
+            },
+        };
+        await act(async () => {
+            await transport.sendToPopup(42, {
+                type: 'QUERY_FINISHED',
+                data: { queryId: 'query-1' },
+            } as PopupMessage);
         });
 
         // Then
         await waitFor(() => {
             expect(screen.getByTestId('loading').textContent).toBe('false');
+            expect(screen.getByTestId('result').textContent).toBe(result.answer);
+        });
+    });
+
+    it('stops loading and shows an error if the finished query cannot be restored', async () => {
+        // Given
+        let resolvePendingRestore!: (response: MessageResponse<RestoreQueryResponse>) => void;
+        let restoreCount = 0;
+        const { transport } = renderPopup({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') return { success: true, data: { queryId: 'query-1' } };
+                if (message.type === 'RESTORE_QUERY') {
+                    restoreCount += 1;
+                    if (restoreCount === 1) return { success: true, data: { status: 'empty' } };
+                    if (restoreCount === 2) {
+                        return new Promise<MessageResponse<RestoreQueryResponse>>((resolve) => {
+                            resolvePendingRestore = resolve;
+                        });
+                    }
+                    return { success: false, error: 'Page is unavailable' };
+                }
+                return undefined;
+            },
+        });
+
+        // When
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I save?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+        await waitFor(() => expect(restoreCount).toBe(2));
+        await act(async () => {
+            await transport.sendToPopup(42, {
+                type: 'QUERY_FINISHED',
+                data: { queryId: 'query-1' },
+            } as PopupMessage);
+        });
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+        await act(async () => {
+            resolvePendingRestore({
+                success: true,
+                data: { status: 'pending', queryId: 'query-1', data: { question: 'How do I save?' } },
+            });
+        });
+
+        // Then
+        await waitFor(() => {
+            expect(screen.getByTestId('loading').textContent).toBe('false');
+            expect(
+                screen.getByText(
+                    'The query finished, but its result could not be loaded. Reopen the popup to try again.',
+                ),
+            ).toBeTruthy();
         });
     });
 
     it('does not navigate to a result when the popup unmounts before the query completes', async () => {
         // Given
-        let resolveQuestion!: (response: MessageResponse<QueryResponse>) => void;
+        let resolveQuestion!: (response: MessageResponse<{ queryId: string }>) => void;
         const { messages, unmount } = renderPopup({
             handler: (message) => {
                 if (message.type === 'ASK_QUESTION') {
-                    return new Promise<MessageResponse<QueryResponse>>((resolve) => {
+                    return new Promise<MessageResponse<{ queryId: string }>>((resolve) => {
                         resolveQuestion = resolve;
                     });
                 }
@@ -357,7 +514,51 @@ describe('usePopup', () => {
         unmount();
 
         await act(async () => {
-            resolveQuestion({ success: true, data: queryResponse });
+            resolveQuestion({ success: true, data: { queryId: 'query-1' } });
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        });
+
+        // Then
+        expect(messages.some((message) => message.type === 'NAVIGATE_TO_ELEMENT')).toBe(false);
+    });
+
+    it('does not apply a restored result after the popup unmounts', async () => {
+        // Given
+        let resolveRestore!: (response: MessageResponse<RestoreQueryResponse>) => void;
+        let restoreCount = 0;
+        const { messages, unmount } = renderPopup({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') return { success: true, data: { queryId: 'query-1' } };
+                if (message.type === 'RESTORE_QUERY') {
+                    restoreCount += 1;
+                    if (restoreCount === 1) return { success: true, data: { status: 'empty' } };
+                    return new Promise<MessageResponse<RestoreQueryResponse>>((resolve) => {
+                        resolveRestore = resolve;
+                    });
+                }
+                return undefined;
+            },
+        });
+
+        // When
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I open settings?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+        await waitFor(() => expect(restoreCount).toBe(2));
+        unmount();
+        await act(async () => {
+            resolveRestore({
+                success: true,
+                data: {
+                    status: 'completed',
+                    queryId: 'query-1',
+                    data: {
+                        question: 'How do I open settings?',
+                        result,
+                        metadata: queryResponse.metadata,
+                        trailSnapshot,
+                    },
+                },
+            });
             await new Promise((resolve) => setTimeout(resolve, 0));
         });
 
@@ -385,6 +586,21 @@ describe('usePopup', () => {
 
         // Then
         expect(await screen.findByText('Backend rejected the question')).toBeTruthy();
+    });
+
+    it('stops loading when the new query session cannot be restored', async () => {
+        renderPopup({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') return { success: true, data: { queryId: 'query-1' } };
+                return undefined;
+            },
+        });
+
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I open settings?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+
+        expect(await screen.findByText('The query is no longer available. Please try again.')).toBeTruthy();
+        expect(screen.getByTestId('loading').textContent).toBe('false');
     });
 
     it('sends page action messages', async () => {

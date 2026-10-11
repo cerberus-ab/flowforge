@@ -21,6 +21,7 @@ describe('ResultElements', () => {
             <ResultElements
                 elements={[element]}
                 mode="direct"
+                isStale={false}
                 onNavigateToElement={onNavigateToElement}
                 onOpenOnboarding={vi.fn()}
             />,
@@ -33,6 +34,25 @@ describe('ResultElements', () => {
         expect(screen.queryByRole('button', { name: 'Open onboarding' })).toBeNull();
     });
 
+    it('renders stale direct findings without navigation actions', () => {
+        const onNavigateToElement = vi.fn();
+
+        render(
+            <ResultElements
+                elements={[element]}
+                mode="direct"
+                isStale
+                onNavigateToElement={onNavigateToElement}
+                onOpenOnboarding={vi.fn()}
+            />,
+        );
+
+        expect(screen.getByText('Settings').tagName).toBe('DIV');
+        expect(screen.queryByRole('button', { name: 'Settings' })).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Open onboarding' })).toBeNull();
+        expect(onNavigateToElement).not.toHaveBeenCalled();
+    });
+
     it('renders step results as static walkthrough items', () => {
         // Given / When
         const onOpenOnboarding = vi.fn();
@@ -40,6 +60,7 @@ describe('ResultElements', () => {
             <ResultElements
                 elements={[element]}
                 mode="steps"
+                isStale={false}
                 onNavigateToElement={vi.fn()}
                 onOpenOnboarding={onOpenOnboarding}
             />,
