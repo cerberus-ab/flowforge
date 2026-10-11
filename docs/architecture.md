@@ -12,7 +12,7 @@ Browser runtimes represent page context as [`PageTrail`](../packages/page-trail/
 
 ### Extension
 
-Extracts page data, handles UI, highlights elements, and manages user interaction. Runs as a Manifest V3 extension with popup, background service worker, and content script.
+Extracts page data, handles UI, highlights elements, and manages user interaction. Runs as a Manifest V3 extension with popup, background service worker, and content script. These contexts exchange typed messages that the worker routes to focused handlers.
 
 ### Embed runtime
 
@@ -38,12 +38,12 @@ Inference layer supporting Ollama or OpenAI models for embeddings and generation
 
 ### Query flow
 
-1. User asks a question in the extension popup or embed shell
-2. Extension serializes the runtime model and sends `pageTrailDto + question` to backend (`POST /query`)
-3. Backend restores `PageTrail` from the DTO and indexes the submitted page snapshot
-4. Agent executes with access to tools and vector search
-5. Backend returns `QueryResponse` with `result` and execution metadata
-6. Browser runtime highlights elements and displays the response
+1. User asks a question in the Assistant popup or embed shell
+2. Background saves a pending query for the page, collects `PageTrailDto`, and sends it with the question to the backend (`POST /query`)
+3. Backend restores `PageTrail`, indexes the snapshot, and runs the agent with tools and vector search
+4. Background saves the answer and notifies the popup when the query finishes
+5. Popup displays the answer; a single direct match may be highlighted automatically, while step-by-step onboarding starts only on request
+6. Reopening the popup restores an active pending query or a completed answer for the same page URL; a changed data-ID signature marks the answer as stale
 
 ### Indexing flow
 

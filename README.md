@@ -77,7 +77,7 @@ This installs dependencies, builds backend and extension, guides Chrome installa
 
 ## Security
 
-- **DOM-only access** — operates strictly on the visible page DOM, without access to cookies or session storage
+- **DOM-based page context** — page snapshots come from DOM elements, not cookies or application storage
 - **Sensitive data filtering** — excludes inputs like passwords, payment details, and other private fields during extraction
 - **Local-first architecture** — backend and vector storage run locally by default
 - **Optional local AI** — supports fully local inference via Ollama (no external API required)

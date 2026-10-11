@@ -25,7 +25,7 @@ paths refer to those records by numeric element ID. `PageTrail.fromDto()`
 reconnects the IDs into object references; `pageTrail.toDto()` converts the
 runtime model back to its serializable form.
 
-`basics` contains page and viewport data. `metadata` records the package version, collection counts, limits, timestamp, and stage timings.
+`basics` contains page and viewport data. `metadata` records the package version, collection counts, limits, timestamp, and stage timings. Its `snapshot.dataIdSignature` identifies the set of collected locator data IDs; it is absent in context-only mode.
 
 ## Structure elements
 
