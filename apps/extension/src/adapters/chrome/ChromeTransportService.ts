@@ -9,6 +9,7 @@ import type {
     PageMessage,
     PageMessageResponse,
     PopupMessage,
+    PopupMessageResponse,
 } from '@/messaging';
 
 /**
@@ -53,9 +54,9 @@ export class ChromeTransportService implements TransportService {
         return chrome.tabs.sendMessage<MessageEnvelope<M>, PageMessageResponse<M>>(pageId, envelope);
     }
 
-    public async sendToPopup(pageId: number, message: PopupMessage): Promise<void> {
-        const envelope: MessageEnvelope = { message, context: { pageId } };
-        await chrome.runtime.sendMessage(envelope);
+    public async sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>> {
+        const envelope: MessageEnvelope<M> = { message, context: {} };
+        return chrome.runtime.sendMessage<MessageEnvelope<M>, PopupMessageResponse<M>>(envelope);
     }
 
     public addMessageListener(handler: MessageListener): () => void {

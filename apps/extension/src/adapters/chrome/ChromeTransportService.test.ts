@@ -63,7 +63,7 @@ describe('ChromeTransportService', () => {
 
         await expect(transport.sendToBackground(backgroundMessage, { pageId: 42 })).resolves.toEqual({ success: true });
         await expect(transport.sendToPage(42, pageMessage)).resolves.toEqual({ success: true });
-        await expect(transport.sendToPopup(42, popupMessage)).resolves.toBeUndefined();
+        await expect(transport.sendToPopup(popupMessage)).resolves.toEqual({ success: true });
         expect(chromeApi.runtime.sendMessage).toHaveBeenCalledWith({
             message: backgroundMessage,
             context: { pageId: 42 },
@@ -74,7 +74,7 @@ describe('ChromeTransportService', () => {
         });
         expect(chromeApi.runtime.sendMessage).toHaveBeenLastCalledWith({
             message: popupMessage,
-            context: { pageId: 42 },
+            context: {},
         });
     });
 

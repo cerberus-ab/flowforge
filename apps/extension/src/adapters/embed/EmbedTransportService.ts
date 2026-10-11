@@ -9,6 +9,7 @@ import type {
     PageMessage,
     PageMessageResponse,
     PopupMessage,
+    PopupMessageResponse,
 } from '@/messaging';
 
 export class EmbedTransportService implements TransportService {
@@ -33,8 +34,13 @@ export class EmbedTransportService implements TransportService {
         return this.send<PageMessageResponse<M>>(message, { pageId });
     }
 
-    async sendToPopup(pageId: number, message: PopupMessage): Promise<void> {
-        await Promise.all([...this.messageHandlers].map((handler) => handler(message, { pageId })));
+    async sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>> {
+        const responses = await Promise.all([...this.messageHandlers].map((handler) => handler(message, {})));
+        const response = responses.find((candidate) => candidate !== undefined);
+        if (response === undefined) {
+            throw new Error('Message handler did not return a response');
+        }
+        return response as PopupMessageResponse<M>;
     }
 
     addMessageListener(handler: MessageListener): () => void {

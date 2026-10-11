@@ -261,7 +261,7 @@ describe('usePopup', () => {
         const { messages, transport } = renderPopup({ initialQuestion: 'Question from the embed caller' });
 
         await act(async () => {
-            await transport.sendToPopup(42, {
+            await transport.sendToPopup({
                 type: 'QUERY_FINISHED',
                 data: { queryId: 'previous-query' },
             } as PopupMessage);
@@ -430,7 +430,7 @@ describe('usePopup', () => {
             },
         };
         await act(async () => {
-            await transport.sendToPopup(42, {
+            await transport.sendToPopup({
                 type: 'QUERY_FINISHED',
                 data: { queryId: 'query-1' },
             } as PopupMessage);
@@ -469,7 +469,7 @@ describe('usePopup', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
         await waitFor(() => expect(restoreCount).toBe(2));
         await act(async () => {
-            await transport.sendToPopup(42, {
+            await transport.sendToPopup({
                 type: 'QUERY_FINISHED',
                 data: { queryId: 'query-1' },
             } as PopupMessage);

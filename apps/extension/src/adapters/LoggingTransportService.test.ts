@@ -18,20 +18,19 @@ describe('LoggingTransportService', () => {
         vi.spyOn(console, 'log').mockImplementation(() => undefined);
     });
 
-    it('logs outgoing messages and responses while returning the transport response', async () => {
+    it('logs outgoing messages without logging their response', async () => {
         const logger = new LoggingTransportService(transport);
 
         await expect(logger.sendToBackground(message, context)).resolves.toEqual({ success: true });
 
-        expect(console.log).toHaveBeenCalledTimes(2);
-        expect(console.log).toHaveBeenNthCalledWith(1, '[FlowForge transport] sent to background: GET_SETTINGS', {
+        expect(console.log).toHaveBeenCalledOnce();
+        expect(console.log).toHaveBeenCalledWith('[FlowForge transport] sent to background: GET_SETTINGS', {
             context,
             message,
-            details: undefined,
         });
     });
 
-    it('preserves an unhandled incoming message as undefined', () => {
+    it('does not log an unhandled incoming message', () => {
         let wrappedListener:
             ((...args: Parameters<Parameters<TransportService['addMessageListener']>[0]>) => unknown) | undefined;
         vi.mocked(transport.addMessageListener).mockImplementation((handler) => {
@@ -42,10 +41,24 @@ describe('LoggingTransportService', () => {
         logger.addMessageListener(() => undefined);
 
         expect(wrappedListener?.(message, context)).toBeUndefined();
+        expect(console.log).not.toHaveBeenCalled();
+    });
+
+    it('logs a handled incoming message', () => {
+        let wrappedListener:
+            ((...args: Parameters<Parameters<TransportService['addMessageListener']>[0]>) => unknown) | undefined;
+        vi.mocked(transport.addMessageListener).mockImplementation((handler) => {
+            wrappedListener = handler;
+            return () => undefined;
+        });
+        const logger = new LoggingTransportService(transport);
+        const response = Promise.resolve({ success: true as const });
+        logger.addMessageListener(() => response);
+
+        expect(wrappedListener?.(message, context)).toBe(response);
         expect(console.log).toHaveBeenCalledWith('[FlowForge transport] received: GET_SETTINGS', {
             context,
             message,
-            details: undefined,
         });
     });
 });
