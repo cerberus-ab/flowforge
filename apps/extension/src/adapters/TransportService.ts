@@ -6,6 +6,7 @@ import type {
     PageMessage,
     PageMessageResponse,
     PopupMessage,
+    PopupMessageResponse,
 } from '@/messaging';
 
 // transport service interface
@@ -33,8 +34,10 @@ export interface TransportService {
      */
     sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>>;
 
-    /** Sends a notification to popup contexts associated with a page. */
-    sendToPopup(pageId: number, message: PopupMessage): Promise<void>;
+    /**
+     * Sends a message to popup contexts and returns a typed response.
+     */
+    sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>>;
 
     /**
      * Adds a listener for incoming messages. Returns a function to remove the listener.

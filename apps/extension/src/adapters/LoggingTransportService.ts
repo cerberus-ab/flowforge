@@ -2,12 +2,12 @@ import type { TransportService } from './TransportService';
 import type {
     BackgroundMessage,
     BackgroundMessageResponse,
-    Message,
     MessageContext,
     MessageListener,
     PageMessage,
     PageMessageResponse,
     PopupMessage,
+    PopupMessageResponse,
 } from '@/messaging';
 
 /** Adds development-only diagnostics around transport messages. */
@@ -39,52 +39,30 @@ export class LoggingTransportService implements TransportService {
         return this.logOutgoing('page', message, { pageId }, () => this.transport.sendToPage(pageId, message));
     }
 
-    async sendToPopup(pageId: number, message: PopupMessage): Promise<void> {
-        return this.logOutgoing('popup', message, { pageId }, () => this.transport.sendToPopup(pageId, message));
+    async sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>> {
+        return this.logOutgoing('popup', message, {}, () => this.transport.sendToPopup(message));
     }
 
     addMessageListener(handler: MessageListener): () => void {
         return this.transport.addMessageListener((message, context) => {
-            this.log('received', message, context);
-            try {
-                const response = handler(message, context);
-                if (response === undefined) return undefined;
-                return Promise.resolve(response).then(
-                    (value) => {
-                        this.log('responded', message, context, value);
-                        return value;
-                    },
-                    (error: unknown) => {
-                        this.log('failed', message, context, error);
-                        throw error;
-                    },
-                );
-            } catch (error) {
-                this.log('failed', message, context, error);
-                throw error;
-            }
+            const response = handler(message, context);
+            if (response !== undefined) this.log('received', message, context);
+            return response;
         });
     }
 
-    private async logOutgoing<T>(
+    private logOutgoing<T>(
         destination: 'background' | 'page' | 'popup',
-        message: Message,
+        message: Parameters<MessageListener>[0],
         context: MessageContext,
         send: () => Promise<T>,
     ): Promise<T> {
         this.log(`sent to ${destination}`, message, context);
-        try {
-            const response = await send();
-            this.log(`response from ${destination}`, message, context, response);
-            return response;
-        } catch (error) {
-            this.log(`failed to reach ${destination}`, message, context, error);
-            throw error;
-        }
+        return send();
     }
 
-    private log(event: string, message: Message, context: MessageContext, details?: unknown): void {
-        console.log(`[FlowForge transport] ${event}: ${message.type}`, { context, message, details });
+    private log(event: string, message: Parameters<MessageListener>[0], context: MessageContext): void {
+        console.log(`[FlowForge transport] ${event}: ${message.type}`, { context, message });
     }
 }
 

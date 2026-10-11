@@ -47,9 +47,9 @@ describe('EmbedTransportService', () => {
         transport.addMessageListener(handler);
         const message = { type: 'QUERY_FINISHED', data: { queryId: 'query-1' } } as const;
 
-        await transport.sendToPopup(1, message);
+        await transport.sendToPopup(message);
 
-        expect(handler).toHaveBeenCalledWith(message, { pageId: 1 });
+        expect(handler).toHaveBeenCalledWith(message, {});
     });
 
     it('throws when no handler responds', async () => {

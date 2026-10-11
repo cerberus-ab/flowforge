@@ -10,12 +10,13 @@ import type {
     PageMessage,
     PageMessageResponse,
     PopupMessage,
+    PopupMessageResponse,
 } from '@/messaging';
 
 export class FakeTransportService implements TransportService {
     private readonly sentToBackground: Message[] = [];
     private readonly sentToPage: { pageId: number; message: Message }[] = [];
-    private readonly sentToPopup: { pageId: number; message: PopupMessage }[] = [];
+    private readonly sentToPopup: { message: PopupMessage }[] = [];
     private readonly handlers = new Set<MessageListener>();
     private readonly pageResponses = new Map<string, AnyMessageResponse>();
 
@@ -48,9 +49,10 @@ export class FakeTransportService implements TransportService {
         return (this.pageResponses.get(message.type) ?? { success: true }) as PageMessageResponse<M>;
     }
 
-    async sendToPopup(pageId: number, message: PopupMessage): Promise<void> {
-        this.sentToPopup.push({ pageId, message });
-        await Promise.all([...this.handlers].map((handler) => handler(message, { pageId })));
+    async sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>> {
+        this.sentToPopup.push({ message });
+        const responses = await Promise.all([...this.handlers].map((handler) => handler(message, {})));
+        return (responses.find((response) => response !== undefined) ?? { success: true }) as PopupMessageResponse<M>;
     }
 
     addMessageListener(handler: MessageListener): () => void {
@@ -64,7 +66,7 @@ export class FakeTransportService implements TransportService {
         return this.sentToPage;
     }
 
-    getSentToPopup(): readonly { pageId: number; message: PopupMessage }[] {
+    getSentToPopup(): readonly { message: PopupMessage }[] {
         return this.sentToPopup;
     }
 

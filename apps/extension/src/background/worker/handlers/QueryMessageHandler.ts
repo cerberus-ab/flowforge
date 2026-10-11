@@ -122,7 +122,7 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
                 console.error('[FlowForge] Failed to save question history:', error);
             }
         }
-        await this.popupClient.notifyQueryFinished(pageId, queryId);
+        await this.popupClient.notifyQueryFinished(queryId);
     }
 
     /** Restores the page's query state, validating its URL and (when available) page signature. */
