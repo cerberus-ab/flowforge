@@ -1,5 +1,5 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
-import { trailFingerprint } from '@flowforge/page-trail';
+import { createDataIdSignature } from '@flowforge/page-trail';
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -92,19 +92,19 @@ describe('usePage', () => {
         expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
     });
 
-    it('computes a fingerprint from the data ids already present on the page', async () => {
+    it('computes a data ID signature from the IDs already present on the page', async () => {
         // Given
         const dataId = 'ff00000001';
         addTargetButton({ ...targetElement, dataId });
         const { transport } = renderPage();
 
         // When
-        const response = await transport.dispatchToBackground({ type: 'COLLECT_TRAIL_FINGERPRINT' });
+        const response = await transport.dispatchToBackground({ type: 'COLLECT_DATA_ID_SIGNATURE' });
 
         // Then
         expect(response).toEqual({
             success: true,
-            data: trailFingerprint({ dataIds: [dataId] }),
+            data: createDataIdSignature([dataId]),
         });
         expect(transport.getSentToPage()).toEqual([]);
     });

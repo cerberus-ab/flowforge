@@ -59,7 +59,7 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
         // save question in session
         const question = message.data.question;
         const url = await this.pageClient.getUrl(pageId);
-        await this.querySessionStorage.savePending(pageId, url, { question });
+        await this.querySessionStorage.saveReady(pageId, url, { question });
 
         // collect page trail
         await this.pageClient.clearPage(pageId);
@@ -109,18 +109,18 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
             await this.querySessionStorage.removeRecord(pageId);
             return { restored: false, reason: 'mismatch:url' };
         }
-        // if pending return
-        if (record.state === 'pending') {
+        // If the saved session only contains a question, return it for the user to continue.
+        if (record.state === 'ready') {
             return { restored: true, state: record.state, data: record.data, reason: 'ok' };
         }
-        const recFingerprint = record.data.trailSnapshot.trailFingerprint;
-        if (recFingerprint.dataIdSignature !== undefined) {
-            // validate by fingerprint
-            const lifeFingerprint = await this.pageClient.collectTrailFingerprint(pageId);
-            if (recFingerprint.dataIdSignature !== lifeFingerprint.dataIdSignature) {
-                const pendingData = { question: record.data.question };
-                await this.querySessionStorage.savePending(pageId, url, pendingData);
-                return { restored: true, state: 'pending', data: pendingData, reason: 'mismatch:fingerprint' };
+        const savedSignature = record.data.trailSnapshot.dataIdSignature;
+        if (savedSignature !== undefined) {
+            // Validate by the page's current data ID signature.
+            const liveSignature = await this.pageClient.collectDataIdSignature(pageId);
+            if (savedSignature !== liveSignature) {
+                const readyData = { question: record.data.question };
+                await this.querySessionStorage.saveReady(pageId, url, readyData);
+                return { restored: true, state: 'ready', data: readyData, reason: 'mismatch:signature' };
             }
         }
         return {

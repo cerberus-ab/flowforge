@@ -8,7 +8,6 @@ import type {
     InteractiveElement,
     PageBasics,
     PageMetadata,
-    TrailFingerprint,
 } from '../types/index.ts';
 
 import { ContainerTree } from './extractors/index.ts';
@@ -22,7 +21,7 @@ import { extractContainerElements } from './extractors/container.ts';
 import { PageTrail } from '../PageTrail.ts';
 import { VERSION } from '../version.ts';
 import { extractPageMetadata } from './extractors/metadata.ts';
-import { trailFingerprint } from '../fingerprint/trail.ts';
+import { createDataIdSignature } from '../signature/dataId.ts';
 
 interface CollectorCommonOptions {
     /** Maximum number of content elements to keep after importance scoring. */
@@ -124,7 +123,7 @@ export class PageTrailCollector {
             interactiveElementsCandidates: interactiveElements.candidates,
             interactiveElementsLimitReached: interactiveElements.limitReached,
         };
-        const trailFingerprint = this.collectTrailFingerprint(elements);
+        const dataIdSignature = this.collectDataIdSignature(elements);
         const t5_complete = performance.now();
 
         const metadata: CollectionMetadata = {
@@ -134,7 +133,7 @@ export class PageTrailCollector {
                 version: VERSION,
                 collectedAt: Date.now(),
                 url: pageBasics.url,
-                trailFingerprint,
+                dataIdSignature,
             },
             performance: {
                 basicsMs: Math.round(t1_basics - t0),
@@ -198,11 +197,8 @@ export class PageTrailCollector {
         );
     }
 
-    private collectTrailFingerprint(elements: BaseElement[]): TrailFingerprint {
-        return trailFingerprint({
-            dataIds: this.options.contextOnly
-                ? undefined
-                : elements.flatMap((element) => (element.locator ? [element.locator.dataId] : [])),
-        });
+    private collectDataIdSignature(elements: BaseElement[]): string | undefined {
+        if (this.options.contextOnly) return undefined;
+        return createDataIdSignature(elements.flatMap((element) => (element.locator ? [element.locator.dataId] : [])));
     }
 }

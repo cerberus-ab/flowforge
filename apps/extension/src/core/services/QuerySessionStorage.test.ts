@@ -8,20 +8,20 @@ import { QuerySessionStorage } from './QuerySessionStorage';
 const querySessionKey = (pageId: number) => `${constants.STORAGE_NAMESPACE}_query_session::${pageId}`;
 
 describe('QuerySessionStorage', () => {
-    it('saves a pending question session scoped to its page', async () => {
+    it('saves a ready question session scoped to its page', async () => {
         // Given
         const storage = new FakeStorage();
         const querySessionStorage = new QuerySessionStorage(storage);
 
         // When
-        await querySessionStorage.savePending(7, 'https://app.example/settings', {
+        await querySessionStorage.saveReady(7, 'https://app.example/settings', {
             question: 'How do I save?',
         });
 
         // Then
         await expect(storage.get(querySessionKey(7))).resolves.toEqual({
             url: 'https://app.example/settings',
-            state: 'pending',
+            state: 'ready',
             data: { question: 'How do I save?' },
         });
         await expect(storage.get(querySessionKey(8))).resolves.toBeNull();
@@ -59,14 +59,14 @@ describe('QuerySessionStorage', () => {
         // Given
         const storage = new FakeStorage();
         const querySessionStorage = new QuerySessionStorage(storage);
-        await querySessionStorage.savePending(7, 'https://app.example/settings', {
+        await querySessionStorage.saveReady(7, 'https://app.example/settings', {
             question: 'How do I save?',
         });
 
         // When / Then
         await expect(querySessionStorage.getRecord(7)).resolves.toEqual({
             url: 'https://app.example/settings',
-            state: 'pending',
+            state: 'ready',
             data: { question: 'How do I save?' },
         });
     });
@@ -83,10 +83,10 @@ describe('QuerySessionStorage', () => {
         // Given
         const storage = new FakeStorage();
         const querySessionStorage = new QuerySessionStorage(storage);
-        await querySessionStorage.savePending(7, 'https://app.example/settings', {
+        await querySessionStorage.saveReady(7, 'https://app.example/settings', {
             question: 'How do I save?',
         });
-        await querySessionStorage.savePending(8, 'https://app.example/settings', {
+        await querySessionStorage.saveReady(8, 'https://app.example/settings', {
             question: 'How do I cancel?',
         });
 

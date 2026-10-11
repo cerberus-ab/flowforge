@@ -2,7 +2,7 @@ import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/
 
 import type { Message, MessageResponse } from '../Message';
 import type { ExtensionSettings } from '@/core/types/settings';
-import type { QuerySessionDataCompleted, QuerySessionDataPending } from '@/core/services/QuerySessionStorage';
+import type { QuerySessionDataCompleted, QuerySessionDataReady } from '@/core/services/QuerySessionStorage';
 
 export type PopupOpenedMessage = Message & {
     type: 'POPUP_OPENED';
@@ -28,9 +28,9 @@ export type RestoreQueryResponse =
     | { restored: false; reason: 'empty' | 'mismatch:url' }
     | {
           restored: true;
-          state: 'pending';
-          data: QuerySessionDataPending;
-          reason: 'ok' | 'mismatch:fingerprint';
+          state: 'ready';
+          data: QuerySessionDataReady;
+          reason: 'ok' | 'mismatch:signature';
       }
     | {
           restored: true;

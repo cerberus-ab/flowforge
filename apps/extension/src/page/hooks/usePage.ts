@@ -3,7 +3,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { findDataIds, findElement, getOrCreateDataId } from '@/core/locator/locate';
 import { constants } from '@/constants';
 import type { AgentResultElement } from '@flowforge/contract';
-import { PageTrail, PageTrailCollector, type TrailFingerprint, trailFingerprint } from '@flowforge/page-trail';
+import { createDataIdSignature, PageTrail, PageTrailCollector } from '@flowforge/page-trail';
 import type { PageBackgroundClient } from '@/background';
 
 function collectPageTrail(): PageTrail {
@@ -14,8 +14,8 @@ function collectPageTrail(): PageTrail {
     });
 }
 
-function collectTrailFingerprint(): TrailFingerprint {
-    return trailFingerprint({ dataIds: findDataIds(document) });
+function collectDataIdSignature(): string | undefined {
+    return createDataIdSignature(findDataIds(document));
 }
 
 export interface UsePageOptions {
@@ -171,7 +171,7 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
     useLayoutEffect(() => {
         const unsubscribe = backgroundClient.subscribeToPageMessages({
             onCollectPageTrail: () => collectPageTrail().toDto(),
-            onCollectTrailFingerprint: collectTrailFingerprint,
+            onCollectDataIdSignature: collectDataIdSignature,
             onClearPage: clearPage,
             onStartOnboarding: startOnboarding,
             onHighlightElement: highlightElement,

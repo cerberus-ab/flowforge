@@ -31,7 +31,7 @@ const queryResponse: QueryResponse = {
 
 const restoreQueryResponse: RestoreQueryResponse = {
     restored: true,
-    state: 'pending',
+    state: 'ready',
     data: { question: 'How do I open settings?' },
     reason: 'ok',
 };
@@ -99,7 +99,7 @@ describe('BackgroundClient', () => {
         const client = new BackgroundClient(transport);
         client.subscribeToPageMessages({
             onCollectPageTrail: vi.fn(),
-            onCollectTrailFingerprint: vi.fn(),
+            onCollectDataIdSignature: vi.fn(),
             onClearPage: () => {
                 throw new Error('Page cleanup failed');
             },
@@ -153,7 +153,7 @@ describe('BackgroundClient', () => {
         const pageTrailDto = createPageTrailDtoFixture();
         const callbacks: PageMessageCallbacks = {
             onCollectPageTrail: vi.fn(() => pageTrailDto),
-            onCollectTrailFingerprint: vi.fn(() => pageTrailDto.metadata.snapshot.trailFingerprint),
+            onCollectDataIdSignature: vi.fn(() => pageTrailDto.metadata.snapshot.dataIdSignature),
             onClearPage: vi.fn(),
             onStartOnboarding: vi.fn(),
             onHighlightElement: vi.fn(),
@@ -164,7 +164,7 @@ describe('BackgroundClient', () => {
 
         // When
         const collectionResponse = await transport.dispatchToBackground({ type: 'COLLECT_PAGE_TRAIL' });
-        const fingerprintResponse = await transport.dispatchToBackground({ type: 'COLLECT_TRAIL_FINGERPRINT' });
+        const signatureResponse = await transport.dispatchToBackground({ type: 'COLLECT_DATA_ID_SIGNATURE' });
         await transport.dispatchToBackground({ type: 'CLEAR_PAGE' });
         await transport.dispatchToBackground({
             type: 'START_ONBOARDING',
@@ -180,11 +180,11 @@ describe('BackgroundClient', () => {
 
         // Then
         expect((collectionResponse as MessageResponse<PageTrailDto> & { success: true }).data).toEqual(pageTrailDto);
-        expect(fingerprintResponse).toEqual({
+        expect(signatureResponse).toEqual({
             success: true,
-            data: pageTrailDto.metadata.snapshot.trailFingerprint,
+            data: pageTrailDto.metadata.snapshot.dataIdSignature,
         });
-        expect(callbacks.onCollectTrailFingerprint).toHaveBeenCalledOnce();
+        expect(callbacks.onCollectDataIdSignature).toHaveBeenCalledOnce();
         expect(callbacks.onClearPage).toHaveBeenCalledOnce();
         expect(callbacks.onStartOnboarding).toHaveBeenCalledWith({
             title: 'Settings',

@@ -6,7 +6,7 @@ import {
     type BackgroundMessageResponseData,
     isClearPageMessage,
     isCollectPageTrailMessage,
-    isCollectTrailFingerprintMessage,
+    isCollectDataIdSignatureMessage,
     isHighlightElementMessage,
     isOpenInspectorMessage,
     isSettingsUpdatedMessage,
@@ -136,7 +136,7 @@ export class BackgroundClient
     subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrail()),
-            MessageRouter.route(isCollectTrailFingerprintMessage, () => callbacks.onCollectTrailFingerprint()),
+            MessageRouter.route(isCollectDataIdSignatureMessage, () => callbacks.onCollectDataIdSignature()),
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
             MessageRouter.route(isStartOnboardingMessage, (message) => callbacks.onStartOnboarding(message.data)),
             MessageRouter.route(isHighlightElementMessage, (message) =>
