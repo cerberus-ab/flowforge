@@ -1,5 +1,5 @@
 import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/contract';
-import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
 import type { Message, MessageResponse, RestoreQueryResponse } from '@/messaging';
@@ -109,9 +109,9 @@ function renderPopup({
         return handler?.(message) ?? defaultResponseFor(message);
     });
 
-    render(<PopupHarness backgroundClient={backgroundClient} initialQuestion={initialQuestion} />);
+    const rendered = render(<PopupHarness backgroundClient={backgroundClient} initialQuestion={initialQuestion} />);
 
-    return { messages };
+    return { messages, unmount: rendered.unmount };
 }
 
 describe('usePopup', () => {
@@ -334,6 +334,35 @@ describe('usePopup', () => {
         await waitFor(() => {
             expect(screen.getByTestId('loading').textContent).toBe('false');
         });
+    });
+
+    it('does not navigate to a result when the popup unmounts before the query completes', async () => {
+        // Given
+        let resolveQuestion!: (response: MessageResponse<QueryResponse>) => void;
+        const { messages, unmount } = renderPopup({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') {
+                    return new Promise<MessageResponse<QueryResponse>>((resolve) => {
+                        resolveQuestion = resolve;
+                    });
+                }
+                return undefined;
+            },
+        });
+
+        // When
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I open settings?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('true'));
+        unmount();
+
+        await act(async () => {
+            resolveQuestion({ success: true, data: queryResponse });
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        });
+
+        // Then
+        expect(messages.some((message) => message.type === 'NAVIGATE_TO_ELEMENT')).toBe(false);
     });
 
     it('renders question request failures', async () => {
