@@ -174,6 +174,82 @@ describe('QueryMessageHandler', () => {
         await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
     });
 
+    it('notifies the popup when an older query is replaced', async () => {
+        // Given
+        let resolveFirstQuery!: (response: ReturnType<typeof createQueryResponseFixture>) => void;
+        const apiClient = new FakeApiClient();
+        vi.spyOn(apiClient, 'query').mockImplementation((request) =>
+            request.question === 'First question'
+                ? new Promise((resolve) => {
+                      resolveFirstQuery = resolve;
+                  })
+                : Promise.resolve(createQueryResponseFixture()),
+        );
+        const sessionStorage = new FakeStorage();
+        const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
+        const handler = new QueryMessageHandler(
+            new PageClient(transport),
+            new PopupClient(transport),
+            apiClient,
+            new QuerySessionStorage(sessionStorage),
+            new HistoryStorage(new FakeStorage(), 5),
+        );
+
+        // When
+        const first = await handler.handleAskQuestion(
+            { type: 'ASK_QUESTION', data: { question: 'First question' } },
+            { pageId: 7 },
+        );
+        await vi.waitFor(() => expect(apiClient.query).toHaveBeenCalledTimes(1));
+        const second = await handler.handleAskQuestion(
+            { type: 'ASK_QUESTION', data: { question: 'Second question' } },
+            { pageId: 7 },
+        );
+        await vi.waitFor(async () => {
+            await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ queryId: second.queryId });
+        });
+        resolveFirstQuery(createQueryResponseFixture());
+
+        // Then
+        await vi.waitFor(() => {
+            expect(transport.getSentToPopup()).toContainEqual({
+                message: { type: 'QUERY_FINISHED', data: { queryId: first.queryId } },
+                context: { pageId: 7 },
+            });
+        });
+        await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ queryId: second.queryId });
+    });
+
+    it('notifies the popup when saving the completed query fails', async () => {
+        // Given
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        const sessionStorage = new FakeStorage();
+        const querySessionStorage = new QuerySessionStorage(sessionStorage);
+        vi.spyOn(querySessionStorage, 'updateCompleted').mockRejectedValue(new Error('Session storage unavailable'));
+        const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
+        const handler = new QueryMessageHandler(
+            new PageClient(transport),
+            new PopupClient(transport),
+            new FakeApiClient(),
+            querySessionStorage,
+            new HistoryStorage(new FakeStorage(), 5),
+        );
+
+        // When
+        const { queryId } = await handler.handleAskQuestion(
+            { type: 'ASK_QUESTION', data: { question: 'How do I save?' } },
+            { pageId: 7 },
+        );
+
+        // Then
+        await vi.waitFor(() => {
+            expect(transport.getSentToPopup()).toEqual([
+                { message: { type: 'QUERY_FINISHED', data: { queryId } }, context: { pageId: 7 } },
+            ]);
+        });
+        await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'pending' });
+    });
+
     it('returns previous questions for the sender hostname', async () => {
         // Given
         const historyStorage = new HistoryStorage(new FakeStorage(), 5);

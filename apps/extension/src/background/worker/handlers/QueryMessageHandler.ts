@@ -113,19 +113,23 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
             completedData = { error: error instanceof Error ? error.message : String(error) };
         }
 
-        const updated = await this.querySessionStorage.updateCompleted(pageId, queryId, completedData);
-        // A newer query may have replaced this page's session while this one was running.
-        if (!updated) return;
+        try {
+            const updated = await this.querySessionStorage.updateCompleted(pageId, queryId, completedData);
+            // A newer query may have replaced this page's session while this one was running.
+            if (!updated) return;
 
-        if (domain !== undefined && !('error' in completedData)) {
-            try {
-                await this.historyStorage.saveQuestion(domain, question);
-            } catch (error) {
-                // History is secondary; it must not prevent delivery of the query result.
-                console.error('[FlowForge] Failed to save question history:', error);
+            if (domain !== undefined && !('error' in completedData)) {
+                try {
+                    await this.historyStorage.saveQuestion(domain, question);
+                } catch (error) {
+                    // History is secondary; it must not prevent delivery of the query result.
+                    console.error('[FlowForge] Failed to save question history:', error);
+                }
             }
+        } finally {
+            // The popup must leave loading even when this query was replaced or storage failed.
+            await this.popupClient.notifyQueryFinished(pageId, queryId);
         }
-        await this.popupClient.notifyQueryFinished(pageId, queryId);
     }
 
     /** Restores the page's query state, validating its URL and (when available) page signature. */

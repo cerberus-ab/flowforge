@@ -246,6 +246,17 @@ export function useQuerySession(
                             }
                             return;
                         }
+                        if (response.status === 'pending') {
+                            failedQueryRestoreIdsRef.current.add(queryId);
+                            if (pendingQueryIdRef.current === queryId) {
+                                pendingQueryIdRef.current = undefined;
+                                dispatch({
+                                    type: 'failed',
+                                    error: 'The query finished, but its result could not be saved. Please try again.',
+                                });
+                            }
+                            return;
+                        }
                         failedQueryRestoreIdsRef.current.delete(queryId);
                         applyQuerySession(response, !hasUserEditedQuestion.current);
                     })
@@ -320,6 +331,15 @@ export function useQuerySession(
             if (session.status === 'empty' || session.queryId !== response.queryId) {
                 pendingQueryIdRef.current = undefined;
                 dispatch({ type: 'failed', error: 'The query is no longer available. Please try again.' });
+                return;
+            }
+            if (session.status === 'pending' && finishedQueryIdsRef.current.has(response.queryId)) {
+                pendingQueryIdRef.current = undefined;
+                failedQueryRestoreIdsRef.current.add(response.queryId);
+                dispatch({
+                    type: 'failed',
+                    error: 'The query finished, but its result could not be saved. Please try again.',
+                });
                 return;
             }
             applyQuerySession(session, false);
