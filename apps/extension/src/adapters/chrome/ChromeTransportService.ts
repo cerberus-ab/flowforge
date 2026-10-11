@@ -54,8 +54,11 @@ export class ChromeTransportService implements TransportService {
         return chrome.tabs.sendMessage<MessageEnvelope<M>, PageMessageResponse<M>>(pageId, envelope);
     }
 
-    public async sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>> {
-        const envelope: MessageEnvelope<M> = { message, context: {} };
+    public async sendToPopup<M extends PopupMessage>(
+        message: M,
+        context: MessageContext,
+    ): Promise<PopupMessageResponse<M>> {
+        const envelope: MessageEnvelope<M> = { message, context };
         return chrome.runtime.sendMessage<MessageEnvelope<M>, PopupMessageResponse<M>>(envelope);
     }
 

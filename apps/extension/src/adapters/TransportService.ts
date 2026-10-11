@@ -37,7 +37,7 @@ export interface TransportService {
     /**
      * Sends a message to popup contexts and returns a typed response.
      */
-    sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>>;
+    sendToPopup<M extends PopupMessage>(message: M, context: MessageContext): Promise<PopupMessageResponse<M>>;
 
     /**
      * Adds a listener for incoming messages. Returns a function to remove the listener.

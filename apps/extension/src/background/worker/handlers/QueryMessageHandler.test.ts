@@ -96,7 +96,9 @@ describe('QueryMessageHandler', () => {
                 trailSnapshot: pageTrailDto.metadata.snapshot,
             },
         });
-        expect(transport.getSentToPopup()).toEqual([{ message: { type: 'QUERY_FINISHED', data: { queryId } } }]);
+        expect(transport.getSentToPopup()).toEqual([
+            { message: { type: 'QUERY_FINISHED', data: { queryId } }, context: { pageId: 7 } },
+        ]);
     });
 
     it('persists an API failure as a completed query and notifies the popup', async () => {
@@ -128,7 +130,9 @@ describe('QueryMessageHandler', () => {
             state: 'completed',
             data: { question: 'How do I save?', error: 'API unavailable' },
         });
-        expect(transport.getSentToPopup()).toEqual([{ message: { type: 'QUERY_FINISHED', data: { queryId } } }]);
+        expect(transport.getSentToPopup()).toEqual([
+            { message: { type: 'QUERY_FINISHED', data: { queryId } }, context: { pageId: 7 } },
+        ]);
     });
 
     it('notifies the popup when saving question history fails', async () => {
@@ -157,7 +161,9 @@ describe('QueryMessageHandler', () => {
 
         // Then
         await vi.waitFor(() => {
-            expect(transport.getSentToPopup()).toEqual([{ message: { type: 'QUERY_FINISHED', data: { queryId } } }]);
+            expect(transport.getSentToPopup()).toEqual([
+                { message: { type: 'QUERY_FINISHED', data: { queryId } }, context: { pageId: 7 } },
+            ]);
         });
         await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
     });

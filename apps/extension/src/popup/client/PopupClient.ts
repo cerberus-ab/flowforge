@@ -10,10 +10,13 @@ export class PopupClient implements PopupQueryClient {
     }
 
     /** Notifies popups that a query has finished. */
-    async notifyQueryFinished(queryId: string): Promise<void> {
-        await this.transport.sendToPopup({
-            type: 'QUERY_FINISHED',
-            data: { queryId },
-        });
+    async notifyQueryFinished(pageId: number, queryId: string): Promise<void> {
+        await this.transport.sendToPopup(
+            {
+                type: 'QUERY_FINISHED',
+                data: { queryId },
+            },
+            { pageId },
+        );
     }
 }

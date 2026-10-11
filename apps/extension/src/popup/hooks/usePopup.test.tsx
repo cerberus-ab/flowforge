@@ -261,14 +261,35 @@ describe('usePopup', () => {
         const { messages, transport } = renderPopup({ initialQuestion: 'Question from the embed caller' });
 
         await act(async () => {
-            await transport.sendToPopup({
-                type: 'QUERY_FINISHED',
-                data: { queryId: 'previous-query' },
-            } as PopupMessage);
+            await transport.sendToPopup(
+                {
+                    type: 'QUERY_FINISHED',
+                    data: { queryId: 'previous-query' },
+                } as PopupMessage,
+                { pageId: 42 },
+            );
         });
 
         expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe('Question from the embed caller');
         expect(messages.some((message) => message.type === 'RESTORE_QUERY')).toBe(false);
+    });
+
+    it('does not restore a query finished on another page', async () => {
+        // Given
+        const { messages, transport } = renderPopup();
+        await waitFor(() => expect(messages.some((message) => message.type === 'RESTORE_QUERY')).toBe(true));
+        const restoreCount = messages.filter((message) => message.type === 'RESTORE_QUERY').length;
+
+        // When
+        await act(async () => {
+            await transport.sendToPopup(
+                { type: 'QUERY_FINISHED', data: { queryId: 'other-page-query' } },
+                { pageId: 7 },
+            );
+        });
+
+        // Then
+        expect(messages.filter((message) => message.type === 'RESTORE_QUERY')).toHaveLength(restoreCount);
     });
 
     it('validates questions before asking the background', async () => {
@@ -430,10 +451,13 @@ describe('usePopup', () => {
             },
         };
         await act(async () => {
-            await transport.sendToPopup({
-                type: 'QUERY_FINISHED',
-                data: { queryId: 'query-1' },
-            } as PopupMessage);
+            await transport.sendToPopup(
+                {
+                    type: 'QUERY_FINISHED',
+                    data: { queryId: 'query-1' },
+                } as PopupMessage,
+                { pageId: 42 },
+            );
         });
 
         // Then
@@ -469,10 +493,13 @@ describe('usePopup', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
         await waitFor(() => expect(restoreCount).toBe(2));
         await act(async () => {
-            await transport.sendToPopup({
-                type: 'QUERY_FINISHED',
-                data: { queryId: 'query-1' },
-            } as PopupMessage);
+            await transport.sendToPopup(
+                {
+                    type: 'QUERY_FINISHED',
+                    data: { queryId: 'query-1' },
+                } as PopupMessage,
+                { pageId: 42 },
+            );
         });
         await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
         await act(async () => {
