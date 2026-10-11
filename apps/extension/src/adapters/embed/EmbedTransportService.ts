@@ -34,8 +34,8 @@ export class EmbedTransportService implements TransportService {
         return this.send<PageMessageResponse<M>>(message, { pageId });
     }
 
-    async sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>> {
-        const responses = await Promise.all([...this.messageHandlers].map((handler) => handler(message, {})));
+    async sendToPopup<M extends PopupMessage>(message: M, context: MessageContext): Promise<PopupMessageResponse<M>> {
+        const responses = await Promise.all([...this.messageHandlers].map((handler) => handler(message, context)));
         const response = responses.find((candidate) => candidate !== undefined);
         if (response === undefined) {
             throw new Error('Message handler did not return a response');

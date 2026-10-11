@@ -144,7 +144,7 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     // Listen before restoring so a completion between subscription and restore is not missed.
     useEffect(() => {
         let isActive = true;
-        const unsubscribe = backgroundClient.subscribeToQueryFinishedMessages({
+        const unsubscribe = backgroundClient.subscribeToPopupMessages({
             onQueryFinished: ({ queryId }) => {
                 finishedQueryIdsRef.current.add(queryId);
                 if (initialQuestion !== undefined && pendingQueryIdRef.current !== queryId) return;

@@ -26,7 +26,7 @@ import type {
     PopupBackgroundClient,
     SettingsBackgroundClient,
     SettingsMessageCallbacks,
-    QueryFinishedMessageCallbacks,
+    PopupMessageCallbacks,
 } from './contract';
 import { MessageRouter, type MessageRoute } from '@/messaging';
 
@@ -128,10 +128,15 @@ export class BackgroundClient
         });
     }
 
-    /** Subscribes to query-finished notifications sent by background. */
-    subscribeToQueryFinishedMessages(callbacks: QueryFinishedMessageCallbacks): () => void {
+    /** Subscribes to popup messages for the active page. */
+    subscribeToPopupMessages(callbacks: PopupMessageCallbacks): () => void {
+        const pageContext = this.transport.getActivePageContext();
         return this.subscribeToMessages([
-            MessageRouter.route(isQueryFinishedMessage, (message) => callbacks.onQueryFinished(message.data)),
+            MessageRouter.route(isQueryFinishedMessage, async (message, context) => {
+                const { pageId } = await pageContext;
+                if (pageId === undefined || context.pageId !== pageId) return;
+                callbacks.onQueryFinished(message.data);
+            }),
         ]);
     }
 

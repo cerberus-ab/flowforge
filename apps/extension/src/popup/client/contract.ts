@@ -1,3 +1,3 @@
 export interface PopupQueryClient {
-    notifyQueryFinished(queryId: string): Promise<void>;
+    notifyQueryFinished(pageId: number, queryId: string): Promise<void>;
 }

@@ -10,7 +10,7 @@ describe('PopupClient', () => {
         const client = new PopupClient(transport);
 
         // When
-        await client.notifyQueryFinished('query-1');
+        await client.notifyQueryFinished(42, 'query-1');
 
         // Then
         expect(transport.getSentToPopup()).toEqual([
@@ -19,6 +19,7 @@ describe('PopupClient', () => {
                     type: 'QUERY_FINISHED',
                     data: { queryId: 'query-1' },
                 },
+                context: { pageId: 42 },
             },
         ]);
     });

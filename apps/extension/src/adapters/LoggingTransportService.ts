@@ -39,8 +39,8 @@ export class LoggingTransportService implements TransportService {
         return this.logOutgoing('page', message, { pageId }, () => this.transport.sendToPage(pageId, message));
     }
 
-    async sendToPopup<M extends PopupMessage>(message: M): Promise<PopupMessageResponse<M>> {
-        return this.logOutgoing('popup', message, {}, () => this.transport.sendToPopup(message));
+    async sendToPopup<M extends PopupMessage>(message: M, context: MessageContext): Promise<PopupMessageResponse<M>> {
+        return this.logOutgoing('popup', message, context, () => this.transport.sendToPopup(message, context));
     }
 
     addMessageListener(handler: MessageListener): () => void {

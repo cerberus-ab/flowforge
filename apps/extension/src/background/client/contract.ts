@@ -27,7 +27,7 @@ export interface SettingsMessageCallbacks {
     onSettingsUpdated: (settings: ExtensionSettings) => void;
 }
 
-export interface QueryFinishedMessageCallbacks {
+export interface PopupMessageCallbacks {
     onQueryFinished: (data: QueryFinishedMessageData) => void;
 }
 
@@ -37,7 +37,7 @@ export interface PopupBackgroundClient {
     restoreQuery(): Promise<RestoreQueryResponse>;
     getPreviousQuestions(): Promise<PreviousQuestionsResponse>;
     askQuestion(question: string): Promise<AskQuestionResponse>;
-    subscribeToQueryFinishedMessages(callbacks: QueryFinishedMessageCallbacks): () => void;
+    subscribeToPopupMessages(callbacks: PopupMessageCallbacks): () => void;
     openOnboarding(question: string, result: AgentResult): Promise<void>;
     navigateToElement(element: AgentResultElement): Promise<void>;
     openPageInspector(tab?: string): Promise<void>;

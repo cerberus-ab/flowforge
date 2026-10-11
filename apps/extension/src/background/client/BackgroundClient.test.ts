@@ -92,6 +92,28 @@ describe('BackgroundClient', () => {
         await expect(client.askQuestion('How?')).rejects.toThrow('Background unavailable');
     });
 
+    it('observes query completions only for the active page', async () => {
+        // Given
+        const transport = new FakeTransportService({ activePageId: 42 });
+        const listener = vi.fn();
+        const client = new BackgroundClient(transport);
+        client.subscribeToPopupMessages({ onQueryFinished: listener });
+        const message = { type: 'QUERY_FINISHED', data: { queryId: 'query-1' } } as const;
+
+        // When
+        await transport.sendToPopup(message, { pageId: 7 });
+
+        // Then
+        expect(listener).not.toHaveBeenCalled();
+
+        // When
+        await transport.sendToPopup(message, { pageId: 42 });
+
+        // Then
+        expect(listener).toHaveBeenCalledOnce();
+        expect(listener).toHaveBeenCalledWith({ queryId: 'query-1' });
+    });
+
     it('converts page command errors to failure responses', async () => {
         // Given
         const transport = new FakeTransportService();
