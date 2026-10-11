@@ -5,9 +5,10 @@ import { cx } from '@/shared/utils/cx';
 interface ExamplesProps {
     examples: PopupExampleItem[];
     onExampleQuestionSelect: (question: string) => void;
+    disabled?: boolean;
 }
 
-export function Examples({ examples, onExampleQuestionSelect }: ExamplesProps) {
+export function Examples({ examples, onExampleQuestionSelect, disabled = false }: ExamplesProps) {
     if (examples.length === 0) {
         return null;
     }
@@ -19,6 +20,7 @@ export function Examples({ examples, onExampleQuestionSelect }: ExamplesProps) {
                         <li key={index}>
                             <button
                                 type="button"
+                                disabled={disabled}
                                 className={cx(
                                     'flowforge-example-chip',
                                     `flowforge-example-chip--${example.type === 'default' ? 'primary' : 'secondary'}`,

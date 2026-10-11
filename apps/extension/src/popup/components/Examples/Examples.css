@@ -26,11 +26,15 @@
   cursor: pointer;
   transition: var(--flowforge-transition-default);
 }
-.flowforge-example-chip--primary:hover {
+.flowforge-example-chip--primary:not(:disabled):hover {
   border-color: var(--flowforge-color-primary-hover);
   color: var(--flowforge-color-primary-hover);
 }
-.flowforge-example-chip--secondary:hover {
+.flowforge-example-chip--secondary:not(:disabled):hover {
   border-color: var(--flowforge-color-secondary-hover);
   color: var(--flowforge-color-secondary-hover);
+}
+.flowforge-example-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
