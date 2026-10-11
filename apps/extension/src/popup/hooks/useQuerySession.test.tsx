@@ -599,6 +599,118 @@ describe('useQuerySession', () => {
         });
     });
 
+    it('stops loading when a finished query is still pending in storage', async () => {
+        // Given
+        let restoreCount = 0;
+        const { transport } = renderQuerySession({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') return { success: true, data: { queryId: 'query-1' } };
+                if (message.type === 'RESTORE_QUERY') {
+                    restoreCount += 1;
+                    return {
+                        success: true,
+                        data:
+                            restoreCount === 1
+                                ? { status: 'empty' }
+                                : { status: 'pending', queryId: 'query-1', data: { question: 'How do I save?' } },
+                    };
+                }
+                return undefined;
+            },
+        });
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I save?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('true'));
+        await waitFor(() => expect(restoreCount).toBe(2));
+
+        // When
+        await act(async () => {
+            await transport.sendToPopup({ type: 'QUERY_FINISHED', data: { queryId: 'query-1' } }, { pageId: 42 });
+        });
+
+        // Then
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+        expect(
+            screen.getByText('The query finished, but its result could not be saved. Please try again.'),
+        ).toBeTruthy();
+    });
+
+    it('stops loading when another query replaced the finished one', async () => {
+        // Given
+        let restoreCount = 0;
+        const { transport } = renderQuerySession({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') return { success: true, data: { queryId: 'query-1' } };
+                if (message.type === 'RESTORE_QUERY') {
+                    restoreCount += 1;
+                    if (restoreCount === 1) return { success: true, data: { status: 'empty' } };
+                    return {
+                        success: true,
+                        data: {
+                            status: 'pending',
+                            queryId: restoreCount === 2 ? 'query-1' : 'query-2',
+                            data: { question: 'How do I save?' },
+                        },
+                    };
+                }
+                return undefined;
+            },
+        });
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I save?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+        await waitFor(() => expect(restoreCount).toBe(2));
+
+        // When
+        await act(async () => {
+            await transport.sendToPopup({ type: 'QUERY_FINISHED', data: { queryId: 'query-1' } }, { pageId: 42 });
+        });
+
+        // Then
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+        expect(screen.getByText('The query is no longer available. Please try again.')).toBeTruthy();
+    });
+
+    it('stops loading when the finish notification arrives before the ask response', async () => {
+        // Given
+        let resolveQuestion!: (response: MessageResponse<{ queryId: string }>) => void;
+        let restoreCount = 0;
+        const { transport } = renderQuerySession({
+            handler: (message) => {
+                if (message.type === 'ASK_QUESTION') {
+                    return new Promise<MessageResponse<{ queryId: string }>>((resolve) => {
+                        resolveQuestion = resolve;
+                    });
+                }
+                if (message.type === 'RESTORE_QUERY') {
+                    restoreCount += 1;
+                    return {
+                        success: true,
+                        data:
+                            restoreCount === 1
+                                ? { status: 'empty' }
+                                : { status: 'pending', queryId: 'query-1', data: { question: 'How do I save?' } },
+                    };
+                }
+                return undefined;
+            },
+        });
+        fireEvent.input(await screen.findByLabelText('Question'), { target: { value: 'How do I save?' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('true'));
+
+        // When
+        await act(async () => {
+            await transport.sendToPopup({ type: 'QUERY_FINISHED', data: { queryId: 'query-1' } }, { pageId: 42 });
+            resolveQuestion({ success: true, data: { queryId: 'query-1' } });
+        });
+
+        // Then
+        await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+        expect(
+            screen.getByText('The query finished, but its result could not be saved. Please try again.'),
+        ).toBeTruthy();
+    });
+
     it('ignores an old completion restored after a newer question starts', async () => {
         // Given
         let resolveOldRestore!: (response: MessageResponse<RestoreQueryResponse>) => void;
