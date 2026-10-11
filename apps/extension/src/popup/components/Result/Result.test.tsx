@@ -29,6 +29,7 @@ describe('Result', () => {
                 error="Backend failed"
                 onNavigateToElement={vi.fn()}
                 onOpenOnboarding={vi.fn()}
+                onClearResult={vi.fn()}
             />,
         );
 
@@ -36,11 +37,13 @@ describe('Result', () => {
         expect(screen.getByText("Couldn't")).toBeTruthy();
         expect(screen.getByText('Backend failed')).toBeTruthy();
         expect(screen.queryByText(result.answer)).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Clear result' })).toBeNull();
     });
 
     it('renders answers, metadata, and result element actions', () => {
         // Given
         const onNavigateToElement = vi.fn();
+        const onClearResult = vi.fn();
 
         // When
         render(
@@ -51,14 +54,21 @@ describe('Result', () => {
                 error={null}
                 onNavigateToElement={onNavigateToElement}
                 onOpenOnboarding={vi.fn()}
+                onClearResult={onClearResult}
             />,
         );
         fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Clear result' }));
 
         // Then
         expect(screen.getByText('Figured out')).toBeTruthy();
         expect(screen.getByText(result.answer)).toBeTruthy();
         expect(screen.getByText('test-model · 1.2k tokens · 1.3s')).toBeTruthy();
+        expect(screen.getByRole('tooltip', { hidden: true }).textContent).toBe('Clear result');
+        expect(screen.getByRole('button', { name: 'Clear result' }).closest('.flowforge-tooltip')?.className).toContain(
+            'flowforge-tooltip--bottom',
+        );
         expect(onNavigateToElement).toHaveBeenCalledWith(element);
+        expect(onClearResult).toHaveBeenCalledOnce();
     });
 });

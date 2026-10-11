@@ -4,6 +4,7 @@ import { cx } from '@/shared/utils/cx';
 
 type CardProps = ComponentProps<'section'> & {
     title?: string;
+    action?: ComponentChildren;
     text?: string;
     variant?: 'primary' | 'secondary';
     direction?: 'none' | 'left';
@@ -15,6 +16,7 @@ type CardProps = ComponentProps<'section'> & {
 
 export function Card({
     title,
+    action,
     text,
     variant = 'primary',
     direction = 'none',
@@ -44,9 +46,12 @@ export function Card({
             {...props}
         >
             {title && (
-                <h3 id={titleId} className="flowforge-card__title">
-                    {title}
-                </h3>
+                <div className="flowforge-card__header">
+                    <h3 id={titleId} className="flowforge-card__title">
+                        {title}
+                    </h3>
+                    {action}
+                </div>
             )}
             {text && <p className="flowforge-card__text">{text}</p>}
             {children}

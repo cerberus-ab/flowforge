@@ -14,6 +14,8 @@ import {
     requirePageId,
     type RestoreQueryMessage,
     isRestoreQueryMessage,
+    type ClearQueryMessage,
+    isClearQueryMessage,
     type RestoreQueryResponse,
     type AskQuestionResponse,
 } from '@/messaging';
@@ -54,6 +56,7 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
         return [
             MessageRouter.route(isAskQuestionMessage, (message, context) => this.handleAskQuestion(message, context)),
             MessageRouter.route(isRestoreQueryMessage, (message, context) => this.handleRestoreQuery(message, context)),
+            MessageRouter.route(isClearQueryMessage, (message, context) => this.handleClearQuery(message, context)),
             MessageRouter.route(isGetPrevQuestionsMessage, (message, context) =>
                 this.handleGetPrevQuestions(message, context),
             ),
@@ -168,6 +171,13 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
             queryId: record.queryId,
             data: record.data,
         };
+    }
+
+    /** Clears the completed query currently displayed by the requesting popup. */
+    handleClearQuery(message: ClearQueryMessage, context: MessageContext): Promise<boolean> {
+        const pageId = requirePageId(context);
+
+        return this.querySessionStorage.removeCompleted(pageId, message.data.queryId);
     }
 
     /** Returns saved questions for the sender page's domain. */

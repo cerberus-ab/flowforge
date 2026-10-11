@@ -51,6 +51,9 @@ describe('BackgroundClient', () => {
             if (message.type === 'ASK_QUESTION') {
                 return { success: true, data: { queryId: 'query-1' } };
             }
+            if (message.type === 'CLEAR_QUERY') {
+                return { success: true, data: true };
+            }
             return { success: true };
         });
         const client = new BackgroundClient(transport);
@@ -60,6 +63,7 @@ describe('BackgroundClient', () => {
         const restoredQuery = await client.restoreQuery();
         const questions = await client.getPreviousQuestions();
         const answer = await client.askQuestion('How do I open settings?');
+        const cleared = await client.clearQuery('query-1');
         await client.navigateToElement(element);
         await client.openPageInspector('interactive');
         await client.openOnboarding('How do I open settings?', queryResponse.result);
@@ -68,11 +72,13 @@ describe('BackgroundClient', () => {
         expect(questions).toEqual({ questions: ['Where is billing?'] });
         expect(restoredQuery).toEqual(restoreQueryResponse);
         expect(answer).toEqual({ queryId: 'query-1' });
+        expect(cleared).toBe(true);
         expect(messages).toEqual([
             { type: 'POPUP_OPENED' },
             { type: 'RESTORE_QUERY' },
             { type: 'GET_PREV_QUESTIONS' },
             { type: 'ASK_QUESTION', data: { question: 'How do I open settings?' } },
+            { type: 'CLEAR_QUERY', data: { queryId: 'query-1' } },
             { type: 'NAVIGATE_TO_ELEMENT', data: { element } },
             { type: 'OPEN_PAGE_INSPECTOR', data: { tab: 'interactive' } },
             {

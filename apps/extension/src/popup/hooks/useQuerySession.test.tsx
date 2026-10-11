@@ -59,6 +59,9 @@ function QuerySessionHarness({
             <button type="button" onClick={() => void session.openOnboarding()}>
                 Open Onboarding
             </button>
+            <button type="button" disabled={session.isClearingResult} onClick={() => void session.clearResult()}>
+                Clear result
+            </button>
             <div data-testid="loading">{String(session.isLoading)}</div>
             <div data-testid="result">{session.result?.answer ?? ''}</div>
             <div data-testid="metadata">{session.resultMetadata ?? ''}</div>
@@ -155,6 +158,124 @@ describe('useQuerySession', () => {
         });
         expect(screen.getByTestId('loading').textContent).toBe('false');
         expect(screen.getByTestId('warning').textContent).toContain('page has changed');
+    });
+
+    it('clears a restored result while keeping the question and ignoring its late notification', async () => {
+        // Given
+        const { messages, transport } = renderQuerySession({
+            handler: (message) => {
+                if (message.type === 'RESTORE_QUERY') {
+                    return {
+                        success: true,
+                        data: {
+                            status: 'stale',
+                            queryId: 'query-1',
+                            data: {
+                                question: 'How do I open settings?',
+                                result,
+                                metadata: queryResponse.metadata,
+                                trailSnapshot,
+                            },
+                        },
+                    };
+                }
+                if (message.type === 'CLEAR_QUERY') return { success: true, data: true };
+                return undefined;
+            },
+        });
+        await screen.findByText(result.answer);
+
+        // When
+        fireEvent.click(screen.getByRole('button', { name: 'Clear result' }));
+
+        // Then
+        await waitFor(() => expect(screen.getByTestId('result').textContent).toBe(''));
+        expect((screen.getByLabelText('Question') as HTMLInputElement).value).toBe('How do I open settings?');
+        expect(screen.getByTestId('warning').textContent).toBe('');
+        expect(messages).toContainEqual({ type: 'CLEAR_QUERY', data: { queryId: 'query-1' } });
+        const restoreCount = messages.filter((message) => message.type === 'RESTORE_QUERY').length;
+        await act(async () => {
+            await transport.sendToPopup({ type: 'QUERY_FINISHED', data: { queryId: 'query-1' } }, { pageId: 42 });
+        });
+        expect(messages.filter((message) => message.type === 'RESTORE_QUERY')).toHaveLength(restoreCount);
+        expect(screen.getByTestId('result').textContent).toBe('');
+    });
+
+    it('keeps the result and shows a warning if clearing fails', async () => {
+        // Given
+        renderQuerySession({
+            handler: (message) => {
+                if (message.type === 'RESTORE_QUERY') {
+                    return {
+                        success: true,
+                        data: {
+                            status: 'completed',
+                            queryId: 'query-1',
+                            data: {
+                                question: 'How do I open settings?',
+                                result,
+                                metadata: queryResponse.metadata,
+                                trailSnapshot,
+                            },
+                        },
+                    };
+                }
+                if (message.type === 'CLEAR_QUERY') return { success: false, error: 'Storage unavailable' };
+                return undefined;
+            },
+        });
+        await screen.findByText(result.answer);
+
+        // When
+        fireEvent.click(screen.getByRole('button', { name: 'Clear result' }));
+
+        // Then
+        await waitFor(() => expect(screen.getByTestId('warning').textContent).toContain('Could not clear this result'));
+        expect(screen.getByTestId('result').textContent).toBe(result.answer);
+    });
+
+    it('disables a second clear request while the first is pending', async () => {
+        // Given
+        let finishClear!: (response: MessageResponse<boolean>) => void;
+        const { messages } = renderQuerySession({
+            handler: (message) => {
+                if (message.type === 'RESTORE_QUERY') {
+                    return {
+                        success: true,
+                        data: {
+                            status: 'completed',
+                            queryId: 'query-1',
+                            data: {
+                                question: 'How do I open settings?',
+                                result,
+                                metadata: queryResponse.metadata,
+                                trailSnapshot,
+                            },
+                        },
+                    };
+                }
+                if (message.type === 'CLEAR_QUERY') {
+                    return new Promise<MessageResponse<boolean>>((resolve) => {
+                        finishClear = resolve;
+                    });
+                }
+                return undefined;
+            },
+        });
+        await screen.findByText(result.answer);
+
+        // When
+        const clearButton = screen.getByRole('button', { name: 'Clear result' }) as HTMLButtonElement;
+        fireEvent.click(clearButton);
+
+        // Then
+        await waitFor(() => expect(clearButton.disabled).toBe(true));
+        fireEvent.click(clearButton);
+        expect(messages.filter((message) => message.type === 'CLEAR_QUERY')).toHaveLength(1);
+
+        // When / Then
+        await act(async () => finishClear({ success: true, data: true }));
+        await waitFor(() => expect(screen.getByTestId('result').textContent).toBe(''));
     });
 
     it('uses an explicit initial question instead of restoring a previous session', async () => {

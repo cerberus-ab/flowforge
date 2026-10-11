@@ -74,6 +74,14 @@ export class BackgroundClient
         });
     }
 
+    /** Clears the matching completed query session for the active page. */
+    async clearQuery(queryId: string): Promise<boolean> {
+        return this.sendToBackground({
+            type: 'CLEAR_QUERY',
+            data: { queryId },
+        });
+    }
+
     /** Retrieves question history for the active page. */
     async getPreviousQuestions(): Promise<PreviousQuestionsResponse> {
         return this.sendToBackground({

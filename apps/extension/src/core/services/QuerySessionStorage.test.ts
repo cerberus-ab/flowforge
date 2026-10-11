@@ -148,4 +148,24 @@ describe('QuerySessionStorage', () => {
             data: { question: 'How do I cancel?' },
         });
     });
+
+    it('removes only the matching completed query', async () => {
+        // Given
+        const storage = new FakeStorage();
+        const querySessionStorage = new QuerySessionStorage(storage);
+        await querySessionStorage.savePending(7, 'query-7', 'https://app.example/settings', {
+            question: 'How do I save?',
+        });
+        await querySessionStorage.savePending(8, 'query-8', 'https://app.example/settings', {
+            question: 'How do I cancel?',
+        });
+
+        // When / Then
+        await expect(querySessionStorage.removeCompleted(7, 'query-7')).resolves.toBe(false);
+        await querySessionStorage.updateCompleted(7, 'query-7', { error: 'Unavailable' });
+        await expect(querySessionStorage.removeCompleted(7, 'other-query')).resolves.toBe(false);
+        await expect(querySessionStorage.removeCompleted(7, 'query-7')).resolves.toBe(true);
+        await expect(querySessionStorage.getRecord(7)).resolves.toBeNull();
+        await expect(querySessionStorage.getRecord(8)).resolves.toMatchObject({ queryId: 'query-8' });
+    });
 });
