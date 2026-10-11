@@ -24,6 +24,10 @@ export type RestoreQueryMessage = Message & {
     type: 'RESTORE_QUERY';
 };
 
+export type ClearQueryMessage = Message<{ queryId: string }> & {
+    type: 'CLEAR_QUERY';
+};
+
 export type RestoreQueryResponse =
     | { status: 'empty' }
     | { status: 'pending'; queryId: string; data: QuerySessionDataPending }
@@ -80,6 +84,7 @@ export type BackgroundMessage =
     | GetSettingsMessage
     | UpdateSettingsMessage
     | RestoreQueryMessage
+    | ClearQueryMessage
     | AskQuestionMessage
     | GetPrevQuestionsMessage
     | NavigateToElementMessage
@@ -91,6 +96,7 @@ export interface BackgroundMessageResponseMap {
     GET_SETTINGS: ExtensionSettings;
     UPDATE_SETTINGS: ExtensionSettings;
     RESTORE_QUERY: RestoreQueryResponse;
+    CLEAR_QUERY: boolean;
     ASK_QUESTION: AskQuestionResponse;
     GET_PREV_QUESTIONS: PreviousQuestionsResponse;
     NAVIGATE_TO_ELEMENT: undefined;
@@ -115,6 +121,10 @@ export function isUpdateSettingsMessage(message: Message): message is UpdateSett
 
 export function isRestoreQueryMessage(message: Message): message is RestoreQueryMessage {
     return message.type === 'RESTORE_QUERY';
+}
+
+export function isClearQueryMessage(message: Message): message is ClearQueryMessage {
+    return message.type === 'CLEAR_QUERY';
 }
 
 export function isAskQuestionMessage(message: Message): message is AskQuestionMessage {

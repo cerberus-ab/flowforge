@@ -35,6 +35,7 @@ export interface PopupMessageCallbacks {
 export interface PopupBackgroundClient {
     notifyPopupOpened(): Promise<void>;
     restoreQuery(): Promise<RestoreQueryResponse>;
+    clearQuery(queryId: string): Promise<boolean>;
     getPreviousQuestions(): Promise<PreviousQuestionsResponse>;
     askQuestion(question: string): Promise<AskQuestionResponse>;
     subscribeToPopupMessages(callbacks: PopupMessageCallbacks): () => void;

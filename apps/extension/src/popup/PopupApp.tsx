@@ -45,6 +45,7 @@ export function PopupApp({
         inputQuestion,
         setInputQuestion,
         isLoading,
+        isClearingResult,
         result,
         resultMetadata,
         isResultStale,
@@ -54,6 +55,7 @@ export function PopupApp({
         copyright,
         github,
         askQuestion,
+        clearResult,
         openOnboarding,
         applyExampleQuestion,
         navigateToElement,
@@ -131,7 +133,7 @@ export function PopupApp({
                             ? 'I can forge the page... but only using preset options in Demo'
                             : 'I can forge the page for you... '
                     }
-                    disabled={isLoading}
+                    disabled={isLoading || isClearingResult}
                     selectOnly={Boolean(demoProps?.enabled)}
                 />
 
@@ -147,13 +149,15 @@ export function PopupApp({
                         error={error}
                         onNavigateToElement={navigateToElement}
                         onOpenOnboarding={handleOpenOnboarding}
+                        onClearResult={() => void clearResult()}
+                        isClearing={isClearingResult}
                     />
                 )}
 
                 <Examples
                     examples={examples}
                     onExampleQuestionSelect={handleApplyExampleQuestion}
-                    disabled={isLoading}
+                    disabled={isLoading || isClearingResult}
                 />
 
                 <Advanced onOpenPageInspector={handleOpenPageInspector}></Advanced>

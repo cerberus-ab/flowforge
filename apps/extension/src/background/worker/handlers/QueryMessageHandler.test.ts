@@ -9,7 +9,13 @@ import { HistoryStorage } from '@/core/services/HistoryStorage';
 import { QuerySessionStorage } from '@/core/services/QuerySessionStorage';
 import { PageClient } from '@/page/client/PageClient';
 import { PopupClient } from '@/popup/client/PopupClient';
-import type { AskQuestionMessage, GetPrevQuestionsMessage, RestoreQueryMessage } from '@/messaging';
+import {
+    MessageRouter,
+    type AskQuestionMessage,
+    type ClearQueryMessage,
+    type GetPrevQuestionsMessage,
+    type RestoreQueryMessage,
+} from '@/messaging';
 import { QueryMessageHandler } from './QueryMessageHandler';
 
 describe('QueryMessageHandler', () => {
@@ -333,6 +339,24 @@ describe('QueryMessageHandler', () => {
 
         expect(response).toMatchObject({ status: 'completed' });
         expect(transport.getSentToPage()).toEqual([]);
+    });
+
+    it('clears only the matching completed query for the sender page', async () => {
+        // Given
+        const sessionStorage = new FakeStorage();
+        await saveCompletedQuery(sessionStorage, '1-saved');
+        const handler = createQueryHandler(createTransport(), sessionStorage);
+        const router = new MessageRouter(handler.routes());
+        const clearMessage: ClearQueryMessage = { type: 'CLEAR_QUERY', data: { queryId: 'query-7' } };
+
+        // When / Then
+        await expect(handler.handleClearQuery(clearMessage, { pageId: 8 })).resolves.toBe(false);
+        await expect(
+            handler.handleClearQuery({ type: 'CLEAR_QUERY', data: { queryId: 'other-query' } }, { pageId: 7 }),
+        ).resolves.toBe(false);
+        await expect(sessionStorage.get(querySessionKey(7))).resolves.not.toBeNull();
+        await expect(router.handle(clearMessage, { pageId: 7 })).resolves.toEqual({ success: true, data: true });
+        await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({ status: 'empty' });
     });
 });
 

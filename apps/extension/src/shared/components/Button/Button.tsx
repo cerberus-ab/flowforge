@@ -11,6 +11,7 @@ type ButtonOwnProps = {
     iconPosition?: 'start' | 'end';
     wide?: boolean;
     hollow?: boolean;
+    compact?: boolean;
 };
 
 type ButtonProps = ComponentProps<'button'> & ButtonOwnProps;
@@ -23,6 +24,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         iconPosition = 'start',
         wide = false,
         hollow = false,
+        compact = false,
         className,
         children,
         ...props
@@ -36,6 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         `flowforge-button--${variant}`,
         icon && iconPosition === 'end' && 'flowforge-button--icon-end',
         wide && 'flowforge-button--wide',
+        compact && 'flowforge-button--compact',
         hollow ? 'flowforge-button--hollow' : 'flowforge-button--solid',
         typeof className === 'string' ? className : undefined,
     );

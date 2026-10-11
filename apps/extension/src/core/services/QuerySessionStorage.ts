@@ -86,4 +86,13 @@ export class QuerySessionStorage {
     removeRecord(pageId: number): Promise<void> {
         return this.storage.remove(this.getKey(pageId));
     }
+
+    /** Removes a completed session only when it still belongs to the requested query. */
+    async removeCompleted(pageId: number, queryId: string): Promise<boolean> {
+        const record = await this.getRecord(pageId);
+        if (record?.queryId !== queryId || record.state !== 'completed') return false;
+
+        await this.removeRecord(pageId);
+        return true;
+    }
 }

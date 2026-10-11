@@ -76,6 +76,42 @@ test('answers a question through the configured backend', async ({ context, exte
     await reopenedPopup.close();
 });
 
+test('clears a completed answer and does not restore it when the popup reopens', async ({
+    context,
+    extensionId,
+    page,
+}) => {
+    // Given
+    await page.goto('/chrome');
+    await mockQuery(
+        context,
+        createQueryResponseFixture({
+            result: {
+                answer: 'Answer to clear',
+                elements: [],
+                mode: 'direct',
+                topic: null,
+            },
+        }),
+    );
+    const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await popup.getByTestId('flowforge-question-input').fill('What is this page about?');
+    await popup.getByTestId('flowforge-question-submit').click();
+    await expect(popup.getByTestId('flowforge-result')).toContainText('Answer to clear');
+
+    // When
+    await popup.getByTestId('flowforge-clear-result').click();
+
+    // Then
+    await expect(popup.getByTestId('flowforge-result')).toHaveCount(0);
+    await expect(popup.getByTestId('flowforge-question-input')).toHaveValue('What is this page about?');
+    await popup.close();
+
+    const reopenedPopup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await expect(reopenedPopup.getByTestId('flowforge-result')).toHaveCount(0);
+    await reopenedPopup.close();
+});
+
 test('restores loading and receives the completed query after reopening the popup', async ({
     context,
     extensionId,

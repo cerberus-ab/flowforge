@@ -82,6 +82,40 @@ test('answers a question through the configured backend', async ({ page }) => {
     await expect(page.getByTestId('flowforge-result')).toContainText('Direct backend response');
 });
 
+test('clears a completed answer and does not restore it when the popup reopens', async ({ page }) => {
+    // Given
+    await mockQuery(
+        page,
+        createQueryResponseFixture({
+            result: {
+                answer: 'Answer to clear',
+                elements: [],
+                mode: 'direct',
+                topic: null,
+            },
+        }),
+    );
+    await page.goto('/embed');
+    const trigger = page.getByTestId('flowforge-trigger');
+    await trigger.click();
+    await page.getByTestId('flowforge-question-input').fill('What is this page about?');
+    await page.getByTestId('flowforge-question-submit').click();
+    await expect(page.getByTestId('flowforge-result')).toContainText('Answer to clear');
+
+    // When
+    await page.getByTestId('flowforge-clear-result').click();
+
+    // Then
+    await expect(page.getByTestId('flowforge-result')).toHaveCount(0);
+    await expect(page.getByTestId('flowforge-question-input')).toHaveValue('What is this page about?');
+    await page.getByTestId('sandbox-heading').click();
+    await expect(page.getByTestId('flowforge-popup')).toHaveCount(0);
+
+    await trigger.click();
+    await expect(page.getByTestId('flowforge-popup')).toBeVisible();
+    await expect(page.getByTestId('flowforge-result')).toHaveCount(0);
+});
+
 test('auto-highlights a single direct result element from the backend', async ({ page }) => {
     // Given
     await mockQuery(

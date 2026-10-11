@@ -8,6 +8,7 @@ import type { RestoreQueryResponse } from '@/messaging';
 import { formatQueryResponseMetadata } from '@/popup/utils/format';
 
 interface DisplayedResult {
+    queryId: string;
     result: AgentResult;
     metadata: string;
     question: string;
@@ -16,9 +17,10 @@ interface DisplayedResult {
 
 interface QuerySessionState {
     inputQuestion: string;
-    status: 'idle' | 'submitting' | 'pending' | 'completed' | 'error';
+    status: 'idle' | 'submitting' | 'pending' | 'completed' | 'clearing' | 'error';
     displayedResult: DisplayedResult | null;
     error: string | null;
+    clearError: string | null;
     hasEditedQuestionAfterResult: boolean;
 }
 
@@ -28,6 +30,9 @@ type QuerySessionAction =
     | { type: 'started' }
     | { type: 'pending' }
     | { type: 'completed'; result: DisplayedResult }
+    | { type: 'clearing' }
+    | { type: 'cleared' }
+    | { type: 'clearFailed'; error: string }
     | { type: 'failed'; error: string };
 
 const initialState: QuerySessionState = {
@@ -35,6 +40,7 @@ const initialState: QuerySessionState = {
     status: 'idle',
     displayedResult: null,
     error: null,
+    clearError: null,
     hasEditedQuestionAfterResult: false,
 };
 
@@ -45,6 +51,7 @@ function reduceQuerySession(state: QuerySessionState, action: QuerySessionAction
             return {
                 ...state,
                 inputQuestion: action.value,
+                clearError: null,
                 hasEditedQuestionAfterResult: state.hasEditedQuestionAfterResult || state.displayedResult !== null,
             };
         case 'inputRestored':
@@ -56,6 +63,7 @@ function reduceQuerySession(state: QuerySessionState, action: QuerySessionAction
                 status: action.type === 'started' ? 'submitting' : 'pending',
                 displayedResult: null,
                 error: null,
+                clearError: null,
                 hasEditedQuestionAfterResult: false,
             };
         case 'completed':
@@ -64,14 +72,29 @@ function reduceQuerySession(state: QuerySessionState, action: QuerySessionAction
                 status: 'completed',
                 displayedResult: action.result,
                 error: null,
+                clearError: null,
                 hasEditedQuestionAfterResult: false,
             };
+        case 'clearing':
+            return { ...state, status: 'clearing', clearError: null };
+        case 'cleared':
+            return {
+                ...state,
+                status: 'idle',
+                displayedResult: null,
+                error: null,
+                clearError: null,
+                hasEditedQuestionAfterResult: false,
+            };
+        case 'clearFailed':
+            return { ...state, status: 'completed', clearError: action.error };
         case 'failed':
             return {
                 ...state,
                 status: 'error',
                 displayedResult: null,
                 error: action.error,
+                clearError: null,
                 hasEditedQuestionAfterResult: false,
             };
     }
@@ -82,12 +105,14 @@ export interface QuerySessionViewModel {
     question: string;
     setInputQuestion: (value: string) => void;
     isLoading: boolean;
+    isClearingResult: boolean;
     result: AgentResult | null;
     resultMetadata: string | null;
     isResultStale: boolean;
     warning: string | null;
     error: string | null;
     askQuestion: () => Promise<void>;
+    clearResult: () => Promise<void>;
     openOnboarding: () => Promise<void>;
     navigateToElement: (element: AgentResultElement) => Promise<void>;
 }
@@ -109,14 +134,17 @@ export function useQuerySession(
     const finishedQueryIdsRef = useRef(new Set<string>());
     // If refreshing that completion fails, the older snapshot must not restart loading.
     const failedQueryRestoreIdsRef = useRef(new Set<string>());
+    const clearedQueryIdsRef = useRef(new Set<string>());
+    const isClearingResultRef = useRef(false);
 
     const question = useMemo(() => normalizeText(state.inputQuestion), [state.inputQuestion]);
     const warning =
-        state.hasEditedQuestionAfterResult && state.displayedResult
+        state.clearError ??
+        (state.hasEditedQuestionAfterResult && state.displayedResult
             ? `The question has changed. This result is for the previous question: "${state.displayedResult.question}"`
             : state.displayedResult?.isStale
               ? 'This page has changed since the answer was generated. Element references may be outdated.'
-              : null;
+              : null);
 
     const navigateToElement = useCallback(
         (element: AgentResultElement) => backgroundClient.navigateToElement(element),
@@ -126,6 +154,7 @@ export function useQuerySession(
     const applyQuerySession = useCallback(
         (response: RestoreQueryResponse, shouldRestoreQuestion: boolean) => {
             if (response.status === 'empty') return;
+            if (clearedQueryIdsRef.current.has(response.queryId)) return;
             // Do not put the popup back into loading after this query has finished.
             if (response.status === 'pending' && finishedQueryIdsRef.current.has(response.queryId)) {
                 if (failedQueryRestoreIdsRef.current.has(response.queryId)) {
@@ -158,6 +187,7 @@ export function useQuerySession(
             dispatch({
                 type: 'completed',
                 result: {
+                    queryId: response.queryId,
                     result: response.data.result,
                     metadata: formatQueryResponseMetadata(response.data.metadata),
                     question: response.data.question,
@@ -192,6 +222,7 @@ export function useQuerySession(
         let isActive = true;
         const unsubscribe = backgroundClient.subscribeToPopupMessages({
             onQueryFinished: ({ queryId }) => {
+                if (clearedQueryIdsRef.current.has(queryId)) return;
                 finishedQueryIdsRef.current.add(queryId);
                 // The restore after askQuestion returns will pick up an early completion.
                 if (isSubmittingQuestionRef.current) return;
@@ -300,6 +331,28 @@ export function useQuerySession(
         }
     }, [question, backgroundClient, applyQuerySession]);
 
+    const clearResult = useCallback(async () => {
+        const queryId = state.displayedResult?.queryId;
+        if (queryId === undefined || isClearingResultRef.current) return;
+
+        isClearingResultRef.current = true;
+        const generation = ++queryGenerationRef.current;
+        clearedQueryIdsRef.current.add(queryId);
+        dispatch({ type: 'clearing' });
+
+        try {
+            await backgroundClient.clearQuery(queryId);
+            if (isMountedRef.current && queryGenerationRef.current === generation) dispatch({ type: 'cleared' });
+        } catch {
+            clearedQueryIdsRef.current.delete(queryId);
+            if (isMountedRef.current && queryGenerationRef.current === generation) {
+                dispatch({ type: 'clearFailed', error: 'Could not clear this result. Please try again.' });
+            }
+        } finally {
+            isClearingResultRef.current = false;
+        }
+    }, [state.displayedResult, backgroundClient]);
+
     const openOnboarding = useCallback(async () => {
         if (!state.displayedResult) return;
         await backgroundClient.openOnboarding(state.displayedResult.question, state.displayedResult.result);
@@ -310,12 +363,14 @@ export function useQuerySession(
         question,
         setInputQuestion,
         isLoading: state.status === 'submitting' || state.status === 'pending',
+        isClearingResult: state.status === 'clearing',
         result: state.displayedResult?.result ?? null,
         resultMetadata: state.displayedResult?.metadata ?? null,
         isResultStale: state.displayedResult?.isStale ?? false,
         warning,
         error: state.error,
         askQuestion,
+        clearResult,
         openOnboarding,
         navigateToElement,
     };
