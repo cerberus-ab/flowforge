@@ -2,7 +2,7 @@ import type { AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge
 import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { Message, MessageResponse } from '@/messaging';
+import type { Message, MessageResponse, RestoreQueryResponse } from '@/messaging';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { createSettingsFixture } from '../../../test/fixtures';
 import { BackgroundClient } from './BackgroundClient';
@@ -29,6 +29,13 @@ const queryResponse: QueryResponse = {
     },
 };
 
+const restoreQueryResponse: RestoreQueryResponse = {
+    restored: true,
+    state: 'pending',
+    data: { question: 'How do I open settings?' },
+    reason: 'ok',
+};
+
 describe('BackgroundClient', () => {
     it('sends popup commands for the active page and unwraps their responses', async () => {
         // Given
@@ -39,6 +46,9 @@ describe('BackgroundClient', () => {
             if (message.type === 'GET_PREV_QUESTIONS') {
                 return { success: true, data: { questions: ['Where is billing?'] } };
             }
+            if (message.type === 'RESTORE_QUERY') {
+                return { success: true, data: restoreQueryResponse };
+            }
             if (message.type === 'ASK_QUESTION') {
                 return { success: true, data: queryResponse };
             }
@@ -48,6 +58,7 @@ describe('BackgroundClient', () => {
 
         // When
         await client.notifyPopupOpened();
+        const restoredQuery = await client.restoreQuery();
         const questions = await client.getPreviousQuestions();
         const answer = await client.askQuestion('How do I open settings?');
         await client.navigateToElement(element);
@@ -56,9 +67,11 @@ describe('BackgroundClient', () => {
 
         // Then
         expect(questions).toEqual({ questions: ['Where is billing?'] });
+        expect(restoredQuery).toEqual(restoreQueryResponse);
         expect(answer).toEqual(queryResponse);
         expect(messages).toEqual([
             { type: 'POPUP_OPENED' },
+            { type: 'RESTORE_QUERY' },
             { type: 'GET_PREV_QUESTIONS' },
             { type: 'ASK_QUESTION', data: { question: 'How do I open settings?' } },
             { type: 'NAVIGATE_TO_ELEMENT', data: { element } },

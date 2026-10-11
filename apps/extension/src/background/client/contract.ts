@@ -1,5 +1,5 @@
 import type { ExtensionSettings } from '@/types';
-import type { PreviousQuestionsResponse, StartOnboardingMessageData } from '@/messaging';
+import type { PreviousQuestionsResponse, RestoreQueryResponse, StartOnboardingMessageData } from '@/messaging';
 import type { AgentResult, AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
 import type { TrailFingerprint } from '@flowforge/page-trail';
 
@@ -25,6 +25,7 @@ export interface SettingsMessageCallbacks {
 /* client interfaces */
 export interface PopupBackgroundClient {
     notifyPopupOpened(): Promise<void>;
+    restoreQuery(): Promise<RestoreQueryResponse>;
     getPreviousQuestions(): Promise<PreviousQuestionsResponse>;
     askQuestion(question: string): Promise<QueryResponse>;
     openOnboarding(question: string, result: AgentResult): Promise<void>;
