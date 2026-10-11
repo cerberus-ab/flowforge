@@ -1,8 +1,8 @@
-import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/contract';
+import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 
 import type { Message, MessageResponse } from '../Message';
 import type { ExtensionSettings } from '@/core/types/settings';
-import type { QuerySessionDataCompleted, QuerySessionDataReady } from '@/core/services/QuerySessionStorage';
+import type { QuerySessionDataPending, QuerySessionDataCompleted } from '@/core/services/QuerySessionStorage';
 
 export type PopupOpenedMessage = Message & {
     type: 'POPUP_OPENED';
@@ -25,19 +25,10 @@ export type RestoreQueryMessage = Message & {
 };
 
 export type RestoreQueryResponse =
-    | { restored: false; reason: 'empty' | 'mismatch:url' }
-    | {
-          restored: true;
-          state: 'ready';
-          data: QuerySessionDataReady;
-          reason: 'ok' | 'mismatch:signature';
-      }
-    | {
-          restored: true;
-          state: 'completed';
-          data: Omit<QuerySessionDataCompleted, 'trailSnapshot'>;
-          reason: 'ok';
-      };
+    | { status: 'empty' }
+    | { status: 'pending'; queryId: string; data: QuerySessionDataPending }
+    | { status: 'completed'; queryId: string; data: QuerySessionDataCompleted }
+    | { status: 'stale'; queryId: string; data: QuerySessionDataCompleted };
 
 export interface AskQuestionMessageData {
     question: string;
@@ -46,6 +37,10 @@ export interface AskQuestionMessageData {
 export type AskQuestionMessage = Message<AskQuestionMessageData> & {
     type: 'ASK_QUESTION';
 };
+
+export interface AskQuestionResponse {
+    queryId: string;
+}
 
 export type GetPrevQuestionsMessage = Message & {
     type: 'GET_PREV_QUESTIONS';
@@ -96,7 +91,7 @@ export interface BackgroundMessageResponseMap {
     GET_SETTINGS: ExtensionSettings;
     UPDATE_SETTINGS: ExtensionSettings;
     RESTORE_QUERY: RestoreQueryResponse;
-    ASK_QUESTION: QueryResponse;
+    ASK_QUESTION: AskQuestionResponse;
     GET_PREV_QUESTIONS: PreviousQuestionsResponse;
     NAVIGATE_TO_ELEMENT: undefined;
     OPEN_PAGE_INSPECTOR: undefined;

@@ -8,6 +8,7 @@ import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportS
 import { HistoryStorage } from '@/core/services/HistoryStorage';
 import { QuerySessionStorage } from '@/core/services/QuerySessionStorage';
 import { PageClient } from '@/page/client/PageClient';
+import { PopupClient } from '@/popup/client/PopupClient';
 import type { AskQuestionMessage, GetPrevQuestionsMessage, RestoreQueryMessage } from '@/messaging';
 import { QueryMessageHandler } from './QueryMessageHandler';
 
@@ -49,6 +50,7 @@ describe('QueryMessageHandler', () => {
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings', pageTrailDto });
         const handler = new QueryMessageHandler(
             new PageClient(transport),
+            new PopupClient(transport),
             apiClient,
             querySessionStorage,
             historyStorage,
@@ -62,7 +64,11 @@ describe('QueryMessageHandler', () => {
         const response = await handler.handleAskQuestion(message, { pageId: 7 });
 
         // Then
-        expect(response).toEqual(queryResponse);
+        expect(response).toMatchObject({ queryId: expect.any(String) });
+        const queryId = response.queryId;
+        await vi.waitFor(async () => {
+            await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
+        });
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
             { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
@@ -80,6 +86,7 @@ describe('QueryMessageHandler', () => {
             'Previous question',
         ]);
         await expect(sessionStorage.get(querySessionKey(7))).resolves.toEqual({
+            queryId,
             url: 'https://app.flowforge.test/settings',
             state: 'completed',
             data: {
@@ -89,9 +96,12 @@ describe('QueryMessageHandler', () => {
                 trailSnapshot: pageTrailDto.metadata.snapshot,
             },
         });
+        expect(transport.getSentToPopup()).toEqual([
+            { pageId: 7, message: { type: 'QUERY_FINISHED', data: { queryId } } },
+        ]);
     });
 
-    it('keeps the submitted question in the page session when the API request fails', async () => {
+    it('persists an API failure as a completed query and notifies the popup', async () => {
         // Given
         const apiClient = new FakeApiClient(new Error('API unavailable'));
         const sessionStorage = new FakeStorage();
@@ -99,6 +109,7 @@ describe('QueryMessageHandler', () => {
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings', pageTrailDto });
         const handler = new QueryMessageHandler(
             new PageClient(transport),
+            new PopupClient(transport),
             apiClient,
             new QuerySessionStorage(sessionStorage),
             new HistoryStorage(new FakeStorage(), 5),
@@ -109,12 +120,52 @@ describe('QueryMessageHandler', () => {
         };
 
         // When / Then
-        await expect(handler.handleAskQuestion(message, { pageId: 7 })).rejects.toThrow('API unavailable');
-        await expect(sessionStorage.get(querySessionKey(7))).resolves.toEqual({
-            url: 'https://app.flowforge.test/settings',
-            state: 'ready',
-            data: { question: 'How do I save?' },
+        const { queryId } = await handler.handleAskQuestion(message, { pageId: 7 });
+        await vi.waitFor(async () => {
+            await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
         });
+        await expect(sessionStorage.get(querySessionKey(7))).resolves.toEqual({
+            queryId,
+            url: 'https://app.flowforge.test/settings',
+            state: 'completed',
+            data: { question: 'How do I save?', error: 'API unavailable' },
+        });
+        expect(transport.getSentToPopup()).toEqual([
+            { pageId: 7, message: { type: 'QUERY_FINISHED', data: { queryId } } },
+        ]);
+    });
+
+    it('notifies the popup when saving question history fails', async () => {
+        // Given
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        const sessionStorage = new FakeStorage();
+        const historyStorage = new HistoryStorage(new FakeStorage(), 5);
+        vi.spyOn(historyStorage, 'saveQuestion').mockRejectedValue(new Error('History unavailable'));
+        const transport = createTransport({
+            pageUrl: 'https://app.flowforge.test/settings',
+            pageTrailDto: createPageTrailDtoFixture(),
+        });
+        const handler = new QueryMessageHandler(
+            new PageClient(transport),
+            new PopupClient(transport),
+            new FakeApiClient(),
+            new QuerySessionStorage(sessionStorage),
+            historyStorage,
+        );
+
+        // When
+        const { queryId } = await handler.handleAskQuestion(
+            { type: 'ASK_QUESTION', data: { question: 'How do I save?' } },
+            { pageId: 7 },
+        );
+
+        // Then
+        await vi.waitFor(() => {
+            expect(transport.getSentToPopup()).toEqual([
+                { pageId: 7, message: { type: 'QUERY_FINISHED', data: { queryId } } },
+            ]);
+        });
+        await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
     });
 
     it('returns previous questions for the sender hostname', async () => {
@@ -124,6 +175,7 @@ describe('QueryMessageHandler', () => {
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
         const handler = new QueryMessageHandler(
             new PageClient(transport),
+            new PopupClient(transport),
             new FakeApiClient(),
             new QuerySessionStorage(new FakeStorage()),
             historyStorage,
@@ -143,8 +195,7 @@ describe('QueryMessageHandler', () => {
         const handler = createQueryHandler(transport, sessionStorage);
 
         await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
-            restored: false,
-            reason: 'empty',
+            status: 'empty',
         });
         expect(transport.getSentToPage()).toEqual([]);
     });
@@ -156,31 +207,71 @@ describe('QueryMessageHandler', () => {
         const handler = createQueryHandler(transport, sessionStorage);
 
         await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
-            restored: false,
-            reason: 'mismatch:url',
+            status: 'empty',
         });
         await expect(sessionStorage.get(querySessionKey(7))).resolves.toBeNull();
         expect(transport.getSentToPage()).toEqual([]);
     });
 
-    it('restores ready query sessions without checking a page signature', async () => {
+    it('discards a pending query session if its task is no longer active', async () => {
         const sessionStorage = new FakeStorage();
-        const readyData = { question: 'How do I save?' };
+        const pendingData = { question: 'How do I save?' };
         await sessionStorage.set(querySessionKey(7), {
+            queryId: 'query-7',
             url: 'https://app.flowforge.test/settings',
-            state: 'ready',
-            data: readyData,
+            state: 'pending',
+            data: pendingData,
         });
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
         const handler = createQueryHandler(transport, sessionStorage);
 
         await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
-            restored: true,
-            state: 'ready',
-            data: readyData,
-            reason: 'ok',
+            status: 'empty',
         });
+        await expect(sessionStorage.get(querySessionKey(7))).resolves.toBeNull();
         expect(transport.getSentToPage()).toEqual([]);
+    });
+
+    it('restores a pending query while its task is still active', async () => {
+        const sessionStorage = new FakeStorage();
+        const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
+        let releaseQuery!: (response: ReturnType<typeof createQueryResponseFixture>) => void;
+        let queryStarted!: () => void;
+        const started = new Promise<void>((resolve) => {
+            queryStarted = resolve;
+        });
+        const apiClient = {
+            query: vi.fn(() => {
+                queryStarted();
+                return new Promise<ReturnType<typeof createQueryResponseFixture>>((resolve) => {
+                    releaseQuery = resolve;
+                });
+            }),
+        };
+        const handler = new QueryMessageHandler(
+            new PageClient(transport),
+            new PopupClient(transport),
+            apiClient,
+            new QuerySessionStorage(sessionStorage),
+            new HistoryStorage(new FakeStorage(), 5),
+        );
+
+        const { queryId } = await handler.handleAskQuestion(
+            { type: 'ASK_QUESTION', data: { question: 'How do I save?' } },
+            { pageId: 7 },
+        );
+        await started;
+
+        await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
+            status: 'pending',
+            queryId,
+            data: { question: 'How do I save?' },
+        });
+
+        releaseQuery(createQueryResponseFixture());
+        await vi.waitFor(async () => {
+            await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
+        });
     });
 
     it('restores a completed query when the page data ID signature still matches', async () => {
@@ -195,19 +286,22 @@ describe('QueryMessageHandler', () => {
         const handler = createQueryHandler(transport, sessionStorage);
 
         await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
-            restored: true,
-            state: 'completed',
+            status: 'completed',
+            queryId: 'query-7',
             data: {
                 question: 'How do I save?',
                 result: queryResponse.result,
                 metadata: queryResponse.metadata,
+                trailSnapshot: {
+                    ...createPageTrailDtoFixture().metadata.snapshot,
+                    dataIdSignature,
+                },
             },
-            reason: 'ok',
         });
         expect(transport.getSentToPage()).toEqual([{ pageId: 7, message: { type: 'COLLECT_DATA_ID_SIGNATURE' } }]);
     });
 
-    it('resets a completed query to ready when the page data ID signature changed', async () => {
+    it('restores the completed answer as stale when the page data ID signature changed', async () => {
         const sessionStorage = new FakeStorage();
         await saveCompletedQuery(sessionStorage, '1-saved');
         const transport = createTransport({
@@ -217,16 +311,16 @@ describe('QueryMessageHandler', () => {
         const handler = createQueryHandler(transport, sessionStorage);
 
         await expect(handler.handleRestoreQuery(restoreMessage, { pageId: 7 })).resolves.toEqual({
-            restored: true,
-            state: 'ready',
-            data: { question: 'How do I save?' },
-            reason: 'mismatch:data-id-signature',
+            status: 'stale',
+            queryId: 'query-7',
+            data: {
+                question: 'How do I save?',
+                result: expect.any(Object),
+                metadata: expect.any(Object),
+                trailSnapshot: expect.objectContaining({ dataIdSignature: '1-saved' }),
+            },
         });
-        await expect(sessionStorage.get(querySessionKey(7))).resolves.toEqual({
-            url: 'https://app.flowforge.test/settings',
-            state: 'ready',
-            data: { question: 'How do I save?' },
-        });
+        await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
     });
 
     it('restores a completed context-only query without checking a data ID signature', async () => {
@@ -237,7 +331,7 @@ describe('QueryMessageHandler', () => {
 
         const response = await handler.handleRestoreQuery(restoreMessage, { pageId: 7 });
 
-        expect(response).toMatchObject({ restored: true, state: 'completed', reason: 'ok' });
+        expect(response).toMatchObject({ status: 'completed' });
         expect(transport.getSentToPage()).toEqual([]);
     });
 });
@@ -264,6 +358,7 @@ const restoreMessage: RestoreQueryMessage = { type: 'RESTORE_QUERY' };
 function createQueryHandler(transport: FakeTransportService, sessionStorage: FakeStorage): QueryMessageHandler {
     return new QueryMessageHandler(
         new PageClient(transport),
+        new PopupClient(transport),
         new FakeApiClient(),
         new QuerySessionStorage(sessionStorage),
         new HistoryStorage(new FakeStorage(), 5),
@@ -277,6 +372,7 @@ async function saveCompletedQuery(
 ): Promise<void> {
     const trailSnapshot = createPageTrailDtoFixture().metadata.snapshot;
     await sessionStorage.set(querySessionKey(7), {
+        queryId: 'query-7',
         url: 'https://app.flowforge.test/settings',
         state: 'completed',
         data: {

@@ -8,46 +8,53 @@ import { QuerySessionStorage } from './QuerySessionStorage';
 const querySessionKey = (pageId: number) => `${constants.STORAGE_NAMESPACE}_query_session::${pageId}`;
 
 describe('QuerySessionStorage', () => {
-    it('saves a ready question session scoped to its page', async () => {
+    it('saves a pending question session scoped to its page', async () => {
         // Given
         const storage = new FakeStorage();
         const querySessionStorage = new QuerySessionStorage(storage);
 
         // When
-        await querySessionStorage.saveReady(7, 'https://app.example/settings', {
+        await querySessionStorage.savePending(7, 'query-7', 'https://app.example/settings', {
             question: 'How do I save?',
         });
 
         // Then
         await expect(storage.get(querySessionKey(7))).resolves.toEqual({
+            queryId: 'query-7',
             url: 'https://app.example/settings',
-            state: 'ready',
+            state: 'pending',
             data: { question: 'How do I save?' },
         });
         await expect(storage.get(querySessionKey(8))).resolves.toBeNull();
     });
 
-    it('saves a completed session with the question, response metadata, and page snapshot', async () => {
+    it('updates the matching pending session to completed and preserves its question', async () => {
         // Given
         const storage = new FakeStorage();
         const querySessionStorage = new QuerySessionStorage(storage);
         const response = createQueryResponseFixture();
         const pageTrailDto = createPageTrailDtoFixture();
 
-        // When
-        await querySessionStorage.saveCompleted(7, 'https://app.example/settings', {
-            question: 'How do I save?',
-            result: response.result,
-            metadata: response.metadata,
-            trailSnapshot: pageTrailDto.metadata.snapshot,
+        await querySessionStorage.savePending(7, 'query-7', 'https://app.example/settings', {
+            question: 'Original question',
         });
+
+        // When
+        await expect(
+            querySessionStorage.updateCompleted(7, 'query-7', {
+                result: response.result,
+                metadata: response.metadata,
+                trailSnapshot: pageTrailDto.metadata.snapshot,
+            }),
+        ).resolves.toBe(true);
 
         // Then
         await expect(storage.get(querySessionKey(7))).resolves.toEqual({
+            queryId: 'query-7',
             url: 'https://app.example/settings',
             state: 'completed',
             data: {
-                question: 'How do I save?',
+                question: 'Original question',
                 result: response.result,
                 metadata: response.metadata,
                 trailSnapshot: pageTrailDto.metadata.snapshot,
@@ -55,18 +62,60 @@ describe('QuerySessionStorage', () => {
         });
     });
 
+    it('does not complete a session for another query or from a non-pending state', async () => {
+        // Given
+        const storage = new FakeStorage();
+        const querySessionStorage = new QuerySessionStorage(storage);
+        const response = createQueryResponseFixture();
+        const completedData = {
+            result: response.result,
+            metadata: response.metadata,
+            trailSnapshot: createPageTrailDtoFixture().metadata.snapshot,
+        };
+        await querySessionStorage.savePending(7, 'query-7', 'https://app.example/settings', {
+            question: 'How do I save?',
+        });
+
+        // When / Then
+        await expect(querySessionStorage.updateCompleted(7, 'other-query', completedData)).resolves.toBe(false);
+        await expect(querySessionStorage.updateCompleted(8, 'query-7', completedData)).resolves.toBe(false);
+        await expect(querySessionStorage.updateCompleted(7, 'query-7', completedData)).resolves.toBe(true);
+        await expect(querySessionStorage.updateCompleted(7, 'query-7', completedData)).resolves.toBe(false);
+    });
+
+    it('stores an error outcome as completed', async () => {
+        // Given
+        const storage = new FakeStorage();
+        const querySessionStorage = new QuerySessionStorage(storage);
+        await querySessionStorage.savePending(7, 'query-7', 'https://app.example/settings', {
+            question: 'How do I save?',
+        });
+
+        // When / Then
+        await expect(querySessionStorage.updateCompleted(7, 'query-7', { error: 'Backend unavailable' })).resolves.toBe(
+            true,
+        );
+        await expect(storage.get(querySessionKey(7))).resolves.toEqual({
+            queryId: 'query-7',
+            url: 'https://app.example/settings',
+            state: 'completed',
+            data: { question: 'How do I save?', error: 'Backend unavailable' },
+        });
+    });
+
     it('returns the saved session for a page', async () => {
         // Given
         const storage = new FakeStorage();
         const querySessionStorage = new QuerySessionStorage(storage);
-        await querySessionStorage.saveReady(7, 'https://app.example/settings', {
+        await querySessionStorage.savePending(7, 'query-7', 'https://app.example/settings', {
             question: 'How do I save?',
         });
 
         // When / Then
         await expect(querySessionStorage.getRecord(7)).resolves.toEqual({
+            queryId: 'query-7',
             url: 'https://app.example/settings',
-            state: 'ready',
+            state: 'pending',
             data: { question: 'How do I save?' },
         });
     });
@@ -83,10 +132,10 @@ describe('QuerySessionStorage', () => {
         // Given
         const storage = new FakeStorage();
         const querySessionStorage = new QuerySessionStorage(storage);
-        await querySessionStorage.saveReady(7, 'https://app.example/settings', {
+        await querySessionStorage.savePending(7, 'query-7', 'https://app.example/settings', {
             question: 'How do I save?',
         });
-        await querySessionStorage.saveReady(8, 'https://app.example/settings', {
+        await querySessionStorage.savePending(8, 'query-8', 'https://app.example/settings', {
             question: 'How do I cancel?',
         });
 

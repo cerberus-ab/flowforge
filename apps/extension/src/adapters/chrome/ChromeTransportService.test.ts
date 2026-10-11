@@ -59,15 +59,21 @@ describe('ChromeTransportService', () => {
         const transport = new ChromeTransportService();
         const backgroundMessage = { type: 'GET_SETTINGS' } as const;
         const pageMessage = { type: 'CLEAR_PAGE' } as const;
+        const popupMessage = { type: 'QUERY_FINISHED', data: { queryId: 'query-1' } } as const;
 
         await expect(transport.sendToBackground(backgroundMessage, { pageId: 42 })).resolves.toEqual({ success: true });
         await expect(transport.sendToPage(42, pageMessage)).resolves.toEqual({ success: true });
+        await expect(transport.sendToPopup(42, popupMessage)).resolves.toBeUndefined();
         expect(chromeApi.runtime.sendMessage).toHaveBeenCalledWith({
             message: backgroundMessage,
             context: { pageId: 42 },
         });
         expect(chromeApi.tabs.sendMessage).toHaveBeenCalledWith(42, {
             message: pageMessage,
+            context: { pageId: 42 },
+        });
+        expect(chromeApi.runtime.sendMessage).toHaveBeenLastCalledWith({
+            message: popupMessage,
             context: { pageId: 42 },
         });
     });

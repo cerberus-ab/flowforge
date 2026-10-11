@@ -5,12 +5,13 @@ import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 interface ResultProps {
     result: AgentResult | null;
     resultMetadata: string | null;
+    isStale: boolean;
     error: string | null;
     onNavigateToElement: (element: AgentResultElement) => void;
     onOpenOnboarding: () => void;
 }
 
-export function Result({ result, resultMetadata, error, onNavigateToElement, onOpenOnboarding }: ResultProps) {
+export function Result({ result, resultMetadata, isStale, error, onNavigateToElement, onOpenOnboarding }: ResultProps) {
     if (error) {
         return <Card title="Couldn't" text={error} direction="left" error data-testid="flowforge-result-error"></Card>;
     }
@@ -21,6 +22,7 @@ export function Result({ result, resultMetadata, error, onNavigateToElement, onO
                     <ResultElements
                         elements={result.elements}
                         mode={result.mode}
+                        isStale={isStale}
                         onNavigateToElement={onNavigateToElement}
                         onOpenOnboarding={onOpenOnboarding}
                     />

@@ -8,7 +8,7 @@ const corsHeaders = {
     'access-control-allow-origin': '*',
 };
 
-export async function mockQuery(target: BrowserContext | Page, response: QueryResponse) {
+export async function mockQuery(target: BrowserContext | Page, response: QueryResponse, delayMs = 0) {
     await target.route(`${BACKEND_URL}/query`, async (route) => {
         if (route.request().method() === 'OPTIONS') {
             await route.fulfill({
@@ -17,6 +17,7 @@ export async function mockQuery(target: BrowserContext | Page, response: QueryRe
             });
             return;
         }
+        if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
         await route.fulfill({
             status: 200,
             contentType: 'application/json',

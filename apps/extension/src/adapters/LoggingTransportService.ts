@@ -7,6 +7,7 @@ import type {
     MessageListener,
     PageMessage,
     PageMessageResponse,
+    PopupMessage,
 } from '@/messaging';
 
 /** Adds development-only diagnostics around transport messages. */
@@ -38,6 +39,10 @@ export class LoggingTransportService implements TransportService {
         return this.logOutgoing('page', message, { pageId }, () => this.transport.sendToPage(pageId, message));
     }
 
+    async sendToPopup(pageId: number, message: PopupMessage): Promise<void> {
+        return this.logOutgoing('popup', message, { pageId }, () => this.transport.sendToPopup(pageId, message));
+    }
+
     addMessageListener(handler: MessageListener): () => void {
         return this.transport.addMessageListener((message, context) => {
             this.log('received', message, context);
@@ -62,7 +67,7 @@ export class LoggingTransportService implements TransportService {
     }
 
     private async logOutgoing<T>(
-        destination: 'background' | 'page',
+        destination: 'background' | 'page' | 'popup',
         message: Message,
         context: MessageContext,
         send: () => Promise<T>,

@@ -1,4 +1,4 @@
-import type { AgentResult, AgentResultElement, QueryResponse } from '@flowforge/contract';
+import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 
 import type { TransportService } from '@/adapters';
 import {
@@ -9,10 +9,12 @@ import {
     isCollectDataIdSignatureMessage,
     isHighlightElementMessage,
     isOpenInspectorMessage,
+    isQueryFinishedMessage,
     isSettingsUpdatedMessage,
     isStartOnboardingMessage,
     type PreviousQuestionsResponse,
     type RestoreQueryResponse,
+    type AskQuestionResponse,
 } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
 import type {
@@ -24,6 +26,7 @@ import type {
     PopupBackgroundClient,
     SettingsBackgroundClient,
     SettingsMessageCallbacks,
+    QueryFinishedMessageCallbacks,
 } from './contract';
 import { MessageRouter, type MessageRoute } from '@/messaging';
 
@@ -79,7 +82,7 @@ export class BackgroundClient
     }
 
     /** Submits a question along with the active page context. */
-    async askQuestion(question: string): Promise<QueryResponse> {
+    async askQuestion(question: string): Promise<AskQuestionResponse> {
         return this.sendToBackground({
             type: 'ASK_QUESTION',
             data: { question },
@@ -123,6 +126,13 @@ export class BackgroundClient
             type: 'UPDATE_SETTINGS',
             data: { patch },
         });
+    }
+
+    /** Subscribes to query-finished notifications sent by background. */
+    subscribeToQueryFinishedMessages(callbacks: QueryFinishedMessageCallbacks): () => void {
+        return this.subscribeToMessages([
+            MessageRouter.route(isQueryFinishedMessage, (message) => callbacks.onQueryFinished(message.data)),
+        ]);
     }
 
     /** Subscribes to settings updates initiated by background. */

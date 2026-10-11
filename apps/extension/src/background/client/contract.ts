@@ -1,6 +1,12 @@
 import type { ExtensionSettings } from '@/types';
-import type { PreviousQuestionsResponse, RestoreQueryResponse, StartOnboardingMessageData } from '@/messaging';
-import type { AgentResult, AgentResultElement, PageTrailDto, QueryResponse } from '@flowforge/contract';
+import type {
+    AskQuestionResponse,
+    PreviousQuestionsResponse,
+    RestoreQueryResponse,
+    StartOnboardingMessageData,
+    QueryFinishedMessageData,
+} from '@/messaging';
+import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 /* message callbacks */
 export interface PageMessageCallbacks {
@@ -21,12 +27,17 @@ export interface SettingsMessageCallbacks {
     onSettingsUpdated: (settings: ExtensionSettings) => void;
 }
 
+export interface QueryFinishedMessageCallbacks {
+    onQueryFinished: (data: QueryFinishedMessageData) => void;
+}
+
 /* client interfaces */
 export interface PopupBackgroundClient {
     notifyPopupOpened(): Promise<void>;
     restoreQuery(): Promise<RestoreQueryResponse>;
     getPreviousQuestions(): Promise<PreviousQuestionsResponse>;
-    askQuestion(question: string): Promise<QueryResponse>;
+    askQuestion(question: string): Promise<AskQuestionResponse>;
+    subscribeToQueryFinishedMessages(callbacks: QueryFinishedMessageCallbacks): () => void;
     openOnboarding(question: string, result: AgentResult): Promise<void>;
     navigateToElement(element: AgentResultElement): Promise<void>;
     openPageInspector(tab?: string): Promise<void>;

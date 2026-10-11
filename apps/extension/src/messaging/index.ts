@@ -4,3 +4,4 @@ export type { MessageRoute } from './MessageRouter';
 
 export * from './messages/background';
 export * from './messages/page';
+export * from './messages/popup';

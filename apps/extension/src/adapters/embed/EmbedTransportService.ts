@@ -8,6 +8,7 @@ import type {
     MessageListener,
     PageMessage,
     PageMessageResponse,
+    PopupMessage,
 } from '@/messaging';
 
 export class EmbedTransportService implements TransportService {
@@ -30,6 +31,10 @@ export class EmbedTransportService implements TransportService {
 
     async sendToPage<M extends PageMessage>(pageId: number, message: M): Promise<PageMessageResponse<M>> {
         return this.send<PageMessageResponse<M>>(message, { pageId });
+    }
+
+    async sendToPopup(pageId: number, message: PopupMessage): Promise<void> {
+        await Promise.all([...this.messageHandlers].map((handler) => handler(message, { pageId })));
     }
 
     addMessageListener(handler: MessageListener): () => void {

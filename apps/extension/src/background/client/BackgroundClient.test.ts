@@ -30,10 +30,9 @@ const queryResponse: QueryResponse = {
 };
 
 const restoreQueryResponse: RestoreQueryResponse = {
-    restored: true,
-    state: 'ready',
+    status: 'pending',
+    queryId: 'query-1',
     data: { question: 'How do I open settings?' },
-    reason: 'ok',
 };
 
 describe('BackgroundClient', () => {
@@ -50,7 +49,7 @@ describe('BackgroundClient', () => {
                 return { success: true, data: restoreQueryResponse };
             }
             if (message.type === 'ASK_QUESTION') {
-                return { success: true, data: queryResponse };
+                return { success: true, data: { queryId: 'query-1' } };
             }
             return { success: true };
         });
@@ -68,7 +67,7 @@ describe('BackgroundClient', () => {
         // Then
         expect(questions).toEqual({ questions: ['Where is billing?'] });
         expect(restoredQuery).toEqual(restoreQueryResponse);
-        expect(answer).toEqual(queryResponse);
+        expect(answer).toEqual({ queryId: 'query-1' });
         expect(messages).toEqual([
             { type: 'POPUP_OPENED' },
             { type: 'RESTORE_QUERY' },

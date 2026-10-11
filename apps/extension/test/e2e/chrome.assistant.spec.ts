@@ -68,6 +68,79 @@ test('answers a question through the configured backend', async ({ context, exte
     await expect(popup.getByTestId('flowforge-result')).toContainText('Chrome backend response');
 
     await popup.close();
+
+    // The completed query survives closing and reopening the popup for the same page.
+    const reopenedPopup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await expect(reopenedPopup.getByTestId('flowforge-result')).toContainText('Chrome backend response');
+    await expect(reopenedPopup.getByTestId('flowforge-question-input')).toHaveValue('What is this page about?');
+    await reopenedPopup.close();
+});
+
+test('restores loading and receives the completed query after reopening the popup', async ({
+    context,
+    extensionId,
+    page,
+}) => {
+    // Given
+    await page.goto('/chrome');
+    await mockQuery(
+        context,
+        createQueryResponseFixture({
+            result: {
+                answer: 'Completed after the popup reopened',
+                elements: [],
+                mode: 'direct',
+                topic: null,
+            },
+        }),
+        2500,
+    );
+    const firstPopup = await openExtensionPopup(context, extensionId, { activePage: page });
+
+    // When: submit and close while the background request is still pending.
+    await firstPopup.getByTestId('flowforge-question-input').fill('What is this page about?');
+    await firstPopup.getByTestId('flowforge-question-submit').click();
+    await expect(firstPopup.getByLabel('Loading')).toBeVisible();
+    await firstPopup.close();
+
+    // Then: reopening restores pending state, and the live completion updates it.
+    const reopenedPopup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await expect(reopenedPopup.getByLabel('Loading')).toBeVisible();
+    await expect(reopenedPopup.getByTestId('flowforge-result')).toContainText('Completed after the popup reopened');
+    await expect(reopenedPopup.getByLabel('Loading')).toHaveCount(0);
+    await reopenedPopup.close();
+});
+
+test('keeps a completed answer and warns when its page fingerprint is stale', async ({
+    context,
+    extensionId,
+    page,
+}) => {
+    await page.goto('/chrome');
+    await mockQuery(
+        context,
+        createQueryResponseFixture({
+            result: {
+                answer: 'This answer is still useful',
+                elements: [{ text: directTarget.text, dataId: directTarget.dataId, action: 'navigate' }],
+                mode: 'direct',
+                topic: null,
+            },
+        }),
+    );
+    const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+
+    await popup.getByTestId('flowforge-question-input').fill('Where are the Chrome docs?');
+    await popup.getByTestId('flowforge-question-submit').click();
+    await expect(popup.getByTestId('flowforge-result')).toContainText('This answer is still useful');
+    await page.locator(`[data-flowforge-id="${directTarget.dataId}"]`).evaluate((element) => element.remove());
+    await popup.close();
+
+    const reopenedPopup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await expect(reopenedPopup.getByTestId('flowforge-result')).toContainText('This answer is still useful');
+    await expect(reopenedPopup.getByRole('note')).toContainText('page has changed');
+    await expect(reopenedPopup.getByRole('button', { name: directTarget.text })).toHaveCount(0);
+    await reopenedPopup.close();
 });
 
 test('auto-highlights a single direct result element from the backend', async ({ context, extensionId, page }) => {

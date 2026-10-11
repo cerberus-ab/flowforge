@@ -25,6 +25,7 @@ describe('Result', () => {
             <Result
                 result={result}
                 resultMetadata="test-model"
+                isStale={false}
                 error="Backend failed"
                 onNavigateToElement={vi.fn()}
                 onOpenOnboarding={vi.fn()}
@@ -46,6 +47,7 @@ describe('Result', () => {
             <Result
                 result={result}
                 resultMetadata="test-model · 1.2k tokens · 1.3s"
+                isStale={false}
                 error={null}
                 onNavigateToElement={onNavigateToElement}
                 onOpenOnboarding={vi.fn()}
