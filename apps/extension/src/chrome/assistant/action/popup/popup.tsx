@@ -3,7 +3,7 @@ import { render } from 'preact';
 import '@/popup/index.css';
 
 import { PopupApp } from '@/popup/PopupApp';
-import { ChromeTransportService } from '@/adapters';
+import { ChromeTransportService, withTransportLogging } from '@/adapters';
 import { DocumentRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
@@ -30,7 +30,7 @@ function PopupAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient
 }
 
 (function main() {
-    const transport = new ChromeTransportService();
+    const transport = withTransportLogging(new ChromeTransportService());
     const backgroundClient = new BackgroundClient(transport);
     const rootInjector = new DocumentRootInjector();
 

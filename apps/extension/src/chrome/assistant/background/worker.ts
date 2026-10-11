@@ -1,11 +1,11 @@
 import { config } from '@/config';
 import { HttpApiClient } from '@/core/services/ApiClient';
-import { ChromeLocalStorage, ChromeTransportService } from '@/adapters';
+import { ChromeLocalStorage, ChromeTransportService, withTransportLogging } from '@/adapters';
 import { createAssistantBackgroundWorker } from '@/background';
 import { ChromeSessionStorage } from '@/adapters/chrome/ChromeSessionStorage';
 
 (function main() {
-    const transport = new ChromeTransportService();
+    const transport = withTransportLogging(new ChromeTransportService());
     const apiClient = new HttpApiClient(config.serverUrl);
     const localStorage = new ChromeLocalStorage();
     const sessionStorage = new ChromeSessionStorage();

@@ -2,7 +2,7 @@ import { render } from 'preact';
 
 import styles from './page.css?inline';
 
-import { ChromeTransportService } from '@/adapters';
+import { ChromeTransportService, withTransportLogging } from '@/adapters';
 import { ShadowRootInjector } from '@/core/services/RootInjector';
 import { mountConstants } from '@/chrome/inspector/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
@@ -46,7 +46,7 @@ function InspectorPageAppRoot({ backgroundClient }: { backgroundClient: Backgrou
 }
 
 (function main() {
-    const transport = new ChromeTransportService();
+    const transport = withTransportLogging(new ChromeTransportService());
     const backgroundClient = new BackgroundClient(transport);
     const rootInjector = new ShadowRootInjector();
 

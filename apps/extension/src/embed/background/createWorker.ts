@@ -1,4 +1,5 @@
-import { EmbedLocalStorage, EmbedTransportService } from '@/adapters';
+import { EmbedLocalStorage } from '@/adapters';
+import type { TransportService } from '@/adapters';
 import type { ApiClient } from '@/core/services/ApiClient';
 import type { ExtensionSettings } from '@/types';
 import type { BackgroundWorker } from '@/background';
@@ -6,7 +7,7 @@ import { createAssistantBackgroundWorker } from '@/background';
 import { EmbedSessionStorage } from '@/adapters/embed/EmbedSessionStorage';
 
 export function createWorker(
-    transport: EmbedTransportService,
+    transport: TransportService,
     apiClient: ApiClient,
     initialSettings: Partial<ExtensionSettings> = {},
 ): BackgroundWorker {
