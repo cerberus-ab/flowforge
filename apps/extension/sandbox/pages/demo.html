@@ -18,6 +18,8 @@
                     <li>
                         Click <strong>Demo</strong> to run a simulated version with predefined questions and responses,
                     </li>
+                    <li>Click <strong>Demo: 1st</strong> to open the demo with its first question selected,</li>
+                    <li>Click <strong>Demo: 2nd</strong> to open the demo with its second question selected,</li>
                     <li>
                         Click <strong>Destroy</strong> to completely remove it from the page and clean up all resources,
                     </li>
@@ -44,6 +46,24 @@
                         data-flowforge-id="ff00000002"
                     >
                         Demo
+                    </button>
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="demo-question-first"
+                        data-testid="sandbox-demo-question-first"
+                        data-flowforge-id="ff00000005"
+                    >
+                        Demo: 1st
+                    </button>
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="demo-question-second"
+                        data-testid="sandbox-demo-question-second"
+                        data-flowforge-id="ff00000006"
+                    >
+                        Demo: 2nd
                     </button>
                     <button
                         type="button"
@@ -86,6 +106,8 @@
                 const initialSettings = {
                     theme: 'dark',
                 };
+                const firstDemoQuestion = 'What is this page about?';
+                const secondDemoQuestion = 'How to use the runtime?';
 
                 let runtimeInst = null;
 
@@ -103,69 +125,76 @@
                                 updateState('running');
                                 break;
                             case 'demo':
-                                runtimeInst = await (
-                                    await loadRuntime()
-                                ).demo({
-                                    settings: initialSettings,
-                                    topic: 'Sandbox',
-                                    stubQA: [
-                                        {
-                                            question: 'What is this page about?',
-                                            result: {
-                                                answer: 'This page appears to be an extension sandbox for FlowForge, providing a testing environment.',
-                                                elements: [],
-                                                mode: 'direct',
-                                                topic: null,
+                            case 'demo-question-first':
+                            case 'demo-question-second':
+                                if (!runtimeInst) {
+                                    runtimeInst = await (
+                                        await loadRuntime()
+                                    ).demo({
+                                        settings: initialSettings,
+                                        topic: 'Sandbox',
+                                        stubQA: [
+                                            {
+                                                question: firstDemoQuestion,
+                                                result: {
+                                                    answer: 'This page appears to be an extension sandbox for FlowForge, providing a testing environment.',
+                                                    elements: [],
+                                                    mode: 'direct',
+                                                    topic: null,
+                                                },
                                             },
-                                        },
-                                        {
-                                            question: 'How to use the runtime?',
-                                            result: {
-                                                answer: 'You can start the runtime with a real backend, run a demo using predefined data, or destroy it to remove everything and clean up resources.',
-                                                elements: [
-                                                    {
-                                                        text: 'Click Start to run with real backend',
-                                                        dataId: 'ff00000001',
-                                                        action: 'click',
-                                                    },
-                                                    {
-                                                        text: 'Click Demo to run with mock data',
-                                                        dataId: 'ff00000002',
-                                                        action: 'click',
-                                                    },
-                                                    {
-                                                        text: 'Click Destroy to remove and clean up',
-                                                        dataId: 'ff00000003',
-                                                        action: 'click',
-                                                    },
-                                                    {
-                                                        text: 'Open Embed extension docs for more details',
-                                                        dataId: 'ff00000011',
-                                                        action: 'navigate',
-                                                    },
-                                                ],
-                                                mode: 'steps',
-                                                topic: 'Runtime Usage',
+                                            {
+                                                question: secondDemoQuestion,
+                                                result: {
+                                                    answer: 'You can start the runtime with a real backend, run a demo using predefined data, or destroy it to remove everything and clean up resources.',
+                                                    elements: [
+                                                        {
+                                                            text: 'Click Start to run with real backend',
+                                                            dataId: 'ff00000001',
+                                                            action: 'click',
+                                                        },
+                                                        {
+                                                            text: 'Click Demo to run with mock data',
+                                                            dataId: 'ff00000002',
+                                                            action: 'click',
+                                                        },
+                                                        {
+                                                            text: 'Click Destroy to remove and clean up',
+                                                            dataId: 'ff00000003',
+                                                            action: 'click',
+                                                        },
+                                                        {
+                                                            text: 'Open Embed extension docs for more details',
+                                                            dataId: 'ff00000011',
+                                                            action: 'navigate',
+                                                        },
+                                                    ],
+                                                    mode: 'steps',
+                                                    topic: 'Runtime Usage',
+                                                },
                                             },
-                                        },
-                                        {
-                                            question: 'Where is contact information?',
-                                            result: {
-                                                answer: 'The contact email is located at the bottom of the page.',
-                                                elements: [
-                                                    {
-                                                        text: 'Open contact email',
-                                                        dataId: 'ff00000012',
-                                                        action: 'navigate',
-                                                    },
-                                                ],
-                                                mode: 'direct',
-                                                topic: null,
+                                            {
+                                                question: 'Where is contact information?',
+                                                result: {
+                                                    answer: 'The contact email is located at the bottom of the page.',
+                                                    elements: [
+                                                        {
+                                                            text: 'Open contact email',
+                                                            dataId: 'ff00000012',
+                                                            action: 'navigate',
+                                                        },
+                                                    ],
+                                                    mode: 'direct',
+                                                    topic: null,
+                                                },
                                             },
-                                        },
-                                    ],
-                                });
-                                updateState('running');
+                                        ],
+                                    });
+                                    updateState('demo');
+                                }
+                                if (btn.dataset.cmd === 'demo-question-first') runtimeInst.openPopup(firstDemoQuestion);
+                                if (btn.dataset.cmd === 'demo-question-second')
+                                    runtimeInst.openPopup(secondDemoQuestion);
                                 break;
                             case 'destroy':
                                 runtimeInst?.destroy();
@@ -194,7 +223,11 @@
                         if (state === 'idle') {
                             btn.disabled = btn.dataset.cmd === 'destroy';
                         } else {
-                            btn.disabled = !['destroy', 'inspector'].includes(btn.dataset.cmd);
+                            btn.disabled = ![
+                                'destroy',
+                                'inspector',
+                                ...(state === 'demo' ? ['demo-question-first', 'demo-question-second'] : []),
+                            ].includes(btn.dataset.cmd);
                         }
                     });
                 }

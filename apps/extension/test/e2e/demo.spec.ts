@@ -8,6 +8,42 @@ const demoWalkthroughSteps = [
     { dataId: 'ff00000011', text: 'Open Embed extension docs for more details' },
 ];
 
+test('opens the first demo question from the sandbox controls', async ({ page }) => {
+    // Given
+    await page.goto('/demo');
+
+    // When
+    await page.getByTestId('sandbox-demo-question-first').click();
+
+    // Then
+    await expect(page.getByTestId('flowforge-popup')).toBeVisible();
+    await expect(page.getByTestId('flowforge-question-input')).toHaveValue('What is this page about?');
+    await expect(page.getByTestId('sandbox-demo-question-first')).toBeEnabled();
+
+    // The same control also works after the demo has started.
+    await page.getByTestId('sandbox-demo-question-first').click();
+    await expect(page.getByTestId('flowforge-question-input')).toHaveValue('What is this page about?');
+
+    await page.getByTestId('flowforge-question-submit').click();
+    await expect(page.getByTestId('flowforge-result')).toContainText('extension sandbox for FlowForge');
+});
+
+test('opens the second demo question from the sandbox controls', async ({ page }) => {
+    // Given
+    await page.goto('/demo');
+
+    // When
+    await page.getByTestId('sandbox-demo-question-second').click();
+
+    // Then
+    await expect(page.getByTestId('flowforge-popup')).toBeVisible();
+    await expect(page.getByTestId('flowforge-question-input')).toHaveValue('How to use the runtime?');
+    await expect(page.getByTestId('sandbox-demo-question-second')).toBeEnabled();
+
+    await page.getByTestId('flowforge-question-submit').click();
+    await expect(page.getByTestId('flowforge-result')).toContainText('You can start the runtime with a real backend');
+});
+
 test('runs the complete demo walkthrough and destroys the runtime', async ({ page }) => {
     // Given
     await page.goto('/demo');
