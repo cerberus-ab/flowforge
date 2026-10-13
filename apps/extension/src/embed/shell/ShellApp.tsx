@@ -1,5 +1,5 @@
 import { Main } from '@/shared/components/Main';
-import { PopupApp, type PopupAppDemoProps } from '@/popup/PopupApp';
+import { PopupApp, type PopupDemoPresentation } from '@/popup/PopupApp';
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'preact/hooks';
 import { getEventTarget } from '@/core/utils/dom';
 import { forwardRef } from 'preact/compat';
@@ -9,11 +9,10 @@ import { Trigger } from '@/embed/shell/components/Trigger';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
 import type { AssistantBackgroundClient } from '@/background';
 
-export type ShellAppDemoProps = PopupAppDemoProps;
-
 export interface ShellAppProps {
     backgroundClient: AssistantBackgroundClient;
-    demoProps?: ShellAppDemoProps;
+    demoPresentation?: PopupDemoPresentation;
+    presetQuestions?: string[];
     triggerSize?: TriggerSize;
     onShellReady?: () => void;
 }
@@ -24,7 +23,7 @@ export interface ShellAppRef {
 }
 
 export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp(
-    { backgroundClient, demoProps, triggerSize, onShellReady },
+    { backgroundClient, demoPresentation, presetQuestions, triggerSize, onShellReady },
     ref,
 ) {
     const [isOpen, setIsOpen] = useState(false);
@@ -113,7 +112,8 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
                         <PopupApp
                             variant="dialog"
                             backgroundClient={backgroundClient}
-                            demoProps={demoProps}
+                            demoPresentation={demoPresentation}
+                            presetQuestions={presetQuestions}
                             theme={settings.theme}
                             onToggleTheme={settings.toggleTheme}
                             initialQuestion={initialQuestion}

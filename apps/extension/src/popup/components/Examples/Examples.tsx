@@ -3,17 +3,18 @@ import { Card } from '@/shared/components/Card';
 import { cx } from '@/shared/utils/cx';
 
 interface ExamplesProps {
+    title: string;
     examples: PopupExampleItem[];
     onExampleQuestionSelect: (question: string) => void;
     disabled?: boolean;
 }
 
-export function Examples({ examples, onExampleQuestionSelect, disabled = false }: ExamplesProps) {
+export function Examples({ title, examples, onExampleQuestionSelect, disabled = false }: ExamplesProps) {
     if (examples.length === 0) {
         return null;
     }
     return (
-        <Card title="Try one of these" data-testid="flowforge-examples">
+        <Card title={title} data-testid="flowforge-examples">
             <div className="flowforge-examples-list">
                 <ul>
                     {examples.map((example, index) => (

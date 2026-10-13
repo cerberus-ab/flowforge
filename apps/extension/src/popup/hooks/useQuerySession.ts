@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'preact/hooks';
 import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 
 import type { PopupBackgroundClient } from '@/background';
@@ -102,7 +102,6 @@ function reduceQuerySession(state: QuerySessionState, action: QuerySessionAction
 
 export interface QuerySessionViewModel {
     inputQuestion: string;
-    question: string;
     setInputQuestion: (value: string) => void;
     isLoading: boolean;
     isClearingResult: boolean;
@@ -111,7 +110,7 @@ export interface QuerySessionViewModel {
     isResultStale: boolean;
     warning: string | null;
     error: string | null;
-    askQuestion: () => Promise<void>;
+    askQuestion: (questionOverride?: string) => Promise<void>;
     clearResult: () => Promise<void>;
     openOnboarding: () => Promise<void>;
     navigateToElement: (element: AgentResultElement) => Promise<void>;
@@ -137,20 +136,21 @@ export function useQuerySession(
     const clearedQueryIdsRef = useRef(new Set<string>());
     const isClearingResultRef = useRef(false);
 
-    const question = useMemo(() => normalizeText(state.inputQuestion), [state.inputQuestion]);
     const warning =
         state.clearError ??
         (state.hasEditedQuestionAfterResult && state.displayedResult
-            ? `The question has changed. This result is for the previous question: "${state.displayedResult.question}"`
+            ? `The question has changed. This result is shown for: "${state.displayedResult.question}"`
             : state.displayedResult?.isStale
               ? 'This page has changed since the answer was generated. Element references may be outdated.'
               : null);
 
+    // Navigates to an element referenced by the current answer
     const navigateToElement = useCallback(
         (element: AgentResultElement) => backgroundClient.navigateToElement(element),
         [backgroundClient],
     );
 
+    // Applies a restored session while ignoring cleared or superseded results
     const applyQuerySession = useCallback(
         (response: RestoreQueryResponse, shouldRestoreQuestion: boolean) => {
             if (response.status === 'empty') return;
@@ -205,11 +205,13 @@ export function useQuerySession(
         [navigateToElement],
     );
 
+    // Marks local edits so an in-flight restore cannot replace the user's question
     const setInputQuestion = useCallback((value: string) => {
         hasUserEditedQuestion.current = true;
         dispatch({ type: 'inputChanged', value });
     }, []);
 
+    // Tracks mounting for async responses that may arrive after the popup closes
     useLayoutEffect(() => {
         isMountedRef.current = true;
         return () => {
@@ -217,7 +219,7 @@ export function useQuerySession(
         };
     }, []);
 
-    // Subscribe before restoring so a completion during startup is not missed.
+    // Subscribes before restoring so a completion during startup is not missed
     useEffect(() => {
         let isActive = true;
         const unsubscribe = backgroundClient.subscribeToPopupMessages({
@@ -295,6 +297,7 @@ export function useQuerySession(
         };
     }, [backgroundClient, initialQuestion, applyQuerySession]);
 
+    // An explicit initial question takes precedence over a saved page session
     useEffect(() => {
         if (initialQuestion !== undefined) {
             hasUserEditedQuestion.current = false;
@@ -302,55 +305,61 @@ export function useQuerySession(
         }
     }, [initialQuestion]);
 
-    const askQuestion = useCallback(async () => {
-        if (!question) {
-            dispatch({ type: 'failed', error: 'Please enter a question' });
-            return;
-        }
-        if (question.length > config.maxQuestionLength) {
-            dispatch({
-                type: 'failed',
-                error: `Please keep your question under ${config.maxQuestionLength} characters`,
-            });
-            return;
-        }
-        const generation = ++queryGenerationRef.current;
-        isSubmittingQuestionRef.current = true;
-        pendingQueryIdRef.current = undefined;
-        dispatch({ type: 'started' });
-
-        try {
-            const response = await backgroundClient.askQuestion(question);
-            if (!isMountedRef.current || queryGenerationRef.current !== generation) return;
-            isSubmittingQuestionRef.current = false;
-            pendingQueryIdRef.current = response.queryId;
-
-            // Also catches a completion that arrived before the query ID was known.
-            const session = await backgroundClient.restoreQuery();
-            if (!isMountedRef.current || queryGenerationRef.current !== generation) return;
-            if (session.status === 'empty' || session.queryId !== response.queryId) {
-                pendingQueryIdRef.current = undefined;
-                dispatch({ type: 'failed', error: 'The query is no longer available. Please try again.' });
+    // Sends a normalized question and reconciles the response with its saved session
+    const askQuestion = useCallback(
+        async (questionOverride?: string) => {
+            const submittedQuestion = normalizeText(questionOverride ?? state.inputQuestion);
+            if (!submittedQuestion) {
+                dispatch({ type: 'failed', error: 'Please enter a question' });
                 return;
             }
-            if (session.status === 'pending' && finishedQueryIdsRef.current.has(response.queryId)) {
-                pendingQueryIdRef.current = undefined;
-                failedQueryRestoreIdsRef.current.add(response.queryId);
+            if (submittedQuestion.length > config.maxQuestionLength) {
                 dispatch({
                     type: 'failed',
-                    error: 'The query finished, but its result could not be saved. Please try again.',
+                    error: `Please keep your question under ${config.maxQuestionLength} characters`,
                 });
                 return;
             }
-            applyQuerySession(session, false);
-        } catch (err) {
-            if (!isMountedRef.current || queryGenerationRef.current !== generation) return;
-            isSubmittingQuestionRef.current = false;
+            const generation = ++queryGenerationRef.current;
+            isSubmittingQuestionRef.current = true;
             pendingQueryIdRef.current = undefined;
-            dispatch({ type: 'failed', error: err instanceof Error ? err.message : 'Unknown error occurred' });
-        }
-    }, [question, backgroundClient, applyQuerySession]);
+            dispatch({ type: 'started' });
 
+            try {
+                const response = await backgroundClient.askQuestion(submittedQuestion);
+                if (!isMountedRef.current || queryGenerationRef.current !== generation) return;
+                isSubmittingQuestionRef.current = false;
+                pendingQueryIdRef.current = response.queryId;
+
+                // Also catches a completion that arrived before the query ID was known.
+                const session = await backgroundClient.restoreQuery();
+                if (!isMountedRef.current || queryGenerationRef.current !== generation) return;
+                if (session.status === 'empty' || session.queryId !== response.queryId) {
+                    pendingQueryIdRef.current = undefined;
+                    dispatch({ type: 'failed', error: 'The query is no longer available. Please try again.' });
+                    return;
+                }
+                if (session.status === 'pending' && finishedQueryIdsRef.current.has(response.queryId)) {
+                    pendingQueryIdRef.current = undefined;
+                    failedQueryRestoreIdsRef.current.add(response.queryId);
+                    dispatch({
+                        type: 'failed',
+                        error: 'The query finished, but its result could not be saved. Please try again.',
+                    });
+                    return;
+                }
+                applyQuerySession(session, false);
+            } catch (err) {
+                if (!isMountedRef.current || queryGenerationRef.current !== generation) return;
+                isSubmittingQuestionRef.current = false;
+                pendingQueryIdRef.current = undefined;
+                dispatch({ type: 'failed', error: err instanceof Error ? err.message : 'Unknown error occurred' });
+            }
+        },
+        [state.inputQuestion, backgroundClient, applyQuerySession],
+    );
+
+    // Clears the displayed result and prevents late updates from reviving it
     const clearResult = useCallback(async () => {
         const queryId = state.displayedResult?.queryId;
         if (queryId === undefined || isClearingResultRef.current) return;
@@ -373,6 +382,7 @@ export function useQuerySession(
         }
     }, [state.displayedResult, backgroundClient]);
 
+    // Starts onboarding with the question that produced the displayed result
     const openOnboarding = useCallback(async () => {
         if (!state.displayedResult) return;
         await backgroundClient.openOnboarding(state.displayedResult.question, state.displayedResult.result);
@@ -380,7 +390,6 @@ export function useQuerySession(
 
     return {
         inputQuestion: state.inputQuestion,
-        question,
         setInputQuestion,
         isLoading: state.status === 'submitting' || state.status === 'pending',
         isClearingResult: state.status === 'clearing',

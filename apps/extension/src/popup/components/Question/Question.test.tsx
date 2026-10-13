@@ -8,11 +8,13 @@ function renderQuestion({
     onAskQuestion = vi.fn(),
     disabled = false,
     selectOnly = false,
+    submitLabel = 'Ask anything',
 }: {
     onInputQuestionChange?: (value: string) => void;
     onAskQuestion?: () => Promise<void>;
     disabled?: boolean;
     selectOnly?: boolean;
+    submitLabel?: string;
 } = {}) {
     render(
         <Question
@@ -21,7 +23,8 @@ function renderQuestion({
             onAskQuestion={onAskQuestion}
             placeholder="Ask about this page"
             disabled={disabled}
-            selectOnly={selectOnly}
+            readOnly={selectOnly}
+            submitLabel={submitLabel}
         />,
     );
 
@@ -52,5 +55,11 @@ describe('Question', () => {
         expect((screen.getByLabelText('Your question') as HTMLTextAreaElement).readOnly).toBe(true);
         expect((screen.getByLabelText('Your question') as HTMLTextAreaElement).disabled).toBe(true);
         expect((screen.getByRole('button', { name: 'Ask anything' }) as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('uses the demo submit label when provided', () => {
+        renderQuestion({ selectOnly: true, submitLabel: 'Ask next question' });
+
+        expect(screen.getByRole('button', { name: 'Ask next question' })).toBeTruthy();
     });
 });

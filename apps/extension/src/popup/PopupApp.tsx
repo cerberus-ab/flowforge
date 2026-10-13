@@ -12,20 +12,15 @@ import { Link } from '@/shared/components/Link';
 import { Notice } from '@/shared/components/Notice';
 import type { ExtensionSettingsTheme } from '@/types';
 
-export type PopupAppDemoProps =
-    | {
-          enabled: true;
-          setup: {
-              topic?: string;
-              stubQuestions?: string[];
-          };
-      }
-    | { enabled: false };
+export interface PopupDemoPresentation {
+    topic?: string;
+}
 
 export interface PopupAppProps {
     variant: 'page' | 'dialog';
     backgroundClient: PopupBackgroundClient;
-    demoProps?: PopupAppDemoProps;
+    demoPresentation?: PopupDemoPresentation;
+    presetQuestions?: string[];
     theme: ExtensionSettingsTheme;
     onToggleTheme: () => Promise<void>;
     initialQuestion?: string;
@@ -35,7 +30,8 @@ export interface PopupAppProps {
 export function PopupApp({
     variant,
     backgroundClient,
-    demoProps,
+    demoPresentation,
+    presetQuestions,
     theme,
     onToggleTheme,
     initialQuestion,
@@ -55,6 +51,9 @@ export function PopupApp({
         copyright,
         github,
         askQuestion,
+        askPresetQuestion,
+        presetSubmitLabel,
+        isUnavailableQuestion,
         clearResult,
         openOnboarding,
         applyExampleQuestion,
@@ -62,7 +61,7 @@ export function PopupApp({
         openPageInspector,
     } = usePopup({
         backgroundClient,
-        presetQuestions: demoProps?.enabled ? demoProps.setup.stubQuestions : undefined,
+        presetQuestions,
         initialQuestion,
     });
 
@@ -81,7 +80,7 @@ export function PopupApp({
         [applyExampleQuestion],
     );
 
-    // Handle open page inspector and close popup
+    // Handle open page inspector on the page
     const handleOpenPageInspector = useCallback(
         async (tab?: string) => {
             await openPageInspector(tab);
@@ -90,10 +89,19 @@ export function PopupApp({
         [openPageInspector, onClose],
     );
 
+    // Handle open onboarding on the page
     const handleOpenOnboarding = useCallback(async () => {
         await openOnboarding();
         onClose?.();
     }, [openOnboarding, onClose]);
+
+    const isPresetMode = presetQuestions !== undefined;
+    const hasPresetQuestions = Boolean(presetQuestions?.length);
+    const questionPlaceholder = !isPresetMode
+        ? 'I can forge the page for you...'
+        : hasPresetQuestions
+          ? 'Choose a question below, or ask the next one.'
+          : 'No preset questions available.';
 
     const isDialog = variant === 'dialog';
     const Root = isDialog ? 'section' : 'div';
@@ -114,12 +122,12 @@ export function PopupApp({
                 <p className="flowforge-popup__header-subtitle">Web Onboarding Assistant</p>
             </header>
             <div ref={contentRef} className="flowforge-popup__content" data-testid="flowforge-popup-content">
-                {demoProps?.enabled && (
+                {demoPresentation && (
                     <Notice
                         type="status"
                         text={
-                            demoProps.setup.topic
-                                ? `✧ Demo for ${demoProps.setup.topic} enabled ✧`
+                            demoPresentation.topic
+                                ? `✧ Demo for ${demoPresentation.topic} enabled ✧`
                                 : '✧ Demo mode enabled ✧'
                         }
                     />
@@ -127,14 +135,13 @@ export function PopupApp({
                 <Question
                     inputQuestion={inputQuestion}
                     onInputQuestionChange={setInputQuestion}
-                    onAskQuestion={askQuestion}
-                    placeholder={
-                        demoProps?.enabled
-                            ? 'I can forge the page... but only using preset options in Demo'
-                            : 'I can forge the page for you... '
+                    onAskQuestion={isPresetMode ? askPresetQuestion : askQuestion}
+                    placeholder={questionPlaceholder}
+                    disabled={
+                        isLoading || isClearingResult || isUnavailableQuestion || (isPresetMode && !hasPresetQuestions)
                     }
-                    disabled={isLoading || isClearingResult}
-                    selectOnly={Boolean(demoProps?.enabled)}
+                    readOnly={isPresetMode}
+                    submitLabel={isPresetMode ? presetSubmitLabel : 'Ask anything'}
                 />
 
                 {isLoading && <Loading />}
@@ -158,6 +165,7 @@ export function PopupApp({
                     examples={examples}
                     onExampleQuestionSelect={handleApplyExampleQuestion}
                     disabled={isLoading || isClearingResult}
+                    title={isPresetMode ? 'Available questions' : 'Try one of these'}
                 />
 
                 <Advanced onOpenPageInspector={handleOpenPageInspector}></Advanced>

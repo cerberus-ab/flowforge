@@ -20,6 +20,7 @@
                     </li>
                     <li>Click <strong>Demo: 1st</strong> to open the demo with its first question selected,</li>
                     <li>Click <strong>Demo: 2nd</strong> to open the demo with its second question selected,</li>
+                    <li>Click <strong>Demo: N/A</strong> to open the demo with unavailable question selected,</li>
                     <li>
                         Click <strong>Destroy</strong> to completely remove it from the page and clean up all resources,
                     </li>
@@ -64,6 +65,15 @@
                         data-flowforge-id="ff00000006"
                     >
                         Demo: 2nd
+                    </button>
+                    <button
+                        type="button"
+                        data-role="cmd"
+                        data-cmd="demo-question-na"
+                        data-testid="sandbox-demo-question-na"
+                        data-flowforge-id="ff00000007"
+                    >
+                        Demo: N/A
                     </button>
                     <button
                         type="button"
@@ -127,6 +137,7 @@
                             case 'demo':
                             case 'demo-question-first':
                             case 'demo-question-second':
+                            case 'demo-question-na':
                                 if (!runtimeInst) {
                                     runtimeInst = await (
                                         await loadRuntime()
@@ -195,6 +206,8 @@
                                 if (btn.dataset.cmd === 'demo-question-first') runtimeInst.openPopup(firstDemoQuestion);
                                 if (btn.dataset.cmd === 'demo-question-second')
                                     runtimeInst.openPopup(secondDemoQuestion);
+                                if (btn.dataset.cmd === 'demo-question-na')
+                                    runtimeInst.openPopup("Unavailable question, don't u crazy?");
                                 break;
                             case 'destroy':
                                 runtimeInst?.destroy();
@@ -226,7 +239,9 @@
                             btn.disabled = ![
                                 'destroy',
                                 'inspector',
-                                ...(state === 'demo' ? ['demo-question-first', 'demo-question-second'] : []),
+                                ...(state === 'demo'
+                                    ? ['demo-question-first', 'demo-question-second', 'demo-question-na']
+                                    : []),
                             ].includes(btn.dataset.cmd);
                         }
                     });

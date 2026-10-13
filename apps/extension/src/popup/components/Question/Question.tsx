@@ -8,8 +8,9 @@ interface QuestionProps {
     onInputQuestionChange: (value: string) => void;
     onAskQuestion: () => Promise<void>;
     placeholder: string;
-    selectOnly: boolean;
+    readOnly: boolean;
     disabled: boolean;
+    submitLabel: string;
 }
 
 export function Question({
@@ -17,8 +18,9 @@ export function Question({
     onInputQuestionChange,
     onAskQuestion,
     placeholder,
-    selectOnly,
+    readOnly,
     disabled,
+    submitLabel,
 }: QuestionProps) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -53,11 +55,11 @@ export function Question({
                     value={inputQuestion}
                     onInput={handleOnInput}
                     onKeyDown={handleOnKeyDown}
-                    readOnly={selectOnly}
+                    readOnly={readOnly}
                     disabled={disabled}
                 />
                 <Button type="submit" size="large" wide disabled={disabled} data-testid="flowforge-question-submit">
-                    Ask anything
+                    {submitLabel}
                 </Button>
             </form>
         </Card>
