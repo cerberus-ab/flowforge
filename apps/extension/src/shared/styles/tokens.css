@@ -53,17 +53,17 @@
   --flowforge-font-family-monospace:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 
-  --flowforge-text-xs: 400 11px / 1.6 var(--flowforge-font-family);
-  --flowforge-text-sm: 400 12px / 1.5 var(--flowforge-font-family);
-  --flowforge-text-md: 400 14px / 1.4 var(--flowforge-font-family);
-  --flowforge-text-lg: 400 16px / 1.5 var(--flowforge-font-family);
+  --flowforge-text-xs: 400 11px / 16px var(--flowforge-font-family);
+  --flowforge-text-sm: 400 12px / 18px var(--flowforge-font-family);
+  --flowforge-text-md: 400 14px / 20px var(--flowforge-font-family);
+  --flowforge-text-lg: 400 16px / 22px var(--flowforge-font-family);
 
-  --flowforge-text-h4: 600 13px / 1.4 var(--flowforge-font-family);
-  --flowforge-text-h3: 600 14px / 1.4 var(--flowforge-font-family);
-  --flowforge-text-h2: 600 18px / 1.2 var(--flowforge-font-family);
+  --flowforge-text-h4: 600 13px / 18px var(--flowforge-font-family);
+  --flowforge-text-h3: 600 14px / 20px var(--flowforge-font-family);
+  --flowforge-text-h2: 600 18px / 22px var(--flowforge-font-family);
 
-  --flowforge-text-monospace-xs: 400 11px / 1.65 var(--flowforge-font-family-monospace);
-  --flowforge-text-monospace-sm: 400 12px / 1.55 var(--flowforge-font-family-monospace);
+  --flowforge-text-monospace-xs: 400 11px / 16px var(--flowforge-font-family-monospace);
+  --flowforge-text-monospace-sm: 400 12px / 18px var(--flowforge-font-family-monospace);
 
   /** Sizes **/
   --flowforge-pad-xs: 6px;

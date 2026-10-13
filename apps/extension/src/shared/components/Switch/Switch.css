@@ -31,33 +31,14 @@
   user-select: none;
   white-space: nowrap;
 }
-.flowforge-switch:not(:disabled):hover {
-  color: var(--flowforge-color-text);
-}
-.flowforge-switch--primary:not(:disabled):hover {
-  border-color: var(--flowforge-color-primary);
-}
-.flowforge-switch--secondary:not(:disabled):hover {
-  border-color: var(--flowforge-color-secondary);
-}
-.flowforge-switch--primary:focus-visible {
-  outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
-}
-.flowforge-switch--secondary:focus-visible {
-  outline: 2px solid rgba(var(--flowforge-rgb-secondary), 0.45);
-}
-.flowforge-switch:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
 .flowforge-switch__control {
   position: relative;
   flex: 0 0 auto;
   width: 28px;
-  height: 16px;
+  height: 14px;
   margin: 0;
   padding: 0;
-  border: 1px solid currentColor;
+  border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
   transition:
@@ -67,26 +48,57 @@
 }
 .flowforge-switch__thumb {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 10px;
-  height: 10px;
   border-radius: 999px;
   background: var(--flowforge-color-surface);
   box-shadow: 0 1px 3px rgba(var(--flowforge-rgb-shadow), 0.24);
   transition: transform 0.2s ease;
 }
+.flowforge-switch[aria-checked='false'] .flowforge-switch__thumb {
+  background: currentColor;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+}
+.flowforge-switch[aria-checked='false'] .flowforge-switch__control {
+  border-color: currentColor;
+}
+.flowforge-switch[aria-checked='true'] .flowforge-switch__thumb {
+  top: 1px;
+  left: 1px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(14px);
+}
 .flowforge-switch--primary[aria-checked='true'] .flowforge-switch__control {
-  border-color: var(--flowforge-color-primary);
   background: var(--flowforge-color-primary);
 }
 .flowforge-switch--secondary[aria-checked='true'] .flowforge-switch__control {
-  border-color: var(--flowforge-color-secondary);
   background: var(--flowforge-color-secondary);
 }
-.flowforge-switch[aria-checked='true'] .flowforge-switch__thumb {
-  transform: translateX(12px);
+.flowforge-switch--primary:focus-visible {
+  outline: 2px solid rgba(var(--flowforge-rgb-primary), 0.45);
 }
-.flowforge-switch:not(:disabled):hover .flowforge-switch__control {
-  border-color: currentColor;
+.flowforge-switch--secondary:focus-visible {
+  outline: 2px solid rgba(var(--flowforge-rgb-secondary), 0.45);
+}
+
+.flowforge-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.flowforge-switch:not(:disabled):hover {
+  color: var(--flowforge-color-text);
+}
+.flowforge-switch--primary:not(:disabled):hover {
+  border-color: var(--flowforge-color-primary);
+}
+.flowforge-switch--secondary:not(:disabled):hover {
+  border-color: var(--flowforge-color-secondary);
+}
+.flowforge-switch--primary[aria-checked='true']:not(:disabled):hover .flowforge-switch__control {
+  background: var(--flowforge-color-primary-hover);
+}
+.flowforge-switch--secondary[aria-checked='true']:not(:disabled):hover .flowforge-switch__control {
+  background: var(--flowforge-color-secondary-hover);
 }
