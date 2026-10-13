@@ -3,7 +3,7 @@ import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 
-import type { Message, MessageResponse, RestoreQueryResponse } from '@/messaging';
+import { isAskQuestionMessage, type Message, type MessageResponse, type RestoreQueryResponse } from '@/messaging';
 import { BackgroundClient } from '@/background';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { usePopup, type UsePopupOptions } from './usePopup';
@@ -177,8 +177,7 @@ describe('usePopup', () => {
                 return undefined;
             },
         });
-        const submittedQuestions = () =>
-            messages.filter((message) => message.type === 'ASK_QUESTION').map((message) => message.data.question);
+        const submittedQuestions = () => messages.filter(isAskQuestionMessage).map((message) => message.data.question);
 
         // When: no question is selected yet.
         expect(screen.getByTestId('preset-submit-label').textContent).toBe('Ask next question');
@@ -290,9 +289,9 @@ describe('usePopup', () => {
 
         // Then
         await waitFor(() =>
-            expect(
-                messages.filter((message) => message.type === 'ASK_QUESTION').map((message) => message.data.question),
-            ).toEqual(['Second question?']),
+            expect(messages.filter(isAskQuestionMessage).map((message) => message.data.question)).toEqual([
+                'Second question?',
+            ]),
         );
     });
 
