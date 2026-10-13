@@ -1,6 +1,6 @@
 {
   "name": "@flowforge/extension",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Browser extension for AI-powered web application onboarding",
   "private": true,
   "main": "dist/chrome/assistant/action/popup/index.html",

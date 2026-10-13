@@ -4,6 +4,8 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-14
+
 ### Added
 
 - Added a standalone **Page Inspector** Chrome extension for inspecting the current page locally without a backend.
@@ -19,6 +21,9 @@ All notable changes to the project will be documented in this file.
 - Changed onboarding to open from an explicit action on the result instead of opening automatically.
 - Improved embed Demo with selectable preset questions, cyclic submission, and an error for unavailable questions.
 - Disabled example selection while a query is loading.
+
+### Fixed
+
 - Fixed root-level content and interactive elements in enriched `PageTrail` structure output.
 
 ## [0.2.2] - 2026-10-04
