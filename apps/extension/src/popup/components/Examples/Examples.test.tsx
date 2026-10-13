@@ -32,6 +32,18 @@ describe('Examples', () => {
         expect(container.textContent).toBe('');
     });
 
+    it('uses the demo title when provided', () => {
+        render(
+            <Examples
+                examples={[{ question: 'Where is billing?', type: 'preset' }]}
+                onExampleQuestionSelect={vi.fn()}
+                title="Available questions"
+            />,
+        );
+
+        expect(screen.getByText('Available questions')).toBeTruthy();
+    });
+
     it('does not select examples when disabled', () => {
         // Given
         const onExampleQuestionSelect = vi.fn();

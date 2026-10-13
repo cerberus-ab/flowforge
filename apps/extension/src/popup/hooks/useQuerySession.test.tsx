@@ -52,7 +52,6 @@ function QuerySessionHarness({
                 value={session.inputQuestion}
                 onInput={(event) => session.setInputQuestion(event.currentTarget.value)}
             />
-            <div data-testid="normalized-question">{session.question}</div>
             <button type="button" onClick={() => void session.askQuestion()}>
                 Ask
             </button>
@@ -370,7 +369,6 @@ describe('useQuerySession', () => {
         fireEvent.input(await screen.findByLabelText('Question'), {
             target: { value: '  How do I open settings?  ' },
         });
-        expect(screen.getByTestId('normalized-question').textContent).toBe('How do I open settings?');
         fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
 
         // Then
@@ -381,14 +379,14 @@ describe('useQuerySession', () => {
         fireEvent.input(screen.getByLabelText('Question'), { target: { value: 'A different question' } });
         expect(screen.getByTestId('warning').textContent).toContain('question has changed');
         expect(screen.getByTestId('warning').textContent).toContain(
-            'The question has changed. This result is for the previous question: "How do I open settings?"',
+            'The question has changed. This result is shown for: "How do I open settings?"',
         );
         fireEvent.click(screen.getByRole('button', { name: 'Open Onboarding' }));
         await waitFor(() => expect(messages.find((message) => message.type === 'OPEN_ONBOARDING')).toBeDefined());
         fireEvent.input(screen.getByLabelText('Question'), { target: { value: 'How do I open settings?' } });
         expect(screen.getByTestId('warning').textContent).toContain('question has changed');
         expect(screen.getByTestId('warning').textContent).toContain(
-            'The question has changed. This result is for the previous question: "How do I open settings?"',
+            'The question has changed. This result is shown for: "How do I open settings?"',
         );
         expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'How do I open settings?' } });
         expect(messages).toContainEqual({ type: 'NAVIGATE_TO_ELEMENT', data: { element: resultElement } });

@@ -71,7 +71,7 @@ describe('ResultElements', () => {
         // Then
         expect(screen.getByText('Walkthrough')).toBeTruthy();
         expect(screen.getByText('Step 1:')).toBeTruthy();
-        expect(screen.getByText('To continue:')).toBeTruthy();
+        expect(screen.getByText('To continue')).toBeTruthy();
         expect(screen.queryByRole('button', { name: 'Settings' })).toBeNull();
         expect(onOpenOnboarding).toHaveBeenCalledOnce();
         expect(screen.getByTestId('flowforge-open-onboarding').classList.contains('flowforge-button--primary')).toBe(

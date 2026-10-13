@@ -7,7 +7,7 @@ import shellStyles from './shell/shell.css?inline';
 
 import { config } from '@/config';
 import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
-import { ShellApp, type ShellAppDemoProps, type ShellAppRef } from '@/embed/shell/ShellApp';
+import { ShellApp, type ShellAppProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
 import type { AgentResult } from '@flowforge/contract';
 import { mountConstants } from '@/embed/constants';
@@ -32,7 +32,8 @@ interface RuntimeDemoOptions extends RuntimeStartOptions {
 
 interface MountShellOptions {
     triggerSize?: TriggerSize;
-    demoProps?: ShellAppDemoProps;
+    demoPresentation?: ShellAppProps['demoPresentation'];
+    presetQuestions?: ShellAppProps['presetQuestions'];
 }
 
 interface RuntimeApi {
@@ -97,13 +98,8 @@ export class Runtime implements RuntimeApi {
         runtime.startBackground(apiClient, options.settings);
         await runtime.mountShell({
             triggerSize: options.triggerSize,
-            demoProps: {
-                enabled: true,
-                setup: {
-                    topic: options.topic,
-                    stubQuestions: options.stubQA?.map((s) => s.question) ?? [],
-                },
-            },
+            demoPresentation: { topic: options.topic },
+            presetQuestions: options.stubQA?.map((s) => s.question) ?? [],
         });
         console.log('[FlowForge] Demo runtime successfully started');
 
@@ -155,7 +151,8 @@ export class Runtime implements RuntimeApi {
                     ref={this.shellRef}
                     backgroundClient={this.backgroundClient}
                     triggerSize={options.triggerSize}
-                    demoProps={options.demoProps}
+                    demoPresentation={options.demoPresentation}
+                    presetQuestions={options.presetQuestions}
                     onShellReady={resolveShellReady}
                 />,
                 shellRoot.mountPoint,
