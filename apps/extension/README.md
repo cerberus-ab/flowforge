@@ -54,6 +54,8 @@ If the page's data-ID signature no longer matches the saved snapshot, the answer
 
 `build:embed` creates the bundle and declarations under `dist/embed`. `Runtime.start()` uses the backend, while `Runtime.demo()` uses predefined responses. Runtime instances expose popup, Inspector, and lifecycle methods.
 
+In demo mode, `stubQA` provides the popup's available questions and answers. The question field is read-only: users can select a question from the list or use **Ask next question** to cycle through the presets. If `openPopup(question)` receives a question outside the presets, the popup shows an error until an available question is selected. Without `stubQA` questions, submission is disabled.
+
 Initial settings can be passed when starting the runtime:
 
 ```ts
@@ -74,7 +76,7 @@ Page Inspector displays the current page's `PageTrail` locally and does not requ
 
 ## Notes
 
-- Sandbox runs at `http://localhost:3007` with backend and demo modes.
+- Sandbox runs at `http://localhost:3007` with backend and demo modes, including controls for preset and unavailable demo questions.
 - Development builds log sent and handled incoming transport messages in their browser context consoles.
 - Browser security limits access to restricted pages and cross-origin frames.
 - See [Architecture](../../docs/architecture.md) for system design.

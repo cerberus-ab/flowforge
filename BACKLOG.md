@@ -40,7 +40,7 @@
 - Improve error handling for element lookup, backend availability, browser failures, and unavailable page runtime.
 - Support service pages where browser APIs allow content scripts or fallback flows.
 - Restore popup and page UI state when reopening the extension.
-- Generalize Demo preset questions into a preset command mode.
+- Expose popup preset questions through `Runtime.start()` independently of Demo responses.
 - Style the wizard to better fit the host website.
 - Add page inspector loading state.
 - Add lazy rendering in `JsonViewer`.

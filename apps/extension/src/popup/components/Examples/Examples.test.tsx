@@ -11,6 +11,7 @@ describe('Examples', () => {
         // When
         render(
             <Examples
+                title="Try one of these"
                 examples={[
                     { question: 'Where is billing?', type: 'previous' },
                     { question: 'What is this page about?', type: 'default' },
@@ -26,7 +27,9 @@ describe('Examples', () => {
 
     it('renders nothing when there are no examples', () => {
         // Given / When
-        const { container } = render(<Examples examples={[]} onExampleQuestionSelect={vi.fn()} />);
+        const { container } = render(
+            <Examples title="Try one of these" examples={[]} onExampleQuestionSelect={vi.fn()} />,
+        );
 
         // Then
         expect(container.textContent).toBe('');
@@ -49,6 +52,7 @@ describe('Examples', () => {
         const onExampleQuestionSelect = vi.fn();
         render(
             <Examples
+                title="Try one of these"
                 examples={[{ question: 'Where is billing?', type: 'previous' }]}
                 onExampleQuestionSelect={onExampleQuestionSelect}
                 disabled
