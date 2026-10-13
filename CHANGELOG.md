@@ -9,7 +9,7 @@ All notable changes to the project will be documented in this file.
 - Added a standalone **Page Inspector** Chrome extension for inspecting the current page locally without a backend.
 - Added versioned ZIP releases for the Assistant, Page Inspector, and embed runtime.
 - Added Assistant query session recovery across popup reopenings, restoring pending requests and completed answers in Chrome and embed.
-- Added PageTrail data-ID signatures and warnings when a restored answer references a changed page.
+- Added PageTrail `dataId` signatures and warnings when a restored answer references a changed page.
 - Added a Clear result action that removes the saved answer while keeping the current question.
 - Added development-only transport message logging for extension debugging.
 

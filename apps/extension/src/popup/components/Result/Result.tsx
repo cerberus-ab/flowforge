@@ -37,9 +37,10 @@ export function Result({
                 direction="left"
                 data-testid="flowforge-result"
                 action={
-                    <Tooltip content="Clear result" variant="primary" side="bottom" disabled={isClearing}>
+                    <Tooltip content="Clear result" variant="secondary" side="bottom" disabled={isClearing}>
                         <Button
                             size="small"
+                            variant="secondary"
                             hollow
                             compact
                             icon={X}

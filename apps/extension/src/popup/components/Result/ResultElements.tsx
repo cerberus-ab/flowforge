@@ -58,7 +58,7 @@ export function ResultElements({
             </div>
             {isSteps && !isStale && (
                 <div className="flowforge-elements__actions">
-                    <span className="flowforge-elements__action-label">To continue:</span>
+                    <span className="flowforge-elements__action-label">To continue</span>
                     <Button
                         size="small"
                         onClick={onOpenOnboarding}
