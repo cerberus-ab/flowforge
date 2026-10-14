@@ -36,7 +36,7 @@ export function createQueryHandler({ indexer, agent, analytics }: QueryHandlerDe
                 });
                 return;
             }
-            if (pageTrail.contextOnly) {
+            if (pageTrail.metadata.snapshot.contextOnly) {
                 res.status(400).json({
                     error: 'Invalid pageTrailDto',
                     message: 'Query does not support a context-only PageTrail',
