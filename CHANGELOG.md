@@ -4,6 +4,8 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-14
+
 ### Changed
 
 - Expanded development transport logs to include full responses and failed sends.
