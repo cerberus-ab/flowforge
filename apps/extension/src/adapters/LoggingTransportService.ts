@@ -46,23 +46,34 @@ export class LoggingTransportService implements TransportService {
     addMessageListener(handler: MessageListener): () => void {
         return this.transport.addMessageListener((message, context) => {
             const response = handler(message, context);
-            if (response !== undefined) this.log('received', message, context);
+            if (response !== undefined) this.log('received', message.type, { context, message });
             return response;
         });
     }
 
-    private logOutgoing<T>(
+    private async logOutgoing<T>(
         destination: 'background' | 'page' | 'popup',
         message: Parameters<MessageListener>[0],
         context: MessageContext,
         send: () => Promise<T>,
     ): Promise<T> {
-        this.log(`sent to ${destination}`, message, context);
-        return send();
+        this.log(`sent to ${destination}`, message.type, { context, message });
+        try {
+            const response = await send();
+            this.log(`response from ${destination}`, message.type, { context, response });
+            return response;
+        } catch (error) {
+            this.warn(`failed to send to ${destination}`, message.type, { context, error });
+            throw error;
+        }
     }
 
-    private log(event: string, message: Parameters<MessageListener>[0], context: MessageContext): void {
-        console.log(`[FlowForge transport] ${event}: ${message.type}`, { context, message });
+    private log(event: string, messageType: string, details: Record<string, unknown>): void {
+        console.log(`[FlowForge transport] ${event}: ${messageType}`, details);
+    }
+
+    private warn(event: string, messageType: string, details: Record<string, unknown>): void {
+        console.warn(`[FlowForge transport] ${event}: ${messageType}`, details);
     }
 }
 
