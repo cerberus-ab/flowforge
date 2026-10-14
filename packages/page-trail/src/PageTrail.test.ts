@@ -35,7 +35,7 @@ describe('PageTrail DTO conversion', () => {
         const dto = pageTrail.toDto();
 
         // Then
-        expect(dto.contextOnly).toBe(false);
+        expect(dto.metadata.snapshot.contextOnly).toBe(false);
         expect(dto.structure).toEqual({
             contentIds: [],
             interactiveIds: [],
@@ -90,7 +90,7 @@ describe('PageTrail DTO conversion', () => {
     it('preserves context-only mode after a JSON roundtrip', () => {
         // Given
         const dto = createPageTrailFixture({
-            contextOnly: true,
+            metadata: { snapshot: { contextOnly: true } },
             elements: [createContentElementFixture({ locator: undefined })],
         }).toDto();
 
@@ -99,7 +99,7 @@ describe('PageTrail DTO conversion', () => {
         const restored = PageTrail.fromDto(serializedDto);
 
         // Then
-        expect(restored.contextOnly).toBe(true);
+        expect(restored.metadata.snapshot.contextOnly).toBe(true);
         expect(restored.getContent()[0]?.locator).toBeUndefined();
     });
 

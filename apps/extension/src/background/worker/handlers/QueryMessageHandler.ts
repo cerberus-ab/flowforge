@@ -132,7 +132,7 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
         }
     }
 
-    /** Restores the page's query state, validating its URL and (when available) page signature. */
+    /** Restores the page's query state, validating its URL and referenced result elements. */
     async handleRestoreQuery(_message: RestoreQueryMessage, context: MessageContext): Promise<RestoreQueryResponse> {
         const pageId = requirePageId(context);
 
@@ -159,10 +159,11 @@ export class QueryMessageHandler implements BackgroundMessageHandler {
                 data: record.data,
             };
         }
-        const savedSignature = record.data.trailSnapshot.dataIdSignature;
-        if (savedSignature !== undefined) {
-            const liveSignature = await this.pageClient.collectDataIdSignature(pageId);
-            if (savedSignature !== liveSignature) {
+        // validate that necessary elements are presented on the page
+        const resultDataIds = record.data.result.elements.map((re) => re.dataId);
+        if (resultDataIds.length > 0) {
+            const pageContainsRefs = await this.pageClient.containsElements(pageId, resultDataIds);
+            if (!pageContainsRefs) {
                 return {
                     status: 'stale',
                     queryId: record.queryId,

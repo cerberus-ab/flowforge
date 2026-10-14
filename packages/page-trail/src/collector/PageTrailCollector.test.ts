@@ -291,7 +291,7 @@ describe('PageTrailCollector', () => {
         });
 
         // Then
-        expect(model.contextOnly).toBe(false);
+        expect(model.metadata.snapshot.contextOnly).toBe(false);
         expect(model.getInteractive()).toHaveLength(1);
         expect(model.getInteractive()[0]).toEqual(
             expect.objectContaining({ locator: { dataId: 'save', cssSelector: undefined } }),
@@ -308,7 +308,7 @@ describe('PageTrailCollector', () => {
         const model = PageTrailCollector.collectFor(window, document, { contextOnly: true });
 
         // Then
-        expect(model.contextOnly).toBe(true);
+        expect(model.metadata.snapshot.contextOnly).toBe(true);
         const elements = [
             ...model.mapStructureTree((node) => ('container' in node ? [node.container] : [])).flat(),
             ...model.getContent(),

@@ -51,7 +51,7 @@ export function useInspectorPage({
     useLayoutEffect(() => {
         return backgroundClient.subscribeToInspectorPageMessages({
             onClearPage: closeInspector,
-            onOpenInspector: (tab) => openInspector(collectPageTrail(), tab),
+            onOpenInspector: (data) => openInspector(collectPageTrail(), data.tab),
         });
     }, [backgroundClient, openInspector, closeInspector]);
 

@@ -133,6 +133,7 @@ export class PageTrailCollector {
                 version: VERSION,
                 collectedAt: Date.now(),
                 url: pageBasics.url,
+                contextOnly: this.options.contextOnly,
                 dataIdSignature,
             },
             performance: {
@@ -145,7 +146,7 @@ export class PageTrailCollector {
             },
         };
 
-        return new PageTrail(this.options.contextOnly, pageBasics, containerTree.structure, elements, metadata);
+        return new PageTrail(pageBasics, containerTree.structure, elements, metadata);
     }
 
     /**

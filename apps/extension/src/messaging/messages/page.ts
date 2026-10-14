@@ -13,8 +13,12 @@ export type CollectPageTrailMessage = Message & {
     type: 'COLLECT_PAGE_TRAIL';
 };
 
-export type CollectDataIdSignatureMessage = Message & {
-    type: 'COLLECT_DATA_ID_SIGNATURE';
+export interface ContainsElementsMessageData {
+    dataIds: string[];
+}
+
+export type ContainsElementsMessage = Message<ContainsElementsMessageData> & {
+    type: 'CONTAINS_ELEMENTS';
 };
 
 export type ClearPageMessage = Message & {
@@ -49,7 +53,7 @@ export type SettingsUpdatedMessage = Message<SettingsUpdatedMessageData> & {
 
 export type PageMessage =
     | CollectPageTrailMessage
-    | CollectDataIdSignatureMessage
+    | ContainsElementsMessage
     | ClearPageMessage
     | StartOnboardingMessage
     | HighlightElementMessage
@@ -58,7 +62,7 @@ export type PageMessage =
 
 export interface PageMessageResponseMap {
     COLLECT_PAGE_TRAIL: PageTrailDto;
-    COLLECT_DATA_ID_SIGNATURE: string | undefined;
+    CONTAINS_ELEMENTS: boolean;
     CLEAR_PAGE: undefined;
     START_ONBOARDING: undefined;
     HIGHLIGHT_ELEMENT: undefined;
@@ -73,8 +77,8 @@ export function isCollectPageTrailMessage(message: Message): message is CollectP
     return message.type === 'COLLECT_PAGE_TRAIL';
 }
 
-export function isCollectDataIdSignatureMessage(message: Message): message is CollectDataIdSignatureMessage {
-    return message.type === 'COLLECT_DATA_ID_SIGNATURE';
+export function isContainsElementsMessage(message: Message): message is ContainsElementsMessage {
+    return message.type === 'CONTAINS_ELEMENTS';
 }
 
 export function isStartOnboardingMessage(message: Message): message is StartOnboardingMessage {

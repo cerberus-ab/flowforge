@@ -116,6 +116,49 @@ test('clears a completed answer and does not restore it when the popup reopens',
     await expect(page.getByTestId('flowforge-result')).toHaveCount(0);
 });
 
+test('restores a result despite unrelated IDs and warns when a referenced element disappears', async ({ page }) => {
+    // Given
+    await mockQuery(
+        page,
+        createQueryResponseFixture({
+            result: {
+                answer: 'This answer is still useful',
+                elements: [{ text: directTarget.text, dataId: directTarget.dataId, action: 'navigate' }],
+                mode: 'direct',
+                topic: null,
+            },
+        }),
+    );
+    await page.goto('/embed');
+    const trigger = page.getByTestId('flowforge-trigger');
+    await trigger.click();
+    await page.getByTestId('flowforge-question-input').fill('Where are the Embed docs?');
+    await page.getByTestId('flowforge-question-submit').click();
+    await expect(page.getByTestId('flowforge-result')).toContainText('This answer is still useful');
+
+    // When: a new unrelated ID appears before the popup is reopened.
+    await page.evaluate(() => {
+        const unrelatedElement = document.createElement('div');
+        unrelatedElement.setAttribute('data-flowforge-id', 'ff99999999');
+        document.body.append(unrelatedElement);
+    });
+    await page.getByTestId('sandbox-heading').click();
+    await trigger.click();
+
+    // Then: the result remains actionable until its referenced element is removed.
+    await expect(page.getByTestId('flowforge-result')).toContainText('This answer is still useful');
+    await expect(page.getByRole('note')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: directTarget.text })).toBeVisible();
+
+    await page.locator(`[data-flowforge-id="${directTarget.dataId}"]`).evaluate((element) => element.remove());
+    await page.getByTestId('sandbox-heading').click();
+    await trigger.click();
+
+    await expect(page.getByTestId('flowforge-result')).toContainText('This answer is still useful');
+    await expect(page.getByRole('note')).toContainText('page has changed');
+    await expect(page.getByRole('button', { name: directTarget.text })).toHaveCount(0);
+});
+
 test('auto-highlights a single direct result element from the backend', async ({ page }) => {
     // Given
     await mockQuery(

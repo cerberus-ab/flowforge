@@ -6,7 +6,6 @@ import {
     type BackgroundMessageResponseData,
     isClearPageMessage,
     isCollectPageTrailMessage,
-    isCollectDataIdSignatureMessage,
     isHighlightElementMessage,
     isOpenInspectorMessage,
     isQueryFinishedMessage,
@@ -15,6 +14,7 @@ import {
     type PreviousQuestionsResponse,
     type RestoreQueryResponse,
     type AskQuestionResponse,
+    isContainsElementsMessage,
 } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
 import type {
@@ -159,13 +159,11 @@ export class BackgroundClient
     subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrail()),
-            MessageRouter.route(isCollectDataIdSignatureMessage, () => callbacks.onCollectDataIdSignature()),
+            MessageRouter.route(isContainsElementsMessage, (message) => callbacks.onContainsElements(message.data)),
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
             MessageRouter.route(isStartOnboardingMessage, (message) => callbacks.onStartOnboarding(message.data)),
-            MessageRouter.route(isHighlightElementMessage, (message) =>
-                callbacks.onHighlightElement(message.data.element),
-            ),
-            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data.tab)),
+            MessageRouter.route(isHighlightElementMessage, (message) => callbacks.onHighlightElement(message.data)),
+            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data)),
         ]);
     }
 
@@ -173,7 +171,7 @@ export class BackgroundClient
     subscribeToInspectorPageMessages(callbacks: InspectorPageMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
-            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data.tab)),
+            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data)),
         ]);
     }
 

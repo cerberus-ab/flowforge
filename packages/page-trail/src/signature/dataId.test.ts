@@ -35,7 +35,7 @@ describe('createDataIdSignature', () => {
         expect(twoIds).toMatch(/^2-/);
     });
 
-    it('returns undefined when data IDs are unavailable', () => {
-        expect(createDataIdSignature(undefined)).toBeUndefined();
+    it('creates a signature for an empty set of data IDs', () => {
+        expect(createDataIdSignature([])).toMatch(/^0-[\da-f]{16}$/);
     });
 });

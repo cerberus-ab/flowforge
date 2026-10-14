@@ -356,14 +356,23 @@ describe('QueryMessageHandler', () => {
         });
     });
 
-    it('restores a completed query when the page data ID signature still matches', async () => {
+    it('restores a completed query when all result elements are still present', async () => {
         const sessionStorage = new FakeStorage();
-        const queryResponse = createQueryResponseFixture();
-        const dataIdSignature = '1-current';
-        await saveCompletedQuery(sessionStorage, dataIdSignature, queryResponse);
+        const queryResponse = createQueryResponseFixture({
+            result: {
+                answer: 'Click Save, then Confirm.',
+                elements: [
+                    { text: 'Save', dataId: 'ff00000001', action: 'click' },
+                    { text: 'Confirm', dataId: 'ff00000002', action: 'click' },
+                ],
+                mode: 'steps',
+                topic: 'Saving',
+            },
+        });
+        await saveCompletedQuery(sessionStorage, '2-saved', queryResponse);
         const transport = createTransport({
             pageUrl: 'https://app.flowforge.test/settings',
-            dataIdSignature,
+            containsElements: true,
         });
         const handler = createQueryHandler(transport, sessionStorage);
 
@@ -376,19 +385,32 @@ describe('QueryMessageHandler', () => {
                 metadata: queryResponse.metadata,
                 trailSnapshot: {
                     ...createPageTrailDtoFixture().metadata.snapshot,
-                    dataIdSignature,
+                    dataIdSignature: '2-saved',
                 },
             },
         });
-        expect(transport.getSentToPage()).toEqual([{ pageId: 7, message: { type: 'COLLECT_DATA_ID_SIGNATURE' } }]);
+        expect(transport.getSentToPage()).toEqual([
+            {
+                pageId: 7,
+                message: { type: 'CONTAINS_ELEMENTS', data: { dataIds: ['ff00000001', 'ff00000002'] } },
+            },
+        ]);
     });
 
-    it('restores the completed answer as stale when the page data ID signature changed', async () => {
+    it('restores the completed answer as stale when a result element is missing', async () => {
         const sessionStorage = new FakeStorage();
-        await saveCompletedQuery(sessionStorage, '1-saved');
+        const queryResponse = createQueryResponseFixture({
+            result: {
+                answer: 'Click Save.',
+                elements: [{ text: 'Save', dataId: 'ff00000001', action: 'click' }],
+                mode: 'direct',
+                topic: null,
+            },
+        });
+        await saveCompletedQuery(sessionStorage, '1-saved', queryResponse);
         const transport = createTransport({
             pageUrl: 'https://app.flowforge.test/settings',
-            dataIdSignature: '1-current',
+            containsElements: false,
         });
         const handler = createQueryHandler(transport, sessionStorage);
 
@@ -397,15 +419,18 @@ describe('QueryMessageHandler', () => {
             queryId: 'query-7',
             data: {
                 question: 'How do I save?',
-                result: expect.any(Object),
-                metadata: expect.any(Object),
+                result: queryResponse.result,
+                metadata: queryResponse.metadata,
                 trailSnapshot: expect.objectContaining({ dataIdSignature: '1-saved' }),
             },
         });
+        expect(transport.getSentToPage()).toEqual([
+            { pageId: 7, message: { type: 'CONTAINS_ELEMENTS', data: { dataIds: ['ff00000001'] } } },
+        ]);
         await expect(sessionStorage.get(querySessionKey(7))).resolves.toMatchObject({ state: 'completed' });
     });
 
-    it('restores a completed context-only query without checking a data ID signature', async () => {
+    it('restores a completed answer without result elements without querying the page', async () => {
         const sessionStorage = new FakeStorage();
         await saveCompletedQuery(sessionStorage, undefined);
         const transport = createTransport({ pageUrl: 'https://app.flowforge.test/settings' });
@@ -439,16 +464,16 @@ describe('QueryMessageHandler', () => {
 function createTransport({
     pageUrl = 'http://localhost/',
     pageTrailDto = createPageTrailDtoFixture(),
-    dataIdSignature,
+    containsElements,
 }: {
     pageUrl?: string;
     pageTrailDto?: PageTrailDto;
-    dataIdSignature?: string;
+    containsElements?: boolean;
 } = {}) {
     const transport = new FakeTransportService({ activePageId: 7, pageUrl });
     transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
-    if (dataIdSignature !== undefined) {
-        transport.setPageResponse('COLLECT_DATA_ID_SIGNATURE', { success: true, data: dataIdSignature });
+    if (containsElements !== undefined) {
+        transport.setPageResponse('CONTAINS_ELEMENTS', { success: true, data: containsElements });
     }
     return transport;
 }

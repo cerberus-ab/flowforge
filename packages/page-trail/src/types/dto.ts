@@ -49,7 +49,6 @@ export type PageElementDto = ContainerElementDto | ContentElementDto | Interacti
  * Container tree and context relationships are stored as element IDs.
  */
 export interface PageTrailDto {
-    contextOnly: boolean;
     basics: PageBasicsDto;
     structure: ContainerRootNodeDto;
     elements: PageElementDto[];

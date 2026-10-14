@@ -1,5 +1,4 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
-import { createDataIdSignature } from '@flowforge/page-trail';
 import { render, screen, fireEvent, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -92,20 +91,26 @@ describe('usePage', () => {
         expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
     });
 
-    it('computes a data ID signature from the IDs already present on the page', async () => {
+    it('checks that every referenced element is present without assigning new IDs', async () => {
         // Given
-        const dataId = 'ff00000001';
-        addTargetButton({ ...targetElement, dataId });
+        addTargetButton({ ...targetElement, dataId: 'ff00000001' });
+        addTargetButton({ ...secondaryElement, dataId: 'ff00000002' });
         const { transport } = renderPage();
 
         // When
-        const response = await transport.dispatchToBackground({ type: 'COLLECT_DATA_ID_SIGNATURE' });
+        const presentResponse = await transport.dispatchToBackground({
+            type: 'CONTAINS_ELEMENTS',
+            data: { dataIds: ['ff00000001', 'ff00000002'] },
+        });
+        const missingResponse = await transport.dispatchToBackground({
+            type: 'CONTAINS_ELEMENTS',
+            data: { dataIds: ['ff00000001', 'ff00000003'] },
+        });
 
         // Then
-        expect(response).toEqual({
-            success: true,
-            data: createDataIdSignature([dataId]),
-        });
+        expect(presentResponse).toEqual({ success: true, data: true });
+        expect(missingResponse).toEqual({ success: true, data: false });
+        expect(document.querySelectorAll('[data-flowforge-id]')).toHaveLength(2);
         expect(transport.getSentToPage()).toEqual([]);
     });
 

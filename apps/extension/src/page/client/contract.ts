@@ -19,7 +19,7 @@ export interface PageInspectorClient {
 export interface PageQuestionClient {
     clearPage(pageId: number): Promise<void>;
     collectPageTrail(pageId: number): Promise<PageTrailDto>;
-    collectDataIdSignature(pageId: number): Promise<string | undefined>;
+    containsElements(pageId: number, dataIds: string[]): Promise<boolean>;
     getUrl(pageId: number): Promise<string>;
 }
 
