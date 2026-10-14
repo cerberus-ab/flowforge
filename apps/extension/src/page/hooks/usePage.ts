@@ -1,22 +1,10 @@
 import type { StartOnboardingMessageData } from '@/messaging';
 import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { findDataIds, findElement, getOrCreateDataId } from '@/core/locator/locate';
+import { containsElements, findElement, getOrCreateDataId } from '@/core/locator/locate';
 import { constants } from '@/constants';
 import type { AgentResultElement } from '@flowforge/contract';
-import { createDataIdSignature, PageTrail, PageTrailCollector } from '@flowforge/page-trail';
+import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
 import type { PageBackgroundClient } from '@/background';
-
-function collectPageTrail(): PageTrail {
-    return PageTrailCollector.collectFor(window, document, {
-        contentElementsLimit: constants.CONTENT_ELEMENTS_LIMIT,
-        interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
-        getElementDataId: getOrCreateDataId,
-    });
-}
-
-function collectDataIdSignature(): string | undefined {
-    return createDataIdSignature(findDataIds(document));
-}
 
 export interface UsePageOptions {
     backgroundClient: PageBackgroundClient;
@@ -64,6 +52,18 @@ export interface PageViewModel {
     highlights: HighlightViewModel[];
     wizard: WizardViewModel | null;
     inspector: InspectorViewModel | null;
+}
+
+function docCollectPageTrail(): PageTrail {
+    return PageTrailCollector.collectFor(window, document, {
+        contentElementsLimit: constants.CONTENT_ELEMENTS_LIMIT,
+        interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
+        getElementDataId: getOrCreateDataId,
+    });
+}
+
+function docContainsElements(dataIds: string[]): boolean {
+    return containsElements(document, dataIds);
 }
 
 export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }: UsePageOptions): PageViewModel {
@@ -170,12 +170,12 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
     // Listen to messages from background
     useLayoutEffect(() => {
         const unsubscribe = backgroundClient.subscribeToPageMessages({
-            onCollectPageTrail: () => collectPageTrail().toDto(),
-            onCollectDataIdSignature: collectDataIdSignature,
+            onCollectPageTrail: () => docCollectPageTrail().toDto(),
+            onContainsElements: (data) => docContainsElements(data.dataIds),
             onClearPage: clearPage,
             onStartOnboarding: startOnboarding,
-            onHighlightElement: highlightElement,
-            onOpenInspector: (tab) => openInspector(collectPageTrail(), tab),
+            onHighlightElement: (data) => highlightElement(data.element),
+            onOpenInspector: (data) => openInspector(docCollectPageTrail(), data.tab),
         });
 
         if (!readyRef.current) {

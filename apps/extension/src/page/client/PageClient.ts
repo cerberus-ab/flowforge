@@ -41,9 +41,9 @@ export class PageClient
         return this.sendToPage(pageId, { type: 'COLLECT_PAGE_TRAIL' });
     }
 
-    /** Collects the current page data IDs and returns their signature. */
-    async collectDataIdSignature(pageId: number): Promise<string | undefined> {
-        return this.sendToPage(pageId, { type: 'COLLECT_DATA_ID_SIGNATURE' });
+    /** Validate that the page contains elements by dataId list. */
+    containsElements(pageId: number, dataIds: string[]): Promise<boolean> {
+        return this.sendToPage(pageId, { type: 'CONTAINS_ELEMENTS', data: { dataIds } });
     }
 
     /** Highlights an agent result element on the target page. */

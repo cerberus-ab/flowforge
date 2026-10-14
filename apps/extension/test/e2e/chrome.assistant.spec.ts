@@ -147,7 +147,7 @@ test('restores loading and receives the completed query after reopening the popu
     await reopenedPopup.close();
 });
 
-test('keeps a completed answer and warns when its page fingerprint is stale', async ({
+test('keeps a completed answer when unrelated elements appear and warns when a referenced element disappears', async ({
     context,
     extensionId,
     page,
@@ -169,14 +169,25 @@ test('keeps a completed answer and warns when its page fingerprint is stale', as
     await popup.getByTestId('flowforge-question-input').fill('Where are the Chrome docs?');
     await popup.getByTestId('flowforge-question-submit').click();
     await expect(popup.getByTestId('flowforge-result')).toContainText('This answer is still useful');
-    await page.locator(`[data-flowforge-id="${directTarget.dataId}"]`).evaluate((element) => element.remove());
+    await page.evaluate(() => {
+        const unrelatedElement = document.createElement('div');
+        unrelatedElement.setAttribute('data-flowforge-id', 'ff99999999');
+        document.body.append(unrelatedElement);
+    });
     await popup.close();
 
     const reopenedPopup = await openExtensionPopup(context, extensionId, { activePage: page });
     await expect(reopenedPopup.getByTestId('flowforge-result')).toContainText('This answer is still useful');
-    await expect(reopenedPopup.getByRole('note')).toContainText('page has changed');
-    await expect(reopenedPopup.getByRole('button', { name: directTarget.text })).toHaveCount(0);
+    await expect(reopenedPopup.getByRole('note')).toHaveCount(0);
+    await expect(reopenedPopup.getByRole('button', { name: directTarget.text })).toBeVisible();
+    await page.locator(`[data-flowforge-id="${directTarget.dataId}"]`).evaluate((element) => element.remove());
     await reopenedPopup.close();
+
+    const stalePopup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await expect(stalePopup.getByTestId('flowforge-result')).toContainText('This answer is still useful');
+    await expect(stalePopup.getByRole('note')).toContainText('page has changed');
+    await expect(stalePopup.getByRole('button', { name: directTarget.text })).toHaveCount(0);
+    await stalePopup.close();
 });
 
 test('auto-highlights a single direct result element from the backend', async ({ context, extensionId, page }) => {

@@ -5,26 +5,30 @@ import type {
     RestoreQueryResponse,
     StartOnboardingMessageData,
     QueryFinishedMessageData,
+    ContainsElementsMessageData,
+    HighlightElementMessageData,
+    OpenInspectorMessageData,
+    SettingsUpdatedMessageData,
 } from '@/messaging';
 import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 /* message callbacks */
 export interface PageMessageCallbacks {
     onCollectPageTrail: () => PageTrailDto;
-    onCollectDataIdSignature: () => string | undefined;
+    onContainsElements: (data: ContainsElementsMessageData) => boolean;
     onClearPage: () => void;
     onStartOnboarding: (data: StartOnboardingMessageData) => void;
-    onHighlightElement: (element: AgentResultElement) => void;
-    onOpenInspector: (tab?: string) => void;
+    onHighlightElement: (data: HighlightElementMessageData) => void;
+    onOpenInspector: (data: OpenInspectorMessageData) => void;
 }
 
 export interface InspectorPageMessageCallbacks {
     onClearPage: () => void;
-    onOpenInspector: (tab?: string) => void;
+    onOpenInspector: (data: OpenInspectorMessageData) => void;
 }
 
 export interface SettingsMessageCallbacks {
-    onSettingsUpdated: (settings: ExtensionSettings) => void;
+    onSettingsUpdated: (data: SettingsUpdatedMessageData) => void;
 }
 
 export interface PopupMessageCallbacks {

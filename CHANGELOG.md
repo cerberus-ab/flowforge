@@ -4,6 +4,14 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Expanded development transport logs to include full responses and failed sends.
+
+### Fixed
+
+- Fixed false stale-answer warnings by checking only the page elements referenced by the agent result.
+
 ## [0.3.0] - 2026-10-14
 
 ### Added

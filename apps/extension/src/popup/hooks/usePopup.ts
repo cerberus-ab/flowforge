@@ -31,7 +31,11 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
     const selectedPresetIndex = presetQuestions?.indexOf(querySession.inputQuestion) ?? -1;
     const isUnavailableQuestion =
         presetQuestions !== undefined && querySession.inputQuestion.length > 0 && selectedPresetIndex < 0;
-    const upcomingPresetIndex = nextPresetIndex ?? Math.max(selectedPresetIndex, 0);
+    const upcomingPresetIndex =
+        nextPresetIndex ??
+        (presetQuestions?.length && selectedPresetIndex >= 0 && querySession.result && !querySession.isResultStale
+            ? (selectedPresetIndex + 1) % presetQuestions.length
+            : Math.max(selectedPresetIndex, 0));
     const presetSubmitLabel =
         querySession.inputQuestion && presetQuestions?.[upcomingPresetIndex] === querySession.inputQuestion
             ? 'Ask question'

@@ -3,6 +3,8 @@
   --sandbox-color-text: #0f172a;
   --sandbox-color-text-on-dark: #e5e7eb;
   --sandbox-color-hover: #cbd5f5;
+  --sandbox-color-primary: #6d28d9;
+  --sandbox-color-primary-hover: #7c3aed;
   --sandbox-color-secondary: #f97316;
   --sandbox-color-secondary-hover: #fb923c;
 
@@ -73,10 +75,17 @@ button:disabled {
 button:not(:disabled):hover {
   background-color: var(--sandbox-color-hover);
 }
-.extension-targets button {
-  background-color: var(--sandbox-color-secondary);
+button.btn--primary {
   color: var(--sandbox-color-text-on-dark);
+  background-color: var(--sandbox-color-primary);
 }
-.extension-targets button:not(:disabled):hover {
+button:not(:disabled).btn--primary:hover {
+  background-color: var(--sandbox-color-primary-hover);
+}
+button.btn--secondary {
+  color: var(--sandbox-color-text-on-dark);
+  background-color: var(--sandbox-color-secondary);
+}
+button:not(:disabled).btn--secondary:hover {
   background-color: var(--sandbox-color-secondary-hover);
 }

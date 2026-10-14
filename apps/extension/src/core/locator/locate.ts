@@ -32,6 +32,18 @@ export function findDataIds(doc: Document): string[] {
 }
 
 /**
+ * Validate that a list of elements is presented in the document.
+ *
+ * @param doc - The document to search for data id attributes.
+ * @param dataIds - The list od data id to be presented in the document.
+ * @returns true if all data ids are presented
+ */
+export function containsElements(doc: Document, dataIds: string[]): boolean {
+    const presentIds = new Set(findDataIds(doc));
+    return dataIds.every((id) => presentIds.has(id));
+}
+
+/**
  * Finds a DOM element by its data id attribute, falling back to a CSS selector
  *
  * @param doc - The document to search within.

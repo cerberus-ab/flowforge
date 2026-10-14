@@ -16,17 +16,16 @@ describe('PageClient', () => {
     it('sends typed commands to the requested page and unwraps their responses', async () => {
         // Given
         const pageTrailDto = createPageTrailDtoFixture();
-        const expectedSignature = pageTrailDto.metadata.snapshot.dataIdSignature;
         const settings = createSettingsFixture({ theme: 'dark' });
         const transport = new FakeTransportService({ pageUrl: 'https://app.flowforge.test/settings?tab=profile' });
         transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: pageTrailDto });
-        transport.setPageResponse('COLLECT_DATA_ID_SIGNATURE', { success: true, data: expectedSignature });
+        transport.setPageResponse('CONTAINS_ELEMENTS', { success: true, data: true });
         const client = new PageClient(transport);
 
         // When
         const url = await client.getUrl(7);
         await client.clearPage(7);
-        const dataIdSignature = await client.collectDataIdSignature(7);
+        const containsElements = await client.containsElements(7, [element.dataId]);
         const collectedPageTrail = await client.collectPageTrail(7);
         await client.highlightElement(7, element);
         await client.startOnboarding(7, {
@@ -40,11 +39,11 @@ describe('PageClient', () => {
 
         // Then
         expect(url).toBe('https://app.flowforge.test/settings?tab=profile');
-        expect(dataIdSignature).toEqual(expectedSignature);
+        expect(containsElements).toBe(true);
         expect(collectedPageTrail).toEqual(pageTrailDto);
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
-            { pageId: 7, message: { type: 'COLLECT_DATA_ID_SIGNATURE' } },
+            { pageId: 7, message: { type: 'CONTAINS_ELEMENTS', data: { dataIds: [element.dataId] } } },
             { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
             { pageId: 7, message: { type: 'HIGHLIGHT_ELEMENT', data: { element } } },
             {

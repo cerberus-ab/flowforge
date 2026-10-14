@@ -295,7 +295,7 @@ describe('usePopup', () => {
         );
     });
 
-    it('repeats a restored demo question with a current result before advancing', async () => {
+    it('advances immediately past a restored demo question with a current result', async () => {
         // Given
         const { messages } = renderPopup({
             presetQuestions: ['First question?', 'Second question?', 'Third question?'],
@@ -320,18 +320,55 @@ describe('usePopup', () => {
             },
         });
         await screen.findByText(result.answer);
-        expect(screen.getByTestId('preset-submit-label').textContent).toBe('Ask question');
+        expect(screen.getByTestId('preset-submit-label').textContent).toBe('Ask next question');
 
         // When
         fireEvent.click(screen.getByRole('button', { name: 'Ask next preset' }));
 
         // Then
         await waitFor(() =>
-            expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'Second question?' } }),
+            expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'Third question?' } }),
         );
         fireEvent.click(screen.getByRole('button', { name: 'Ask next preset' }));
         await waitFor(() =>
-            expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'Third question?' } }),
+            expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'First question?' } }),
+        );
+    });
+
+    it('submits an explicitly selected preset even when a current result was restored', async () => {
+        // Given
+        const { messages } = renderPopup({
+            presetQuestions: ['First question?', 'Second question?', 'Third question?'],
+            handler: (message) => {
+                if (message.type === 'RESTORE_QUERY') {
+                    return {
+                        success: true,
+                        data: {
+                            status: 'completed',
+                            queryId: 'query-1',
+                            data: {
+                                question: 'Second question?',
+                                result,
+                                metadata: queryResponse.metadata,
+                                trailSnapshot,
+                            },
+                        },
+                    };
+                }
+                if (message.type === 'ASK_QUESTION') return { success: true, data: { queryId: 'query-2' } };
+                return undefined;
+            },
+        });
+        await screen.findByText(result.answer);
+
+        // When
+        fireEvent.click(screen.getByRole('button', { name: 'First question?' }));
+        expect(screen.getByTestId('preset-submit-label').textContent).toBe('Ask question');
+        fireEvent.click(screen.getByRole('button', { name: 'Ask next preset' }));
+
+        // Then
+        await waitFor(() =>
+            expect(messages).toContainEqual({ type: 'ASK_QUESTION', data: { question: 'First question?' } }),
         );
     });
 

@@ -228,6 +228,7 @@ export interface SnapshotMetadata {
     version: string;
     collectedAt: number;
     url: string;
+    contextOnly: boolean;
     dataIdSignature?: string; // undefined for contextOnly snapshots
 }
 

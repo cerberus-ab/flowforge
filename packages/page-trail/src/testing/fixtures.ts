@@ -28,7 +28,6 @@ export type CollectionMetadataFixtureOverrides = Partial<
 };
 
 export interface PageTrailDtoFixtureOverrides {
-    contextOnly?: boolean;
     basics?: PageBasicsFixtureOverrides;
     structure?: Partial<ContainerRootNodeDto>;
     elements?: PageElementDto[];
@@ -36,7 +35,6 @@ export interface PageTrailDtoFixtureOverrides {
 }
 
 export interface PageTrailFixtureOptions {
-    contextOnly?: boolean;
     basics?: PageBasicsFixtureOverrides;
     structure?: ContainerRootNode;
     elements?: PageElement[];
@@ -89,6 +87,7 @@ export function createCollectionMetadataFixture(
             version: VERSION,
             collectedAt: 0,
             url: snapshotUrl,
+            contextOnly: false,
             dataIdSignature: undefined,
             ...overrides.snapshot,
         },
@@ -108,7 +107,6 @@ export function createPageTrailDtoFixture(overrides: PageTrailDtoFixtureOverride
     const basics = createPageBasicsFixture(overrides.basics);
 
     return {
-        contextOnly: overrides.contextOnly ?? false,
         basics,
         structure: {
             contentIds: [],
@@ -125,7 +123,6 @@ export function createPageTrailFixture(options: PageTrailFixtureOptions = {}): P
     const basics = createPageBasicsFixture(options.basics);
 
     return new PageTrail(
-        options.contextOnly ?? false,
         basics,
         options.structure ?? { content: [], interactive: [], nodes: [] },
         options.elements ?? [],

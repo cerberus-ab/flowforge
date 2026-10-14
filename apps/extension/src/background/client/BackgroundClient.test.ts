@@ -126,7 +126,7 @@ describe('BackgroundClient', () => {
         const client = new BackgroundClient(transport);
         client.subscribeToPageMessages({
             onCollectPageTrail: vi.fn(),
-            onCollectDataIdSignature: vi.fn(),
+            onContainsElements: vi.fn(),
             onClearPage: () => {
                 throw new Error('Page cleanup failed');
             },
@@ -180,7 +180,7 @@ describe('BackgroundClient', () => {
         const pageTrailDto = createPageTrailDtoFixture();
         const callbacks: PageMessageCallbacks = {
             onCollectPageTrail: vi.fn(() => pageTrailDto),
-            onCollectDataIdSignature: vi.fn(() => pageTrailDto.metadata.snapshot.dataIdSignature),
+            onContainsElements: vi.fn(() => true),
             onClearPage: vi.fn(),
             onStartOnboarding: vi.fn(),
             onHighlightElement: vi.fn(),
@@ -191,7 +191,10 @@ describe('BackgroundClient', () => {
 
         // When
         const collectionResponse = await transport.dispatchToBackground({ type: 'COLLECT_PAGE_TRAIL' });
-        const signatureResponse = await transport.dispatchToBackground({ type: 'COLLECT_DATA_ID_SIGNATURE' });
+        const containsResponse = await transport.dispatchToBackground({
+            type: 'CONTAINS_ELEMENTS',
+            data: { dataIds: [element.dataId] },
+        });
         await transport.dispatchToBackground({ type: 'CLEAR_PAGE' });
         await transport.dispatchToBackground({
             type: 'START_ONBOARDING',
@@ -207,11 +210,11 @@ describe('BackgroundClient', () => {
 
         // Then
         expect((collectionResponse as MessageResponse<PageTrailDto> & { success: true }).data).toEqual(pageTrailDto);
-        expect(signatureResponse).toEqual({
+        expect(containsResponse).toEqual({
             success: true,
-            data: pageTrailDto.metadata.snapshot.dataIdSignature,
+            data: true,
         });
-        expect(callbacks.onCollectDataIdSignature).toHaveBeenCalledOnce();
+        expect(callbacks.onContainsElements).toHaveBeenCalledWith({ dataIds: [element.dataId] });
         expect(callbacks.onClearPage).toHaveBeenCalledOnce();
         expect(callbacks.onStartOnboarding).toHaveBeenCalledWith({
             title: 'Settings',
@@ -219,8 +222,8 @@ describe('BackgroundClient', () => {
             mode: 'direct',
             elements: [element],
         });
-        expect(callbacks.onHighlightElement).toHaveBeenCalledWith(element);
-        expect(callbacks.onOpenInspector).toHaveBeenCalledWith('interactive');
+        expect(callbacks.onHighlightElement).toHaveBeenCalledWith({ element });
+        expect(callbacks.onOpenInspector).toHaveBeenCalledWith({ tab: 'interactive' });
 
         // When
         unsubscribe();

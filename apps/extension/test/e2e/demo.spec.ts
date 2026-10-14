@@ -54,7 +54,7 @@ test('opens the second demo question from the sandbox controls', async ({ page }
     await expect(page.getByTestId('flowforge-result')).toContainText('You can start the runtime with a real backend');
 });
 
-test('repeats the demo question after reopening, then advances', async ({ page }) => {
+test('advances to the next demo question after reopening with a current result', async ({ page }) => {
     // Given
     await page.goto('/demo');
     await page.getByTestId('sandbox-demo').click();
@@ -68,14 +68,10 @@ test('repeats the demo question after reopening, then advances', async ({ page }
     await expect(page.getByTestId('flowforge-popup')).toHaveCount(0);
     await trigger.click();
     await expect(page.getByTestId('flowforge-result')).toContainText('extension sandbox for FlowForge');
-    await expect(page.getByTestId('flowforge-question-submit')).toHaveText('Ask question');
+    await expect(page.getByTestId('flowforge-question-submit')).toHaveText('Ask next question');
     await page.getByTestId('flowforge-question-submit').click();
 
     // Then
-    await expect(page.getByTestId('flowforge-question-input')).toHaveValue('What is this page about?');
-    await expect(page.getByTestId('flowforge-result')).toContainText('extension sandbox for FlowForge');
-    await expect(page.getByTestId('flowforge-question-submit')).toHaveText('Ask next question');
-    await page.getByTestId('flowforge-question-submit').click();
     await expect(page.getByTestId('flowforge-question-input')).toHaveValue('How to use the runtime?');
     await expect(page.getByTestId('flowforge-result')).toContainText('You can start the runtime with a real backend');
 });

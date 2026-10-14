@@ -24,7 +24,6 @@ export class PageTrail {
      * Container references are expected to point to elements from the supplied collection.
      */
     constructor(
-        readonly contextOnly: boolean,
         readonly basics: PageBasics,
         private readonly structure: ContainerRootNode,
         private readonly elements: PageElement[],
@@ -133,7 +132,6 @@ export class PageTrail {
         });
 
         return {
-            contextOnly: this.contextOnly,
             basics: this.basics,
             structure: {
                 contentIds: this.structure.content.map((element) => element.id),
@@ -206,6 +204,6 @@ export class PageTrail {
             interactive: dto.structure.interactiveIds.map((id) => resolveElement<InteractiveElement>(id)),
             nodes: dto.structure.nodes.map(mapNode),
         };
-        return new PageTrail(dto.contextOnly, dto.basics, structure, elements, dto.metadata);
+        return new PageTrail(dto.basics, structure, elements, dto.metadata);
     }
 }
