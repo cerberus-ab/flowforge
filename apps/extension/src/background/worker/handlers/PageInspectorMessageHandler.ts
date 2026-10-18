@@ -1,16 +1,20 @@
 import type { PageInspectorClient } from '@/page/client/contract';
 import {
     MessageRouter,
+    isGetPageInspectorData,
     isOpenPageInspectorMessage,
     requirePageId,
     type MessageContext,
     type OpenPageInspectorMessage,
+    type GetPageInspectorDataMessage,
 } from '@/messaging';
+import type { PageTrailDto } from '@flowforge/contract';
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
 
 /**
- * Handles requests to open the PageTrail Inspector on a sender page.
+ * Handles Inspector opening and snapshot requests for a target page.
  * Clears existing extension UI before opening the requested inspector tab.
+ * Collects fresh context-only snapshots for Inspector UI outside the page.
  * Used by both the Assistant and standalone Inspector background workers.
  */
 export class PageInspectorMessageHandler implements BackgroundMessageHandler {
@@ -25,6 +29,9 @@ export class PageInspectorMessageHandler implements BackgroundMessageHandler {
             MessageRouter.route(isOpenPageInspectorMessage, (message, context) =>
                 this.handleOpenPageInspector(message, context),
             ),
+            MessageRouter.route(isGetPageInspectorData, (message, context) =>
+                this.handleGetPageInspectorData(message, context),
+            ),
         ];
     }
 
@@ -34,5 +41,10 @@ export class PageInspectorMessageHandler implements BackgroundMessageHandler {
 
         await this.pageClient.clearPage(pageId);
         await this.pageClient.openInspector(pageId, message.data.tab);
+    }
+
+    /** Returns fresh context-only Inspector data from the requested page. */
+    handleGetPageInspectorData(_message: GetPageInspectorDataMessage, context: MessageContext): Promise<PageTrailDto> {
+        return this.pageClient.collectPageTrailContextOnly(requirePageId(context));
     }
 }

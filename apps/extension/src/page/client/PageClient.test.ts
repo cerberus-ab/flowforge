@@ -27,6 +27,7 @@ describe('PageClient', () => {
         await client.clearPage(7);
         const containsElements = await client.containsElements(7, [element.dataId]);
         const collectedPageTrail = await client.collectPageTrail(7);
+        const contextOnlyTrail = await client.collectPageTrailContextOnly(7);
         await client.highlightElement(7, element);
         await client.startOnboarding(7, {
             title: 'Saving',
@@ -41,10 +42,12 @@ describe('PageClient', () => {
         expect(url).toBe('https://app.flowforge.test/settings?tab=profile');
         expect(containsElements).toBe(true);
         expect(collectedPageTrail).toEqual(pageTrailDto);
+        expect(contextOnlyTrail).toEqual(pageTrailDto);
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
             { pageId: 7, message: { type: 'CONTAINS_ELEMENTS', data: { dataIds: [element.dataId] } } },
-            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
+            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL', data: { contextOnly: false } } },
+            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL', data: { contextOnly: true } } },
             { pageId: 7, message: { type: 'HIGHLIGHT_ELEMENT', data: { element } } },
             {
                 pageId: 7,

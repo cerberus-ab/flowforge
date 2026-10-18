@@ -160,6 +160,7 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
     useLayoutEffect(() => {
         const unsubscribe = backgroundClient.subscribeToPageMessages({
             onCollectPageTrail: () => collectPageTrail(window, document).toDto(),
+            onCollectPageTrailContextOnly: () => collectPageTrailContextOnly(window, document).toDto(),
             onContainsElements: (data) => containsElements(document, data.dataIds),
             onClearPage: clearPage,
             onStartOnboarding: startOnboarding,

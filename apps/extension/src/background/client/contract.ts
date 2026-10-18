@@ -15,6 +15,7 @@ import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/c
 /* message callbacks */
 export interface PageMessageCallbacks {
     onCollectPageTrail: () => PageTrailDto;
+    onCollectPageTrailContextOnly: () => PageTrailDto;
     onContainsElements: (data: ContainsElementsMessageData) => boolean;
     onClearPage: () => void;
     onStartOnboarding: (data: StartOnboardingMessageData) => void;
@@ -23,6 +24,7 @@ export interface PageMessageCallbacks {
 }
 
 export interface InspectorPageMessageCallbacks {
+    onCollectPageTrailContextOnly: () => PageTrailDto;
     onClearPage: () => void;
     onOpenInspector: (data: OpenInspectorMessageData) => void;
 }
@@ -61,6 +63,10 @@ export interface SettingsBackgroundClient {
 export interface InspectorPopupBackgroundClient {
     notifyPopupOpened(): Promise<void>;
     openPageInspector(tab?: string): Promise<void>;
+}
+
+export interface PageInspectorDataBackgroundClient {
+    getPageInspectorData(pageId: number): Promise<PageTrailDto>;
 }
 
 export interface InspectorPageBackgroundClient {

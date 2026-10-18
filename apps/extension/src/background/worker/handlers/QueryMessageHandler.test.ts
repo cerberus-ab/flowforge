@@ -77,7 +77,7 @@ describe('QueryMessageHandler', () => {
         });
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
-            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
+            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL', data: { contextOnly: false } } },
         ]);
         expect(apiClient.requests).toEqual([
             {

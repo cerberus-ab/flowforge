@@ -14,6 +14,7 @@ export interface PageSettingsClient {
 export interface PageInspectorClient {
     clearPage(pageId: number): Promise<void>;
     openInspector(pageId: number, tab?: string): Promise<void>;
+    collectPageTrailContextOnly(pageId: number): Promise<PageTrailDto>;
 }
 
 export interface PageQuestionClient {

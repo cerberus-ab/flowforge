@@ -9,7 +9,11 @@ export interface StartOnboardingMessageData {
     elements: AgentResultElement[];
 }
 
-export type CollectPageTrailMessage = Message & {
+export interface CollectPageTrailMessageData {
+    contextOnly: boolean;
+}
+
+export type CollectPageTrailMessage = Message<CollectPageTrailMessageData> & {
     type: 'COLLECT_PAGE_TRAIL';
 };
 

@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
+import type { PageTrailDto } from '@flowforge/contract';
+import type { MessageResponse } from '@/messaging';
 
 import { FakeTransportService } from '../../../../../test/unit/fakes/FakeTransportService';
 import { BackgroundClient } from '@/background';
@@ -28,6 +30,31 @@ function PageHarness(options: UseInspectorPageOptions) {
 }
 
 describe('useInspectorPage', () => {
+    it('returns a fresh context-only snapshot without opening the overlay', async () => {
+        // Given
+        document.title = 'Inspectable Page';
+        const transport = new FakeTransportService();
+        render(
+            <PageHarness
+                backgroundClient={new BackgroundClient(transport)}
+                devMode={false}
+                onDevModeChange={vi.fn()}
+            />,
+        );
+
+        // When
+        const response = await transport.dispatchToBackground({
+            type: 'COLLECT_PAGE_TRAIL',
+            data: { contextOnly: true },
+        });
+
+        // Then
+        const snapshot = (response as MessageResponse<PageTrailDto> & { success: true }).data;
+        expect(snapshot.basics.title).toBe('Inspectable Page');
+        expect(snapshot.metadata.snapshot.contextOnly).toBe(true);
+        expect(screen.getByTestId('inspector-tab').textContent).toBe('');
+    });
+
     it('opens the inspector with current page context and requested tab', async () => {
         // Given
         document.title = 'Inspectable Page';

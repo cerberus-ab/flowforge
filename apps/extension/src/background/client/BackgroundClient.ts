@@ -1,9 +1,10 @@
-import type { AgentResult, AgentResultElement } from '@flowforge/contract';
+import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 import type { TransportService } from '@/adapters';
 import {
     type BackgroundMessage,
     type BackgroundMessageResponseData,
+    type MessageContext,
     isClearPageMessage,
     isCollectPageTrailMessage,
     isHighlightElementMessage,
@@ -21,6 +22,7 @@ import type {
     InspectorPageBackgroundClient,
     InspectorPageMessageCallbacks,
     InspectorPopupBackgroundClient,
+    PageInspectorDataBackgroundClient,
     PageBackgroundClient,
     PageMessageCallbacks,
     PopupBackgroundClient,
@@ -41,6 +43,7 @@ export class BackgroundClient
         PageBackgroundClient,
         SettingsBackgroundClient,
         InspectorPopupBackgroundClient,
+        PageInspectorDataBackgroundClient,
         InspectorPageBackgroundClient
 {
     private readonly transport: TransportService;
@@ -49,9 +52,12 @@ export class BackgroundClient
         this.transport = transport;
     }
 
-    /** Sends a typed message with the active page context and unwraps its response. */
-    private async sendToBackground<M extends BackgroundMessage>(message: M): Promise<BackgroundMessageResponseData<M>> {
-        const context = await this.transport.getActivePageContext();
+    /** Sends a typed message with the specified or active page context and unwraps its response. */
+    private async sendToBackground<M extends BackgroundMessage>(
+        message: M,
+        targetContext?: MessageContext,
+    ): Promise<BackgroundMessageResponseData<M>> {
+        const context = targetContext ?? (await this.transport.getActivePageContext());
         const response = await this.transport.sendToBackground(message, context);
 
         if (!response.success) {
@@ -121,6 +127,11 @@ export class BackgroundClient
         });
     }
 
+    /** Requests fresh Inspector data for the specified page. */
+    async getPageInspectorData(pageId: number): Promise<PageTrailDto> {
+        return this.sendToBackground({ type: 'GET_PAGE_INSPECTOR_DATA' }, { pageId });
+    }
+
     /** Reads the current extension settings from background. */
     async getSettings(): Promise<ExtensionSettings> {
         return this.sendToBackground({
@@ -158,7 +169,9 @@ export class BackgroundClient
     /** Subscribes to page commands sent by background. */
     subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
         return this.subscribeToMessages([
-            MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrail()),
+            MessageRouter.route(isCollectPageTrailMessage, (message) =>
+                message.data.contextOnly ? callbacks.onCollectPageTrailContextOnly() : callbacks.onCollectPageTrail(),
+            ),
             MessageRouter.route(isContainsElementsMessage, (message) => callbacks.onContainsElements(message.data)),
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
             MessageRouter.route(isStartOnboardingMessage, (message) => callbacks.onStartOnboarding(message.data)),
@@ -170,6 +183,7 @@ export class BackgroundClient
     /** Subscribes to the subset of page commands used by the Inspector. */
     subscribeToInspectorPageMessages(callbacks: InspectorPageMessageCallbacks): () => void {
         return this.subscribeToMessages([
+            MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrailContextOnly()),
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
             MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data)),
         ]);

@@ -1,4 +1,5 @@
 import { createPageTrailFixture } from '@flowforge/page-trail/testing';
+import { PageTrail } from '@flowforge/page-trail';
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -44,6 +45,17 @@ function renderInspector({
 }
 
 describe('Inspector', () => {
+    it('renders a PageTrail restored from a transferred DTO', () => {
+        // Given
+        const restoredTrail = PageTrail.fromDto(pageTrail.toDto());
+
+        // When
+        render(<Inspector pageTrail={restoredTrail} close={vi.fn()} devMode={false} onDevModeChange={vi.fn()} />);
+
+        // Then
+        expect(screen.getByText('"Settings page"')).toBeTruthy();
+    });
+
     it('opens on the requested tab and switches tabs', async () => {
         // Given / When
         renderInspector({ initialTab: 'interactive' });

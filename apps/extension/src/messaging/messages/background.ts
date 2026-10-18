@@ -1,4 +1,4 @@
-import type { AgentResult, AgentResultElement } from '@flowforge/contract';
+import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 import type { Message, MessageResponse } from '../Message';
 import type { ExtensionSettings } from '@/core/types/settings';
@@ -70,6 +70,10 @@ export type OpenPageInspectorMessage = Message<OpenPageInspectorMessageData> & {
     type: 'OPEN_PAGE_INSPECTOR';
 };
 
+export type GetPageInspectorDataMessage = Message & {
+    type: 'GET_PAGE_INSPECTOR_DATA';
+};
+
 export interface OpenOnboardingMessageData {
     question: string;
     result: AgentResult;
@@ -89,6 +93,7 @@ export type BackgroundMessage =
     | GetPrevQuestionsMessage
     | NavigateToElementMessage
     | OpenPageInspectorMessage
+    | GetPageInspectorDataMessage
     | OpenOnboardingMessage;
 
 export interface BackgroundMessageResponseMap {
@@ -101,6 +106,7 @@ export interface BackgroundMessageResponseMap {
     GET_PREV_QUESTIONS: PreviousQuestionsResponse;
     NAVIGATE_TO_ELEMENT: undefined;
     OPEN_PAGE_INSPECTOR: undefined;
+    GET_PAGE_INSPECTOR_DATA: PageTrailDto;
     OPEN_ONBOARDING: undefined;
 }
 
@@ -141,6 +147,10 @@ export function isNavigateToElementMessage(message: Message): message is Navigat
 
 export function isOpenPageInspectorMessage(message: Message): message is OpenPageInspectorMessage {
     return message.type === 'OPEN_PAGE_INSPECTOR';
+}
+
+export function isGetPageInspectorData(message: Message): message is GetPageInspectorDataMessage {
+    return message.type === 'GET_PAGE_INSPECTOR_DATA';
 }
 
 export function isOpenOnboardingMessage(message: Message): message is OpenOnboardingMessage {

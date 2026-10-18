@@ -10,7 +10,7 @@ import {
     MousePointerClick,
 } from 'lucide-preact';
 import { getEventTarget } from '@/core/utils/dom';
-import type { InspectorViewModel } from '@/page/hooks/usePage';
+import type { PageTrail } from '@flowforge/page-trail';
 import { Button } from '@/shared/components/Button';
 import { Switch } from '@/shared/components/Switch';
 import { Tabs } from '@/shared/components/Tabs';
@@ -81,7 +81,15 @@ function resolveInspectorTabId(tabs: readonly InspectorTab[], preferredTab?: str
 
 // Exports
 
-export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChange }: InspectorViewModel) {
+export interface InspectorProps {
+    pageTrail: PageTrail;
+    initialTab?: string;
+    close: () => void;
+    devMode: boolean;
+    onDevModeChange: (enabled: boolean) => void | Promise<void>;
+}
+
+export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChange }: InspectorProps) {
     const availableTabs = useMemo(() => inspectorTabs.filter((tab) => !tab.devModeOnly || devMode), [devMode]);
     const [activeTab, setActiveTab] = useState<InspectorTab['id']>(() =>
         resolveInspectorTabId(availableTabs, initialTab),

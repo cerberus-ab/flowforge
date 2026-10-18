@@ -81,6 +81,7 @@ describe('usePage', () => {
         // When
         const response = await transport.dispatchToBackground({
             type: 'COLLECT_PAGE_TRAIL',
+            data: { contextOnly: false },
         });
 
         // Then
@@ -89,6 +90,24 @@ describe('usePage', () => {
         const pageTrailDto = (response as MessageResponse<PageTrailDto> & { success: true }).data;
         expect(pageTrailDto.basics.title).toBe('FlowForge Page');
         expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
+    });
+
+    it('collects Inspector context without locators', async () => {
+        // Given
+        addTargetButton(targetElement);
+        const { transport } = renderPage();
+
+        // When
+        const response = await transport.dispatchToBackground({
+            type: 'COLLECT_PAGE_TRAIL',
+            data: { contextOnly: true },
+        });
+
+        // Then
+        expect(response.success).toBe(true);
+        const snapshot = (response as MessageResponse<PageTrailDto> & { success: true }).data;
+        expect(snapshot.metadata.snapshot.contextOnly).toBe(true);
+        expect(snapshot.elements.every((element) => !('locator' in element && element.locator))).toBe(true);
     });
 
     it('checks that every referenced element is present without assigning new IDs', async () => {
