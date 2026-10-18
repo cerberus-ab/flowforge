@@ -3,7 +3,7 @@ import type { AgentResult, AgentResultElement } from '@flowforge/contract';
 
 import type { PopupBackgroundClient } from '@/background';
 import { config } from '@/config';
-import { normalizeText } from '@/core/utils/text';
+import { normalizeText } from '@/shared/utils/text';
 import type { RestoreQueryResponse } from '@/messaging';
 import { formatQueryResponseMetadata } from '@/popup/utils/format';
 

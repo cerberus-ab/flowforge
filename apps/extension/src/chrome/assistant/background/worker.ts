@@ -1,5 +1,5 @@
 import { config } from '@/config';
-import { HttpApiClient } from '@/core/services/ApiClient';
+import { HttpApiClient } from '@/services/ApiClient';
 import { ChromeLocalStorage, ChromeTransportService, withTransportLogging } from '@/adapters';
 import { createAssistantBackgroundWorker } from '@/background';
 import { ChromeSessionStorage } from '@/adapters/chrome/ChromeSessionStorage';

@@ -1,8 +1,8 @@
 import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 import type { Message, MessageResponse } from '../Message';
-import type { ExtensionSettings } from '@/core/types/settings';
-import type { QuerySessionDataPending, QuerySessionDataCompleted } from '@/core/services/QuerySessionStorage';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { QuerySessionDataPending, QuerySessionDataCompleted } from '@/services/QuerySessionStorage';
 
 export type PopupOpenedMessage = Message & {
     type: 'POPUP_OPENED';

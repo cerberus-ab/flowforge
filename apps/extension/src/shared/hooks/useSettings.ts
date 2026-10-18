@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 import { config } from '@/config';
 import type { SettingsBackgroundClient } from '@/background';
 

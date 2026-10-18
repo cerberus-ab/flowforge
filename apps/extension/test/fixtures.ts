@@ -1,5 +1,5 @@
 import type { QueryResponse } from '@flowforge/contract';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 
 export function createSettingsFixture(overrides: Partial<ExtensionSettings> = {}): ExtensionSettings {
     return {

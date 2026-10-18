@@ -1,5 +1,5 @@
 import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
-import { constants } from '@/constants';
+import { constants } from '@/shared/constants';
 import { findDataIds, getOrCreateDataId } from './locate';
 
 const pageTrailCollectorDefaults = {

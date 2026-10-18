@@ -4,7 +4,7 @@ import '@/popup/index.css';
 
 import { PopupApp } from '@/popup/PopupApp';
 import { ChromeTransportService, withTransportLogging } from '@/adapters';
-import { DocumentRootInjector } from '@/core/services/RootInjector';
+import { DocumentRootInjector } from '@/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';

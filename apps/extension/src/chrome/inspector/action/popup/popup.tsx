@@ -2,12 +2,12 @@ import { render } from 'preact';
 
 import './popup.css';
 
-import { DocumentRootInjector } from '@/core/services/RootInjector';
+import { DocumentRootInjector } from '@/services/RootInjector';
 import { mountConstants } from '@/chrome/inspector/constants';
 import { ChromeTransportService, withTransportLogging } from '@/adapters';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
-import type { ExtensionSettingsTheme } from '@/types';
+import type { ExtensionSettingsTheme } from '@/services/SettingsStorage';
 import { useInspectorPopup } from '@/chrome/inspector/action/popup/hooks/useInspectorPopup';
 import { useCallback } from 'preact/hooks';
 import { Opener } from '@/chrome/inspector/action/popup/components/Opener';

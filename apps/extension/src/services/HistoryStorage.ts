@@ -1,5 +1,5 @@
 import type { LocalStorage } from '@/adapters';
-import { constants } from '@/constants';
+import { constants } from '@/shared/constants';
 
 export class HistoryStorage {
     private readonly storage: LocalStorage;

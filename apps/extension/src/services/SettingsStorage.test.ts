@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { FakeStorage } from '../../../test/unit/fakes/FakeStorage';
-import { constants } from '../constants';
+import { FakeStorage } from '../../test/unit/fakes/FakeStorage';
+import { constants } from '@/shared/constants';
 import { SettingsStorage } from './SettingsStorage';
 
 const settingsKey = `${constants.STORAGE_NAMESPACE}_settings`;

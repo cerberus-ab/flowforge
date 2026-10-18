@@ -1,18 +1,18 @@
 import { EmbedTransportService, withTransportLogging } from '@/adapters';
 import type { TransportService } from '@/adapters';
-import { type InjectedRoot, ShadowRootInjector } from '@/core/services/RootInjector';
+import { type InjectedRoot, ShadowRootInjector } from '@/services/RootInjector';
 import { render } from 'preact';
 
 import shellStyles from './shell/shell.css?inline';
 
 import { config } from '@/config';
-import { type ApiClient, DemoApiClient, HttpApiClient } from '@/core/services/ApiClient';
+import { type ApiClient, DemoApiClient, HttpApiClient } from '@/services/ApiClient';
 import { ShellApp, type ShellAppProps, type ShellAppRef } from '@/embed/shell/ShellApp';
 import { createRef, type RefObject } from 'preact/compat';
 import type { AgentResult } from '@flowforge/contract';
 import { mountConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 import { BackgroundClient, type BackgroundWorker } from '@/background';
 import { createWorker } from '@/embed/background/createWorker';
 

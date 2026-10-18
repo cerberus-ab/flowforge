@@ -1,11 +1,11 @@
 import type { StartOnboardingMessageData } from '@/messaging';
 import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { findElement } from '@/core/document/locate';
-import { constants } from '@/constants';
+import { findElement } from '@/shared/document/locate';
+import { constants } from '@/shared/constants';
 import type { AgentResultElement } from '@flowforge/contract';
 import { PageTrail } from '@flowforge/page-trail';
 import type { PageBackgroundClient } from '@/background';
-import { collectPageTrail, collectPageTrailContextOnly, containsElements } from '@/core/document/collect';
+import { collectPageTrail, collectPageTrailContextOnly, containsElements } from '@/shared/document/collect';
 
 export interface UsePageOptions {
     backgroundClient: PageBackgroundClient;

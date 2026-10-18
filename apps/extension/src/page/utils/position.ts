@@ -1,4 +1,4 @@
-import { constants } from '@/constants';
+import { constants } from '@/shared/constants';
 
 interface Position {
     top: number;

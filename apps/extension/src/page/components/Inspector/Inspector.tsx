@@ -9,7 +9,7 @@ import {
     ListTree,
     MousePointerClick,
 } from 'lucide-preact';
-import { getEventTarget } from '@/core/utils/dom';
+import { getEventTarget } from '@/shared/utils/dom';
 import type { PageTrail } from '@flowforge/page-trail';
 import { Button } from '@/shared/components/Button';
 import { Switch } from '@/shared/components/Switch';

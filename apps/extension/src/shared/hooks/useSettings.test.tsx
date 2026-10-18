@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { Message, MessageResponse } from '@/messaging';
 import { BackgroundClient, type SettingsBackgroundClient } from '@/background';
 import { config } from '@/config';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { createSettingsFixture } from '../../../test/fixtures';
 import { useSettings } from './useSettings';

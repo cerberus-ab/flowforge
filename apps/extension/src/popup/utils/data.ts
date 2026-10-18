@@ -1,5 +1,5 @@
-import { constants } from '@/constants';
-import { normalizeText } from '@/core/utils/text';
+import { constants } from '@/shared/constants';
+import { normalizeText } from '@/shared/utils/text';
 
 export interface PopupExampleItem {
     question: string;

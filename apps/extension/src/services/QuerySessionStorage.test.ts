@@ -1,6 +1,6 @@
-import { createQueryResponseFixture } from '../../../test/unit/fakes/FakeApiClient';
-import { FakeStorage } from '../../../test/unit/fakes/FakeStorage';
-import { constants } from '@/constants';
+import { createQueryResponseFixture } from '../../test/unit/fakes/FakeApiClient';
+import { FakeStorage } from '../../test/unit/fakes/FakeStorage';
+import { constants } from '@/shared/constants';
 import { createPageTrailDtoFixture } from '@flowforge/page-trail/testing';
 import { describe, expect, it } from 'vitest';
 import { QuerySessionStorage } from './QuerySessionStorage';

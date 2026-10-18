@@ -1,6 +1,6 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 import type { StartOnboardingMessageData } from '@/messaging';
 
 export interface PageLifecycleClient {

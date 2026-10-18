@@ -10,7 +10,7 @@ import { Advanced } from '@/popup/components/Advanced';
 import { ButtonText } from '@/shared/components/Button';
 import { Link } from '@/shared/components/Link';
 import { Notice } from '@/shared/components/Notice';
-import type { ExtensionSettingsTheme } from '@/types';
+import type { ExtensionSettingsTheme } from '@/services/SettingsStorage';
 
 export interface PopupDemoPresentation {
     topic?: string;

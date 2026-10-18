@@ -1,9 +1,9 @@
-import type { ApiClient } from '@/core/services/ApiClient';
-import type { ExtensionSettings } from '@/types';
+import type { ApiClient } from '@/services/ApiClient';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 import type { LocalStorage, SessionStorage, TransportService } from '@/adapters';
 import { config } from '@/config';
-import { HistoryStorage } from '@/core/services/HistoryStorage';
-import { SettingsStorage } from '@/core/services/SettingsStorage';
+import { HistoryStorage } from '@/services/HistoryStorage';
+import { SettingsStorage } from '@/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
 import { PopupClient } from '@/popup/client/PopupClient';
 
@@ -13,7 +13,7 @@ import { PopupLifecycleMessageHandler } from '../handlers/PopupLifecycleMessageH
 import { QueryMessageHandler } from '../handlers/QueryMessageHandler';
 import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
 import { BackgroundWorker } from '../BackgroundWorker';
-import { QuerySessionStorage } from '@/core/services/QuerySessionStorage';
+import { QuerySessionStorage } from '@/services/QuerySessionStorage';
 import type { BackgroundMessageHandler } from '../handlers/BackgroundMessageHandler';
 
 interface AssistantBackgroundWorkerOptions {

@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { FakeStorage } from '../../../../test/unit/fakes/FakeStorage';
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
-import { SettingsStorage } from '@/core/services/SettingsStorage';
+import { SettingsStorage } from '@/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
 import type { UpdateSettingsMessage } from '@/messaging';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 import { SettingsMessageHandler } from './SettingsMessageHandler';
 
 const defaultSettings: ExtensionSettings = { theme: 'light', devMode: false };

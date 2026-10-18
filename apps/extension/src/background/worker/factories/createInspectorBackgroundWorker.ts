@@ -1,6 +1,6 @@
 import type { Storage, TransportService } from '@/adapters';
 import { config } from '@/config';
-import { SettingsStorage } from '@/core/services/SettingsStorage';
+import { SettingsStorage } from '@/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
 import { ChromeSidePanelClient } from '@/chrome/sidePanel/SidePanelClient';
 import { InspectorSidePanelMessageHandler } from '@/chrome/sidePanel/InspectorSidePanelMessageHandler';

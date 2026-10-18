@@ -1,4 +1,4 @@
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/services/SettingsStorage';
 import type {
     AskQuestionResponse,
     PreviousQuestionsResponse,

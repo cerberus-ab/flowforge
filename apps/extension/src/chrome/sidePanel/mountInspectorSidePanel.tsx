@@ -2,7 +2,7 @@ import { render } from 'preact';
 
 import { ChromeTransportService, withTransportLogging } from '@/adapters';
 import { BackgroundClient } from '@/background';
-import { DocumentRootInjector } from '@/core/services/RootInjector';
+import { DocumentRootInjector } from '@/services/RootInjector';
 import { Main } from '@/shared/components/Main';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { SidePanelApp } from './SidePanelApp';

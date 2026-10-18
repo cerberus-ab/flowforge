@@ -1,5 +1,5 @@
 import type { SessionStorage } from '@/adapters';
-import { constants } from '@/constants';
+import { constants } from '@/shared/constants';
 import type { AgentResult, QueryResponseMetadata } from '@flowforge/contract';
 import type { SnapshotMetadata } from '@flowforge/page-trail';
 

@@ -1,6 +1,12 @@
 import type { LocalStorage } from '@/adapters';
-import { constants } from '@/constants';
-import type { ExtensionSettings } from '@/types';
+import { constants } from '@/shared/constants';
+
+export type ExtensionSettingsTheme = 'light' | 'dark';
+
+export interface ExtensionSettings {
+    theme: ExtensionSettingsTheme;
+    devMode: boolean;
+}
 
 const SETTINGS_STORAGE_KEY = `${constants.STORAGE_NAMESPACE}_settings`;
 
