@@ -3,11 +3,11 @@ import type { PageTrailDto } from '@flowforge/contract';
 import { act, render, screen, waitFor } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { PageInspectorDataBackgroundClient } from '@/background';
+import type { SidePanelBackgroundClient } from '@/background';
 import { SidePanelApp } from './SidePanelApp';
 
 function createClient() {
-    const backgroundClient: PageInspectorDataBackgroundClient = {
+    const backgroundClient: SidePanelBackgroundClient = {
         getPageInspectorData: vi
             .fn()
             .mockResolvedValue(createPageTrailFixture({ basics: { title: 'Inspector test page' } }).toDto()),

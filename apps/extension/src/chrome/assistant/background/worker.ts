@@ -3,10 +3,11 @@ import { HttpApiClient } from '@/services/ApiClient';
 import { ChromeLocalStorage, ChromeTransportService, withTransportLogging } from '@/adapters';
 import { createAssistantBackgroundWorker } from '@/background';
 import { ChromeSessionStorage } from '@/adapters/chrome/ChromeSessionStorage';
-import { ChromeSidePanelClient } from '@/chrome/sidePanel/SidePanelClient';
-import { InspectorSidePanelMessageHandler } from '@/chrome/sidePanel/InspectorSidePanelMessageHandler';
-import { INSPECTOR_SIDE_PANEL_PATH } from '@/chrome/sidePanel/constants';
+import { SidePanelClient } from '@/sidePanel/client/SidePanelClient';
+import { SidePanelMessageHandler } from '@/background/worker/handlers/SidePanelMessageHandler';
 import { PageClient } from '@/page/client/PageClient';
+
+const SIDE_PANEL_PATH = 'sidePanel/index.html';
 
 (function main() {
     const transport = withTransportLogging(new ChromeTransportService());
@@ -14,8 +15,8 @@ import { PageClient } from '@/page/client/PageClient';
     const localStorage = new ChromeLocalStorage();
     const sessionStorage = new ChromeSessionStorage();
 
-    const pageInspectorHandler = new InspectorSidePanelMessageHandler(
-        new ChromeSidePanelClient(INSPECTOR_SIDE_PANEL_PATH, transport),
+    const sidePanelHandler = new SidePanelMessageHandler(
+        new SidePanelClient(SIDE_PANEL_PATH, transport),
         new PageClient(transport),
     );
     const backgroundWorker = createAssistantBackgroundWorker({
@@ -23,7 +24,7 @@ import { PageClient } from '@/page/client/PageClient';
         localStorage,
         sessionStorage,
         apiClient,
-        pageInspectorHandler,
+        inspectorHandler: sidePanelHandler,
     });
     backgroundWorker.start();
 })();

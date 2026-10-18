@@ -23,21 +23,21 @@ function SidePanelAppRoot({ backgroundClient, pageId }: { backgroundClient: Back
     );
 }
 
-/** Mounts the shared Inspector UI, bound to the tab encoded in its panel path. */
-export function mountInspectorSidePanel(rootId: string): void {
+/** Mounts the shared side-panel UI for a Chrome extension entry point. */
+export function mountSidePanel(rootId: string): void {
     const transport = withTransportLogging(new ChromeTransportService());
     const backgroundClient = new BackgroundClient(transport);
     const rootInjector = new DocumentRootInjector();
 
     const doMount = () => {
-        // The URL binds the panel to its original tab even before its message listener is ready.
+        // The URL binds the panel to its original tab before its message listener is ready.
         const pageIdParam = new URLSearchParams(window.location.search).get('pageId');
         const parsedPageId = pageIdParam !== null && /^\d+$/.test(pageIdParam) ? Number(pageIdParam) : NaN;
         const pageId = Number.isSafeInteger(parsedPageId) && parsedPageId > 0 ? parsedPageId : null;
         const root = rootInjector.inject(document, rootId);
 
         render(<SidePanelAppRoot backgroundClient={backgroundClient} pageId={pageId} />, root.mountPoint);
-        console.log('[FlowForge] Inspector side panel loaded');
+        console.log('[FlowForge] Side panel loaded');
     };
 
     if (document.readyState === 'loading') {

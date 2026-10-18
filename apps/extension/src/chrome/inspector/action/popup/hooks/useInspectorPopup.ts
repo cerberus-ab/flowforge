@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import type { InspectorPopupBackgroundClient } from '@/background';
-import { useSidePanelOpener } from '@/chrome/sidePanel/hooks/useSidePanelOpener';
+import { useSidePanelOpener } from '@/sidePanel/hooks/useSidePanelOpener';
 
 export interface UseInspectorPopupOptions {
     backgroundClient: InspectorPopupBackgroundClient;

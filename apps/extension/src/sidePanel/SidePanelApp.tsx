@@ -1,19 +1,19 @@
-import type { PageInspectorDataBackgroundClient } from '@/background';
+import type { SidePanelBackgroundClient } from '@/background';
 import { Inspector } from '@/page/components/Inspector';
-import { useInspectorSidePanel } from './hooks/useInspectorSidePanel';
+import { useSidePanel } from './hooks/useSidePanel';
 
 export interface SidePanelAppProps {
-    backgroundClient: PageInspectorDataBackgroundClient;
+    backgroundClient: SidePanelBackgroundClient;
     pageId: number | null;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
 }
 
 export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChange }: SidePanelAppProps) {
-    const { snapshot, requestedTab, openVersion } = useInspectorSidePanel({ backgroundClient, pageId });
+    const { snapshot, requestedTab, openVersion } = useSidePanel({ backgroundClient, pageId });
 
     return (
-        <main className="flowforge-inspector-side-panel" data-testid="flowforge-inspector-side-panel">
+        <main className="flowforge-side-panel" data-testid="flowforge-side-panel">
             {pageId === null ? (
                 <p role="status">Open Page Inspector from its extension popup.</p>
             ) : snapshot.status === 'error' ? (

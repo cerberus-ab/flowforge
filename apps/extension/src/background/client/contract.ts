@@ -67,7 +67,7 @@ export interface InspectorPopupBackgroundClient {
     openPageInspectorForPage(pageId: number, tab?: string): Promise<void>;
 }
 
-export interface PageInspectorDataBackgroundClient {
+export interface SidePanelBackgroundClient {
     getPageInspectorData(pageId: number): Promise<PageTrailDto>;
     subscribeToSidePanelMessages(pageId: number, callbacks: SidePanelMessageCallbacks): () => void;
 }

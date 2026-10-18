@@ -52,7 +52,7 @@ async function openInspectorSidePanel(
     return { panel, pageId, panelUrl };
 }
 
-async function selectInspectorPanelTab(context: BrowserContext, pageId: number, tab: string): Promise<void> {
+async function selectInspectorSidePanelTab(context: BrowserContext, pageId: number, tab: string): Promise<void> {
     await context.serviceWorkers()[0]!.evaluate(
         async ({ targetPageId, targetTab }) => {
             await chrome.runtime.sendMessage({
@@ -354,7 +354,7 @@ test('opens the Markdown inspector tab from the popup', async ({ context, extens
         'flowforge-open-markdown-inspector',
     );
     await expect(panel.getByTestId('flowforge-inspector')).toBeVisible();
-    await selectInspectorPanelTab(context, pageId, 'markdown');
+    await selectInspectorSidePanelTab(context, pageId, 'markdown');
 
     // Then
     await expect(page.getByTestId('flowforge-inspector')).toHaveCount(0);
@@ -375,7 +375,7 @@ test('uses the Markdown inspector controls and shows size stats', async ({ conte
         'flowforge-open-markdown-inspector',
     );
     await expect(panel.getByTestId('flowforge-inspector')).toBeVisible();
-    await selectInspectorPanelTab(context, pageId, 'markdown');
+    await selectInspectorSidePanelTab(context, pageId, 'markdown');
     const markdown = panel.getByTestId('flowforge-markdown-viewer');
     const detailLevel = panel.getByTestId('flowforge-markdown-detail-level');
     const basics = panel.getByTestId('flowforge-markdown-block-basics');

@@ -1,25 +1,22 @@
 import { useEffect, useState } from 'preact/hooks';
 import { PageTrail } from '@flowforge/page-trail';
 
-import type { PageInspectorDataBackgroundClient } from '@/background';
+import type { SidePanelBackgroundClient } from '@/background';
 
-export interface UseInspectorSidePanelOptions {
-    backgroundClient: PageInspectorDataBackgroundClient;
+export interface UseSidePanelOptions {
+    backgroundClient: SidePanelBackgroundClient;
     pageId: number | null;
 }
 
 type InspectorSnapshot = { status: 'loading' } | { status: 'ready'; pageTrail: PageTrail } | { status: 'error' };
 
-export interface InspectorSidePanelViewModel {
+export interface SidePanelViewModel {
     snapshot: InspectorSnapshot;
     requestedTab?: string;
     openVersion: number;
 }
 
-export function useInspectorSidePanel({
-    backgroundClient,
-    pageId,
-}: UseInspectorSidePanelOptions): InspectorSidePanelViewModel {
+export function useSidePanel({ backgroundClient, pageId }: UseSidePanelOptions): SidePanelViewModel {
     const [snapshot, setSnapshot] = useState<InspectorSnapshot>({ status: 'loading' });
     const [openRequest, setOpenRequest] = useState<{ tab?: string; version: number }>({ version: 0 });
 

@@ -23,7 +23,7 @@ import type {
     InspectorPageBackgroundClient,
     InspectorPageMessageCallbacks,
     InspectorPopupBackgroundClient,
-    PageInspectorDataBackgroundClient,
+    SidePanelBackgroundClient,
     PageBackgroundClient,
     PageMessageCallbacks,
     PopupBackgroundClient,
@@ -45,7 +45,7 @@ export class BackgroundClient
         PageBackgroundClient,
         SettingsBackgroundClient,
         InspectorPopupBackgroundClient,
-        PageInspectorDataBackgroundClient,
+        SidePanelBackgroundClient,
         InspectorPageBackgroundClient
 {
     private readonly transport: TransportService;

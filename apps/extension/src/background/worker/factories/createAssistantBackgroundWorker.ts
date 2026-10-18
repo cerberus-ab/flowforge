@@ -22,7 +22,7 @@ interface AssistantBackgroundWorkerOptions {
     sessionStorage: SessionStorage;
     apiClient: ApiClient;
     initialSettings?: Partial<ExtensionSettings>;
-    pageInspectorHandler?: BackgroundMessageHandler;
+    inspectorHandler?: BackgroundMessageHandler;
 }
 
 export function createAssistantBackgroundWorker({
@@ -31,7 +31,7 @@ export function createAssistantBackgroundWorker({
     sessionStorage,
     apiClient,
     initialSettings = {},
-    pageInspectorHandler,
+    inspectorHandler,
 }: AssistantBackgroundWorkerOptions): BackgroundWorker {
     // dependencies
     const historyStorage = new HistoryStorage(localStorage, config.questionsHistoryLimit);
@@ -43,7 +43,7 @@ export function createAssistantBackgroundWorker({
     // handlers
     const popupLifecycleHandler = new PopupLifecycleMessageHandler(pageClient);
     const settingsHandler = new SettingsMessageHandler(pageClient, settingsStorage);
-    const inspectorHandler = pageInspectorHandler ?? new PageInspectorMessageHandler(pageClient);
+    const activeInspectorHandler = inspectorHandler ?? new PageInspectorMessageHandler(pageClient);
     const queryHandler = new QueryMessageHandler(
         pageClient,
         popupClient,
@@ -56,7 +56,7 @@ export function createAssistantBackgroundWorker({
     return new BackgroundWorker(transport, [
         popupLifecycleHandler,
         settingsHandler,
-        inspectorHandler,
+        activeInspectorHandler,
         queryHandler,
         pageActionHandler,
     ]);

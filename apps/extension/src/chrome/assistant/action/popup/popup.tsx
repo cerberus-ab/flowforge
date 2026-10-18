@@ -9,7 +9,7 @@ import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import { BackgroundClient } from '@/background';
-import { useSidePanelOpener } from '@/chrome/sidePanel/hooks/useSidePanelOpener';
+import { useSidePanelOpener } from '@/sidePanel/hooks/useSidePanelOpener';
 
 function PopupAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient }) {
     const settings = useSettings({ backgroundClient });

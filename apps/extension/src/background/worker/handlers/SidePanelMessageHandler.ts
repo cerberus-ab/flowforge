@@ -1,7 +1,7 @@
 import type { PageTrailDto } from '@flowforge/contract';
 
-import type { BackgroundMessageHandler } from '@/background/worker/handlers/BackgroundMessageHandler';
-import type { SidePanelClient } from './SidePanelClient';
+import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
+import type { SidePanelInspectorClient } from '@/sidePanel/client/contract';
 import type { PageInspectorDataClient } from '@/page/client/contract';
 import {
     isGetPageInspectorData,
@@ -16,16 +16,16 @@ import {
 } from '@/messaging';
 
 /**
- * Manages the Chrome Inspector side panel lifecycle.
- * Prepares a tab-specific panel before the popup click, opens it on the click,
- * and returns fresh page data when the panel requests it.
+ * Routes side-panel requests in the background worker.
+ * Prepares and opens the tab-bound panel for popup actions.
+ * Its Inspector route collects the page data rendered inside that panel.
  */
-export class InspectorSidePanelMessageHandler implements BackgroundMessageHandler {
-    private readonly sidePanel: SidePanelClient;
+export class SidePanelMessageHandler implements BackgroundMessageHandler {
+    private readonly sidePanelClient: SidePanelInspectorClient;
     private readonly pageClient: PageInspectorDataClient;
 
-    constructor(sidePanel: SidePanelClient, pageClient: PageInspectorDataClient) {
-        this.sidePanel = sidePanel;
+    constructor(sidePanel: SidePanelInspectorClient, pageClient: PageInspectorDataClient) {
+        this.sidePanelClient = sidePanel;
         this.pageClient = pageClient;
     }
 
@@ -46,27 +46,28 @@ export class InspectorSidePanelMessageHandler implements BackgroundMessageHandle
     /** Prepares the panel and returns the page ID for the later click. */
     async handlePreparePageInspector(_message: PreparePageInspectorMessage, context: MessageContext): Promise<number> {
         const pageId = requirePageId(context);
-        await this.sidePanel.prepare(pageId);
+        await this.sidePanelClient.prepareForPage(pageId);
         return pageId;
     }
 
     /** Opens the panel immediately, then refreshes it if it was already mounted. */
     async handleOpenPageInspector(message: OpenPageInspectorMessage, context: MessageContext): Promise<void> {
         const pageId = requirePageId(context);
-        await this.sidePanel.open(pageId);
+        await this.sidePanelClient.openForPage(pageId);
         void this.notifyWhenReady(pageId, message.data.tab);
     }
 
     /** Returns a fresh context-only page trail to the panel. */
     handleGetPageInspectorData(_message: GetPageInspectorDataMessage, context: MessageContext): Promise<PageTrailDto> {
-        return this.pageClient.collectPageTrailContextOnly(requirePageId(context));
+        const pageId = requirePageId(context);
+        return this.pageClient.collectPageTrailContextOnly(pageId);
     }
 
     /** First opening may precede panel listener registration; retry the selected tab briefly. */
     private async notifyWhenReady(pageId: number, tab?: string): Promise<void> {
         for (let attempt = 0; attempt < 5; attempt++) {
             try {
-                await this.sidePanel.notifyRefresh(pageId, tab);
+                await this.sidePanelClient.notifyPageInspectorRefresh(pageId, tab);
                 return;
             } catch {
                 if (attempt === 4) return;

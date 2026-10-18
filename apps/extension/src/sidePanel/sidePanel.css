@@ -1,0 +1,12 @@
+@import '../shared/index.css';
+@import '../page/components/Inspector/Inspector.css';
+
+/* flowforge side panel */
+.flowforge-side-panel {
+  min-height: 100vh;
+  background: var(--flowforge-color-bg);
+}
+.flowforge-side-panel > [role='status'],
+.flowforge-side-panel > [role='alert'] {
+  padding: var(--flowforge-pad-xl);
+}

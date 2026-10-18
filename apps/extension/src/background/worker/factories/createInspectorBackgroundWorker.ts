@@ -2,20 +2,21 @@ import type { Storage, TransportService } from '@/adapters';
 import { config } from '@/config';
 import { SettingsStorage } from '@/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
-import { ChromeSidePanelClient } from '@/chrome/sidePanel/SidePanelClient';
-import { InspectorSidePanelMessageHandler } from '@/chrome/sidePanel/InspectorSidePanelMessageHandler';
-import { INSPECTOR_SIDE_PANEL_PATH } from '@/chrome/sidePanel/constants';
+import type { SidePanelInspectorClient } from '@/sidePanel/client/contract';
+import { SidePanelMessageHandler } from '../handlers/SidePanelMessageHandler';
 import { BackgroundWorker } from '../BackgroundWorker';
 import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
 
 export interface InspectorBackgroundWorkerOptions {
     transport: TransportService;
     localStorage: Storage;
+    sidePanelClient: SidePanelInspectorClient;
 }
 
 export function createInspectorBackgroundWorker({
     transport,
     localStorage,
+    sidePanelClient,
 }: InspectorBackgroundWorkerOptions): BackgroundWorker {
     // dependencies
     const settingsStorage = new SettingsStorage(localStorage, config.defaultSettings);
@@ -23,10 +24,7 @@ export function createInspectorBackgroundWorker({
 
     // handlers
     const settingsHandler = new SettingsMessageHandler(pageClient, settingsStorage);
-    const sidePanelHandler = new InspectorSidePanelMessageHandler(
-        new ChromeSidePanelClient(INSPECTOR_SIDE_PANEL_PATH, transport),
-        pageClient,
-    );
+    const sidePanelHandler = new SidePanelMessageHandler(sidePanelClient, pageClient);
 
     return new BackgroundWorker(transport, [settingsHandler, sidePanelHandler]);
 }
