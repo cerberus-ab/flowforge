@@ -10,6 +10,8 @@ import type {
     PageMessageResponse,
     PopupMessage,
     PopupMessageResponse,
+    SidePanelMessage,
+    SidePanelMessageResponse,
 } from '@/messaging';
 
 /**
@@ -60,6 +62,14 @@ export class ChromeTransportService implements TransportService {
     ): Promise<PopupMessageResponse<M>> {
         const envelope: MessageEnvelope<M> = { message, context };
         return chrome.runtime.sendMessage<MessageEnvelope<M>, PopupMessageResponse<M>>(envelope);
+    }
+
+    public async sendToSidePanel<M extends SidePanelMessage>(
+        message: M,
+        context: MessageContext,
+    ): Promise<SidePanelMessageResponse<M>> {
+        const envelope: MessageEnvelope<M> = { message, context };
+        return chrome.runtime.sendMessage<MessageEnvelope<M>, SidePanelMessageResponse<M>>(envelope);
     }
 
     public addMessageListener(handler: MessageListener): () => void {

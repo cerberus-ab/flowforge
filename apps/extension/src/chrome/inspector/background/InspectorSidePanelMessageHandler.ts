@@ -50,9 +50,11 @@ export class InspectorSidePanelMessageHandler implements BackgroundMessageHandle
         return pageId;
     }
 
-    /** Opens the already prepared panel without awaiting another operation first. */
-    handleOpenPageInspector(_message: OpenPageInspectorMessage, context: MessageContext): Promise<void> {
-        return this.sidePanel.open(requirePageId(context));
+    /** Opens the panel immediately, then refreshes it if it was already mounted. */
+    async handleOpenPageInspector(_message: OpenPageInspectorMessage, context: MessageContext): Promise<void> {
+        const pageId = requirePageId(context);
+        await this.sidePanel.open(pageId);
+        void this.sidePanel.notifyRefresh(pageId).catch(() => undefined);
     }
 
     /** Returns a fresh context-only page trail to the panel. */

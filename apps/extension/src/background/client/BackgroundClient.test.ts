@@ -36,6 +36,25 @@ const restoreQueryResponse: RestoreQueryResponse = {
 };
 
 describe('BackgroundClient', () => {
+    it('handles side-panel refresh messages only for its bound page', async () => {
+        const transport = new FakeTransportService();
+        const client = new BackgroundClient(transport);
+        const onRefreshPageInspector = vi.fn();
+        const unsubscribe = client.subscribeToSidePanelMessages(42, { onRefreshPageInspector });
+
+        await expect(transport.dispatchToBackground({ type: 'REFRESH_PAGE_INSPECTOR' }, { pageId: 7 })).rejects.toThrow(
+            'Message handler did not return a response',
+        );
+        expect(onRefreshPageInspector).not.toHaveBeenCalled();
+
+        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR' }, { pageId: 42 });
+        expect(onRefreshPageInspector).toHaveBeenCalledOnce();
+
+        unsubscribe();
+        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR' }, { pageId: 42 });
+        expect(onRefreshPageInspector).toHaveBeenCalledOnce();
+    });
+
     it('requests an Inspector snapshot for the specified page, not the active page', async () => {
         // Given
         const snapshot = createPageTrailDtoFixture();

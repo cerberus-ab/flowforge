@@ -7,6 +7,8 @@ import type {
     PageMessageResponse,
     PopupMessage,
     PopupMessageResponse,
+    SidePanelMessage,
+    SidePanelMessageResponse,
 } from '@/messaging';
 
 // transport service interface
@@ -38,6 +40,12 @@ export interface TransportService {
      * Sends a message to popup contexts and returns a typed response.
      */
     sendToPopup<M extends PopupMessage>(message: M, context: MessageContext): Promise<PopupMessageResponse<M>>;
+
+    /** Sends a typed message to side panel contexts. */
+    sendToSidePanel<M extends SidePanelMessage>(
+        message: M,
+        context: MessageContext,
+    ): Promise<SidePanelMessageResponse<M>>;
 
     /**
      * Adds a listener for incoming messages. Returns a function to remove the listener.

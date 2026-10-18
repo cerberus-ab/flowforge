@@ -10,6 +10,8 @@ import type {
     PageMessageResponse,
     PopupMessage,
     PopupMessageResponse,
+    SidePanelMessage,
+    SidePanelMessageResponse,
 } from '@/messaging';
 
 export class EmbedTransportService implements TransportService {
@@ -41,6 +43,13 @@ export class EmbedTransportService implements TransportService {
             throw new Error('Message handler did not return a response');
         }
         return response as PopupMessageResponse<M>;
+    }
+
+    async sendToSidePanel<M extends SidePanelMessage>(
+        message: M,
+        context: MessageContext,
+    ): Promise<SidePanelMessageResponse<M>> {
+        return this.send<SidePanelMessageResponse<M>>(message, context);
     }
 
     addMessageListener(handler: MessageListener): () => void {

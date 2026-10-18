@@ -24,7 +24,7 @@ export function createInspectorBackgroundWorker({
     // handlers
     const settingsHandler = new SettingsMessageHandler(pageClient, settingsStorage);
     const sidePanelHandler = new InspectorSidePanelMessageHandler(
-        new ChromeSidePanelClient(INSPECTOR_SIDE_PANEL_PATH),
+        new ChromeSidePanelClient(INSPECTOR_SIDE_PANEL_PATH, transport),
         pageClient,
     );
 

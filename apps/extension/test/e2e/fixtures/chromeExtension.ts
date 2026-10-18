@@ -99,10 +99,12 @@ async function mockActiveTabQuery(context: BrowserContext, popup: Page, activePa
 }
 
 async function getChromeTabId(context: BrowserContext, page: Page): Promise<number> {
+    await page.bringToFront();
     const serviceWorker = await getExtensionServiceWorker(context);
     const tabId = await serviceWorker.evaluate(async (url) => {
         const tabs = await chrome.tabs.query({});
-        const tab = tabs.find((item) => item.url === url);
+        // Chrome may hide the URL of restricted pages from an extension without tabs permission.
+        const tab = tabs.find((item) => item.url === url) ?? tabs.find((item) => item.active);
 
         return tab?.id ?? null;
     }, page.url());

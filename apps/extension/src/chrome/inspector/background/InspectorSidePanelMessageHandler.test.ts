@@ -13,6 +13,7 @@ describe('InspectorSidePanelMessageHandler', () => {
         const sidePanel: SidePanelClient = {
             prepare: vi.fn().mockResolvedValue(undefined),
             open: vi.fn().mockResolvedValue(undefined),
+            notifyRefresh: vi.fn().mockResolvedValue(undefined),
         };
         const worker = new BackgroundWorker(transport, [
             new InspectorSidePanelMessageHandler(sidePanel, new PageClient(transport)),
@@ -28,6 +29,7 @@ describe('InspectorSidePanelMessageHandler', () => {
             success: true,
         });
         expect(sidePanel.open).toHaveBeenCalledWith(7);
+        expect(sidePanel.notifyRefresh).toHaveBeenCalledWith(7);
         expect(transport.getSentToPage()).toEqual([]);
         worker.stop();
     });
@@ -36,7 +38,7 @@ describe('InspectorSidePanelMessageHandler', () => {
         const transport = new FakeTransportService();
         const snapshot = createPageTrailDtoFixture();
         transport.setPageResponse('COLLECT_PAGE_TRAIL', { success: true, data: snapshot });
-        const sidePanel: SidePanelClient = { prepare: vi.fn(), open: vi.fn() };
+        const sidePanel: SidePanelClient = { prepare: vi.fn(), open: vi.fn(), notifyRefresh: vi.fn() };
         const worker = new BackgroundWorker(transport, [
             new InspectorSidePanelMessageHandler(sidePanel, new PageClient(transport)),
         ]);

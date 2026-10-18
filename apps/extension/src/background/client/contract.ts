@@ -35,6 +35,10 @@ export interface PopupMessageCallbacks {
     onQueryFinished: (data: QueryFinishedMessageData) => void;
 }
 
+export interface SidePanelMessageCallbacks {
+    onRefreshPageInspector: () => void;
+}
+
 /* client interfaces */
 export interface PopupBackgroundClient {
     notifyPopupOpened(): Promise<void>;
@@ -65,6 +69,7 @@ export interface InspectorPopupBackgroundClient {
 
 export interface PageInspectorDataBackgroundClient {
     getPageInspectorData(pageId: number): Promise<PageTrailDto>;
+    subscribeToSidePanelMessages(pageId: number, callbacks: SidePanelMessageCallbacks): () => void;
 }
 
 export interface InspectorPageBackgroundClient {

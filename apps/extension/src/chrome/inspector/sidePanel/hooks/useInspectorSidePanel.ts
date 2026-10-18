@@ -17,21 +17,58 @@ export function useInspectorSidePanel({
 }: UseInspectorSidePanelOptions): InspectorSidePanelViewModel {
     const [snapshot, setSnapshot] = useState<InspectorSidePanelViewModel>({ status: 'loading' });
 
-    // Collect context from the tab bound to this panel, not whichever tab is currently active.
+    // Keep the snapshot tied to its tab across reopenings and navigation.
     useEffect(() => {
         if (pageId === null) return;
         let active = true;
-        setSnapshot({ status: 'loading' });
-        void backgroundClient
-            .getPageInspectorData(pageId)
-            .then((dto) => {
-                if (active) setSnapshot({ status: 'ready', pageTrail: PageTrail.fromDto(dto) });
-            })
-            .catch(() => {
-                if (active) setSnapshot({ status: 'error' });
-            });
+        let requestVersion = 0;
+
+        const invalidate = () => {
+            requestVersion++;
+            setSnapshot({ status: 'loading' });
+        };
+
+        const refresh = () => {
+            invalidate();
+            const currentVersion = requestVersion;
+            void (async () => {
+                for (let attempt = 0; attempt < 4; attempt++) {
+                    try {
+                        const dto = await backgroundClient.getPageInspectorData(pageId);
+                        if (active && requestVersion === currentVersion) {
+                            setSnapshot({ status: 'ready', pageTrail: PageTrail.fromDto(dto) });
+                        }
+                        return;
+                    } catch {
+                        if (!active || requestVersion !== currentVersion) return;
+                        if (attempt === 3) {
+                            setSnapshot({ status: 'error' });
+                            return;
+                        }
+                        // Chrome may report navigation complete before the content script starts listening.
+                        await new Promise<void>((resolve) => setTimeout(resolve, 100 * (attempt + 1)));
+                    }
+                }
+            })();
+        };
+
+        const onTabUpdated = (tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo) => {
+            if (tabId !== pageId) return;
+            if (changeInfo.status === 'loading') invalidate();
+            if (changeInfo.status === 'complete' || (changeInfo.url && changeInfo.status === undefined)) refresh();
+        };
+
+        const unsubscribe = backgroundClient.subscribeToSidePanelMessages(pageId, {
+            onRefreshPageInspector: refresh,
+        });
+        chrome.tabs.onUpdated.addListener(onTabUpdated);
+        refresh();
+
         return () => {
             active = false;
+            requestVersion++;
+            unsubscribe();
+            chrome.tabs.onUpdated.removeListener(onTabUpdated);
         };
     }, [backgroundClient, pageId]);
 

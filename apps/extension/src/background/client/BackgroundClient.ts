@@ -16,6 +16,7 @@ import {
     type RestoreQueryResponse,
     type AskQuestionResponse,
     isContainsElementsMessage,
+    isRefreshPageInspectorMessage,
 } from '@/messaging';
 import type { ExtensionSettings } from '@/types';
 import type {
@@ -29,6 +30,7 @@ import type {
     SettingsBackgroundClient,
     SettingsMessageCallbacks,
     PopupMessageCallbacks,
+    SidePanelMessageCallbacks,
 } from './contract';
 import { MessageRouter, type MessageRoute } from '@/messaging';
 
@@ -166,6 +168,18 @@ export class BackgroundClient
                 if (pageId === undefined || context.pageId !== pageId) return;
                 callbacks.onQueryFinished(message.data);
             }),
+        ]);
+    }
+
+    /** Subscribes only to side-panel commands for the bound page. */
+    subscribeToSidePanelMessages(pageId: number, callbacks: SidePanelMessageCallbacks): () => void {
+        return this.subscribeToMessages([
+            {
+                resolve: (message, context) =>
+                    context.pageId === pageId && isRefreshPageInspectorMessage(message)
+                        ? () => callbacks.onRefreshPageInspector()
+                        : undefined,
+            },
         ]);
     }
 

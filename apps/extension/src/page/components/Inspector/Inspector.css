@@ -51,6 +51,26 @@
 .flowforge-inspector-container--side-panel .flowforge-inspector__header {
   flex-wrap: wrap;
 }
+.flowforge-inspector-container--side-panel .flowforge-inspector__nav {
+  overflow-x: auto;
+}
+.flowforge-inspector-container--side-panel .flowforge-tabs {
+  width: max-content;
+  min-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .flowforge-inspector-container--side-panel .flowforge-inspector-page-markdown {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .flowforge-inspector-container--side-panel .flowforge-inspector-page-markdown__aside {
+    max-height: 40vh;
+    overflow-y: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--flowforge-color-border);
+  }
+}
 
 /* Header */
 .flowforge-inspector__header {
