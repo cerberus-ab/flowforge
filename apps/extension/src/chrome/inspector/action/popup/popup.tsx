@@ -24,16 +24,12 @@ export interface InspectorPopupAppProps {
 }
 
 export function InspectorPopupApp({ backgroundClient, theme, onToggleTheme, onClose }: InspectorPopupAppProps) {
-    const { copyright, github, website, openPageInspector } = useInspectorPopup({ backgroundClient });
+    const { copyright, github, website, canOpen, error, openPageInspector } = useInspectorPopup({ backgroundClient });
 
     // Handle open page inspector and close popup
-    const handleOpenPageInspector = useCallback(
-        async (tab?: string) => {
-            await openPageInspector(tab);
-            onClose?.();
-        },
-        [openPageInspector, onClose],
-    );
+    const handleOpenPageInspector = useCallback(async () => {
+        if (await openPageInspector()) onClose?.();
+    }, [openPageInspector, onClose]);
 
     return (
         <div className="flowforge-popup flowforge-popup--inspector" data-testid="flowforge-inspector-popup">
@@ -42,7 +38,12 @@ export function InspectorPopupApp({ backgroundClient, theme, onToggleTheme, onCl
                 <p className="flowforge-popup__header-subtitle">Page Inspector</p>
             </header>
             <div className="flowforge-popup__content" data-testid="flowforge-inspector-popup-content">
-                <Opener website={website} onOpenPageInspector={handleOpenPageInspector} />
+                <Opener
+                    website={website}
+                    onOpenPageInspector={handleOpenPageInspector}
+                    disabled={!canOpen}
+                    error={error}
+                />
 
                 <footer className="flowforge-popup__footer">
                     <div className="flowforge-popup__footer-actions">

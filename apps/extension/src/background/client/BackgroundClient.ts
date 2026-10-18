@@ -33,7 +33,7 @@ import type {
 import { MessageRouter, type MessageRoute } from '@/messaging';
 
 /**
- * Provides typed popup/page operations through the background worker.
+ * Provides typed UI/page operations through the background worker.
  * It also routes messages sent back from background to registered callbacks.
  * Context and response handling are centralized so callers use capability methods.
  */
@@ -127,6 +127,16 @@ export class BackgroundClient
         });
     }
 
+    /** Prepares the Inspector side panel for the active page before a user click. */
+    preparePageInspector(): Promise<number> {
+        return this.sendToBackground({ type: 'PREPARE_PAGE_INSPECTOR' });
+    }
+
+    /** Opens the prepared side panel without resolving the page context on the click path. */
+    openPageInspectorForPage(pageId: number): Promise<void> {
+        return this.sendToBackground({ type: 'OPEN_PAGE_INSPECTOR', data: {} }, { pageId });
+    }
+
     /** Requests fresh Inspector data for the specified page. */
     async getPageInspectorData(pageId: number): Promise<PageTrailDto> {
         return this.sendToBackground({ type: 'GET_PAGE_INSPECTOR_DATA' }, { pageId });
@@ -184,8 +194,6 @@ export class BackgroundClient
     subscribeToInspectorPageMessages(callbacks: InspectorPageMessageCallbacks): () => void {
         return this.subscribeToMessages([
             MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrailContextOnly()),
-            MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
-            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data)),
         ]);
     }
 

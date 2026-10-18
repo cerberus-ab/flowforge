@@ -1,96 +1,100 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { config } from '@/config';
-import type { Message } from '@/messaging';
-import { BackgroundClient } from '@/background';
-import { FakeTransportService } from '../../../../../../test/unit/fakes/FakeTransportService';
-import { useInspectorPopup, type UseInspectorPopupOptions } from './useInspectorPopup';
+import type { InspectorPopupBackgroundClient } from '@/background';
+import { useInspectorPopup } from './useInspectorPopup';
 
-function PopupHarness(options: UseInspectorPopupOptions) {
-    const popup = useInspectorPopup(options);
+function PopupHarness({ backgroundClient }: { backgroundClient: InspectorPopupBackgroundClient }) {
+    const popup = useInspectorPopup({ backgroundClient });
 
     return (
         <section>
             <div data-testid="website">{popup.website}</div>
             <div data-testid="github">{popup.github}</div>
             <div data-testid="copyright">{popup.copyright}</div>
-            <button type="button" onClick={() => void popup.openPageInspector()}>
+            <button type="button" disabled={!popup.canOpen} onClick={() => void popup.openPageInspector()}>
                 Open inspector
             </button>
-            <button type="button" onClick={() => void popup.openPageInspector('interactive')}>
-                Open interactive tab
-            </button>
+            {popup.error && <p role="alert">{popup.error}</p>}
         </section>
     );
 }
 
 describe('useInspectorPopup', () => {
-    it('initializes the popup and exposes its links', async () => {
-        // Given
-        const transport = new FakeTransportService({ activePageId: 42 });
-        const backgroundClient = new BackgroundClient(transport);
-        const messages: Message[] = [];
-        transport.addMessageListener((message) => {
-            messages.push(message);
-            return { success: true };
-        });
+    it('prepares the active tab and opens the panel for that tab', async () => {
+        const backgroundClient: InspectorPopupBackgroundClient = {
+            preparePageInspector: vi.fn().mockResolvedValue(42),
+            openPageInspectorForPage: vi.fn().mockResolvedValue(undefined),
+        };
 
-        // When
         render(<PopupHarness backgroundClient={backgroundClient} />);
 
-        // Then
-        await waitFor(() => {
-            expect(messages).toEqual([{ type: 'POPUP_OPENED' }]);
-        });
+        await waitFor(() =>
+            expect(screen.getByRole('button', { name: 'Open inspector' }).hasAttribute('disabled')).toBe(false),
+        );
+        expect(backgroundClient.preparePageInspector).toHaveBeenCalledOnce();
         expect(screen.getByTestId('website').textContent).toBe(config.website);
         expect(screen.getByTestId('github').textContent).toBe(config.github);
         expect(screen.getByTestId('copyright').textContent).toBe(config.copyright);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Open inspector' }));
+        await waitFor(() => expect(backgroundClient.openPageInspectorForPage).toHaveBeenCalledWith(42));
     });
 
-    it('opens the inspector with the active sender and optional tab', async () => {
-        // Given
-        const transport = new FakeTransportService({ activePageId: 42 });
-        const backgroundClient = new BackgroundClient(transport);
-        const messages: Message[] = [];
-        transport.addMessageListener((message) => {
-            messages.push(message);
-            return { success: true };
-        });
+    it('keeps Open disabled if panel preparation fails', async () => {
+        const backgroundClient: InspectorPopupBackgroundClient = {
+            preparePageInspector: vi.fn().mockRejectedValue(new Error('Page unavailable')),
+            openPageInspectorForPage: vi.fn(),
+        };
+
         render(<PopupHarness backgroundClient={backgroundClient} />);
 
-        // When
-        fireEvent.click(screen.getByRole('button', { name: 'Open inspector' }));
-        fireEvent.click(screen.getByRole('button', { name: 'Open interactive tab' }));
-
-        // Then
-        await waitFor(() => {
-            expect(messages.filter((message) => message.type === 'OPEN_PAGE_INSPECTOR')).toEqual([
-                { type: 'OPEN_PAGE_INSPECTOR', data: { tab: undefined } },
-                { type: 'OPEN_PAGE_INSPECTOR', data: { tab: 'interactive' } },
-            ]);
-        });
+        await screen.findByRole('alert');
+        expect(screen.getByRole('button', { name: 'Open inspector' }).hasAttribute('disabled')).toBe(true);
+        expect(backgroundClient.openPageInspectorForPage).not.toHaveBeenCalled();
     });
 
-    it('keeps the popup usable when initialization fails', async () => {
-        // Given
-        const transport = new FakeTransportService({ activePageId: 42 });
-        const backgroundClient = new BackgroundClient(transport);
-        const messages: Message[] = [];
-        transport.addMessageListener((message) => {
-            messages.push(message);
-            if (message.type === 'POPUP_OPENED') throw new Error('Page unavailable');
-            return { success: true };
-        });
+    it('does not open the panel twice while an open request is pending', async () => {
+        let finishOpen: (() => void) | undefined;
+        const backgroundClient: InspectorPopupBackgroundClient = {
+            preparePageInspector: vi.fn().mockResolvedValue(42),
+            openPageInspectorForPage: vi.fn().mockImplementation(
+                () =>
+                    new Promise<void>((resolve) => {
+                        finishOpen = resolve;
+                    }),
+            ),
+        };
         render(<PopupHarness backgroundClient={backgroundClient} />);
-        await waitFor(() => expect(messages[0]?.type).toBe('POPUP_OPENED'));
+        const button = screen.getByRole('button', { name: 'Open inspector' });
+        await waitFor(() => expect(button.hasAttribute('disabled')).toBe(false));
 
-        // When
-        fireEvent.click(screen.getByRole('button', { name: 'Open inspector' }));
+        fireEvent.click(button);
+        fireEvent.click(button);
 
-        // Then
-        await waitFor(() => {
-            expect(messages).toContainEqual({ type: 'OPEN_PAGE_INSPECTOR', data: { tab: undefined } });
-        });
+        expect(backgroundClient.openPageInspectorForPage).toHaveBeenCalledOnce();
+        expect(button.hasAttribute('disabled')).toBe(true);
+        finishOpen?.();
+        await waitFor(() => expect(button.hasAttribute('disabled')).toBe(false));
+    });
+
+    it('shows an error and allows retry after opening fails', async () => {
+        const backgroundClient: InspectorPopupBackgroundClient = {
+            preparePageInspector: vi.fn().mockResolvedValue(42),
+            openPageInspectorForPage: vi
+                .fn()
+                .mockRejectedValueOnce(new Error('Unavailable'))
+                .mockResolvedValue(undefined),
+        };
+        render(<PopupHarness backgroundClient={backgroundClient} />);
+        const button = screen.getByRole('button', { name: 'Open inspector' });
+        await waitFor(() => expect(button.hasAttribute('disabled')).toBe(false));
+
+        fireEvent.click(button);
+        expect(await screen.findByRole('alert')).toBeTruthy();
+        fireEvent.click(button);
+
+        await waitFor(() => expect(backgroundClient.openPageInspectorForPage).toHaveBeenCalledTimes(2));
     });
 });

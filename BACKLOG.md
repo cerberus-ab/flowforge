@@ -45,7 +45,7 @@
 - Add page inspector loading state.
 - Add lazy rendering in `JsonViewer`.
 - Provide history data about page usage.
-- Evaluate Chrome Side Panel (`chrome.sidePanel`) as the UI surface for the Inspector.
+- Move the Assistant Inspector to Chrome Side Panel while retaining the embed overlay.
 - Inject page runtimes on user action and remove persistent `<all_urls>` access.
 - Package Page Inspector as a versioned downloadable archive.
 - Prepare Page Inspector policies, listing assets, and package for Chrome Web Store publication.

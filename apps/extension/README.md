@@ -64,7 +64,7 @@ await FlowForge.start({ settings: { theme: 'dark' } });
 
 ## Page Inspector
 
-Page Inspector displays the current page's `PageTrail` locally and does not require the backend.
+Page Inspector displays the current page's `PageTrail` locally in a Chrome side panel and does not require the backend. Its content script collects page data without mounting an overlay.
 
 ## Key parts
 

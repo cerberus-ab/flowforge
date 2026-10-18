@@ -25,8 +25,6 @@ export interface PageMessageCallbacks {
 
 export interface InspectorPageMessageCallbacks {
     onCollectPageTrailContextOnly: () => PageTrailDto;
-    onClearPage: () => void;
-    onOpenInspector: (data: OpenInspectorMessageData) => void;
 }
 
 export interface SettingsMessageCallbacks {
@@ -61,8 +59,8 @@ export interface SettingsBackgroundClient {
 }
 
 export interface InspectorPopupBackgroundClient {
-    notifyPopupOpened(): Promise<void>;
-    openPageInspector(tab?: string): Promise<void>;
+    preparePageInspector(): Promise<number>;
+    openPageInspectorForPage(pageId: number): Promise<void>;
 }
 
 export interface PageInspectorDataBackgroundClient {

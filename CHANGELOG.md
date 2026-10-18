@@ -4,6 +4,10 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Moved the standalone Page Inspector from a page overlay to a tab-specific Chrome side panel.
+
 ## [0.3.1] - 2026-10-14
 
 ### Changed

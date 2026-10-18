@@ -11,10 +11,13 @@ export interface PageSettingsClient {
     notifySettingsUpdated(pageId: number, settings: ExtensionSettings): Promise<void>;
 }
 
-export interface PageInspectorClient {
+export interface PageInspectorDataClient {
+    collectPageTrailContextOnly(pageId: number): Promise<PageTrailDto>;
+}
+
+export interface PageInspectorClient extends PageInspectorDataClient {
     clearPage(pageId: number): Promise<void>;
     openInspector(pageId: number, tab?: string): Promise<void>;
-    collectPageTrailContextOnly(pageId: number): Promise<PageTrailDto>;
 }
 
 export interface PageQuestionClient {

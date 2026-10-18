@@ -70,6 +70,10 @@ export type OpenPageInspectorMessage = Message<OpenPageInspectorMessageData> & {
     type: 'OPEN_PAGE_INSPECTOR';
 };
 
+export type PreparePageInspectorMessage = Message & {
+    type: 'PREPARE_PAGE_INSPECTOR';
+};
+
 export type GetPageInspectorDataMessage = Message & {
     type: 'GET_PAGE_INSPECTOR_DATA';
 };
@@ -92,6 +96,7 @@ export type BackgroundMessage =
     | AskQuestionMessage
     | GetPrevQuestionsMessage
     | NavigateToElementMessage
+    | PreparePageInspectorMessage
     | OpenPageInspectorMessage
     | GetPageInspectorDataMessage
     | OpenOnboardingMessage;
@@ -105,6 +110,7 @@ export interface BackgroundMessageResponseMap {
     ASK_QUESTION: AskQuestionResponse;
     GET_PREV_QUESTIONS: PreviousQuestionsResponse;
     NAVIGATE_TO_ELEMENT: undefined;
+    PREPARE_PAGE_INSPECTOR: number;
     OPEN_PAGE_INSPECTOR: undefined;
     GET_PAGE_INSPECTOR_DATA: PageTrailDto;
     OPEN_ONBOARDING: undefined;
@@ -147,6 +153,10 @@ export function isNavigateToElementMessage(message: Message): message is Navigat
 
 export function isOpenPageInspectorMessage(message: Message): message is OpenPageInspectorMessage {
     return message.type === 'OPEN_PAGE_INSPECTOR';
+}
+
+export function isPreparePageInspectorMessage(message: Message): message is PreparePageInspectorMessage {
+    return message.type === 'PREPARE_PAGE_INSPECTOR';
 }
 
 export function isGetPageInspectorData(message: Message): message is GetPageInspectorDataMessage {

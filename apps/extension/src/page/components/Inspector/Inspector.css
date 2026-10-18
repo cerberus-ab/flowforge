@@ -34,6 +34,24 @@
   font: var(--flowforge-text-md);
 }
 
+.flowforge-inspector-container--side-panel {
+  position: static;
+  display: block;
+  min-height: 100vh;
+  padding: 0;
+  background: none;
+}
+.flowforge-inspector-container--side-panel .flowforge-inspector {
+  width: 100%;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.flowforge-inspector-container--side-panel .flowforge-inspector__header {
+  flex-wrap: wrap;
+}
+
 /* Header */
 .flowforge-inspector__header {
   flex-shrink: 0;

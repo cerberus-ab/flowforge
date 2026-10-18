@@ -84,12 +84,20 @@ function resolveInspectorTabId(tabs: readonly InspectorTab[], preferredTab?: str
 export interface InspectorProps {
     pageTrail: PageTrail;
     initialTab?: string;
-    close: () => void;
+    close?: () => void;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
+    presentation?: 'overlay' | 'sidePanel';
 }
 
-export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChange }: InspectorProps) {
+export function Inspector({
+    pageTrail,
+    initialTab,
+    close,
+    devMode,
+    onDevModeChange,
+    presentation = 'overlay',
+}: InspectorProps) {
     const availableTabs = useMemo(() => inspectorTabs.filter((tab) => !tab.devModeOnly || devMode), [devMode]);
     const [activeTab, setActiveTab] = useState<InspectorTab['id']>(() =>
         resolveInspectorTabId(availableTabs, initialTab),
@@ -107,6 +115,7 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
 
     // Close on esc
     useEffect(() => {
+        if (presentation === 'sidePanel' || !close) return;
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key !== 'Escape') return;
 
@@ -121,25 +130,25 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [close]);
+    }, [close, presentation]);
 
     // Close on click outside the inspector
     const handleContainerPointerDown = (e: TargetedPointerEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) {
-            close();
+        if (presentation === 'overlay' && e.target === e.currentTarget) {
+            close?.();
         }
     };
 
     return (
         <div
-            className="flowforge-inspector-container"
+            className={`flowforge-inspector-container${presentation === 'sidePanel' ? ' flowforge-inspector-container--side-panel' : ''}`}
             data-testid="flowforge-inspector-container"
             onPointerDown={handleContainerPointerDown}
         >
             <div
                 className="flowforge-inspector"
-                role="dialog"
-                aria-modal="false"
+                role={presentation === 'sidePanel' ? 'region' : 'dialog'}
+                aria-modal={presentation === 'overlay' ? 'false' : undefined}
                 aria-labelledby="flowforge-inspector-title"
                 aria-describedby="flowforge-inspector-subtitle"
                 data-testid="flowforge-inspector"
@@ -165,9 +174,11 @@ export function Inspector({ pageTrail, initialTab, close, devMode, onDevModeChan
                                 onCheckedChange={onDevModeChange}
                             />
                         </Tooltip>
-                        <Button variant="secondary" size="small" onClick={close}>
-                            Close
-                        </Button>
+                        {presentation === 'overlay' && close && (
+                            <Button variant="secondary" size="small" onClick={close}>
+                                Close
+                            </Button>
+                        )}
                     </div>
                 </div>
                 <div className="flowforge-inspector__nav">

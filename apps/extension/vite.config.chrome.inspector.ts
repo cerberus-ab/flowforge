@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     plugins: [
         crx({ manifest }),
         preact({
-            include: [/action\/popup\/.*\.[tj]sx?$/, /contentScripts\/.*\.[tj]sx?$/],
+            include: [/action\/popup\/.*\.[tj]sx?$/, /contentScripts\/.*\.[tj]sx?$/, /sidePanel\/.*\.[tj]sx?$/],
         }),
     ],
     build: {

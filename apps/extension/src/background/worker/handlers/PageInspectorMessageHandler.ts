@@ -15,7 +15,7 @@ import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
  * Handles Inspector opening and snapshot requests for a target page.
  * Clears existing extension UI before opening the requested inspector tab.
  * Collects fresh context-only snapshots for Inspector UI outside the page.
- * Used by both the Assistant and standalone Inspector background workers.
+ * Used by the Assistant background worker in Chrome and embed runtimes.
  */
 export class PageInspectorMessageHandler implements BackgroundMessageHandler {
     private readonly pageClient: PageInspectorClient;
@@ -45,6 +45,8 @@ export class PageInspectorMessageHandler implements BackgroundMessageHandler {
 
     /** Returns fresh context-only Inspector data from the requested page. */
     handleGetPageInspectorData(_message: GetPageInspectorDataMessage, context: MessageContext): Promise<PageTrailDto> {
-        return this.pageClient.collectPageTrailContextOnly(requirePageId(context));
+        const pageId = requirePageId(context);
+
+        return this.pageClient.collectPageTrailContextOnly(pageId);
     }
 }

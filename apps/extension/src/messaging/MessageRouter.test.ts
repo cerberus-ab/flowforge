@@ -46,6 +46,16 @@ describe('MessageRouter', () => {
         expect(router.handle(message, context)).toBeUndefined();
     });
 
+    it('invokes the matched handler synchronously', async () => {
+        const handler = vi.fn(() => Promise.resolve());
+        const router = new MessageRouter([MessageRouter.route(isAnyMessage, handler)]);
+
+        const response = router.handle(message, context);
+
+        expect(handler).toHaveBeenCalledWith(message, context);
+        await expect(response).resolves.toEqual({ success: true });
+    });
+
     it('returns a success response without data when the handler returns undefined', async () => {
         // Given
         const router = new MessageRouter([MessageRouter.route(isAnyMessage, () => undefined)]);

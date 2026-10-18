@@ -40,10 +40,14 @@ export class MessageRouter {
         }
         if (!operation) return undefined;
 
-        return Promise.resolve()
-            .then(operation)
-            .then((data): AnyMessageResponse => (data === undefined ? { success: true } : { success: true, data }))
-            .catch((error: unknown) => this.createErrorResponse(message, context, error));
+        try {
+            const result = operation();
+            return Promise.resolve(result)
+                .then((data): AnyMessageResponse => (data === undefined ? { success: true } : { success: true, data }))
+                .catch((error: unknown) => this.createErrorResponse(message, context, error));
+        } catch (error) {
+            return Promise.resolve(this.createErrorResponse(message, context, error));
+        }
     };
 
     private createErrorResponse(message: Message, context: MessageContext, error: unknown): MessageResponse {

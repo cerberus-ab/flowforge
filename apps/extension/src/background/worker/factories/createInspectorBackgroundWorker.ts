@@ -2,9 +2,10 @@ import type { Storage, TransportService } from '@/adapters';
 import { config } from '@/config';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
+import { ChromeSidePanelClient } from '@/chrome/inspector/background/SidePanelClient';
+import { InspectorSidePanelMessageHandler } from '@/chrome/inspector/background/InspectorSidePanelMessageHandler';
+import { INSPECTOR_SIDE_PANEL_PATH } from '@/chrome/inspector/constants';
 import { BackgroundWorker } from '../BackgroundWorker';
-import { PageInspectorMessageHandler } from '../handlers/PageInspectorMessageHandler';
-import { PopupLifecycleMessageHandler } from '../handlers/PopupLifecycleMessageHandler';
 import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
 
 export interface InspectorBackgroundWorkerOptions {
@@ -21,9 +22,11 @@ export function createInspectorBackgroundWorker({
     const pageClient = new PageClient(transport);
 
     // handlers
-    const popupLifecycleHandler = new PopupLifecycleMessageHandler(pageClient);
     const settingsHandler = new SettingsMessageHandler(pageClient, settingsStorage);
-    const pageInspectorHandler = new PageInspectorMessageHandler(pageClient);
+    const sidePanelHandler = new InspectorSidePanelMessageHandler(
+        new ChromeSidePanelClient(INSPECTOR_SIDE_PANEL_PATH),
+        pageClient,
+    );
 
-    return new BackgroundWorker(transport, [popupLifecycleHandler, settingsHandler, pageInspectorHandler]);
+    return new BackgroundWorker(transport, [settingsHandler, sidePanelHandler]);
 }
