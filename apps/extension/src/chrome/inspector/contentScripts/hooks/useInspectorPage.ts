@@ -1,15 +1,7 @@
 import { useCallback, useLayoutEffect, useState } from 'preact/hooks';
-import { constants } from '@/constants';
-import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
+import { PageTrail } from '@flowforge/page-trail';
 import type { InspectorPageBackgroundClient } from '@/background';
-
-function collectPageTrail(): PageTrail {
-    return PageTrailCollector.collectFor(window, document, {
-        contentElementsLimit: constants.CONTENT_ELEMENTS_LIMIT,
-        interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
-        contextOnly: true,
-    });
-}
+import { collectPageTrailContextOnly } from '@/core/document/collect';
 
 export interface UseInspectorPageOptions {
     backgroundClient: InspectorPageBackgroundClient;
@@ -51,7 +43,7 @@ export function useInspectorPage({
     useLayoutEffect(() => {
         return backgroundClient.subscribeToInspectorPageMessages({
             onClearPage: closeInspector,
-            onOpenInspector: (data) => openInspector(collectPageTrail(), data.tab),
+            onOpenInspector: (data) => openInspector(collectPageTrailContextOnly(window, document), data.tab),
         });
     }, [backgroundClient, openInspector, closeInspector]);
 

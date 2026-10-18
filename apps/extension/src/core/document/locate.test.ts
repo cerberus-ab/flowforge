@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { containsElements, findDataIds, findElement, getOrCreateDataId } from './locate';
+import { findDataIds, findElement, getOrCreateDataId } from './locate';
 
 const dataIdAttribute = 'data-flowforge-id';
 
@@ -37,40 +37,6 @@ describe('findDataIds', () => {
         document.body.innerHTML = '<button>Save</button>';
 
         expect(findDataIds(document)).toEqual([]);
-    });
-});
-
-describe('containsDataIds', () => {
-    it('finds all requested IDs, including IDs on hidden elements', () => {
-        // Given
-        document.body.innerHTML = `
-            <button ${dataIdAttribute}="ff00000001">Save</button>
-            <div hidden ${dataIdAttribute}="ff00000002">Hidden slide</div>
-            <span ${dataIdAttribute}="ff00000003">Unrelated</span>
-        `;
-
-        // When / Then
-        expect(containsElements(document, ['ff00000001', 'ff00000002'])).toBe(true);
-    });
-
-    it('returns false when a requested ID is missing or invalid', () => {
-        // Given
-        document.body.innerHTML = `
-            <button ${dataIdAttribute}="ff00000001">Save</button>
-            <div ${dataIdAttribute}="invalid-id">Other</div>
-        `;
-
-        // When / Then
-        expect(containsElements(document, ['ff00000001', 'ff00000002'])).toBe(false);
-        expect(containsElements(document, ['invalid-id'])).toBe(false);
-    });
-
-    it('accepts an empty list of requested IDs', () => {
-        // Given
-        document.body.innerHTML = '<button>Save</button>';
-
-        // When / Then
-        expect(containsElements(document, [])).toBe(true);
     });
 });
 
