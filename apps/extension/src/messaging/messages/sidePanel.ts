@@ -1,6 +1,10 @@
 import type { Message, MessageResponse } from '../Message';
 
-export type RefreshPageInspectorMessage = Message & {
+export interface RefreshPageInspectorMessageData {
+    tab?: string;
+}
+
+export type RefreshPageInspectorMessage = Message<RefreshPageInspectorMessageData> & {
     type: 'REFRESH_PAGE_INSPECTOR';
 };
 

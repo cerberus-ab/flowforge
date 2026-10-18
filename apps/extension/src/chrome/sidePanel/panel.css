@@ -1,5 +1,5 @@
-@import '../../../shared/index.css';
-@import '../../../page/components/Inspector/Inspector.css';
+@import '../../shared/index.css';
+@import '../../page/components/Inspector/Inspector.css';
 
 body {
   margin: 0;

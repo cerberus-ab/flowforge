@@ -39,7 +39,7 @@ describe('useInspectorPopup', () => {
         expect(screen.getByTestId('copyright').textContent).toBe(config.copyright);
 
         fireEvent.click(screen.getByRole('button', { name: 'Open inspector' }));
-        await waitFor(() => expect(backgroundClient.openPageInspectorForPage).toHaveBeenCalledWith(42));
+        await waitFor(() => expect(backgroundClient.openPageInspectorForPage).toHaveBeenCalledWith(42, undefined));
     });
 
     it('keeps Open disabled if panel preparation fails', async () => {

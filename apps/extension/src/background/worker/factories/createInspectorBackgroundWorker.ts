@@ -2,9 +2,9 @@ import type { Storage, TransportService } from '@/adapters';
 import { config } from '@/config';
 import { SettingsStorage } from '@/core/services/SettingsStorage';
 import { PageClient } from '@/page/client/PageClient';
-import { ChromeSidePanelClient } from '@/chrome/inspector/background/SidePanelClient';
-import { InspectorSidePanelMessageHandler } from '@/chrome/inspector/background/InspectorSidePanelMessageHandler';
-import { INSPECTOR_SIDE_PANEL_PATH } from '@/chrome/inspector/constants';
+import { ChromeSidePanelClient } from '@/chrome/sidePanel/SidePanelClient';
+import { InspectorSidePanelMessageHandler } from '@/chrome/sidePanel/InspectorSidePanelMessageHandler';
+import { INSPECTOR_SIDE_PANEL_PATH } from '@/chrome/sidePanel/constants';
 import { BackgroundWorker } from '../BackgroundWorker';
 import { SettingsMessageHandler } from '../handlers/SettingsMessageHandler';
 

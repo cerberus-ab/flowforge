@@ -34,8 +34,9 @@ function PageHarness({
     devMode = false,
     onDevModeChange = () => undefined,
     onReady,
+    inspectorOverlay,
 }: UsePageOptions) {
-    const page = usePage({ backgroundClient, devMode, onDevModeChange, onReady });
+    const page = usePage({ backgroundClient, devMode, onDevModeChange, onReady, inspectorOverlay });
 
     return (
         <section>
@@ -54,7 +55,7 @@ function PageHarness({
     );
 }
 
-function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'backgroundClient'>> = {}) {
+function renderPage({ onReady, inspectorOverlay }: Partial<Omit<UsePageOptions, 'backgroundClient'>> = {}) {
     const transport = new FakeTransportService();
     const backgroundClient = new BackgroundClient(transport);
 
@@ -64,6 +65,7 @@ function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'backgroundClient'
             devMode={false}
             onDevModeChange={() => undefined}
             onReady={onReady}
+            inspectorOverlay={inspectorOverlay}
         />,
     );
 
@@ -71,6 +73,15 @@ function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'backgroundClient'
 }
 
 describe('usePage', () => {
+    it('does not register the overlay command for Chrome side-panel pages', async () => {
+        const { transport } = renderPage({ inspectorOverlay: false });
+
+        await expect(
+            transport.dispatchToBackground({ type: 'OPEN_INSPECTOR', data: { tab: 'basics' } }),
+        ).rejects.toThrow('Message handler did not return a response');
+        expect(screen.getByTestId('inspector-title').textContent).toBe('');
+    });
+
     it('registers the page listener and collects the current page trail', async () => {
         // Given
         const onReady = vi.fn();

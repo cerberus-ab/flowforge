@@ -6,11 +6,14 @@ export default defineManifest({
     name: 'FlowForge — Web Onboarding Assistant',
     version: pkg.version,
     description: 'AI-powered assistant helps to learn and navigate web applications using natural language.',
-    permissions: ['activeTab', 'storage', 'scripting'],
+    permissions: ['activeTab', 'storage', 'scripting', 'sidePanel'],
     host_permissions: ['<all_urls>'],
     background: {
         service_worker: 'background/worker.ts',
         type: 'module',
+    },
+    side_panel: {
+        default_path: 'sidePanel/index.html',
     },
     content_scripts: [
         {

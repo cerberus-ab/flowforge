@@ -25,6 +25,39 @@ function renderPopup(props: Partial<PopupAppProps> = {}) {
 }
 
 describe('PopupApp configuration', () => {
+    it('uses the prepared Chrome side panel opener and closes only after a successful open', async () => {
+        const openPageInspector = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+        const onClose = vi.fn();
+        renderPopup({
+            sidePanelOpener: { canOpen: true, error: null, openPageInspector },
+            onClose,
+        });
+
+        fireEvent.click(screen.getByTestId('flowforge-open-markdown-inspector'));
+        await waitFor(() => expect(openPageInspector).toHaveBeenCalledWith('markdown'));
+        expect(onClose).not.toHaveBeenCalled();
+
+        fireEvent.click(screen.getByTestId('flowforge-open-inspector'));
+        await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+        expect(openPageInspector).toHaveBeenLastCalledWith('basics');
+    });
+
+    it('disables Chrome Inspector actions until the panel is prepared', () => {
+        const openPageInspector = vi.fn();
+        renderPopup({
+            sidePanelOpener: {
+                canOpen: false,
+                error: 'Page Inspector is unavailable for this tab.',
+                openPageInspector,
+            },
+        });
+
+        expect((screen.getByTestId('flowforge-open-inspector') as HTMLButtonElement).disabled).toBe(true);
+        expect((screen.getByTestId('flowforge-open-markdown-inspector') as HTMLButtonElement).disabled).toBe(true);
+        expect(screen.getByRole('alert').textContent).toContain('Page Inspector is unavailable');
+        expect(openPageInspector).not.toHaveBeenCalled();
+    });
+
     it('uses preset behavior without demo presentation', async () => {
         // Given / When
         renderPopup({ presetQuestions: ['First question?', 'Second question?'] });

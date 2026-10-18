@@ -105,9 +105,11 @@ describe('SidePanelApp', () => {
         vi.mocked(backgroundClient.getPageInspectorData).mockResolvedValue(nextTrail);
         const [, callbacks] = vi.mocked(backgroundClient.subscribeToSidePanelMessages).mock.calls[0]!;
 
-        act(() => callbacks.onRefreshPageInspector());
+        act(() => callbacks.onRefreshPageInspector('markdown'));
 
-        expect(await screen.findByText('"Updated page"')).toBeTruthy();
+        await waitFor(() =>
+            expect(screen.getByTestId('flowforge-inspector-tab-markdown').getAttribute('aria-selected')).toBe('true'),
+        );
         expect(backgroundClient.getPageInspectorData).toHaveBeenCalledTimes(2);
     });
 

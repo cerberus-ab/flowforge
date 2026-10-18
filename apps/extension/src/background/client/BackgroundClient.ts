@@ -135,8 +135,8 @@ export class BackgroundClient
     }
 
     /** Opens the prepared side panel without resolving the page context on the click path. */
-    openPageInspectorForPage(pageId: number): Promise<void> {
-        return this.sendToBackground({ type: 'OPEN_PAGE_INSPECTOR', data: {} }, { pageId });
+    openPageInspectorForPage(pageId: number, tab?: string): Promise<void> {
+        return this.sendToBackground({ type: 'OPEN_PAGE_INSPECTOR', data: { tab } }, { pageId });
     }
 
     /** Requests fresh Inspector data for the specified page. */
@@ -177,7 +177,7 @@ export class BackgroundClient
             {
                 resolve: (message, context) =>
                     context.pageId === pageId && isRefreshPageInspectorMessage(message)
-                        ? () => callbacks.onRefreshPageInspector()
+                        ? () => callbacks.onRefreshPageInspector(message.data.tab)
                         : undefined,
             },
         ]);
@@ -192,6 +192,7 @@ export class BackgroundClient
 
     /** Subscribes to page commands sent by background. */
     subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
+        const onOpenInspector = callbacks.onOpenInspector;
         return this.subscribeToMessages([
             MessageRouter.route(isCollectPageTrailMessage, (message) =>
                 message.data.contextOnly ? callbacks.onCollectPageTrailContextOnly() : callbacks.onCollectPageTrail(),
@@ -200,7 +201,9 @@ export class BackgroundClient
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
             MessageRouter.route(isStartOnboardingMessage, (message) => callbacks.onStartOnboarding(message.data)),
             MessageRouter.route(isHighlightElementMessage, (message) => callbacks.onHighlightElement(message.data)),
-            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data)),
+            ...(onOpenInspector
+                ? [MessageRouter.route(isOpenInspectorMessage, (message) => onOpenInspector(message.data))]
+                : []),
         ]);
     }
 

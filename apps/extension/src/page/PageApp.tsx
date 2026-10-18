@@ -10,10 +10,23 @@ export interface PageAppProps {
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
     onReady?: () => void;
+    inspectorOverlay?: boolean;
 }
 
-export function PageApp({ backgroundClient, devMode, onDevModeChange, onReady }: PageAppProps) {
-    const { highlights, wizard, inspector } = usePage({ backgroundClient, devMode, onDevModeChange, onReady });
+export function PageApp({
+    backgroundClient,
+    devMode,
+    onDevModeChange,
+    onReady,
+    inspectorOverlay = true,
+}: PageAppProps) {
+    const { highlights, wizard, inspector } = usePage({
+        backgroundClient,
+        devMode,
+        onDevModeChange,
+        onReady,
+        inspectorOverlay,
+    });
 
     return (
         <div className="flowforge-page" data-testid="flowforge-page">
@@ -25,7 +38,7 @@ export function PageApp({ backgroundClient, devMode, onDevModeChange, onReady }:
                 </div>
             )}
             {wizard && <Wizard {...wizard} />}
-            {inspector && <Inspector {...inspector} />}
+            {inspectorOverlay && inspector && <Inspector {...inspector} />}
         </div>
     );
 }

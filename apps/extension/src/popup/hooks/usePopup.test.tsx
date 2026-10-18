@@ -51,9 +51,6 @@ function PopupHarness(options: UsePopupOptions) {
             <button type="button" onClick={() => void popup.navigateToElement(resultElement)}>
                 Navigate
             </button>
-            <button type="button" onClick={() => void popup.openPageInspector('interactive')}>
-                Open Inspector
-            </button>
             <button type="button" onClick={() => void popup.askPresetQuestion()}>
                 Ask next preset
             </button>
@@ -477,13 +474,12 @@ describe('usePopup', () => {
         expect(messages).toContainEqual({ type: 'GET_PREV_QUESTIONS' });
     });
 
-    it('sends page action messages', async () => {
+    it('sends a page navigation message', async () => {
         // Given
         const { messages } = renderPopup();
 
         // When
         fireEvent.click(await screen.findByRole('button', { name: 'Navigate' }));
-        fireEvent.click(screen.getByRole('button', { name: 'Open Inspector' }));
 
         // Then
         await waitFor(() => {
@@ -493,12 +489,6 @@ describe('usePopup', () => {
                         type: 'NAVIGATE_TO_ELEMENT',
                         data: {
                             element: resultElement,
-                        },
-                    }),
-                    expect.objectContaining({
-                        type: 'OPEN_PAGE_INSPECTOR',
-                        data: {
-                            tab: 'interactive',
                         },
                     }),
                 ]),

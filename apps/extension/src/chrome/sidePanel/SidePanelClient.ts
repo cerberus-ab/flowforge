@@ -3,7 +3,7 @@ import type { TransportService } from '@/adapters';
 export interface SidePanelClient {
     prepare(pageId: number): Promise<void>;
     open(pageId: number): Promise<void>;
-    notifyRefresh(pageId: number): Promise<void>;
+    notifyRefresh(pageId: number, tab?: string): Promise<void>;
 }
 
 /** Configures and opens a tab-specific Chrome side panel. */
@@ -28,7 +28,7 @@ export class ChromeSidePanelClient implements SidePanelClient {
         return chrome.sidePanel.open({ tabId: pageId });
     }
 
-    async notifyRefresh(pageId: number): Promise<void> {
-        await this.transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR' }, { pageId });
+    async notifyRefresh(pageId: number, tab?: string): Promise<void> {
+        await this.transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR', data: { tab } }, { pageId });
     }
 }

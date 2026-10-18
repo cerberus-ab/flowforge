@@ -10,7 +10,7 @@ export interface SidePanelAppProps {
 }
 
 export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChange }: SidePanelAppProps) {
-    const snapshot = useInspectorSidePanel({ backgroundClient, pageId });
+    const { snapshot, requestedTab, openVersion } = useInspectorSidePanel({ backgroundClient, pageId });
 
     return (
         <main className="flowforge-inspector-side-panel" data-testid="flowforge-inspector-side-panel">
@@ -20,7 +20,9 @@ export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChang
                 <p role="alert">Could not collect page data for this tab.</p>
             ) : snapshot.status === 'ready' ? (
                 <Inspector
+                    key={openVersion}
                     pageTrail={snapshot.pageTrail}
+                    initialTab={requestedTab}
                     devMode={devMode}
                     onDevModeChange={onDevModeChange}
                     presentation="sidePanel"

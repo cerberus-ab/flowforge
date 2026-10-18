@@ -8,14 +8,20 @@ export interface UseInspectorSidePanelOptions {
     pageId: number | null;
 }
 
-export type InspectorSidePanelViewModel =
-    { status: 'loading' } | { status: 'ready'; pageTrail: PageTrail } | { status: 'error' };
+type InspectorSnapshot = { status: 'loading' } | { status: 'ready'; pageTrail: PageTrail } | { status: 'error' };
+
+export interface InspectorSidePanelViewModel {
+    snapshot: InspectorSnapshot;
+    requestedTab?: string;
+    openVersion: number;
+}
 
 export function useInspectorSidePanel({
     backgroundClient,
     pageId,
 }: UseInspectorSidePanelOptions): InspectorSidePanelViewModel {
-    const [snapshot, setSnapshot] = useState<InspectorSidePanelViewModel>({ status: 'loading' });
+    const [snapshot, setSnapshot] = useState<InspectorSnapshot>({ status: 'loading' });
+    const [openRequest, setOpenRequest] = useState<{ tab?: string; version: number }>({ version: 0 });
 
     // Keep the snapshot tied to its tab across reopenings and navigation.
     useEffect(() => {
@@ -59,7 +65,10 @@ export function useInspectorSidePanel({
         };
 
         const unsubscribe = backgroundClient.subscribeToSidePanelMessages(pageId, {
-            onRefreshPageInspector: refresh,
+            onRefreshPageInspector: (tab) => {
+                setOpenRequest((current) => ({ tab, version: current.version + 1 }));
+                refresh();
+            },
         });
         chrome.tabs.onUpdated.addListener(onTabUpdated);
         refresh();
@@ -72,5 +81,5 @@ export function useInspectorSidePanel({
         };
     }, [backgroundClient, pageId]);
 
-    return snapshot;
+    return { snapshot, requestedTab: openRequest.tab, openVersion: openRequest.version };
 }

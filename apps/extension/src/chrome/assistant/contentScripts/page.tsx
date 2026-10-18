@@ -22,6 +22,7 @@ function PageAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient 
                 backgroundClient={backgroundClient}
                 devMode={settings.devMode}
                 onDevModeChange={settings.setDevMode}
+                inspectorOverlay={false}
             />
         </Main>
     );

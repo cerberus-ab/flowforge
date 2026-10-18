@@ -5,9 +5,11 @@ import { Tooltip } from '@/shared/components/Tooltip';
 
 interface AdvancedProps {
     onOpenPageInspector: (tab?: string) => void | Promise<void>;
+    disabled?: boolean;
+    error?: string | null;
 }
 
-export function Advanced({ onOpenPageInspector }: AdvancedProps) {
+export function Advanced({ onOpenPageInspector, disabled = false, error }: AdvancedProps) {
     return (
         <Card title="Advanced" variant="secondary" className="flowforge-advanced-container" twinkle>
             <div className="flowforge-advanced-list">
@@ -19,6 +21,7 @@ export function Advanced({ onOpenPageInspector }: AdvancedProps) {
                                 size="small"
                                 icon={ListTree}
                                 hollow
+                                disabled={disabled}
                                 data-testid="flowforge-open-inspector"
                                 onClick={() => void onOpenPageInspector('basics')}
                             >
@@ -33,6 +36,7 @@ export function Advanced({ onOpenPageInspector }: AdvancedProps) {
                                 size="small"
                                 icon={FileText}
                                 hollow
+                                disabled={disabled}
                                 data-testid="flowforge-open-markdown-inspector"
                                 onClick={() => void onOpenPageInspector('markdown')}
                             >
@@ -42,6 +46,7 @@ export function Advanced({ onOpenPageInspector }: AdvancedProps) {
                     </li>
                 </ul>
             </div>
+            {error && <p role="alert">{error}</p>}
         </Card>
     );
 }

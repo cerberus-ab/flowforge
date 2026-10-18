@@ -60,7 +60,7 @@ describe('ChromeTransportService', () => {
         const backgroundMessage = { type: 'GET_SETTINGS' } as const;
         const pageMessage = { type: 'CLEAR_PAGE' } as const;
         const popupMessage = { type: 'QUERY_FINISHED', data: { queryId: 'query-1' } } as const;
-        const sidePanelMessage = { type: 'REFRESH_PAGE_INSPECTOR' } as const;
+        const sidePanelMessage = { type: 'REFRESH_PAGE_INSPECTOR', data: { tab: 'markdown' } } as const;
 
         await expect(transport.sendToBackground(backgroundMessage, { pageId: 42 })).resolves.toEqual({ success: true });
         await expect(transport.sendToPage(42, pageMessage)).resolves.toEqual({ success: true });

@@ -42,16 +42,17 @@ describe('BackgroundClient', () => {
         const onRefreshPageInspector = vi.fn();
         const unsubscribe = client.subscribeToSidePanelMessages(42, { onRefreshPageInspector });
 
-        await expect(transport.dispatchToBackground({ type: 'REFRESH_PAGE_INSPECTOR' }, { pageId: 7 })).rejects.toThrow(
-            'Message handler did not return a response',
-        );
+        await expect(
+            transport.dispatchToBackground({ type: 'REFRESH_PAGE_INSPECTOR', data: {} }, { pageId: 7 }),
+        ).rejects.toThrow('Message handler did not return a response');
         expect(onRefreshPageInspector).not.toHaveBeenCalled();
 
-        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR' }, { pageId: 42 });
+        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR', data: { tab: 'markdown' } }, { pageId: 42 });
         expect(onRefreshPageInspector).toHaveBeenCalledOnce();
+        expect(onRefreshPageInspector).toHaveBeenCalledWith('markdown');
 
         unsubscribe();
-        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR' }, { pageId: 42 });
+        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR', data: {} }, { pageId: 42 });
         expect(onRefreshPageInspector).toHaveBeenCalledOnce();
     });
 

@@ -15,7 +15,7 @@ import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
  * Handles Inspector opening and snapshot requests for a target page.
  * Clears existing extension UI before opening the requested inspector tab.
  * Collects fresh context-only snapshots for Inspector UI outside the page.
- * Used by the Assistant background worker in Chrome and embed runtimes.
+ * Used by the embed worker; Chrome builds use the shared side-panel handler.
  */
 export class PageInspectorMessageHandler implements BackgroundMessageHandler {
     private readonly pageClient: PageInspectorClient;

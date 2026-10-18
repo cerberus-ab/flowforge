@@ -19,7 +19,6 @@ export interface PopupViewModel extends QuerySessionViewModel {
     askPresetQuestion: () => Promise<void>;
     isUnavailableQuestion: boolean;
     presetSubmitLabel: string;
-    openPageInspector: (tab?: string) => Promise<void>;
 }
 
 /** Combines query-session behavior with popup examples and preset question cycling. */
@@ -77,12 +76,6 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
         setNextPresetIndex(undefined);
     }, [initialQuestion]);
 
-    // Opens page inspector
-    const openPageInspector = useCallback(
-        (tab?: string) => backgroundClient.openPageInspector(tab),
-        [backgroundClient],
-    );
-
     // Selects an example and makes that preset the next question to submit
     const applyExampleQuestion = useCallback(
         (question: string) => {
@@ -128,6 +121,5 @@ export function usePopup({ backgroundClient, presetQuestions, initialQuestion }:
         applyExampleQuestion,
         askPresetQuestion,
         presetSubmitLabel,
-        openPageInspector,
     };
 }

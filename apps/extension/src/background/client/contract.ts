@@ -20,7 +20,7 @@ export interface PageMessageCallbacks {
     onClearPage: () => void;
     onStartOnboarding: (data: StartOnboardingMessageData) => void;
     onHighlightElement: (data: HighlightElementMessageData) => void;
-    onOpenInspector: (data: OpenInspectorMessageData) => void;
+    onOpenInspector?: (data: OpenInspectorMessageData) => void;
 }
 
 export interface InspectorPageMessageCallbacks {
@@ -36,7 +36,7 @@ export interface PopupMessageCallbacks {
 }
 
 export interface SidePanelMessageCallbacks {
-    onRefreshPageInspector: () => void;
+    onRefreshPageInspector: (tab?: string) => void;
 }
 
 /* client interfaces */
@@ -64,7 +64,7 @@ export interface SettingsBackgroundClient {
 
 export interface InspectorPopupBackgroundClient {
     preparePageInspector(): Promise<number>;
-    openPageInspectorForPage(pageId: number): Promise<void>;
+    openPageInspectorForPage(pageId: number, tab?: string): Promise<void>;
 }
 
 export interface PageInspectorDataBackgroundClient {

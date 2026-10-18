@@ -12,6 +12,7 @@ export interface UsePageOptions {
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
     onReady?: () => void;
+    inspectorOverlay?: boolean;
 }
 
 interface HighlightState {
@@ -55,7 +56,13 @@ export interface PageViewModel {
     inspector: InspectorViewModel | null;
 }
 
-export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }: UsePageOptions): PageViewModel {
+export function usePage({
+    backgroundClient,
+    devMode,
+    onDevModeChange,
+    onReady,
+    inspectorOverlay = true,
+}: UsePageOptions): PageViewModel {
     const [highlights, setHighlights] = useState<HighlightState[]>([]);
     const [wizard, setWizard] = useState<WizardState | null>(null);
     const [inspector, setInspector] = useState<InspectorState | null>(null);
@@ -165,7 +172,9 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
             onClearPage: clearPage,
             onStartOnboarding: startOnboarding,
             onHighlightElement: (data) => highlightElement(data.element),
-            onOpenInspector: (data) => openInspector(collectPageTrailContextOnly(window, document), data.tab),
+            onOpenInspector: inspectorOverlay
+                ? (data) => openInspector(collectPageTrailContextOnly(window, document), data.tab)
+                : undefined,
         });
 
         if (!readyRef.current) {
@@ -173,7 +182,7 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
             onReady?.();
         }
         return unsubscribe;
-    }, [backgroundClient, startOnboarding, highlightElement, openInspector, clearPage, onReady]);
+    }, [backgroundClient, startOnboarding, highlightElement, openInspector, clearPage, onReady, inspectorOverlay]);
 
     return {
         highlights: highlights.map((highlight) => ({

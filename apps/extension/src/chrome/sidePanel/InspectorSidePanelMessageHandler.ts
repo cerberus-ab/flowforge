@@ -16,7 +16,7 @@ import {
 } from '@/messaging';
 
 /**
- * Manages the standalone Inspector side panel lifecycle.
+ * Manages the Chrome Inspector side panel lifecycle.
  * Prepares a tab-specific panel before the popup click, opens it on the click,
  * and returns fresh page data when the panel requests it.
  */
@@ -51,14 +51,27 @@ export class InspectorSidePanelMessageHandler implements BackgroundMessageHandle
     }
 
     /** Opens the panel immediately, then refreshes it if it was already mounted. */
-    async handleOpenPageInspector(_message: OpenPageInspectorMessage, context: MessageContext): Promise<void> {
+    async handleOpenPageInspector(message: OpenPageInspectorMessage, context: MessageContext): Promise<void> {
         const pageId = requirePageId(context);
         await this.sidePanel.open(pageId);
-        void this.sidePanel.notifyRefresh(pageId).catch(() => undefined);
+        void this.notifyWhenReady(pageId, message.data.tab);
     }
 
     /** Returns a fresh context-only page trail to the panel. */
     handleGetPageInspectorData(_message: GetPageInspectorDataMessage, context: MessageContext): Promise<PageTrailDto> {
         return this.pageClient.collectPageTrailContextOnly(requirePageId(context));
+    }
+
+    /** First opening may precede panel listener registration; retry the selected tab briefly. */
+    private async notifyWhenReady(pageId: number, tab?: string): Promise<void> {
+        for (let attempt = 0; attempt < 5; attempt++) {
+            try {
+                await this.sidePanel.notifyRefresh(pageId, tab);
+                return;
+            } catch {
+                if (attempt === 4) return;
+                await new Promise<void>((resolve) => setTimeout(resolve, 100 * (attempt + 1)));
+            }
+        }
     }
 }
