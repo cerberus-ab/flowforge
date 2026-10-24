@@ -105,6 +105,45 @@ test('opens a tab-specific side panel and collects page data there', async ({ co
     await panel.close();
 });
 
+test('restores the selected tab and Markdown settings when the side panel reloads', async ({
+    context,
+    extensionId,
+    page,
+}) => {
+    // Given
+    await page.goto('/chrome');
+    const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+    const openButton = popup.getByTestId('flowforge-ip-opener-submit');
+    await expect(openButton).toBeEnabled();
+    const sidePanelPath = await popup.evaluate(async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        return chrome.sidePanel.getOptions({ tabId: tab!.id });
+    });
+    await openButton.click();
+    await expect.poll(() => popup.isClosed()).toBe(true);
+    const panel = await context.newPage();
+    await panel.goto(`chrome-extension://${extensionId}/${sidePanelPath.path}`);
+    await expect(panel.getByTestId('flowforge-inspector-tab-basics')).toHaveAttribute('aria-selected', 'true');
+
+    // When
+    await panel.getByTestId('flowforge-inspector-tab-markdown').click();
+    const detailLevel = panel.getByTestId('flowforge-markdown-detail-level');
+    const basicsBlock = panel.getByTestId('flowforge-markdown-block-basics');
+    await detailLevel.selectOption('compact');
+    await basicsBlock.click();
+    await expect(detailLevel).toHaveValue('compact');
+    await expect(basicsBlock).toHaveAttribute('aria-checked', 'false');
+    await panel.reload();
+
+    // Then
+    await expect(panel.getByTestId('flowforge-inspector-tab-markdown')).toHaveAttribute('aria-selected', 'true');
+    await expect(panel.getByTestId('flowforge-markdown-detail-level')).toHaveValue('compact');
+    await expect(panel.getByTestId('flowforge-markdown-block-basics')).toHaveAttribute('aria-checked', 'false');
+    await expect(panel.getByTestId('flowforge-markdown-viewer')).not.toContainText('## Basics');
+
+    await panel.close();
+});
+
 test('shows an error when the tab does not allow a content script', async ({ context, extensionId, page }) => {
     // Given
     await page.goto('chrome://extensions/');

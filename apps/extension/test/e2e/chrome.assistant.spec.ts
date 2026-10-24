@@ -365,6 +365,41 @@ test('opens the Markdown inspector tab from the popup', async ({ context, extens
     await panel.close();
 });
 
+test('uses the explicitly requested inspector tab without replacing the saved tab', async ({
+    context,
+    extensionId,
+    page,
+}) => {
+    // Given
+    await page.goto('/chrome');
+    const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+    const { panel } = await openInspectorSidePanel(context, extensionId, popup, 'flowforge-open-inspector');
+    await expect(panel.getByTestId('flowforge-inspector-tab-basics')).toHaveAttribute('aria-selected', 'true');
+    await panel.getByTestId('flowforge-inspector-tab-interactive').click();
+    await expect(panel.getByTestId('flowforge-inspector-tab-interactive')).toHaveAttribute('aria-selected', 'true');
+    await expect
+        .poll(() =>
+            panel.evaluate(async () => (await chrome.storage.local.get('flowforge_settings')).flowforge_settings),
+        )
+        .toMatchObject({ inspectorTab: 'interactive' });
+
+    // When
+    const markdownPopup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await markdownPopup.getByTestId('flowforge-open-markdown-inspector').click();
+    await expect.poll(() => markdownPopup.isClosed()).toBe(true);
+
+    // Then
+    await expect(panel.getByTestId('flowforge-inspector-tab-markdown')).toHaveAttribute('aria-selected', 'true');
+    await expect(panel.getByTestId('flowforge-markdown-viewer')).toContainText('Explore Chrome Extension');
+    await expect
+        .poll(() =>
+            panel.evaluate(async () => (await chrome.storage.local.get('flowforge_settings')).flowforge_settings),
+        )
+        .toMatchObject({ inspectorTab: 'interactive' });
+
+    await panel.close();
+});
+
 test('uses the Markdown inspector controls and shows size stats', async ({ context, extensionId, page }) => {
     // Given
     await page.goto('/chrome');
