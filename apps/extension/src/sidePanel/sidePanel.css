@@ -19,30 +19,32 @@
 .flowforge-side-panel__status--error {
   color: var(--flowforge-color-danger);
 }
-.flowforge-side-panel-container > .flowforge-inspector {
+.flowforge-side-panel-container .flowforge-inspector {
   width: 100%;
   height: 100vh;
-}
-.flowforge-side-panel-container .flowforge-inspector__header {
-  flex-wrap: wrap;
-}
-.flowforge-side-panel-container .flowforge-inspector__nav {
-  overflow-x: auto;
 }
 .flowforge-side-panel-container .flowforge-tabs {
   width: max-content;
   min-width: 100%;
 }
 
-@container (max-width: 800px) {
+@container (max-width: 560px) {
   .flowforge-side-panel-container .flowforge-inspector-page-markdown {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
   }
   .flowforge-side-panel-container .flowforge-inspector-page-markdown__aside {
-    max-height: 40vh;
+    max-height: 30vh;
     overflow-y: auto;
     border-right: 0;
     border-bottom: 1px solid var(--flowforge-color-border);
+  }
+  .flowforge-side-panel-container .flowforge-inspector-page-markdown__aside::-webkit-scrollbar {
+    width: var(--flowforge-pad-xs);
+  }
+  .flowforge-side-panel-container
+    .flowforge-inspector-page-markdown__aside::-webkit-scrollbar-thumb {
+    background: rgba(var(--flowforge-rgb-primary), 0.5);
+    border-radius: 999px;
   }
 }

@@ -12,13 +12,13 @@ import { createRef, type RefObject } from 'preact/compat';
 import type { AgentResult } from '@flowforge/contract';
 import { mountConstants } from '@/embed/constants';
 import type { TriggerSize } from '@/embed/shell/components/Trigger/Trigger';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettingsPatch } from '@/shared/types/settings';
 import { BackgroundClient, type BackgroundWorker } from '@/background';
 import { createWorker } from '@/embed/background/createWorker';
 
 interface RuntimeStartOptions {
     triggerSize?: TriggerSize;
-    settings?: Partial<ExtensionSettings>;
+    settings?: ExtensionSettingsPatch;
 }
 
 interface RuntimeDemoOptions extends RuntimeStartOptions {
@@ -124,7 +124,7 @@ export class Runtime implements RuntimeApi {
         console.log('[FlowForge] Runtime successfully destroyed');
     }
 
-    private startBackground(apiClient: ApiClient, initialSettings: Partial<ExtensionSettings> = {}): void {
+    private startBackground(apiClient: ApiClient, initialSettings: ExtensionSettingsPatch = {}): void {
         this.backgroundWorker = createWorker(this.transport, apiClient, initialSettings);
         this.backgroundWorker.start();
     }

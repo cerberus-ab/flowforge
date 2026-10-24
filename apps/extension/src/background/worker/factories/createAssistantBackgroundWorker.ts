@@ -1,5 +1,5 @@
 import type { ApiClient } from '@/services/ApiClient';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettingsPatch } from '@/shared/types/settings';
 import type { LocalStorage, SessionStorage, TransportService } from '@/adapters';
 import { config } from '@/config';
 import { HistoryStorage } from '@/services/HistoryStorage';
@@ -21,7 +21,7 @@ interface AssistantBackgroundWorkerOptions {
     localStorage: LocalStorage;
     sessionStorage: SessionStorage;
     apiClient: ApiClient;
-    initialSettings?: Partial<ExtensionSettings>;
+    initialSettings?: ExtensionSettingsPatch;
     inspectorHandler?: BackgroundMessageHandler;
 }
 

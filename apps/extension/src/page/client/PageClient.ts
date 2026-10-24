@@ -2,7 +2,7 @@ import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 import type { TransportService } from '@/adapters';
 import type { PageMessage, PageMessageResponseData, StartOnboardingMessageData } from '@/messaging';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettings } from '@/shared/types/settings';
 
 import type {
     PageInspectorClient,

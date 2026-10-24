@@ -1,10 +1,13 @@
 import type { QueryResponse } from '@flowforge/contract';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettings } from '@/shared/types/settings';
 
 export function createSettingsFixture(overrides: Partial<ExtensionSettings> = {}): ExtensionSettings {
     return {
         theme: 'light',
         devMode: false,
+        inspectorTab: 'basics',
+        markdownDetailLevel: 'standard',
+        markdownBlocks: ['basics', 'structure', 'interactive', 'content'],
         ...overrides,
     };
 }

@@ -9,6 +9,8 @@ import {
     MousePointerClick,
 } from 'lucide-preact';
 import type { PageTrail } from '@flowforge/page-trail';
+import type { InspectorTabId } from '@/shared/types/inspector';
+import { DEFAULT_MARKDOWN_PREFERENCES, type MarkdownPreferences } from '@/shared/types/settings';
 import { Switch } from '@/shared/components/Switch';
 import { Tabs } from '@/shared/components/Tabs';
 import { Tooltip } from '@/shared/components/Tooltip';
@@ -81,15 +83,29 @@ function resolveInspectorTabId(tabs: readonly InspectorTab[], preferredTab?: str
 export interface InspectorProps {
     pageTrail: PageTrail;
     initialTab?: string;
+    selectedTab?: InspectorTabId;
+    markdownPreferences?: MarkdownPreferences;
+    onSelectedTabChange?: (tab: InspectorTabId) => void | Promise<void>;
+    onMarkdownPreferencesChange?: (preferences: MarkdownPreferences) => void | Promise<void>;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
 }
 
-export function Inspector({ pageTrail, initialTab, devMode, onDevModeChange }: InspectorProps) {
+export function Inspector({
+    pageTrail,
+    initialTab,
+    selectedTab,
+    markdownPreferences = DEFAULT_MARKDOWN_PREFERENCES,
+    onSelectedTabChange,
+    onMarkdownPreferencesChange,
+    devMode,
+    onDevModeChange,
+}: InspectorProps) {
     const availableTabs = useMemo(() => inspectorTabs.filter((tab) => !tab.devModeOnly || devMode), [devMode]);
     const [activeTab, setActiveTab] = useState<InspectorTab['id']>(() =>
-        resolveInspectorTabId(availableTabs, initialTab),
+        resolveInspectorTabId(availableTabs, initialTab ?? selectedTab),
     );
+    const [markdownSettings, setMarkdownSettings] = useState(markdownPreferences);
     const tabsIdPrefix = `flowforge-inspector-tabs-${useId()}`;
     const getTabId = (id: string) => `${tabsIdPrefix}-tab-${id}`;
     const getPanelId = (id: string) => `${tabsIdPrefix}-panel-${id}`;
@@ -98,8 +114,19 @@ export function Inspector({ pageTrail, initialTab, devMode, onDevModeChange }: I
     useEffect(() => {
         if (availableTabs.some((tab) => tab.id === activeTab)) return;
 
-        setActiveTab(resolveInspectorTabId(availableTabs, initialTab));
-    }, [activeTab, availableTabs, initialTab]);
+        setActiveTab(resolveInspectorTabId(availableTabs, initialTab ?? selectedTab));
+    }, [activeTab, availableTabs, initialTab, selectedTab]);
+
+    const handleTabChange = (id: string) => {
+        const tab = id as InspectorTab['id'];
+        setActiveTab(tab);
+        void onSelectedTabChange?.(tab);
+    };
+
+    const handleMarkdownSettingsChange = (settings: MarkdownPreferences) => {
+        setMarkdownSettings(settings);
+        void onMarkdownPreferencesChange?.(settings);
+    };
 
     return (
         <section
@@ -132,7 +159,7 @@ export function Inspector({ pageTrail, initialTab, devMode, onDevModeChange }: I
                 <Tabs
                     tabs={availableTabs}
                     activeId={activeTab}
-                    onChange={(id) => setActiveTab(id as InspectorTab['id'])}
+                    onChange={handleTabChange}
                     getTabId={getTabId}
                     getPanelId={getPanelId}
                     testIdPrefix="flowforge-inspector-tab"
@@ -141,7 +168,11 @@ export function Inspector({ pageTrail, initialTab, devMode, onDevModeChange }: I
             </div>
             <div
                 id={getPanelId(activeTab)}
-                className="flowforge-inspector__content"
+                className={
+                    activeTab === 'markdown'
+                        ? 'flowforge-inspector__content flowforge-inspector__content--markdown'
+                        : 'flowforge-inspector__content'
+                }
                 role="tabpanel"
                 aria-labelledby={getTabId(activeTab)}
                 data-testid="flowforge-inspector-panel"
@@ -159,7 +190,13 @@ export function Inspector({ pageTrail, initialTab, devMode, onDevModeChange }: I
                         devMode={devMode}
                     />
                 )}
-                {activeTab === 'markdown' && <InspectorPageMarkdown pageTrail={pageTrail} />}
+                {activeTab === 'markdown' && (
+                    <InspectorPageMarkdown
+                        pageTrail={pageTrail}
+                        preferences={markdownSettings}
+                        onPreferencesChange={handleMarkdownSettingsChange}
+                    />
+                )}
                 {activeTab === 'metadata' && devMode && <InspectorPageMetadata metadata={pageTrail.metadata} />}
             </div>
             <div className="flowforge-inspector__footer">

@@ -1,7 +1,7 @@
 import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 import type { Message, MessageResponse } from '../Message';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettings, ExtensionSettingsPatch } from '@/shared/types/settings';
 import type { QuerySessionDataPending, QuerySessionDataCompleted } from '@/services/QuerySessionStorage';
 
 export type PopupOpenedMessage = Message & {
@@ -13,7 +13,7 @@ export type GetSettingsMessage = Message & {
 };
 
 export interface UpdateSettingsMessageData {
-    patch: Partial<ExtensionSettings>;
+    patch: ExtensionSettingsPatch;
 }
 
 export type UpdateSettingsMessage = Message<UpdateSettingsMessageData> & {

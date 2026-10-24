@@ -22,6 +22,13 @@ function PageAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient 
                 backgroundClient={backgroundClient}
                 devMode={settings.devMode}
                 onDevModeChange={settings.setDevMode}
+                selectedTab={settings.inspectorTab}
+                markdownPreferences={{
+                    detailLevel: settings.markdownDetailLevel,
+                    blocks: settings.markdownBlocks,
+                }}
+                onSelectedTabChange={settings.setInspectorTab}
+                onMarkdownPreferencesChange={settings.setMarkdownPreferences}
                 inspectorOverlay={false}
             />
         </Main>

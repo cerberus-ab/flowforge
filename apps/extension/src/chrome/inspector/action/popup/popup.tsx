@@ -7,7 +7,7 @@ import { mountConstants } from '@/chrome/inspector/constants';
 import { ChromeTransportService, withTransportLogging } from '@/adapters';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
-import type { ExtensionSettingsTheme } from '@/services/SettingsStorage';
+import type { ExtensionSettingsTheme } from '@/shared/types/settings';
 import { useInspectorPopup } from '@/chrome/inspector/action/popup/hooks/useInspectorPopup';
 import { useCallback } from 'preact/hooks';
 import { Opener } from '@/chrome/inspector/action/popup/components/Opener';

@@ -18,6 +18,13 @@ function SidePanelAppRoot({ backgroundClient, pageId }: { backgroundClient: Back
                 pageId={pageId}
                 devMode={settings.devMode}
                 onDevModeChange={settings.setDevMode}
+                selectedTab={settings.inspectorTab}
+                markdownPreferences={{
+                    detailLevel: settings.markdownDetailLevel,
+                    blocks: settings.markdownBlocks,
+                }}
+                onSelectedTabChange={settings.setInspectorTab}
+                onMarkdownPreferencesChange={settings.setMarkdownPreferences}
             />
         </Main>
     );

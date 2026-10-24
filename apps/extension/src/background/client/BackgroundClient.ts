@@ -18,7 +18,7 @@ import {
     isContainsElementsMessage,
     isRefreshPageInspectorMessage,
 } from '@/messaging';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettings, ExtensionSettingsPatch } from '@/shared/types/settings';
 import type {
     InspectorPageBackgroundClient,
     InspectorPageMessageCallbacks,
@@ -152,7 +152,7 @@ export class BackgroundClient
     }
 
     /** Applies a settings patch and returns the updated settings. */
-    async updateSettings(patch: Partial<ExtensionSettings>): Promise<ExtensionSettings> {
+    async updateSettings(patch: ExtensionSettingsPatch): Promise<ExtensionSettings> {
         return this.sendToBackground({
             type: 'UPDATE_SETTINGS',
             data: { patch },

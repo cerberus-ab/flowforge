@@ -2,6 +2,8 @@ import type { SidePanelBackgroundClient } from '@/background';
 import { Inspector } from '@/page/components/Inspector';
 import { useSidePanel } from './hooks/useSidePanel';
 import type { ComponentChildren } from 'preact';
+import type { InspectorTabId } from '@/shared/types/inspector';
+import type { MarkdownPreferences } from '@/shared/types/settings';
 
 function SidePanelContainer({ children }: { children: ComponentChildren }) {
     return (
@@ -16,9 +18,22 @@ export interface SidePanelAppProps {
     pageId: number | null;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
+    selectedTab?: InspectorTabId;
+    markdownPreferences?: MarkdownPreferences;
+    onSelectedTabChange?: (tab: InspectorTabId) => void | Promise<void>;
+    onMarkdownPreferencesChange?: (preferences: MarkdownPreferences) => void | Promise<void>;
 }
 
-export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChange }: SidePanelAppProps) {
+export function SidePanelApp({
+    backgroundClient,
+    pageId,
+    devMode,
+    onDevModeChange,
+    selectedTab,
+    markdownPreferences,
+    onSelectedTabChange,
+    onMarkdownPreferencesChange,
+}: SidePanelAppProps) {
     const { snapshot, requestedTab, openVersion } = useSidePanel({ backgroundClient, pageId });
 
     return (
@@ -37,6 +52,10 @@ export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChang
                         key={openVersion}
                         pageTrail={snapshot.pageTrail}
                         initialTab={requestedTab}
+                        selectedTab={selectedTab}
+                        markdownPreferences={markdownPreferences}
+                        onSelectedTabChange={onSelectedTabChange}
+                        onMarkdownPreferencesChange={onMarkdownPreferencesChange}
                         devMode={devMode}
                         onDevModeChange={onDevModeChange}
                     />

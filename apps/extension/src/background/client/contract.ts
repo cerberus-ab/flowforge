@@ -1,4 +1,4 @@
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettings, ExtensionSettingsPatch } from '@/shared/types/settings';
 import type {
     AskQuestionResponse,
     PreviousQuestionsResponse,
@@ -58,7 +58,7 @@ export interface PageBackgroundClient {
 
 export interface SettingsBackgroundClient {
     getSettings(): Promise<ExtensionSettings>;
-    updateSettings(patch: Partial<ExtensionSettings>): Promise<ExtensionSettings>;
+    updateSettings(patch: ExtensionSettingsPatch): Promise<ExtensionSettings>;
     subscribeToSettingsMessages(callbacks: SettingsMessageCallbacks): () => void;
 }
 

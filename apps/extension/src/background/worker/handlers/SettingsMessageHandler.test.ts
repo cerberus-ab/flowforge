@@ -3,12 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { FakeStorage } from '../../../../test/unit/fakes/FakeStorage';
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
 import { SettingsStorage } from '@/services/SettingsStorage';
+import { config } from '@/config';
 import { PageClient } from '@/page/client/PageClient';
 import type { UpdateSettingsMessage } from '@/messaging';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettings } from '@/shared/types/settings';
 import { SettingsMessageHandler } from './SettingsMessageHandler';
 
-const defaultSettings: ExtensionSettings = { theme: 'light', devMode: false };
+const defaultSettings: ExtensionSettings = config.defaultSettings;
 
 describe('SettingsMessageHandler', () => {
     it('returns stored settings', async () => {
@@ -60,7 +61,7 @@ describe('SettingsMessageHandler', () => {
         );
 
         // Then
-        expect(response).toEqual({ theme: 'light', devMode: true });
+        expect(response).toEqual({ ...defaultSettings, devMode: true });
         expect(transport.getSentToPage()).toEqual([]);
     });
 });

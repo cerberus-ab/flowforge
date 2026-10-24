@@ -1,6 +1,6 @@
 import type { AgentResultElement, AgentResultMode, PageTrailDto } from '@flowforge/contract';
 import type { Message, MessageResponse } from '../Message';
-import type { ExtensionSettings } from '@/services/SettingsStorage';
+import type { ExtensionSettings } from '@/shared/types/settings';
 
 export interface StartOnboardingMessageData {
     title: string;

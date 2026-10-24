@@ -41,10 +41,38 @@ describe('SidePanelApp', () => {
             <SidePanelApp backgroundClient={backgroundClient} pageId={42} devMode={false} onDevModeChange={vi.fn()} />,
         );
 
-        expect(await screen.findByText('"Inspector test page"')).toBeTruthy();
+        expect(await screen.findByRole('region', { name: 'Page Inspector' })).toBeTruthy();
         expect(backgroundClient.getPageInspectorData).toHaveBeenCalledWith(42);
         expect(screen.getByTestId('flowforge-side-panel-container')).toBeTruthy();
         expect(screen.getByRole('region', { name: 'Page Inspector' })).toBeTruthy();
+    });
+
+    it('opens on its saved Inspector tab when no tab is requested', async () => {
+        // Given
+        const backgroundClient = createClient();
+        const onSelectedTabChange = vi.fn();
+
+        // When
+        render(
+            <SidePanelApp
+                backgroundClient={backgroundClient}
+                pageId={42}
+                devMode={false}
+                onDevModeChange={vi.fn()}
+                selectedTab="interactive"
+                onSelectedTabChange={onSelectedTabChange}
+            />,
+        );
+
+        // Then
+        expect(await screen.findByRole('region', { name: 'Page Inspector' })).toBeTruthy();
+        expect(screen.getByRole('tab', { name: 'Interactive' }).getAttribute('aria-selected')).toBe('true');
+
+        // When
+        act(() => screen.getByRole('tab', { name: 'Markdown' }).click());
+
+        // Then
+        expect(onSelectedTabChange).toHaveBeenCalledWith('markdown');
     });
 
     it('shows an instruction instead of requesting data without a tab', () => {
