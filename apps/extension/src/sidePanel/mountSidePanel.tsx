@@ -31,9 +31,15 @@ export function mountSidePanel(rootId: string): void {
 
     const doMount = () => {
         // The URL binds the panel to its original tab before its message listener is ready.
-        const pageIdParam = new URLSearchParams(window.location.search).get('pageId');
-        const parsedPageId = pageIdParam !== null && /^\d+$/.test(pageIdParam) ? Number(pageIdParam) : NaN;
-        const pageId = Number.isSafeInteger(parsedPageId) && parsedPageId > 0 ? parsedPageId : null;
+        const pageId = Number(new URLSearchParams(window.location.search).get('pageId')) || null;
+        if (pageId === null) {
+            void chrome.windows
+                .getCurrent()
+                .then(({ id }) => (id === undefined ? undefined : chrome.sidePanel.close({ windowId: id })))
+                .catch(() => undefined);
+            return;
+        }
+
         const root = rootInjector.inject(document, rootId);
 
         render(<SidePanelAppRoot backgroundClient={backgroundClient} pageId={pageId} />, root.mountPoint);

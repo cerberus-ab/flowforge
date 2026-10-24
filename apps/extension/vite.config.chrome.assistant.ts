@@ -20,5 +20,8 @@ export default defineConfig(({ mode }) => ({
         modulePreload: false,
         outDir: '../../../dist/chrome/assistant',
         emptyOutDir: true,
+        rollupOptions: {
+            input: { sidePanel: 'src/chrome/assistant/sidePanel/index.html' },
+        },
     },
 }));

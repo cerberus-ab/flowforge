@@ -8,6 +8,7 @@ test('loads the Inspector popup without mounting an overlay in the page', async 
     const popup = await openExtensionPopup(context, extensionId, { activePage: page });
 
     // Then
+    expect(await popup.evaluate(() => chrome.runtime.getManifest().side_panel)).toBeUndefined();
     await expect(page.getByTestId('flowforge-inspector-page-root')).toHaveCount(0);
     await expect(popup.locator('#flowforge-extension-inspector-popup-root')).toHaveAttribute(
         'id',

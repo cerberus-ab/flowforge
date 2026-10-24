@@ -23,12 +23,16 @@ export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChang
 
     return (
         <main className="flowforge-side-panel" data-testid="flowforge-side-panel">
-            {pageId === null ? (
-                <p role="status">Open Page Inspector from its extension popup.</p>
-            ) : snapshot.status === 'error' ? (
-                <p role="alert">Could not collect page data for this tab.</p>
-            ) : snapshot.status === 'ready' ? (
-                <SidePanelContainer>
+            <SidePanelContainer>
+                {pageId === null ? (
+                    <div className="flowforge-side-panel__status" role="status">
+                        Open Page Inspector from its extension popup.
+                    </div>
+                ) : snapshot.status === 'error' ? (
+                    <div className="flowforge-side-panel__status flowforge-side-panel__status--error" role="alert">
+                        Could not collect page data for this tab.
+                    </div>
+                ) : snapshot.status === 'ready' ? (
                     <Inspector
                         key={openVersion}
                         pageTrail={snapshot.pageTrail}
@@ -36,10 +40,12 @@ export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChang
                         devMode={devMode}
                         onDevModeChange={onDevModeChange}
                     />
-                </SidePanelContainer>
-            ) : (
-                <p role="status">Loading page data…</p>
-            )}
+                ) : (
+                    <div className="flowforge-side-panel__status" role="status">
+                        Loading page context...
+                    </div>
+                )}
+            </SidePanelContainer>
         </main>
     );
 }

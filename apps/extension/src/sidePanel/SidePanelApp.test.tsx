@@ -89,7 +89,7 @@ describe('SidePanelApp', () => {
         expect(backgroundClient.getPageInspectorData).toHaveBeenCalledTimes(1);
 
         act(() => onTabUpdated(42, { status: 'loading' }));
-        expect(screen.getByText('Loading page data…')).toBeTruthy();
+        expect(screen.getByText('Loading page context...')).toBeTruthy();
         act(() => onTabUpdated(42, { status: 'complete' }));
 
         expect(await screen.findByText('"Next page"')).toBeTruthy();

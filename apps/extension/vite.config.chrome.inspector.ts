@@ -20,5 +20,8 @@ export default defineConfig(({ mode }) => ({
         modulePreload: false,
         outDir: '../../../dist/chrome/inspector',
         emptyOutDir: true,
+        rollupOptions: {
+            input: { sidePanel: 'src/chrome/inspector/sidePanel/index.html' },
+        },
     },
 }));

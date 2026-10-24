@@ -328,6 +328,7 @@ test('opens the page inspector from the popup', async ({ context, extensionId, p
     // Given
     await page.goto('/chrome');
     const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+    expect(await popup.evaluate(() => chrome.runtime.getManifest().side_panel)).toBeUndefined();
 
     // When
     const { panel } = await openInspectorSidePanel(context, extensionId, popup, 'flowforge-open-inspector');

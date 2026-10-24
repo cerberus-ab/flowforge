@@ -6,15 +6,18 @@
   min-height: 100vh;
   background: var(--flowforge-color-bg);
 }
-.flowforge-side-panel > [role='status'],
-.flowforge-side-panel > [role='alert'] {
-  padding: var(--flowforge-pad-xl);
-}
-
 .flowforge-side-panel-container {
   width: 100%;
   min-height: 100vh;
   container-type: inline-size;
+}
+.flowforge-side-panel__status {
+  padding: var(--flowforge-pad-xl);
+  color: var(--flowforge-color-text-muted);
+  font: var(--flowforge-text-md);
+}
+.flowforge-side-panel__status--error {
+  color: var(--flowforge-color-danger);
 }
 .flowforge-side-panel-container > .flowforge-inspector {
   width: 100%;
