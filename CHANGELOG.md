@@ -4,6 +4,8 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-10-24
+
 ### Changed
 
 - Moved Page Inspector in both Chrome extensions to a shared tab-specific side panel, while keeping the embed overlay.
