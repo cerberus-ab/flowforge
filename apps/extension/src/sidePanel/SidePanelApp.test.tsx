@@ -43,7 +43,8 @@ describe('SidePanelApp', () => {
 
         expect(await screen.findByText('"Inspector test page"')).toBeTruthy();
         expect(backgroundClient.getPageInspectorData).toHaveBeenCalledWith(42);
-        expect(screen.getByRole('region', { name: 'Inspect page context' })).toBeTruthy();
+        expect(screen.getByTestId('flowforge-side-panel-container')).toBeTruthy();
+        expect(screen.getByRole('region', { name: 'Page Inspector' })).toBeTruthy();
     });
 
     it('shows an instruction instead of requesting data without a tab', () => {

@@ -4,6 +4,7 @@ import { usePage } from '@/page/hooks/usePage';
 import { Highlight } from '@/page/components/Highlight';
 import { Wizard } from '@/page/components/Wizard';
 import { Inspector } from '@/page/components/Inspector';
+import { ModalContainer } from '@/shared/components/ModalContainer/ModalContainer';
 
 export interface PageAppProps {
     backgroundClient: PageBackgroundClient;
@@ -38,7 +39,21 @@ export function PageApp({
                 </div>
             )}
             {wizard && <Wizard {...wizard} />}
-            {inspectorOverlay && inspector && <Inspector {...inspector} />}
+            {inspectorOverlay && inspector && (
+                <ModalContainer
+                    onClose={inspector.close}
+                    title="FlowForge — Page Inspector"
+                    titleId="flowforge-inspector-title"
+                    descriptionId="flowforge-inspector-subtitle"
+                >
+                    <Inspector
+                        pageTrail={inspector.pageTrail}
+                        initialTab={inspector.initialTab}
+                        devMode={inspector.devMode}
+                        onDevModeChange={inspector.onDevModeChange}
+                    />
+                </ModalContainer>
+            )}
         </div>
     );
 }

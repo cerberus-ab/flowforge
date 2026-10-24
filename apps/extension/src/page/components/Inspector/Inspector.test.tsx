@@ -23,25 +23,17 @@ const pageTrail = createPageTrailFixture({
 function renderInspector({
     initialTab,
     devMode = false,
-    close = vi.fn(),
     onDevModeChange = vi.fn(),
 }: {
     initialTab?: string;
     devMode?: boolean;
-    close?: () => void;
     onDevModeChange?: (enabled: boolean) => void;
 } = {}) {
     render(
-        <Inspector
-            pageTrail={pageTrail}
-            initialTab={initialTab}
-            close={close}
-            devMode={devMode}
-            onDevModeChange={onDevModeChange}
-        />,
+        <Inspector pageTrail={pageTrail} initialTab={initialTab} devMode={devMode} onDevModeChange={onDevModeChange} />,
     );
 
-    return { close, onDevModeChange };
+    return { onDevModeChange };
 }
 
 describe('Inspector', () => {
@@ -50,7 +42,7 @@ describe('Inspector', () => {
         const restoredTrail = PageTrail.fromDto(pageTrail.toDto());
 
         // When
-        render(<Inspector pageTrail={restoredTrail} close={vi.fn()} devMode={false} onDevModeChange={vi.fn()} />);
+        render(<Inspector pageTrail={restoredTrail} devMode={false} onDevModeChange={vi.fn()} />);
 
         // Then
         expect(screen.getByText('"Settings page"')).toBeTruthy();
@@ -61,7 +53,8 @@ describe('Inspector', () => {
         renderInspector({ initialTab: 'interactive' });
 
         // Then
-        expect(screen.getByRole('dialog', { name: 'Inspect page context' })).toBeTruthy();
+        expect(screen.getByRole('region', { name: 'Page Inspector' })).toBeTruthy();
+        expect(screen.getByText("Explore the current page's content and structure.")).toBeTruthy();
         expect(screen.getByRole('tab', { name: 'Interactive' }).getAttribute('aria-selected')).toBe('true');
         expect(screen.getByText('Selected 2 content elements, 3 interactive elements · 10ms')).toBeTruthy();
 
@@ -90,20 +83,6 @@ describe('Inspector', () => {
 
         // Then
         expect(onDevModeChange).toHaveBeenCalledWith(false);
-    });
-
-    it('closes from button, escape, and backdrop click', () => {
-        // Given
-        const close = vi.fn();
-        renderInspector({ close });
-
-        // When
-        fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-        fireEvent.keyDown(document, { key: 'Escape' });
-        fireEvent.pointerDown(document.querySelector('.flowforge-inspector-container')!);
-
-        // Then
-        expect(close).toHaveBeenCalledTimes(3);
     });
 
     it('configures the Markdown preview with blocks and detail level', () => {

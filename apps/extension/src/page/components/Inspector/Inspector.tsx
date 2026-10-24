@@ -1,4 +1,3 @@
-import type { TargetedPointerEvent } from 'preact';
 import { useEffect, useId, useMemo, useState } from 'preact/hooks';
 import {
     type LucideIcon,
@@ -9,9 +8,7 @@ import {
     ListTree,
     MousePointerClick,
 } from 'lucide-preact';
-import { getEventTarget } from '@/shared/utils/dom';
 import type { PageTrail } from '@flowforge/page-trail';
-import { Button } from '@/shared/components/Button';
 import { Switch } from '@/shared/components/Switch';
 import { Tabs } from '@/shared/components/Tabs';
 import { Tooltip } from '@/shared/components/Tooltip';
@@ -84,20 +81,11 @@ function resolveInspectorTabId(tabs: readonly InspectorTab[], preferredTab?: str
 export interface InspectorProps {
     pageTrail: PageTrail;
     initialTab?: string;
-    close?: () => void;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
-    presentation?: 'overlay' | 'sidePanel';
 }
 
-export function Inspector({
-    pageTrail,
-    initialTab,
-    close,
-    devMode,
-    onDevModeChange,
-    presentation = 'overlay',
-}: InspectorProps) {
+export function Inspector({ pageTrail, initialTab, devMode, onDevModeChange }: InspectorProps) {
     const availableTabs = useMemo(() => inspectorTabs.filter((tab) => !tab.devModeOnly || devMode), [devMode]);
     const [activeTab, setActiveTab] = useState<InspectorTab['id']>(() =>
         resolveInspectorTabId(availableTabs, initialTab),
@@ -113,115 +101,70 @@ export function Inspector({
         setActiveTab(resolveInspectorTabId(availableTabs, initialTab));
     }, [activeTab, availableTabs, initialTab]);
 
-    // Close on esc
-    useEffect(() => {
-        if (presentation === 'sidePanel' || !close) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key !== 'Escape') return;
-
-            const target = getEventTarget(e);
-            // if typing in an input, don't close
-            if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
-
-            e.preventDefault();
-            close();
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [close, presentation]);
-
-    // Close on click outside the inspector
-    const handleContainerPointerDown = (e: TargetedPointerEvent<HTMLDivElement>) => {
-        if (presentation === 'overlay' && e.target === e.currentTarget) {
-            close?.();
-        }
-    };
-
     return (
-        <div
-            className={`flowforge-inspector-container${presentation === 'sidePanel' ? ' flowforge-inspector-container--side-panel' : ''}`}
-            data-testid="flowforge-inspector-container"
-            onPointerDown={handleContainerPointerDown}
+        <section
+            className="flowforge-inspector"
+            aria-label="Page Inspector"
+            aria-describedby="flowforge-inspector-subtitle"
+            data-testid="flowforge-inspector"
         >
-            <div
-                className="flowforge-inspector"
-                role={presentation === 'sidePanel' ? 'region' : 'dialog'}
-                aria-modal={presentation === 'overlay' ? 'false' : undefined}
-                aria-labelledby="flowforge-inspector-title"
-                aria-describedby="flowforge-inspector-subtitle"
-                data-testid="flowforge-inspector"
-            >
-                <div className="flowforge-inspector__header">
-                    <div className="flowforge-inspector__header-main">
-                        <h3 id="flowforge-inspector-title" className="flowforge-inspector__header-title">
-                            Inspect page context
-                        </h3>
-                        <p id="flowforge-inspector-subtitle" className="flowforge-inspector__header-subtitle">
-                            See what the current page contains and how it is organized.
-                        </p>
-                    </div>
-                    <div className="flowforge-inspector__header-ctrl">
-                        <Tooltip
-                            content="Show enriched PageTrail records with raw fields, selectors, scores, and diagnostics."
+            <div className="flowforge-inspector__header">
+                <div className="flowforge-inspector__header-main">
+                    <p id="flowforge-inspector-subtitle" className="flowforge-inspector__header-subtitle">
+                        Explore the current page's content and structure
+                    </p>
+                </div>
+                <div className="flowforge-inspector__header-ctrl">
+                    <Tooltip
+                        content="Show enriched PageTrail records with raw fields, selectors, scores, and diagnostics."
+                        variant="secondary"
+                    >
+                        <Switch
+                            checked={devMode}
+                            label="Dev mode"
                             variant="secondary"
-                        >
-                            <Switch
-                                checked={devMode}
-                                label="Dev mode"
-                                variant="secondary"
-                                onCheckedChange={onDevModeChange}
-                            />
-                        </Tooltip>
-                        {presentation === 'overlay' && close && (
-                            <Button variant="secondary" size="small" onClick={close}>
-                                Close
-                            </Button>
-                        )}
-                    </div>
-                </div>
-                <div className="flowforge-inspector__nav">
-                    <Tabs
-                        tabs={availableTabs}
-                        activeId={activeTab}
-                        onChange={(id) => setActiveTab(id as InspectorTab['id'])}
-                        getTabId={getTabId}
-                        getPanelId={getPanelId}
-                        testIdPrefix="flowforge-inspector-tab"
-                        autoFocus
-                    />
-                </div>
-                <div
-                    id={getPanelId(activeTab)}
-                    className="flowforge-inspector__content"
-                    role="tabpanel"
-                    aria-labelledby={getTabId(activeTab)}
-                    data-testid="flowforge-inspector-panel"
-                >
-                    {activeTab === 'basics' && <InspectorPageBasics basics={pageTrail.basics} />}
-                    {activeTab === 'structure' && (
-                        <InspectorPageStructure
-                            structure={pageTrail.getStructureByImportanceDesc()}
-                            devMode={devMode}
+                            onCheckedChange={onDevModeChange}
                         />
-                    )}
-                    {activeTab === 'content' && (
-                        <InspectorPageContent content={pageTrail.getContentByImportanceDesc()} devMode={devMode} />
-                    )}
-                    {activeTab === 'interactive' && (
-                        <InspectorPageInteractive
-                            interactive={pageTrail.getInteractiveByImportanceDesc()}
-                            devMode={devMode}
-                        />
-                    )}
-                    {activeTab === 'markdown' && <InspectorPageMarkdown pageTrail={pageTrail} />}
-                    {activeTab === 'metadata' && devMode && <InspectorPageMetadata metadata={pageTrail.metadata} />}
-                </div>
-                <div className="flowforge-inspector__footer">
-                    <InspectorLineMetadata metadata={pageTrail.metadata} />
+                    </Tooltip>
                 </div>
             </div>
-        </div>
+            <div className="flowforge-inspector__nav">
+                <Tabs
+                    tabs={availableTabs}
+                    activeId={activeTab}
+                    onChange={(id) => setActiveTab(id as InspectorTab['id'])}
+                    getTabId={getTabId}
+                    getPanelId={getPanelId}
+                    testIdPrefix="flowforge-inspector-tab"
+                    autoFocus
+                />
+            </div>
+            <div
+                id={getPanelId(activeTab)}
+                className="flowforge-inspector__content"
+                role="tabpanel"
+                aria-labelledby={getTabId(activeTab)}
+                data-testid="flowforge-inspector-panel"
+            >
+                {activeTab === 'basics' && <InspectorPageBasics basics={pageTrail.basics} />}
+                {activeTab === 'structure' && (
+                    <InspectorPageStructure structure={pageTrail.getStructureByImportanceDesc()} devMode={devMode} />
+                )}
+                {activeTab === 'content' && (
+                    <InspectorPageContent content={pageTrail.getContentByImportanceDesc()} devMode={devMode} />
+                )}
+                {activeTab === 'interactive' && (
+                    <InspectorPageInteractive
+                        interactive={pageTrail.getInteractiveByImportanceDesc()}
+                        devMode={devMode}
+                    />
+                )}
+                {activeTab === 'markdown' && <InspectorPageMarkdown pageTrail={pageTrail} />}
+                {activeTab === 'metadata' && devMode && <InspectorPageMetadata metadata={pageTrail.metadata} />}
+            </div>
+            <div className="flowforge-inspector__footer">
+                <InspectorLineMetadata metadata={pageTrail.metadata} />
+            </div>
+        </section>
     );
 }

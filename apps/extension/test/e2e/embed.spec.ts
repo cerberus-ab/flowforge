@@ -247,8 +247,13 @@ test('opens the page inspector from the popup', async ({ page }) => {
 
     // Then
     await expect(page.getByTestId('flowforge-inspector')).toBeVisible();
+    await expect(page.getByTestId('flowforge-modal-title')).toHaveText('FlowForge — Page Inspector');
     await expect(page.getByTestId('flowforge-inspector-tab-basics')).toBeVisible();
     await expect(page.getByTestId('flowforge-inspector-tab-interactive')).toBeVisible();
+    await expect(page.getByTestId('flowforge-modal-container')).toBeVisible();
+
+    await page.getByTestId('flowforge-modal-close').click();
+    await expect(page.getByTestId('flowforge-inspector')).toHaveCount(0);
 });
 
 test('opens the Markdown inspector tab from the popup', async ({ page }) => {

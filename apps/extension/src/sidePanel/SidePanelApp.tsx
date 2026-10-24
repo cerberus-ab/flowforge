@@ -1,6 +1,15 @@
 import type { SidePanelBackgroundClient } from '@/background';
 import { Inspector } from '@/page/components/Inspector';
 import { useSidePanel } from './hooks/useSidePanel';
+import type { ComponentChildren } from 'preact';
+
+function SidePanelContainer({ children }: { children: ComponentChildren }) {
+    return (
+        <div className="flowforge-side-panel-container" data-testid="flowforge-side-panel-container">
+            {children}
+        </div>
+    );
+}
 
 export interface SidePanelAppProps {
     backgroundClient: SidePanelBackgroundClient;
@@ -19,14 +28,15 @@ export function SidePanelApp({ backgroundClient, pageId, devMode, onDevModeChang
             ) : snapshot.status === 'error' ? (
                 <p role="alert">Could not collect page data for this tab.</p>
             ) : snapshot.status === 'ready' ? (
-                <Inspector
-                    key={openVersion}
-                    pageTrail={snapshot.pageTrail}
-                    initialTab={requestedTab}
-                    devMode={devMode}
-                    onDevModeChange={onDevModeChange}
-                    presentation="sidePanel"
-                />
+                <SidePanelContainer>
+                    <Inspector
+                        key={openVersion}
+                        pageTrail={snapshot.pageTrail}
+                        initialTab={requestedTab}
+                        devMode={devMode}
+                        onDevModeChange={onDevModeChange}
+                    />
+                </SidePanelContainer>
             ) : (
                 <p role="status">Loading page data…</p>
             )}

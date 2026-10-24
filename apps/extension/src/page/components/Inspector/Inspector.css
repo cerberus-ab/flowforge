@@ -4,71 +4,14 @@
 @import './components/Pages/InspectorPageMarkdown.css';
 @import './components/Metadata/InspectorLineMetadata.css';
 
-/* Inspector container */
-.flowforge-inspector-container {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--flowforge-app-offset);
-  background: rgba(var(--flowforge-rgb-shadow), 0.4);
-  pointer-events: auto;
-  z-index: 3;
-}
-.flowforge-inspector-container--side-panel {
-  position: static;
-  display: block;
-  min-height: 100vh;
-  padding: 0;
-  background: none;
-}
-.flowforge-inspector-container--side-panel .flowforge-inspector {
-  width: 100%;
-  height: 100vh;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-.flowforge-inspector-container--side-panel .flowforge-inspector__header {
-  flex-wrap: wrap;
-}
-.flowforge-inspector-container--side-panel .flowforge-inspector__nav {
-  overflow-x: auto;
-}
-.flowforge-inspector-container--side-panel .flowforge-tabs {
-  width: max-content;
-  min-width: 100%;
-}
-
-@media (max-width: 700px) {
-  .flowforge-inspector-container--side-panel .flowforge-inspector-page-markdown {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-  .flowforge-inspector-container--side-panel .flowforge-inspector-page-markdown__aside {
-    max-height: 40vh;
-    overflow-y: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--flowforge-color-border);
-  }
-}
-
 /* Inspector */
 .flowforge-inspector {
-  width: min(100%, var(--flowforge-inspector-max-width));
-  height: calc(100vh - var(--flowforge-app-offset) * 2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   background: var(--flowforge-color-surface);
-  border: 1px solid var(--flowforge-color-border);
-  border-radius: var(--flowforge-pad-sm);
   padding: 0;
-  box-shadow:
-    0 0 0 4px rgba(var(--flowforge-rgb-primary), 0.14),
-    0 6px 18px rgba(var(--flowforge-rgb-shadow), 0.12);
   color: var(--flowforge-color-text);
   font: var(--flowforge-text-md);
 }
@@ -77,23 +20,17 @@
 .flowforge-inspector__header {
   flex-shrink: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   background-color: var(--flowforge-color-bg);
   gap: var(--flowforge-pad-lg);
-  padding: var(--flowforge-pad-lg) var(--flowforge-pad-lg) var(--flowforge-pad-xl)
-    var(--flowforge-pad-lg);
+  padding: var(--flowforge-pad-lg);
 }
 .flowforge-inspector__header-ctrl {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   gap: var(--flowforge-pad-sm);
-}
-.flowforge-inspector__header-title {
-  margin: 0 0 var(--flowforge-pad-lg);
-  font: var(--flowforge-text-h3);
-  color: var(--flowforge-color-text);
 }
 .flowforge-inspector__header-subtitle {
   margin: 0;
