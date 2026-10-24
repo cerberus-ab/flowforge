@@ -66,6 +66,8 @@ await FlowForge.start({ settings: { theme: 'dark' } });
 
 Both Chrome extensions display Inspector in a tab-specific side panel using a shared UI and messaging path. Their content scripts collect Inspector data without mounting an overlay. The Assistant keeps its content script for queries, highlights, and onboarding; the embed runtime keeps its Inspector overlay.
 
+Inspector collects and displays the current page's `PageTrail` locally without requiring the backend. Chrome and embed runtimes remember the last selected Inspector tab and Markdown detail and block settings across openings. Chrome stores settings in extension local storage; embed stores them in the host page's `localStorage`. Opening Inspector with an explicit tab, such as Markdown from the Assistant popup, selects that tab for the current opening without changing the remembered tab.
+
 ## Key parts
 
 - `src/chrome/` — Assistant and Page Inspector manifests and entry points

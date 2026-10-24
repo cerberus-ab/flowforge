@@ -1,7 +1,20 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { createQueryResponseFixture } from '../fixtures';
 import { mockQuery } from './fakes/mockQuery';
 import { expectHighlightToCoverTarget } from './utils';
+
+async function openInspectorWithoutTab(page: Page) {
+    await page.evaluate(() => {
+        const runtime = (
+            window as Window & {
+                flowForgeRuntime?: { openPageInspector(tab?: string): Promise<void> };
+            }
+        ).flowForgeRuntime;
+        if (!runtime) throw new Error('Embed runtime not found');
+        return runtime.openPageInspector();
+    });
+}
 
 const directTarget = {
     dataId: 'ff20000011',
@@ -268,6 +281,52 @@ test('opens the Markdown inspector tab from the popup', async ({ page }) => {
     await expect(page.getByTestId('flowforge-inspector')).toBeVisible();
     await expect(page.getByTestId('flowforge-inspector-tab-markdown')).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByTestId('flowforge-markdown-viewer')).toContainText('Explore Embed Runtime');
+});
+
+test('persists the selected Inspector tab and Markdown settings across openings', async ({ page }) => {
+    // Given
+    await page.goto('/embed');
+    await page.getByTestId('flowforge-trigger').click();
+    await page.getByTestId('flowforge-open-inspector').click();
+    await expect(page.getByTestId('flowforge-inspector')).toBeVisible();
+
+    // When
+    await page.getByTestId('flowforge-inspector-tab-markdown').click();
+    const detailLevel = page.getByTestId('flowforge-markdown-detail-level');
+    const basicsBlock = page.getByTestId('flowforge-markdown-block-basics');
+    await detailLevel.selectOption('compact');
+    await basicsBlock.click();
+    await page.getByTestId('flowforge-inspector-tab-interactive').click();
+    await expect
+        .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('flowforge_settings') ?? '{}')))
+        .toMatchObject({
+            inspectorTab: 'interactive',
+            markdownDetailLevel: 'compact',
+            markdownBlocks: ['structure', 'interactive', 'content'],
+        });
+    await page.getByTestId('flowforge-modal-close').click();
+    await page.reload();
+    await expect(page.getByTestId('flowforge-trigger')).toBeVisible();
+
+    // Opening through the Runtime API without a requested tab restores the saved selection after a runtime restart.
+    await openInspectorWithoutTab(page);
+    await expect(page.getByTestId('flowforge-inspector-tab-interactive')).toHaveAttribute('aria-selected', 'true');
+
+    // Markdown controls were restored from localStorage too; save Markdown as the selected tab.
+    await page.getByTestId('flowforge-inspector-tab-markdown').click();
+    await expect(page.getByTestId('flowforge-markdown-detail-level')).toHaveValue('compact');
+    await expect(page.getByTestId('flowforge-markdown-block-basics')).toHaveAttribute('aria-checked', 'false');
+    await page.getByTestId('flowforge-modal-close').click();
+    await page.reload();
+    await expect(page.getByTestId('flowforge-trigger')).toBeVisible();
+    await openInspectorWithoutTab(page);
+
+    // Then
+    await expect(page.getByTestId('flowforge-inspector-tab-markdown')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('flowforge-markdown-detail-level')).toHaveValue('compact');
+    await expect(page.getByTestId('flowforge-markdown-block-basics')).toHaveAttribute('aria-checked', 'false');
+    await expect(page.getByTestId('flowforge-markdown-viewer')).not.toContainText('## Basics');
+    await page.getByTestId('flowforge-modal-close').click();
 });
 
 test('clears page state when the popup opens', async ({ page }) => {

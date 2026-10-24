@@ -104,6 +104,13 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
                     backgroundClient={backgroundClient}
                     devMode={settings.devMode}
                     onDevModeChange={settings.setDevMode}
+                    selectedTab={settings.inspectorTab}
+                    markdownPreferences={{
+                        detailLevel: settings.markdownDetailLevel,
+                        blocks: settings.markdownBlocks,
+                    }}
+                    onSelectedTabChange={settings.setInspectorTab}
+                    onMarkdownPreferencesChange={settings.setMarkdownPreferences}
                     onReady={onShellReady}
                 />
                 <Trigger ref={triggerRef} size={triggerSize} isOpen={isOpen} onToggle={togglePopup} />
