@@ -92,7 +92,7 @@ The project also includes a standalone Chrome extension for inspecting the curre
   <img src="./docs/assets/use-cases-pi.webp" width="900" />
 </p>
 
-When using **Load unpacked**, select `apps/extension/dist/chrome/inspector`.
+You may simply download it by [this link](https://github.com/cerberus-ab/flowforge/releases/latest/download/flowforge-extension-inspector.zip), then **Load unpacked** in your chrome.
 
 ## Roadmap
 
