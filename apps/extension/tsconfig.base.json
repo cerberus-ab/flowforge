@@ -12,8 +12,6 @@
 
     "paths": {
       "@/config": ["./src/config.ts"],
-      "@/types": ["./src/core/types/index.ts"],
-      "@/constants": ["./src/core/constants.ts"],
       "@/*": ["./src/*"]
     }
   }

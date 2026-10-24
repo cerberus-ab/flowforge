@@ -12,7 +12,7 @@ Browser runtimes represent page context as [`PageTrail`](../packages/page-trail/
 
 ### Extension
 
-Extracts page data, handles UI, highlights elements, and manages user interaction. Runs as a Manifest V3 extension with popup, background service worker, and content script. These contexts exchange typed messages that the worker routes to focused handlers.
+Extracts page data, handles UI, highlights elements, and manages user interaction. The Assistant and standalone Inspector run as Manifest V3 extensions with a popup, background service worker, content script, and shared Inspector side-panel UI. These contexts exchange typed messages that the worker routes to focused handlers.
 
 ### Embed runtime
 

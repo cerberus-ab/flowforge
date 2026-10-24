@@ -1,7 +1,7 @@
 import { Main } from '@/shared/components/Main';
 import { PopupApp, type PopupDemoPresentation } from '@/popup/PopupApp';
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'preact/hooks';
-import { getEventTarget } from '@/core/utils/dom';
+import { getEventTarget } from '@/shared/utils/dom';
 import { forwardRef } from 'preact/compat';
 import { PageApp } from '@/page/PageApp';
 import { useSettings } from '@/shared/hooks/useSettings';
@@ -104,6 +104,13 @@ export const ShellApp = forwardRef<ShellAppRef, ShellAppProps>(function ShellApp
                     backgroundClient={backgroundClient}
                     devMode={settings.devMode}
                     onDevModeChange={settings.setDevMode}
+                    selectedTab={settings.inspectorTab}
+                    markdownPreferences={{
+                        detailLevel: settings.markdownDetailLevel,
+                        blocks: settings.markdownBlocks,
+                    }}
+                    onSelectedTabChange={settings.setInspectorTab}
+                    onMarkdownPreferencesChange={settings.setMarkdownPreferences}
                     onReady={onShellReady}
                 />
                 <Trigger ref={triggerRef} size={triggerSize} isOpen={isOpen} onToggle={togglePopup} />

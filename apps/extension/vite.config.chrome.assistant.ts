@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     plugins: [
         crx({ manifest }),
         preact({
-            include: [/action\/popup\/.*\.[tj]sx?$/, /contentScripts\/.*\.[tj]sx?$/],
+            include: [/action\/popup\/.*\.[tj]sx?$/, /contentScripts\/.*\.[tj]sx?$/, /sidePanel\/.*\.[tj]sx?$/],
         }),
     ],
     build: {
@@ -20,5 +20,8 @@ export default defineConfig(({ mode }) => ({
         modulePreload: false,
         outDir: '../../../dist/chrome/assistant',
         emptyOutDir: true,
+        rollupOptions: {
+            input: { sidePanel: 'src/chrome/assistant/sidePanel/index.html' },
+        },
     },
 }));

@@ -14,6 +14,7 @@ describe('LoggingTransportService', () => {
             sendToBackground: vi.fn(async () => ({ success: true })),
             sendToPage: vi.fn(async () => ({ success: true })),
             sendToPopup: vi.fn(async () => ({ success: true })),
+            sendToSidePanel: vi.fn(async () => ({ success: true })),
             addMessageListener: vi.fn(() => () => undefined),
         } as unknown as TransportService;
         vi.spyOn(console, 'log').mockImplementation(() => undefined);

@@ -4,3 +4,4 @@
 @import './components/Highlight/Highlight.css';
 @import './components/Wizard/Wizard.css';
 @import './components/Inspector/Inspector.css';
+@import '../shared/components/ModalContainer/ModalContainer.css';

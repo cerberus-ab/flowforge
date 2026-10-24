@@ -1,6 +1,6 @@
 import type { AgentResultElement, AgentResultMode, PageTrailDto } from '@flowforge/contract';
 import type { Message, MessageResponse } from '../Message';
-import type { ExtensionSettings } from '@/core/types/settings';
+import type { ExtensionSettings } from '@/shared/types/settings';
 
 export interface StartOnboardingMessageData {
     title: string;
@@ -9,7 +9,11 @@ export interface StartOnboardingMessageData {
     elements: AgentResultElement[];
 }
 
-export type CollectPageTrailMessage = Message & {
+export interface CollectPageTrailMessageData {
+    contextOnly: boolean;
+}
+
+export type CollectPageTrailMessage = Message<CollectPageTrailMessageData> & {
     type: 'COLLECT_PAGE_TRAIL';
 };
 

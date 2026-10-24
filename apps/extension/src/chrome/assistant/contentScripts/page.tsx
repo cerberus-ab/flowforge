@@ -4,7 +4,7 @@ import styles from '@/page/index.css?inline';
 
 import { PageApp } from '@/page/PageApp';
 import { ChromeTransportService, withTransportLogging } from '@/adapters';
-import { ShadowRootInjector } from '@/core/services/RootInjector';
+import { ShadowRootInjector } from '@/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { Main } from '@/shared/components/Main';
 import { useSettings } from '@/shared/hooks/useSettings';
@@ -22,6 +22,14 @@ function PageAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient 
                 backgroundClient={backgroundClient}
                 devMode={settings.devMode}
                 onDevModeChange={settings.setDevMode}
+                selectedTab={settings.inspectorTab}
+                markdownPreferences={{
+                    detailLevel: settings.markdownDetailLevel,
+                    blocks: settings.markdownBlocks,
+                }}
+                onSelectedTabChange={settings.setInspectorTab}
+                onMarkdownPreferencesChange={settings.setMarkdownPreferences}
+                inspectorOverlay={false}
             />
         </Main>
     );

@@ -1,0 +1,43 @@
+/* Modal Container */
+.flowforge-modal-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--flowforge-app-offset);
+  background: rgba(var(--flowforge-rgb-shadow), 0.4);
+  pointer-events: auto;
+  z-index: 3;
+}
+.flowforge-modal-container__dialog {
+  width: min(100%, var(--flowforge-modal-max-width));
+  height: calc(100vh - var(--flowforge-app-offset) * 2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid var(--flowforge-color-border);
+  border-radius: var(--flowforge-pad-sm);
+  box-shadow:
+    0 0 0 4px rgba(var(--flowforge-rgb-primary), 0.14),
+    0 6px 18px rgba(var(--flowforge-rgb-shadow), 0.12);
+}
+.flowforge-modal-container__toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--flowforge-pad-lg);
+  padding: var(--flowforge-pad-sm) var(--flowforge-pad-lg);
+  background: var(--flowforge-color-bg);
+}
+.flowforge-modal-container__title {
+  margin: 0;
+  color: var(--flowforge-color-text);
+  font: var(--flowforge-text-h3);
+}
+.flowforge-modal-container__dialog > :last-child {
+  flex: 1;
+  min-height: 0;
+}

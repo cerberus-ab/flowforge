@@ -8,6 +8,8 @@ import type {
     PageMessageResponse,
     PopupMessage,
     PopupMessageResponse,
+    SidePanelMessage,
+    SidePanelMessageResponse,
 } from '@/messaging';
 
 /** Adds development-only diagnostics around transport messages. */
@@ -43,6 +45,13 @@ export class LoggingTransportService implements TransportService {
         return this.logOutgoing('popup', message, context, () => this.transport.sendToPopup(message, context));
     }
 
+    async sendToSidePanel<M extends SidePanelMessage>(
+        message: M,
+        context: MessageContext,
+    ): Promise<SidePanelMessageResponse<M>> {
+        return this.logOutgoing('side panel', message, context, () => this.transport.sendToSidePanel(message, context));
+    }
+
     addMessageListener(handler: MessageListener): () => void {
         return this.transport.addMessageListener((message, context) => {
             const response = handler(message, context);
@@ -52,7 +61,7 @@ export class LoggingTransportService implements TransportService {
     }
 
     private async logOutgoing<T>(
-        destination: 'background' | 'page' | 'popup',
+        destination: 'background' | 'page' | 'popup' | 'side panel',
         message: Parameters<MessageListener>[0],
         context: MessageContext,
         send: () => Promise<T>,

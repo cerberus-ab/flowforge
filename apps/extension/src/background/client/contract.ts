@@ -1,4 +1,4 @@
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings, ExtensionSettingsPatch } from '@/shared/types/settings';
 import type {
     AskQuestionResponse,
     PreviousQuestionsResponse,
@@ -15,16 +15,16 @@ import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/c
 /* message callbacks */
 export interface PageMessageCallbacks {
     onCollectPageTrail: () => PageTrailDto;
+    onCollectPageTrailContextOnly: () => PageTrailDto;
     onContainsElements: (data: ContainsElementsMessageData) => boolean;
     onClearPage: () => void;
     onStartOnboarding: (data: StartOnboardingMessageData) => void;
     onHighlightElement: (data: HighlightElementMessageData) => void;
-    onOpenInspector: (data: OpenInspectorMessageData) => void;
+    onOpenInspector?: (data: OpenInspectorMessageData) => void;
 }
 
 export interface InspectorPageMessageCallbacks {
-    onClearPage: () => void;
-    onOpenInspector: (data: OpenInspectorMessageData) => void;
+    onCollectPageTrailContextOnly: () => PageTrailDto;
 }
 
 export interface SettingsMessageCallbacks {
@@ -33,6 +33,10 @@ export interface SettingsMessageCallbacks {
 
 export interface PopupMessageCallbacks {
     onQueryFinished: (data: QueryFinishedMessageData) => void;
+}
+
+export interface SidePanelMessageCallbacks {
+    onRefreshPageInspector: (tab?: string) => void;
 }
 
 /* client interfaces */
@@ -54,13 +58,18 @@ export interface PageBackgroundClient {
 
 export interface SettingsBackgroundClient {
     getSettings(): Promise<ExtensionSettings>;
-    updateSettings(patch: Partial<ExtensionSettings>): Promise<ExtensionSettings>;
+    updateSettings(patch: ExtensionSettingsPatch): Promise<ExtensionSettings>;
     subscribeToSettingsMessages(callbacks: SettingsMessageCallbacks): () => void;
 }
 
 export interface InspectorPopupBackgroundClient {
-    notifyPopupOpened(): Promise<void>;
-    openPageInspector(tab?: string): Promise<void>;
+    preparePageInspector(): Promise<number>;
+    openPageInspectorForPage(pageId: number, tab?: string): Promise<void>;
+}
+
+export interface SidePanelBackgroundClient {
+    getPageInspectorData(pageId: number): Promise<PageTrailDto>;
+    subscribeToSidePanelMessages(pageId: number, callbacks: SidePanelMessageCallbacks): () => void;
 }
 
 export interface InspectorPageBackgroundClient {

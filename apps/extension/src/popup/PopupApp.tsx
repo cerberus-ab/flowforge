@@ -10,7 +10,7 @@ import { Advanced } from '@/popup/components/Advanced';
 import { ButtonText } from '@/shared/components/Button';
 import { Link } from '@/shared/components/Link';
 import { Notice } from '@/shared/components/Notice';
-import type { ExtensionSettingsTheme } from '@/types';
+import type { ExtensionSettingsTheme } from '@/shared/types/settings';
 
 export interface PopupDemoPresentation {
     topic?: string;
@@ -25,6 +25,11 @@ export interface PopupAppProps {
     onToggleTheme: () => Promise<void>;
     initialQuestion?: string;
     onClose?: () => void;
+    sidePanelOpener?: {
+        canOpen: boolean;
+        error: string | null;
+        openPageInspector: (tab?: string) => Promise<boolean>;
+    };
 }
 
 export function PopupApp({
@@ -36,6 +41,7 @@ export function PopupApp({
     onToggleTheme,
     initialQuestion,
     onClose,
+    sidePanelOpener,
 }: PopupAppProps) {
     const {
         inputQuestion,
@@ -58,7 +64,6 @@ export function PopupApp({
         openOnboarding,
         applyExampleQuestion,
         navigateToElement,
-        openPageInspector,
     } = usePopup({
         backgroundClient,
         presetQuestions,
@@ -80,13 +85,17 @@ export function PopupApp({
         [applyExampleQuestion],
     );
 
-    // Handle open page inspector on the page
+    // Chrome uses a prepared side panel; embed keeps its page overlay.
     const handleOpenPageInspector = useCallback(
         async (tab?: string) => {
-            await openPageInspector(tab);
+            if (sidePanelOpener) {
+                if (!(await sidePanelOpener.openPageInspector(tab))) return;
+            } else {
+                await backgroundClient.openPageInspector(tab);
+            }
             onClose?.();
         },
-        [openPageInspector, onClose],
+        [backgroundClient, onClose, sidePanelOpener],
     );
 
     // Handle open onboarding on the page
@@ -168,7 +177,11 @@ export function PopupApp({
                     title={isPresetMode ? 'Available questions' : 'Try one of these'}
                 />
 
-                <Advanced onOpenPageInspector={handleOpenPageInspector}></Advanced>
+                <Advanced
+                    onOpenPageInspector={handleOpenPageInspector}
+                    disabled={sidePanelOpener !== undefined && !sidePanelOpener.canOpen}
+                    error={sidePanelOpener?.error}
+                />
 
                 <footer className="flowforge-popup__footer">
                     <div className="flowforge-popup__footer-copyright">{copyright}</div>

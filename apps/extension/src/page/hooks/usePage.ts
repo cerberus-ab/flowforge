@@ -1,16 +1,18 @@
 import type { StartOnboardingMessageData } from '@/messaging';
 import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { containsElements, findElement, getOrCreateDataId } from '@/core/locator/locate';
-import { constants } from '@/constants';
+import { findElement } from '@/shared/document/locate';
+import { constants } from '@/shared/constants';
 import type { AgentResultElement } from '@flowforge/contract';
-import { PageTrail, PageTrailCollector } from '@flowforge/page-trail';
+import { PageTrail } from '@flowforge/page-trail';
 import type { PageBackgroundClient } from '@/background';
+import { collectPageTrail, collectPageTrailContextOnly, containsElements } from '@/shared/document/collect';
 
 export interface UsePageOptions {
     backgroundClient: PageBackgroundClient;
     devMode: boolean;
     onDevModeChange: (enabled: boolean) => void | Promise<void>;
     onReady?: () => void;
+    inspectorOverlay?: boolean;
 }
 
 interface HighlightState {
@@ -54,19 +56,13 @@ export interface PageViewModel {
     inspector: InspectorViewModel | null;
 }
 
-function docCollectPageTrail(): PageTrail {
-    return PageTrailCollector.collectFor(window, document, {
-        contentElementsLimit: constants.CONTENT_ELEMENTS_LIMIT,
-        interactiveElementsLimit: constants.INTERACTIVE_ELEMENTS_LIMIT,
-        getElementDataId: getOrCreateDataId,
-    });
-}
-
-function docContainsElements(dataIds: string[]): boolean {
-    return containsElements(document, dataIds);
-}
-
-export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }: UsePageOptions): PageViewModel {
+export function usePage({
+    backgroundClient,
+    devMode,
+    onDevModeChange,
+    onReady,
+    inspectorOverlay = true,
+}: UsePageOptions): PageViewModel {
     const [highlights, setHighlights] = useState<HighlightState[]>([]);
     const [wizard, setWizard] = useState<WizardState | null>(null);
     const [inspector, setInspector] = useState<InspectorState | null>(null);
@@ -170,12 +166,15 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
     // Listen to messages from background
     useLayoutEffect(() => {
         const unsubscribe = backgroundClient.subscribeToPageMessages({
-            onCollectPageTrail: () => docCollectPageTrail().toDto(),
-            onContainsElements: (data) => docContainsElements(data.dataIds),
+            onCollectPageTrail: () => collectPageTrail(window, document).toDto(),
+            onCollectPageTrailContextOnly: () => collectPageTrailContextOnly(window, document).toDto(),
+            onContainsElements: (data) => containsElements(document, data.dataIds),
             onClearPage: clearPage,
             onStartOnboarding: startOnboarding,
             onHighlightElement: (data) => highlightElement(data.element),
-            onOpenInspector: (data) => openInspector(docCollectPageTrail(), data.tab),
+            onOpenInspector: inspectorOverlay
+                ? (data) => openInspector(collectPageTrailContextOnly(window, document), data.tab)
+                : undefined,
         });
 
         if (!readyRef.current) {
@@ -183,7 +182,7 @@ export function usePage({ backgroundClient, devMode, onDevModeChange, onReady }:
             onReady?.();
         }
         return unsubscribe;
-    }, [backgroundClient, startOnboarding, highlightElement, openInspector, clearPage, onReady]);
+    }, [backgroundClient, startOnboarding, highlightElement, openInspector, clearPage, onReady, inspectorOverlay]);
 
     return {
         highlights: highlights.map((highlight) => ({

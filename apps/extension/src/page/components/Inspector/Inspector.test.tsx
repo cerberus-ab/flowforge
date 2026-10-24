@@ -1,8 +1,11 @@
 import { createPageTrailFixture } from '@flowforge/page-trail/testing';
+import { PageTrail } from '@flowforge/page-trail';
 import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Inspector } from './Inspector';
+import type { InspectorTabId } from '@/shared/types/inspector';
+import type { MarkdownPreferences } from '@/shared/types/settings';
 
 const pageTrail = createPageTrailFixture({
     basics: {
@@ -22,34 +25,55 @@ const pageTrail = createPageTrailFixture({
 function renderInspector({
     initialTab,
     devMode = false,
-    close = vi.fn(),
     onDevModeChange = vi.fn(),
+    selectedTab,
+    markdownPreferences,
+    onSelectedTabChange,
+    onMarkdownPreferencesChange,
 }: {
     initialTab?: string;
     devMode?: boolean;
-    close?: () => void;
     onDevModeChange?: (enabled: boolean) => void;
+    selectedTab?: InspectorTabId;
+    markdownPreferences?: MarkdownPreferences;
+    onSelectedTabChange?: (tab: InspectorTabId) => void;
+    onMarkdownPreferencesChange?: (preferences: MarkdownPreferences) => void;
 } = {}) {
     render(
         <Inspector
             pageTrail={pageTrail}
             initialTab={initialTab}
-            close={close}
+            selectedTab={selectedTab}
+            markdownPreferences={markdownPreferences}
+            onSelectedTabChange={onSelectedTabChange}
+            onMarkdownPreferencesChange={onMarkdownPreferencesChange}
             devMode={devMode}
             onDevModeChange={onDevModeChange}
         />,
     );
 
-    return { close, onDevModeChange };
+    return { onDevModeChange };
 }
 
 describe('Inspector', () => {
+    it('renders a PageTrail restored from a transferred DTO', () => {
+        // Given
+        const restoredTrail = PageTrail.fromDto(pageTrail.toDto());
+
+        // When
+        render(<Inspector pageTrail={restoredTrail} devMode={false} onDevModeChange={vi.fn()} />);
+
+        // Then
+        expect(screen.getByText('"Settings page"')).toBeTruthy();
+    });
+
     it('opens on the requested tab and switches tabs', async () => {
         // Given / When
         renderInspector({ initialTab: 'interactive' });
 
         // Then
-        expect(screen.getByRole('dialog', { name: 'Inspect page context' })).toBeTruthy();
+        expect(screen.getByRole('region', { name: 'Page Inspector' })).toBeTruthy();
+        expect(screen.getByText("Explore the current page's content and structure")).toBeTruthy();
         expect(screen.getByRole('tab', { name: 'Interactive' }).getAttribute('aria-selected')).toBe('true');
         expect(screen.getByText('Selected 2 content elements, 3 interactive elements · 10ms')).toBeTruthy();
 
@@ -61,6 +85,22 @@ describe('Inspector', () => {
             expect(screen.getByRole('tab', { name: 'Basics' }).getAttribute('aria-selected')).toBe('true');
         });
         expect(screen.getByText('"Settings page"')).toBeTruthy();
+    });
+
+    it('uses the saved tab when no initial tab is requested', () => {
+        // Given / When
+        renderInspector({ selectedTab: 'interactive' });
+
+        // Then
+        expect(screen.getByRole('tab', { name: 'Interactive' }).getAttribute('aria-selected')).toBe('true');
+    });
+
+    it('lets an explicitly requested tab override the saved tab', () => {
+        // Given / When
+        renderInspector({ initialTab: 'markdown', selectedTab: 'interactive' });
+
+        // Then
+        expect(screen.getByRole('tab', { name: 'Markdown' }).getAttribute('aria-selected')).toBe('true');
     });
 
     it('shows metadata only in dev mode and forwards dev mode changes', () => {
@@ -80,32 +120,23 @@ describe('Inspector', () => {
         expect(onDevModeChange).toHaveBeenCalledWith(false);
     });
 
-    it('closes from button, escape, and backdrop click', () => {
-        // Given
-        const close = vi.fn();
-        renderInspector({ close });
-
-        // When
-        fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-        fireEvent.keyDown(document, { key: 'Escape' });
-        fireEvent.pointerDown(document.querySelector('.flowforge-inspector-container')!);
-
-        // Then
-        expect(close).toHaveBeenCalledTimes(3);
-    });
-
     it('configures the Markdown preview with blocks and detail level', () => {
         // Given
-        renderInspector({ initialTab: 'markdown' });
+        const onMarkdownPreferencesChange = vi.fn();
+        renderInspector({
+            initialTab: 'markdown',
+            markdownPreferences: { detailLevel: 'compact', blocks: ['structure', 'interactive', 'content'] },
+            onMarkdownPreferencesChange,
+        });
 
         // Then
         const detailLevel = screen.getByLabelText('Detail level') as HTMLSelectElement;
         const basics = screen.getByRole('switch', { name: 'Basics' });
         const markdownViewer = screen.getByTestId('flowforge-markdown-viewer');
-        expect(detailLevel.value).toBe('standard');
-        expect(basics.getAttribute('aria-checked')).toBe('true');
+        expect(detailLevel.value).toBe('compact');
+        expect(basics.getAttribute('aria-checked')).toBe('false');
         expect(basics.classList.contains('flowforge-switch--wide')).toBe(true);
-        expect(markdownViewer.textContent).toContain('## Basics');
+        expect(markdownViewer.textContent).not.toContain('## Basics');
         expect(screen.getByText(/Compact: A short overview with the most important page details\./)).toBeTruthy();
         expect(screen.getByText('The page title, URL, description, language, and current viewport.')).toBeTruthy();
 
@@ -118,12 +149,28 @@ describe('Inspector', () => {
         expect(screen.getByText('Size by characters')).toBeTruthy();
 
         // When
-        fireEvent.click(basics);
-        fireEvent.change(detailLevel, { target: { value: 'compact' } });
+        fireEvent.click(screen.getByRole('switch', { name: 'Structure' }));
 
         // Then
-        expect(basics.getAttribute('aria-checked')).toBe('false');
-        expect(detailLevel.value).toBe('compact');
-        expect(markdownViewer.textContent).not.toContain('## Basics');
+        expect(screen.getByRole('switch', { name: 'Structure' }).getAttribute('aria-checked')).toBe('false');
+        expect((screen.getByLabelText('Detail level') as HTMLSelectElement).value).toBe('compact');
+        expect(screen.getByTestId('flowforge-markdown-viewer').textContent).not.toContain('## Basics');
+        expect(onMarkdownPreferencesChange).toHaveBeenLastCalledWith({
+            detailLevel: 'compact',
+            blocks: ['interactive', 'content'],
+        });
+
+        // When
+        fireEvent.click(screen.getByRole('tab', { name: 'Basics' }));
+        fireEvent.click(screen.getByRole('tab', { name: 'Markdown' }));
+
+        // Then
+        expect((screen.getByLabelText('Detail level') as HTMLSelectElement).value).toBe('compact');
+        expect(screen.getByRole('switch', { name: 'Basics' }).getAttribute('aria-checked')).toBe('false');
+        expect(screen.getByRole('switch', { name: 'Structure' }).getAttribute('aria-checked')).toBe('false');
+        expect(onMarkdownPreferencesChange).toHaveBeenLastCalledWith({
+            detailLevel: 'compact',
+            blocks: ['interactive', 'content'],
+        });
     });
 });

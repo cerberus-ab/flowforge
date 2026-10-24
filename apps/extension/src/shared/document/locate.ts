@@ -1,4 +1,4 @@
-import { constants } from '@/constants';
+import { constants } from '@/shared/constants';
 import { generateDataId, validateDataId } from '@flowforge/contract';
 
 /**
@@ -29,18 +29,6 @@ export function findDataIds(doc: Document): string[] {
     return Array.from(doc.querySelectorAll(`[${constants.DATA_ID_ATTRIBUTE}]`))
         .map((el) => el.getAttribute(constants.DATA_ID_ATTRIBUTE))
         .filter((dataId): dataId is string => dataId !== null && validateDataId(dataId));
-}
-
-/**
- * Validate that a list of elements is presented in the document.
- *
- * @param doc - The document to search for data id attributes.
- * @param dataIds - The list od data id to be presented in the document.
- * @returns true if all data ids are presented
- */
-export function containsElements(doc: Document, dataIds: string[]): boolean {
-    const presentIds = new Set(findDataIds(doc));
-    return dataIds.every((id) => presentIds.has(id));
 }
 
 /**

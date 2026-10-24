@@ -1,7 +1,7 @@
 import type { PageSettingsClient } from '@/page/client/contract';
-import type { SettingsStorage } from '@/core/services/SettingsStorage';
+import type { SettingsStorage } from '@/services/SettingsStorage';
 import type { MessageContext, UpdateSettingsMessage } from '@/messaging';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/shared/types/settings';
 import { MessageRouter, isGetSettingsMessage, isUpdateSettingsMessage } from '@/messaging';
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
 

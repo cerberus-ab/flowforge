@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/preact';
 import { act } from 'preact/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { constants } from '@/constants';
+import { constants } from '@/shared/constants';
 import { Highlight } from './Highlight';
 
 const element: AgentResultElement = {

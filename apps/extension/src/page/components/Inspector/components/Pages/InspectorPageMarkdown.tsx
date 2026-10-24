@@ -4,7 +4,8 @@ import {
     type PageTrail,
     Markdown,
 } from '@flowforge/page-trail';
-import { useMemo, useState } from 'preact/hooks';
+import { useMemo } from 'preact/hooks';
+import type { MarkdownPreferences } from '@/shared/types/settings';
 import { InspectorPage } from './InspectorPage';
 import { MarkdownViewer } from '@/shared/components/MarkdownViewer';
 import { Select, type SelectOption } from '@/shared/components/Select';
@@ -41,9 +42,16 @@ const markdownBlocks: { value: MarkdownOptionBlock; label: string; desc: string 
 ];
 const markdownDetailTooltip = markdownDetailLevels.map(({ label, desc }) => `${label}: ${desc}`).join('\n');
 
-export function InspectorPageMarkdown({ pageTrail }: { pageTrail: PageTrail }) {
-    const [detailLevel, setDetailLevel] = useState<MarkdownOptionDetailLevel>('standard');
-    const [blocks, setBlocks] = useState<MarkdownOptionBlock[]>(() => markdownBlocks.map(({ value }) => value));
+export function InspectorPageMarkdown({
+    pageTrail,
+    preferences,
+    onPreferencesChange,
+}: {
+    pageTrail: PageTrail;
+    preferences: MarkdownPreferences;
+    onPreferencesChange: (preferences: MarkdownPreferences) => void;
+}) {
+    const { detailLevel, blocks } = preferences;
     const markdown = useMemo(() => Markdown.from(pageTrail, { detailLevel, blocks }), [pageTrail, detailLevel, blocks]);
     const pageSizes = [
         { id: 'html', label: 'HTML', value: pageTrail.metadata.page.outerHtmlLength },
@@ -54,11 +62,12 @@ export function InspectorPageMarkdown({ pageTrail }: { pageTrail: PageTrail }) {
     const largestPageSize = Math.max(...pageSizes.filter(({ id }) => id !== 'tokens').map(({ value }) => value), 1);
 
     const setBlockEnabled = (block: MarkdownOptionBlock, enabled: boolean) => {
-        setBlocks((current) =>
-            markdownBlocks
+        onPreferencesChange({
+            ...preferences,
+            blocks: markdownBlocks
                 .map(({ value }) => value)
-                .filter((item) => (item === block ? enabled : current.includes(item))),
-        );
+                .filter((item) => (item === block ? enabled : blocks.includes(item))),
+        });
     };
 
     return (
@@ -83,7 +92,9 @@ export function InspectorPageMarkdown({ pageTrail }: { pageTrail: PageTrail }) {
                                     options={markdownDetailLevels}
                                     variant="primary"
                                     value={detailLevel}
-                                    onValueChange={setDetailLevel}
+                                    onValueChange={(nextDetailLevel: MarkdownOptionDetailLevel) =>
+                                        onPreferencesChange({ ...preferences, detailLevel: nextDetailLevel })
+                                    }
                                 />
                             </Tooltip>
                         </div>

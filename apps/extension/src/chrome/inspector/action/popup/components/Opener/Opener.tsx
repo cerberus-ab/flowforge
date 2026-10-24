@@ -4,10 +4,12 @@ import { Link } from '@/shared/components/Link';
 
 interface OpenerProps {
     website: string;
-    onOpenPageInspector: (tab?: string) => void | Promise<void>;
+    onOpenPageInspector: () => void | Promise<void>;
+    disabled?: boolean;
+    error?: string | null;
 }
 
-export function Opener({ website, onOpenPageInspector }: OpenerProps) {
+export function Opener({ website, onOpenPageInspector, disabled = false, error }: OpenerProps) {
     return (
         <Card title="Inspect page context" variant="secondary" className="flowforge-inspector-opener">
             <div className="flowforge-inspector-opener__description">
@@ -21,6 +23,7 @@ export function Opener({ website, onOpenPageInspector }: OpenerProps) {
             <Button
                 type="button"
                 autoFocus
+                disabled={disabled}
                 size="large"
                 variant="secondary"
                 wide
@@ -29,6 +32,11 @@ export function Opener({ website, onOpenPageInspector }: OpenerProps) {
             >
                 Open page inspector
             </Button>
+            {error && (
+                <p className="flowforge-inspector-opener__error" role="alert">
+                    {error}
+                </p>
+            )}
             <p className="flowforge-inspector-opener__note">
                 Part of <Link href={website}>Web Onboarding Assistant</Link>
             </p>

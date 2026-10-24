@@ -4,14 +4,16 @@ import '@/popup/index.css';
 
 import { PopupApp } from '@/popup/PopupApp';
 import { ChromeTransportService, withTransportLogging } from '@/adapters';
-import { DocumentRootInjector } from '@/core/services/RootInjector';
+import { DocumentRootInjector } from '@/services/RootInjector';
 import { mountConstants } from '@/chrome/assistant/constants';
 import { useSettings } from '@/shared/hooks/useSettings';
 import { Main } from '@/shared/components/Main';
 import { BackgroundClient } from '@/background';
+import { useSidePanelOpener } from '@/sidePanel/hooks/useSidePanelOpener';
 
 function PopupAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient }) {
     const settings = useSettings({ backgroundClient });
+    const sidePanelOpener = useSidePanelOpener(backgroundClient);
 
     if (settings.status === 'loading') {
         return null;
@@ -24,6 +26,7 @@ function PopupAppRoot({ backgroundClient }: { backgroundClient: BackgroundClient
                 theme={settings.theme}
                 onToggleTheme={settings.toggleTheme}
                 onClose={() => window.close()}
+                sidePanelOpener={sidePanelOpener}
             />
         </Main>
     );

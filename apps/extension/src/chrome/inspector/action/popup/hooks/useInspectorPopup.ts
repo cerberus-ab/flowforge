@@ -1,6 +1,6 @@
 import { config } from '@/config';
-import { useCallback, useEffect } from 'preact/hooks';
 import type { InspectorPopupBackgroundClient } from '@/background';
+import { useSidePanelOpener } from '@/sidePanel/hooks/useSidePanelOpener';
 
 export interface UseInspectorPopupOptions {
     backgroundClient: InspectorPopupBackgroundClient;
@@ -10,34 +10,21 @@ export interface InspectorPopupViewModel {
     copyright: string;
     github: string;
     website: string;
-    openPageInspector: (tab?: string) => Promise<void>;
+    canOpen: boolean;
+    error: string | null;
+    openPageInspector: () => Promise<boolean>;
 }
 
 export function useInspectorPopup({ backgroundClient }: UseInspectorPopupOptions): InspectorPopupViewModel {
-    // Clear page UI state when popup opens.
-    useEffect(() => {
-        void (async () => {
-            try {
-                await backgroundClient.notifyPopupOpened();
-            } catch {
-                // Popup startup should not fail if the active tab cannot receive page messages.
-            }
-        })();
-    }, [backgroundClient]);
-
-    // Handle open inspector
-    const handleOpenPageInspector = useCallback(
-        async (tab?: string) => {
-            await backgroundClient.openPageInspector(tab);
-        },
-        [backgroundClient],
-    );
+    const opener = useSidePanelOpener(backgroundClient);
 
     return {
         copyright: config.copyright,
         github: config.github,
         website: config.website,
+        canOpen: opener.canOpen,
+        error: opener.error,
         // actions
-        openPageInspector: handleOpenPageInspector,
+        openPageInspector: opener.openPageInspector,
     };
 }

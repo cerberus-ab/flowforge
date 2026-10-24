@@ -41,7 +41,7 @@
             (async function main() {
                 try {
                     const Runtime = await window.loadFlowForge();
-                    await Runtime.start({
+                    window.flowForgeRuntime = await Runtime.start({
                         settings: {
                             theme: 'dark',
                         },

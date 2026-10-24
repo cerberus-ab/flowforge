@@ -7,7 +7,7 @@ export default defineManifest({
     version: pkg.version,
     description:
         'Page Inspector helps to explore the structure, content, and interactive elements of the current web page.',
-    permissions: ['activeTab', 'storage', 'scripting'],
+    permissions: ['activeTab', 'storage', 'sidePanel'],
     host_permissions: ['<all_urls>'],
     background: {
         service_worker: 'background/worker.ts',
@@ -16,7 +16,7 @@ export default defineManifest({
     content_scripts: [
         {
             matches: ['<all_urls>'],
-            js: ['contentScripts/page.tsx'],
+            js: ['contentScripts/page.ts'],
             run_at: 'document_end',
         },
     ],

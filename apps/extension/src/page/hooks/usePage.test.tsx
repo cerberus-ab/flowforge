@@ -34,8 +34,9 @@ function PageHarness({
     devMode = false,
     onDevModeChange = () => undefined,
     onReady,
+    inspectorOverlay,
 }: UsePageOptions) {
-    const page = usePage({ backgroundClient, devMode, onDevModeChange, onReady });
+    const page = usePage({ backgroundClient, devMode, onDevModeChange, onReady, inspectorOverlay });
 
     return (
         <section>
@@ -54,7 +55,7 @@ function PageHarness({
     );
 }
 
-function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'backgroundClient'>> = {}) {
+function renderPage({ onReady, inspectorOverlay }: Partial<Omit<UsePageOptions, 'backgroundClient'>> = {}) {
     const transport = new FakeTransportService();
     const backgroundClient = new BackgroundClient(transport);
 
@@ -64,6 +65,7 @@ function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'backgroundClient'
             devMode={false}
             onDevModeChange={() => undefined}
             onReady={onReady}
+            inspectorOverlay={inspectorOverlay}
         />,
     );
 
@@ -71,6 +73,15 @@ function renderPage({ onReady }: Partial<Omit<UsePageOptions, 'backgroundClient'
 }
 
 describe('usePage', () => {
+    it('does not register the overlay command for Chrome side-panel pages', async () => {
+        const { transport } = renderPage({ inspectorOverlay: false });
+
+        await expect(
+            transport.dispatchToBackground({ type: 'OPEN_INSPECTOR', data: { tab: 'basics' } }),
+        ).rejects.toThrow('Message handler did not return a response');
+        expect(screen.getByTestId('inspector-title').textContent).toBe('');
+    });
+
     it('registers the page listener and collects the current page trail', async () => {
         // Given
         const onReady = vi.fn();
@@ -81,6 +92,7 @@ describe('usePage', () => {
         // When
         const response = await transport.dispatchToBackground({
             type: 'COLLECT_PAGE_TRAIL',
+            data: { contextOnly: false },
         });
 
         // Then
@@ -89,6 +101,24 @@ describe('usePage', () => {
         const pageTrailDto = (response as MessageResponse<PageTrailDto> & { success: true }).data;
         expect(pageTrailDto.basics.title).toBe('FlowForge Page');
         expect(pageTrailDto.elements.some((element) => element.kind === 'interactive')).toBe(true);
+    });
+
+    it('collects Inspector context without locators', async () => {
+        // Given
+        addTargetButton(targetElement);
+        const { transport } = renderPage();
+
+        // When
+        const response = await transport.dispatchToBackground({
+            type: 'COLLECT_PAGE_TRAIL',
+            data: { contextOnly: true },
+        });
+
+        // Then
+        expect(response.success).toBe(true);
+        const snapshot = (response as MessageResponse<PageTrailDto> & { success: true }).data;
+        expect(snapshot.metadata.snapshot.contextOnly).toBe(true);
+        expect(snapshot.elements.every((element) => !('locator' in element && element.locator))).toBe(true);
     });
 
     it('checks that every referenced element is present without assigning new IDs', async () => {

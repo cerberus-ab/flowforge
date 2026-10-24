@@ -36,6 +36,46 @@ const restoreQueryResponse: RestoreQueryResponse = {
 };
 
 describe('BackgroundClient', () => {
+    it('handles side-panel refresh messages only for its bound page', async () => {
+        const transport = new FakeTransportService();
+        const client = new BackgroundClient(transport);
+        const onRefreshPageInspector = vi.fn();
+        const unsubscribe = client.subscribeToSidePanelMessages(42, { onRefreshPageInspector });
+
+        await expect(
+            transport.dispatchToBackground({ type: 'REFRESH_PAGE_INSPECTOR', data: {} }, { pageId: 7 }),
+        ).rejects.toThrow('Message handler did not return a response');
+        expect(onRefreshPageInspector).not.toHaveBeenCalled();
+
+        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR', data: { tab: 'markdown' } }, { pageId: 42 });
+        expect(onRefreshPageInspector).toHaveBeenCalledOnce();
+        expect(onRefreshPageInspector).toHaveBeenCalledWith('markdown');
+
+        unsubscribe();
+        await transport.sendToSidePanel({ type: 'REFRESH_PAGE_INSPECTOR', data: {} }, { pageId: 42 });
+        expect(onRefreshPageInspector).toHaveBeenCalledOnce();
+    });
+
+    it('requests an Inspector snapshot for the specified page, not the active page', async () => {
+        // Given
+        const snapshot = createPageTrailDtoFixture();
+        const transport = new FakeTransportService({ activePageId: 7 });
+        const contexts: unknown[] = [];
+        transport.addMessageListener((message, context) => {
+            if (message.type !== 'GET_PAGE_INSPECTOR_DATA') return undefined;
+            contexts.push(context);
+            return { success: true, data: snapshot };
+        });
+        const client = new BackgroundClient(transport);
+
+        // When
+        const result = await client.getPageInspectorData(42);
+
+        // Then
+        expect(result).toEqual(snapshot);
+        expect(contexts).toEqual([{ pageId: 42 }]);
+    });
+
     it('sends popup commands for the active page and unwraps their responses', async () => {
         // Given
         const transport = new FakeTransportService({ activePageId: 42 });
@@ -126,6 +166,7 @@ describe('BackgroundClient', () => {
         const client = new BackgroundClient(transport);
         client.subscribeToPageMessages({
             onCollectPageTrail: vi.fn(),
+            onCollectPageTrailContextOnly: vi.fn(),
             onContainsElements: vi.fn(),
             onClearPage: () => {
                 throw new Error('Page cleanup failed');
@@ -180,6 +221,7 @@ describe('BackgroundClient', () => {
         const pageTrailDto = createPageTrailDtoFixture();
         const callbacks: PageMessageCallbacks = {
             onCollectPageTrail: vi.fn(() => pageTrailDto),
+            onCollectPageTrailContextOnly: vi.fn(() => pageTrailDto),
             onContainsElements: vi.fn(() => true),
             onClearPage: vi.fn(),
             onStartOnboarding: vi.fn(),
@@ -190,7 +232,14 @@ describe('BackgroundClient', () => {
         const unsubscribe = client.subscribeToPageMessages(callbacks);
 
         // When
-        const collectionResponse = await transport.dispatchToBackground({ type: 'COLLECT_PAGE_TRAIL' });
+        const collectionResponse = await transport.dispatchToBackground({
+            type: 'COLLECT_PAGE_TRAIL',
+            data: { contextOnly: false },
+        });
+        const contextOnlyResponse = await transport.dispatchToBackground({
+            type: 'COLLECT_PAGE_TRAIL',
+            data: { contextOnly: true },
+        });
         const containsResponse = await transport.dispatchToBackground({
             type: 'CONTAINS_ELEMENTS',
             data: { dataIds: [element.dataId] },
@@ -210,6 +259,9 @@ describe('BackgroundClient', () => {
 
         // Then
         expect((collectionResponse as MessageResponse<PageTrailDto> & { success: true }).data).toEqual(pageTrailDto);
+        expect(contextOnlyResponse).toEqual({ success: true, data: pageTrailDto });
+        expect(callbacks.onCollectPageTrail).toHaveBeenCalledOnce();
+        expect(callbacks.onCollectPageTrailContextOnly).toHaveBeenCalledOnce();
         expect(containsResponse).toEqual({
             success: true,
             data: true,

@@ -1,5 +1,5 @@
 import type { ComponentChildren } from 'preact';
-import type { ExtensionSettingsTheme } from '@/types';
+import type { ExtensionSettingsTheme } from '@/shared/types/settings';
 
 interface MainProps {
     theme?: ExtensionSettingsTheme;

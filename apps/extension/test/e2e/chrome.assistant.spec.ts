@@ -1,4 +1,5 @@
 import { expect, extensionPaths, openExtensionPopup, test } from './fixtures/chromeExtension';
+import type { BrowserContext, Page } from '@playwright/test';
 import { createQueryResponseFixture } from '../fixtures';
 import { mockQuery } from './fakes/mockQuery';
 import { expectHighlightToCoverTarget } from './utils';
@@ -15,6 +16,53 @@ const wizardSteps = [
     { dataId: 'ff10000002', text: 'Review project status' },
     { dataId: 'ff10000003', text: 'Invite a teammate' },
 ];
+
+async function openInspectorSidePanel(
+    context: BrowserContext,
+    extensionId: string,
+    popup: Page,
+    buttonTestId: string,
+): Promise<{ panel: Page; pageId: number; panelUrl: string }> {
+    const button = popup.getByTestId(buttonTestId);
+    await expect(button).toBeEnabled();
+    const options = await popup.evaluate(async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        return chrome.sidePanel.getOptions({ tabId: tab!.id });
+    });
+    const panelUrl = `chrome-extension://${extensionId}/${options.path}`;
+    const pageId = Number(new URLSearchParams(options.path!.split('?')[1]).get('pageId'));
+
+    await button.click();
+    await expect.poll(() => popup.isClosed()).toBe(true);
+    await expect
+        .poll(() =>
+            context
+                .serviceWorkers()[0]!
+                .evaluate(async () =>
+                    (await chrome.runtime.getContexts({ contextTypes: ['SIDE_PANEL'] })).map(
+                        (item) => item.documentUrl,
+                    ),
+                ),
+        )
+        .toContain(panelUrl);
+
+    // Render the same entry point in a test tab for DOM assertions; the native panel is checked above.
+    const panel = await context.newPage();
+    await panel.goto(panelUrl);
+    return { panel, pageId, panelUrl };
+}
+
+async function selectInspectorSidePanelTab(context: BrowserContext, pageId: number, tab: string): Promise<void> {
+    await context.serviceWorkers()[0]!.evaluate(
+        async ({ targetPageId, targetTab }) => {
+            await chrome.runtime.sendMessage({
+                message: { type: 'REFRESH_PAGE_INSPECTOR', data: { tab: targetTab } },
+                context: { pageId: targetPageId },
+            });
+        },
+        { targetPageId: pageId, targetTab: tab },
+    );
+}
 
 test('injects the Chrome content script into the sandbox page', async ({ page }) => {
     // Given/When
@@ -280,16 +328,18 @@ test('opens the page inspector from the popup', async ({ context, extensionId, p
     // Given
     await page.goto('/chrome');
     const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+    expect(await popup.evaluate(() => chrome.runtime.getManifest().side_panel)).toBeUndefined();
 
     // When
-    await popup.getByTestId('flowforge-open-inspector').click();
+    const { panel } = await openInspectorSidePanel(context, extensionId, popup, 'flowforge-open-inspector');
 
     // Then
-    await expect(page.getByTestId('flowforge-inspector')).toBeVisible();
-    await expect(page.getByTestId('flowforge-inspector-tab-basics')).toBeVisible();
-    await expect(page.getByTestId('flowforge-inspector-tab-interactive')).toBeVisible();
+    await expect(page.getByTestId('flowforge-inspector')).toHaveCount(0);
+    await expect(panel.getByTestId('flowforge-inspector')).toBeVisible();
+    await expect(panel.getByTestId('flowforge-inspector-tab-basics')).toBeVisible();
+    await expect(panel.getByTestId('flowforge-inspector-tab-interactive')).toBeVisible();
 
-    await popup.close();
+    await panel.close();
 });
 
 test('opens the Markdown inspector tab from the popup', async ({ context, extensionId, page }) => {
@@ -298,31 +348,80 @@ test('opens the Markdown inspector tab from the popup', async ({ context, extens
     const popup = await openExtensionPopup(context, extensionId, { activePage: page });
 
     // When
-    await popup.getByTestId('flowforge-open-markdown-inspector').click();
+    const { panel, pageId } = await openInspectorSidePanel(
+        context,
+        extensionId,
+        popup,
+        'flowforge-open-markdown-inspector',
+    );
+    await expect(panel.getByTestId('flowforge-inspector')).toBeVisible();
+    await selectInspectorSidePanelTab(context, pageId, 'markdown');
 
     // Then
-    await expect(page.getByTestId('flowforge-inspector')).toBeVisible();
-    await expect(page.getByTestId('flowforge-inspector-tab-markdown')).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByTestId('flowforge-markdown-viewer')).toContainText('Explore Chrome Extension');
+    await expect(page.getByTestId('flowforge-inspector')).toHaveCount(0);
+    await expect(panel.getByTestId('flowforge-inspector-tab-markdown')).toHaveAttribute('aria-selected', 'true');
+    await expect(panel.getByTestId('flowforge-markdown-viewer')).toContainText('Explore Chrome Extension');
 
-    await popup.close();
+    await panel.close();
+});
+
+test('uses the explicitly requested inspector tab without replacing the saved tab', async ({
+    context,
+    extensionId,
+    page,
+}) => {
+    // Given
+    await page.goto('/chrome');
+    const popup = await openExtensionPopup(context, extensionId, { activePage: page });
+    const { panel } = await openInspectorSidePanel(context, extensionId, popup, 'flowforge-open-inspector');
+    await expect(panel.getByTestId('flowforge-inspector-tab-basics')).toHaveAttribute('aria-selected', 'true');
+    await panel.getByTestId('flowforge-inspector-tab-interactive').click();
+    await expect(panel.getByTestId('flowforge-inspector-tab-interactive')).toHaveAttribute('aria-selected', 'true');
+    await expect
+        .poll(() =>
+            panel.evaluate(async () => (await chrome.storage.local.get('flowforge_settings')).flowforge_settings),
+        )
+        .toMatchObject({ inspectorTab: 'interactive' });
+
+    // When
+    const markdownPopup = await openExtensionPopup(context, extensionId, { activePage: page });
+    await markdownPopup.getByTestId('flowforge-open-markdown-inspector').click();
+    await expect.poll(() => markdownPopup.isClosed()).toBe(true);
+
+    // Then
+    await expect(panel.getByTestId('flowforge-inspector-tab-markdown')).toHaveAttribute('aria-selected', 'true');
+    await expect(panel.getByTestId('flowforge-markdown-viewer')).toContainText('Explore Chrome Extension');
+    await expect
+        .poll(() =>
+            panel.evaluate(async () => (await chrome.storage.local.get('flowforge_settings')).flowforge_settings),
+        )
+        .toMatchObject({ inspectorTab: 'interactive' });
+
+    await panel.close();
 });
 
 test('uses the Markdown inspector controls and shows size stats', async ({ context, extensionId, page }) => {
     // Given
     await page.goto('/chrome');
     const popup = await openExtensionPopup(context, extensionId, { activePage: page });
-    await popup.getByTestId('flowforge-open-markdown-inspector').click();
-    const markdown = page.getByTestId('flowforge-markdown-viewer');
-    const detailLevel = page.getByTestId('flowforge-markdown-detail-level');
-    const basics = page.getByTestId('flowforge-markdown-block-basics');
+    const { panel, pageId } = await openInspectorSidePanel(
+        context,
+        extensionId,
+        popup,
+        'flowforge-open-markdown-inspector',
+    );
+    await expect(panel.getByTestId('flowforge-inspector')).toBeVisible();
+    await selectInspectorSidePanelTab(context, pageId, 'markdown');
+    const markdown = panel.getByTestId('flowforge-markdown-viewer');
+    const detailLevel = panel.getByTestId('flowforge-markdown-detail-level');
+    const basics = panel.getByTestId('flowforge-markdown-block-basics');
 
     // Then
     await expect(markdown).toContainText('## Basics');
-    await expect(page.getByTestId('flowforge-markdown-stat-html')).toBeVisible();
-    await expect(page.getByTestId('flowforge-markdown-stat-text')).toBeVisible();
-    await expect(page.getByTestId('flowforge-markdown-stat-markdown')).toBeVisible();
-    await expect(page.getByTestId('flowforge-markdown-stat-tokens')).toContainText(/~\d+/);
+    await expect(panel.getByTestId('flowforge-markdown-stat-html')).toBeVisible();
+    await expect(panel.getByTestId('flowforge-markdown-stat-text')).toBeVisible();
+    await expect(panel.getByTestId('flowforge-markdown-stat-markdown')).toBeVisible();
+    await expect(panel.getByTestId('flowforge-markdown-stat-tokens')).toContainText(/~\d+/);
 
     // When
     await detailLevel.selectOption('compact');
@@ -333,25 +432,41 @@ test('uses the Markdown inspector controls and shows size stats', async ({ conte
     await expect(basics).toHaveAttribute('aria-checked', 'false');
     await expect(markdown).not.toContainText('## Basics');
 
-    await popup.close();
+    await panel.close();
 });
 
-test('clears page state when the popup opens', async ({ context, extensionId, page }) => {
+test('keeps the side panel open when the popup reopens', async ({ context, extensionId, page }) => {
     // Given
     await page.goto('/chrome');
     const firstPopup = await openExtensionPopup(context, extensionId, { activePage: page });
-    await firstPopup.getByTestId('flowforge-open-inspector').click();
-    await firstPopup.close();
-    await expect(page.getByTestId('flowforge-inspector')).toBeVisible();
+    const { panel, panelUrl } = await openInspectorSidePanel(
+        context,
+        extensionId,
+        firstPopup,
+        'flowforge-open-inspector',
+    );
+    await expect(panel.getByTestId('flowforge-inspector')).toBeVisible();
 
     // When
     const secondPopup = await openExtensionPopup(context, extensionId, { activePage: page });
 
     // Then
     await expect(secondPopup.getByTestId('flowforge-popup')).toBeVisible();
+    await expect
+        .poll(() =>
+            context
+                .serviceWorkers()[0]!
+                .evaluate(async () =>
+                    (await chrome.runtime.getContexts({ contextTypes: ['SIDE_PANEL'] })).map(
+                        (item) => item.documentUrl,
+                    ),
+                ),
+        )
+        .toContain(panelUrl);
     await expect(page.getByTestId('flowforge-inspector')).toHaveCount(0);
 
     await secondPopup.close();
+    await panel.close();
 });
 
 test('runs wizard onboarding through the configured backend', async ({ context, extensionId, page }) => {

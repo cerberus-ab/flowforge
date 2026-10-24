@@ -4,6 +4,11 @@ All notable changes to the project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Moved Page Inspector in both Chrome extensions to a shared tab-specific side panel, while keeping the embed overlay.
+- Persisted the selected Inspector tab and Markdown preview settings across openings.
+
 ## [0.3.1] - 2026-10-14
 
 ### Changed

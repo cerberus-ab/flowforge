@@ -1,6 +1,6 @@
 import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/shared/types/settings';
 import type { StartOnboardingMessageData } from '@/messaging';
 
 export interface PageLifecycleClient {
@@ -11,7 +11,11 @@ export interface PageSettingsClient {
     notifySettingsUpdated(pageId: number, settings: ExtensionSettings): Promise<void>;
 }
 
-export interface PageInspectorClient {
+export interface PageInspectorDataClient {
+    collectPageTrailContextOnly(pageId: number): Promise<PageTrailDto>;
+}
+
+export interface PageInspectorClient extends PageInspectorDataClient {
     clearPage(pageId: number): Promise<void>;
     openInspector(pageId: number, tab?: string): Promise<void>;
 }

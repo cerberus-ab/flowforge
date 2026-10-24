@@ -1,5 +1,5 @@
 import pkg from '../package.json' with { type: 'json' };
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/shared/types/settings';
 
 export interface ExtensionConfig {
     // The base URL of the backend server.
@@ -34,5 +34,8 @@ export const config: ExtensionConfig = {
     defaultSettings: {
         theme: 'light',
         devMode: false,
+        inspectorTab: 'basics',
+        markdownDetailLevel: 'standard',
+        markdownBlocks: ['basics', 'structure', 'interactive', 'content'],
     },
 };

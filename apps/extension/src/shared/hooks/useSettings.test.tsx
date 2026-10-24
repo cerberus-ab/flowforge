@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { Message, MessageResponse } from '@/messaging';
 import { BackgroundClient, type SettingsBackgroundClient } from '@/background';
 import { config } from '@/config';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/shared/types/settings';
 import { FakeTransportService } from '../../../test/unit/fakes/FakeTransportService';
 import { createSettingsFixture } from '../../../test/fixtures';
 import { useSettings } from './useSettings';
@@ -12,6 +12,11 @@ import { useSettings } from './useSettings';
 const initialSettings = createSettingsFixture();
 const darkThemeSettings = createSettingsFixture({ theme: 'dark' });
 const devModeSettings = createSettingsFixture({ devMode: true });
+const markdownSettings = createSettingsFixture({
+    inspectorTab: 'markdown',
+    markdownDetailLevel: 'full',
+    markdownBlocks: ['content'],
+});
 
 type TestMessageResponse = MessageResponse | MessageResponse<ExtensionSettings>;
 
@@ -31,6 +36,12 @@ function SettingsHarness({ backgroundClient }: { backgroundClient: SettingsBackg
             </button>
             <button type="button" onClick={() => void settings.setDevMode(true)}>
                 Enable Dev Mode
+            </button>
+            <button
+                type="button"
+                onClick={() => void settings.setMarkdownPreferences({ detailLevel: 'full', blocks: ['content'] })}
+            >
+                Save Markdown Preferences
             </button>
         </section>
     );
@@ -171,6 +182,29 @@ describe('useSettings', () => {
 
         // Then
         await expectReadySettings(initialSettings);
+    });
+
+    it('persists Markdown preferences through UPDATE_SETTINGS', async () => {
+        // Given
+        const { messages } = renderSettings({
+            handler: (message) => {
+                if (message.type === 'GET_SETTINGS') return { success: true, data: initialSettings };
+                if (message.type === 'UPDATE_SETTINGS') return { success: true, data: markdownSettings };
+                return undefined;
+            },
+        });
+        await expectReadySettings(initialSettings);
+
+        // When
+        fireEvent.click(screen.getByRole('button', { name: 'Save Markdown Preferences' }));
+
+        // Then
+        await waitFor(() =>
+            expect(messages).toContainEqual({
+                type: 'UPDATE_SETTINGS',
+                data: { patch: { markdownDetailLevel: 'full', markdownBlocks: ['content'] } },
+            }),
+        );
     });
 
     it('applies incoming SETTINGS_UPDATED messages', async () => {

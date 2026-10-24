@@ -2,7 +2,7 @@ import type { AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 import type { TransportService } from '@/adapters';
 import type { PageMessage, PageMessageResponseData, StartOnboardingMessageData } from '@/messaging';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings } from '@/shared/types/settings';
 
 import type {
     PageInspectorClient,
@@ -38,7 +38,12 @@ export class PageClient
 
     /** Collects the current page's trail for question context. */
     collectPageTrail(pageId: number): Promise<PageTrailDto> {
-        return this.sendToPage(pageId, { type: 'COLLECT_PAGE_TRAIL' });
+        return this.sendToPage(pageId, { type: 'COLLECT_PAGE_TRAIL', data: { contextOnly: false } });
+    }
+
+    /** Collects the current page's trail without locators. */
+    collectPageTrailContextOnly(pageId: number): Promise<PageTrailDto> {
+        return this.sendToPage(pageId, { type: 'COLLECT_PAGE_TRAIL', data: { contextOnly: true } });
     }
 
     /** Validate that the page contains elements by dataId list. */

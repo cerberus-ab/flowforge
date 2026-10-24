@@ -19,3 +19,7 @@
   color: var(--flowforge-color-text-muted);
   text-align: right;
 }
+.flowforge-inspector-opener__error {
+  color: var(--flowforge-color-danger);
+  font: var(--flowforge-text-sm);
+}

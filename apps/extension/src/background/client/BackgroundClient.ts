@@ -1,9 +1,10 @@
-import type { AgentResult, AgentResultElement } from '@flowforge/contract';
+import type { AgentResult, AgentResultElement, PageTrailDto } from '@flowforge/contract';
 
 import type { TransportService } from '@/adapters';
 import {
     type BackgroundMessage,
     type BackgroundMessageResponseData,
+    type MessageContext,
     isClearPageMessage,
     isCollectPageTrailMessage,
     isHighlightElementMessage,
@@ -15,23 +16,26 @@ import {
     type RestoreQueryResponse,
     type AskQuestionResponse,
     isContainsElementsMessage,
+    isRefreshPageInspectorMessage,
 } from '@/messaging';
-import type { ExtensionSettings } from '@/types';
+import type { ExtensionSettings, ExtensionSettingsPatch } from '@/shared/types/settings';
 import type {
     InspectorPageBackgroundClient,
     InspectorPageMessageCallbacks,
     InspectorPopupBackgroundClient,
+    SidePanelBackgroundClient,
     PageBackgroundClient,
     PageMessageCallbacks,
     PopupBackgroundClient,
     SettingsBackgroundClient,
     SettingsMessageCallbacks,
     PopupMessageCallbacks,
+    SidePanelMessageCallbacks,
 } from './contract';
 import { MessageRouter, type MessageRoute } from '@/messaging';
 
 /**
- * Provides typed popup/page operations through the background worker.
+ * Provides typed UI/page operations through the background worker.
  * It also routes messages sent back from background to registered callbacks.
  * Context and response handling are centralized so callers use capability methods.
  */
@@ -41,6 +45,7 @@ export class BackgroundClient
         PageBackgroundClient,
         SettingsBackgroundClient,
         InspectorPopupBackgroundClient,
+        SidePanelBackgroundClient,
         InspectorPageBackgroundClient
 {
     private readonly transport: TransportService;
@@ -49,9 +54,12 @@ export class BackgroundClient
         this.transport = transport;
     }
 
-    /** Sends a typed message with the active page context and unwraps its response. */
-    private async sendToBackground<M extends BackgroundMessage>(message: M): Promise<BackgroundMessageResponseData<M>> {
-        const context = await this.transport.getActivePageContext();
+    /** Sends a typed message with the specified or active page context and unwraps its response. */
+    private async sendToBackground<M extends BackgroundMessage>(
+        message: M,
+        targetContext?: MessageContext,
+    ): Promise<BackgroundMessageResponseData<M>> {
+        const context = targetContext ?? (await this.transport.getActivePageContext());
         const response = await this.transport.sendToBackground(message, context);
 
         if (!response.success) {
@@ -121,6 +129,21 @@ export class BackgroundClient
         });
     }
 
+    /** Prepares the Inspector side panel for the active page before a user click. */
+    preparePageInspector(): Promise<number> {
+        return this.sendToBackground({ type: 'PREPARE_PAGE_INSPECTOR' });
+    }
+
+    /** Opens the prepared side panel without resolving the page context on the click path. */
+    openPageInspectorForPage(pageId: number, tab?: string): Promise<void> {
+        return this.sendToBackground({ type: 'OPEN_PAGE_INSPECTOR', data: { tab } }, { pageId });
+    }
+
+    /** Requests fresh Inspector data for the specified page. */
+    async getPageInspectorData(pageId: number): Promise<PageTrailDto> {
+        return this.sendToBackground({ type: 'GET_PAGE_INSPECTOR_DATA' }, { pageId });
+    }
+
     /** Reads the current extension settings from background. */
     async getSettings(): Promise<ExtensionSettings> {
         return this.sendToBackground({
@@ -129,7 +152,7 @@ export class BackgroundClient
     }
 
     /** Applies a settings patch and returns the updated settings. */
-    async updateSettings(patch: Partial<ExtensionSettings>): Promise<ExtensionSettings> {
+    async updateSettings(patch: ExtensionSettingsPatch): Promise<ExtensionSettings> {
         return this.sendToBackground({
             type: 'UPDATE_SETTINGS',
             data: { patch },
@@ -148,6 +171,18 @@ export class BackgroundClient
         ]);
     }
 
+    /** Subscribes only to side-panel commands for the bound page. */
+    subscribeToSidePanelMessages(pageId: number, callbacks: SidePanelMessageCallbacks): () => void {
+        return this.subscribeToMessages([
+            {
+                resolve: (message, context) =>
+                    context.pageId === pageId && isRefreshPageInspectorMessage(message)
+                        ? () => callbacks.onRefreshPageInspector(message.data.tab)
+                        : undefined,
+            },
+        ]);
+    }
+
     /** Subscribes to settings updates initiated by background. */
     subscribeToSettingsMessages(callbacks: SettingsMessageCallbacks): () => void {
         return this.subscribeToMessages([
@@ -157,21 +192,25 @@ export class BackgroundClient
 
     /** Subscribes to page commands sent by background. */
     subscribeToPageMessages(callbacks: PageMessageCallbacks): () => void {
+        const onOpenInspector = callbacks.onOpenInspector;
         return this.subscribeToMessages([
-            MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrail()),
+            MessageRouter.route(isCollectPageTrailMessage, (message) =>
+                message.data.contextOnly ? callbacks.onCollectPageTrailContextOnly() : callbacks.onCollectPageTrail(),
+            ),
             MessageRouter.route(isContainsElementsMessage, (message) => callbacks.onContainsElements(message.data)),
             MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
             MessageRouter.route(isStartOnboardingMessage, (message) => callbacks.onStartOnboarding(message.data)),
             MessageRouter.route(isHighlightElementMessage, (message) => callbacks.onHighlightElement(message.data)),
-            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data)),
+            ...(onOpenInspector
+                ? [MessageRouter.route(isOpenInspectorMessage, (message) => onOpenInspector(message.data))]
+                : []),
         ]);
     }
 
     /** Subscribes to the subset of page commands used by the Inspector. */
     subscribeToInspectorPageMessages(callbacks: InspectorPageMessageCallbacks): () => void {
         return this.subscribeToMessages([
-            MessageRouter.route(isClearPageMessage, () => callbacks.onClearPage()),
-            MessageRouter.route(isOpenInspectorMessage, (message) => callbacks.onOpenInspector(message.data)),
+            MessageRouter.route(isCollectPageTrailMessage, () => callbacks.onCollectPageTrailContextOnly()),
         ]);
     }
 

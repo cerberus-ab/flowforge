@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FakeApiClient, createQueryResponseFixture } from '../../../../test/unit/fakes/FakeApiClient';
 import { FakeStorage } from '../../../../test/unit/fakes/FakeStorage';
 import { FakeTransportService } from '../../../../test/unit/fakes/FakeTransportService';
-import { HistoryStorage } from '@/core/services/HistoryStorage';
-import { QuerySessionStorage } from '@/core/services/QuerySessionStorage';
+import { HistoryStorage } from '@/services/HistoryStorage';
+import { QuerySessionStorage } from '@/services/QuerySessionStorage';
 import { PageClient } from '@/page/client/PageClient';
 import { PopupClient } from '@/popup/client/PopupClient';
 import {
@@ -77,7 +77,7 @@ describe('QueryMessageHandler', () => {
         });
         expect(transport.getSentToPage()).toEqual([
             { pageId: 7, message: { type: 'CLEAR_PAGE' } },
-            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL' } },
+            { pageId: 7, message: { type: 'COLLECT_PAGE_TRAIL', data: { contextOnly: false } } },
         ]);
         expect(apiClient.requests).toEqual([
             {

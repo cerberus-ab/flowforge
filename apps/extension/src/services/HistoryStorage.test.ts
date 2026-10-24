@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { Storage } from '@/adapters';
-import { FakeStorage } from '../../../test/unit/fakes/FakeStorage';
-import { constants } from '../constants';
+import { FakeStorage } from '../../test/unit/fakes/FakeStorage';
+import { constants } from '@/shared/constants';
 import { HistoryStorage } from './HistoryStorage';
 
 const historyKey = (domain: string) => `${constants.STORAGE_NAMESPACE}_history::${domain}`;

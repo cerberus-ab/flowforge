@@ -1,7 +1,7 @@
 import type { QueryRequest } from '@flowforge/contract';
 
-import type { ApiClient } from '@/core/services/ApiClient';
-import type { HistoryStorage } from '@/core/services/HistoryStorage';
+import type { ApiClient } from '@/services/ApiClient';
+import type { HistoryStorage } from '@/services/HistoryStorage';
 import type { PageQuestionClient } from '@/page/client/contract';
 import {
     type AskQuestionMessage,
@@ -20,8 +20,8 @@ import {
     type AskQuestionResponse,
 } from '@/messaging';
 import type { BackgroundMessageHandler } from './BackgroundMessageHandler';
-import type { QuerySessionDataAnswer, QuerySessionStorage } from '@/core/services/QuerySessionStorage';
-import { generateUniqueId } from '@/core/utils/id';
+import type { QuerySessionDataAnswer, QuerySessionStorage } from '@/services/QuerySessionStorage';
+import { generateUniqueId } from '@/shared/utils/id';
 import type { PopupQueryClient } from '@/popup/client/contract';
 
 /**
